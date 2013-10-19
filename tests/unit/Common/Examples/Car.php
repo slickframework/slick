@@ -17,8 +17,35 @@ namespace Common\Examples;
  *
  * @package    Test\Common\Examples
  * @author     Filipe Silva <silvam.filipe@gmail.com>
+ * @test
  */
 class Car
 {
-    //put your code here
+    
+    /**
+     * @readwrite
+     * @var string The car brand 
+     */
+    protected $_brand;
+    
+    protected $_model;
+    
+    /**
+     * @return boolean The car state
+     * @throws \Exception
+     */
+    public function start()
+    {
+        
+    }
+    
+    public function stop()
+    {
+        
+    }
+}
+
+class Motor
+{
+    
 }

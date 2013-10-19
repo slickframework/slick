@@ -73,6 +73,26 @@ class Text
     }
     
     /**
+     * Split string by a regular expression.
+     *
+     * This is a less formal method then the PHP preg_split() function.
+     *
+     * @param string  $string The string to split.
+     * @param string  $pattern The regular expression for split operation.
+     * @param integer $limit If specified, then only substrings up to limit
+     *  are returned with the rest of the string being placed in the
+     *  last substring.
+     *  
+     * @return array Returns an array containing substrings of subject
+     *  split along boundaries matched by pattern.
+     */
+    public static function split($string, $pattern, $limit = null)
+    {
+        $flags = PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE;
+        return preg_split(self::_normalize($pattern), $string, $limit, $flags);
+    }
+    
+    /**
      * Normalize the given pattern
      * 
      * This allows the  remaining methods can operate on a pattern without

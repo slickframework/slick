@@ -40,16 +40,6 @@ class InspectorTest extends \Codeception\TestCase\Test
     protected $_inspector = null;
 
     /**
-     * @var string Class comment for test
-     */
-    protected $_classComment = '/**
- * Car is an example class used to test the \Slick\Common\Inspector class
- *
- * @package    Test\Common\Examples
- * @author     Filipe Silva <silvam.filipe@gmail.com>
- */';
-
-    /**
      * Sets the inspector used for tests.
      */
     public function _before()
@@ -81,16 +71,73 @@ class InspectorTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Read the inspected class comment test
+     * Read the inspected class meta data
      * 
      * @test
      */
-    public function readClassComment()
+    public function readClassMetaData()
     {
-        $this->assertEquals(
-            $this->_classComment,
-            $this->_inspector->getClassMeta()
+        $expected = array(
+            '@package' => array('Test\Common\Examples'),
+            '@author' => array('Filipe Silva <silvam.filipe@gmail.com>'),
+            '@test' => true
         );
+        $this->assertEquals($expected, $this->_inspector->getClassMeta());
+        $inspector = new Inspector('\Common\Examples\Motor');
+        $this->assertEmpty($inspector->getClassMeta());
+        unset($inspector);
+    }
+
+    /**
+     * Retrieving class properties.
+     * 
+     * @test
+     */
+    public function readClassProperties()
+    {
+        $expected = array('_brand', '_model');
+        $this->assertEquals($expected, $this->_inspector->getClassProperties());
+}
+    
+    /**
+     * Retrieving class methods.
+     * 
+     * @test
+     */
+    public function readClassMethods()
+    {
+        $expected = array('start', 'stop');
+        $this->assertEquals($expected, $this->_inspector->getClassMethods());
+    }
+    
+    /**
+     * Read property meta data
+     * 
+     * @test
+     */
+    public function readPropertyMetaData()
+    {
+        $expected = array(
+            '@var' => array('string The car brand'),
+            '@readwrite' => true,
+        );
+        $this->assertEquals($expected, $this->_inspector->getPropertyMeta('_brand'));
+        $this->assertNull($this->_inspector->getPropertyMeta('_model'));
+    }
+    
+    /**
+     * Read method meta data
+     * 
+     * @test
+     */
+    public function readMethodMetaData()
+    {
+        $expected = array(
+            '@return' => array('boolean The car state'),
+            '@throws' => array('\Exception'),
+        );
+        $this->assertEquals($expected, $this->_inspector->getMethodMeta('start'));
+        $this->assertNull($this->_inspector->getMethodMeta('stop'));
     }
 
 }
