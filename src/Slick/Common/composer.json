@@ -1,0 +1,15 @@
+{
+    "name": "slick/common",
+    "description": "Common libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "common"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Common\\": ""
+        }
+    },
+    "target-dir": "Slick/Common",
+    "require": {
+        "php": ">=5.4.0"
+    }
+}

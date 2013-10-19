@@ -1,0 +1,15 @@
+{
+    "name": "slick/utility",
+    "description": "utility libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "utility"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Utility\\": ""
+        }
+    },
+    "target-dir": "Slick/Utility",
+    "require": {
+        "php": ">=5.4.0"
+    }
+}
