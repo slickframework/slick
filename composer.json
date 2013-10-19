@@ -1,0 +1,23 @@
+{
+    "name": "slick/slick",
+    "description": "The Slick Framework project.",
+    "keywords": ["framework", "slick"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Filipe Silva",
+            "email": "silvam.filipe@gmail.com"
+        }
+    ],
+    "require": {
+        "codeception/codeception": "dev-master",
+        "phpmd/phpmd" : "1.4.*",
+        "php": ">=5.4.0"
+    },
+    "replace": {
+        "slick/common": "self.version"
+    },
+    "autoload": {
+        "psr-0": {"Slick\\": "src/"}
+    }
+}
