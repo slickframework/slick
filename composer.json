@@ -11,8 +11,7 @@
     ],
     "require": {
         "codeception/codeception": "dev-master",
-        "phpmd/phpmd" : "1.4.*",
-        "php": ">=5.4.0"
+        "phpmd/phpmd" : "1.4.*"
     },
     "replace": {
         "slick/common": "self.version"

@@ -6,3 +6,11 @@
 class_name: CodeGuy
 modules:
     enabled: [CodeHelper]
+coverage:
+    enabled: true
+    include:
+        - src/*.php
+    exclude:
+        - vendor/*
+        - docs/*
+        - tests/*

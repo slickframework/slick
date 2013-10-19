@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "bb423392997e9a93b7bb59a129e5ba77",
+    "hash": "a60880698653f207e190de86d5f6c9f5",
     "packages": [
         {
             "name": "behat/mink",
@@ -346,20 +346,20 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "v0.2",
+            "version": "v0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7"
+                "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
-                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/bcefbd697846c807d191e79309e42b4eac2ea5a9",
+                "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=5.3.0"
             },
             "type": "library",
             "autoload": {
@@ -373,7 +373,7 @@
             ],
             "description": "A php client for WebDriver",
             "homepage": "https://github.com/facebook/php-webdriver",
-            "time": "2013-10-10 02:34:59"
+            "time": "2013-09-10 16:04:57"
         },
         {
             "name": "guzzle/common",
@@ -1571,9 +1571,9 @@
     "stability-flags": {
         "codeception/codeception": 20
     },
-    "platform": {
-        "php": ">=5.4.0"
-    },
+    "platform": [
+
+    ],
     "platform-dev": [
 
     ]
