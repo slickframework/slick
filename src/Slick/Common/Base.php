@@ -145,7 +145,7 @@ abstract class Base {
         
         $className = get_class($this);
         throw new Exception\UnimplementedMethodCallException(
-            "The method '{$className}::{$name}()' it's not defined."
+            "The method '{$className}::{$name}()' its not defined."
         );
     }
     

@@ -122,7 +122,7 @@ class BaseTest extends \Codeception\TestCase\Test
      * Call to unimplemented methods should raise an exception
      * @test
      * @expectedException \Slick\Common\Exception\UnimplementedMethodCallException
-     * @expectedExceptionMessage The method 'Common\Examples\Animal::die()' it's not defined.
+     * @expectedExceptionMessage The method 'Common\Examples\Animal::die()' its not defined.
      */
     public function callUnimplementedMethod()
     {
