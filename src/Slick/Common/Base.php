@@ -39,6 +39,12 @@ abstract class Base {
      * @var \Slick\common\Inspector The self inspector object.
      */
     private $_inspector = null;
+
+    /**
+     * @readwrite
+     * @var mixed Used by codeception in test mockups.
+     */
+    public $___mocked;
     
     /**
      * Constructor assign ptoperties based on the array or object given.
@@ -77,7 +83,7 @@ abstract class Base {
      */
     public function __sleep()
     {
-        unset($this->_inspector);
+        unset($this->_inspector, $this->___mocked);
         return array_keys(get_object_vars($this));
     }
 
@@ -145,7 +151,7 @@ abstract class Base {
         
         $className = get_class($this);
         throw new Exception\UnimplementedMethodCallException(
-            "The method '{$className}::{$name}()' it's not defined."
+            "The method '{$className}::{$name}()' its not defined."
         );
     }
     
@@ -207,7 +213,7 @@ abstract class Base {
             $this->$property = $value;
             return $this;
         }
-        
+
         $className = get_class($this);
         throw new Exception\UndefinedPropertyException(
             "Trying to assign a value to an undefined property."

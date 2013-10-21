@@ -10,6 +10,6 @@
     },
     "target-dir": "Slick/Common",
     "require": {
-        "php": ">=5.4.0"
+        "slick/utility": "self.version"
     }
 }
