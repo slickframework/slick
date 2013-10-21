@@ -3,7 +3,7 @@
 /**
  * Mysql connector test case
  * 
- * @package   Test\Database
+ * @package   Test\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
@@ -17,7 +17,7 @@ use Slick\Database\Connector;
 /**
  * Mysql connector test case
  * 
- * @package   Test\Database
+ * @package   Test\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class MysqlTest extends \Codeception\TestCase\Test
@@ -170,6 +170,18 @@ class MysqlTest extends \Codeception\TestCase\Test
         $this->assertEquals(0, $this->mysql->getLastInsertId(''));
         $this->mysql->disconnect();
         $this->mysql->getLastInsertId('');
+    }
+
+    /**
+     * Test query method
+     * @test
+     */
+    public function query()
+    {
+        $this->assertInstanceOf(
+            '\Slick\Database\Query\Mysql',
+            $this->mysql->query()
+        );
     }
 
 }

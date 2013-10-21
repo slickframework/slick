@@ -203,9 +203,18 @@ class Mysql extends Database\Connector
         return $this->_service->insert_id;
     }
 
+    /**
+     * Returns a corresponding query instance
+     * 
+     * @return \Slick\Database\Query\Mysql
+     */
     public function query()
     {
-        
+        return new Database\Query\Mysql(
+            array(
+                'connector' => $this
+            )
+        );
     }
     
     /**

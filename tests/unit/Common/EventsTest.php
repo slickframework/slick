@@ -26,7 +26,7 @@ class EventsTest extends \Codeception\TestCase\Test
     /**
      * @var string Used int the callback.
      */
-    protected static $text = 'invalid';
+    public static $text = 'invalid';
 
 
     /**

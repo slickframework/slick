@@ -3,11 +3,11 @@
 /**
  * Database connector
  * 
- * @package    Slick\Database
- * @author     Filipe Silva <silvam.filipe@gmail.com>
- * @copyright  2014 Filipe Silva
- * @license    http://www.opensource.org/licenses/mit-license.php MIT License
- * @since      Version 1.0.0
+ * @package   Slick\Database
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.0.0
  */
 
 namespace Slick\Database;
@@ -17,8 +17,8 @@ use Slick\Common\Base;
 /**
  * Abstract class defining a database connector type.
  *
- * @package    Slick\Common
- * @author     Filipe Silva <silvam.filipe@gmail.com>
+ * @package   Slick\Database
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 abstract class Connector extends Base implements Connector\ConnectorInterface
 {
