@@ -12,7 +12,7 @@
 
 namespace Common;
 
-use \Common\Examples\Animal;
+use Common\Examples\Animal;
 
 /**
  * Use example Car class for tests.
