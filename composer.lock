@@ -346,20 +346,20 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "v0.1",
+            "version": "v0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9"
+                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/bcefbd697846c807d191e79309e42b4eac2ea5a9",
-                "reference": "bcefbd697846c807d191e79309e42b4eac2ea5a9",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
+                "reference": "b720b6aafb667a463c7e7cafcdebf3210ddc5ef7",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.4.0"
             },
             "type": "library",
             "autoload": {
@@ -373,7 +373,7 @@
             ],
             "description": "A php client for WebDriver",
             "homepage": "https://github.com/facebook/php-webdriver",
-            "time": "2013-09-10 16:04:57"
+            "time": "2013-10-10 02:34:59"
         },
         {
             "name": "guzzle/common",
