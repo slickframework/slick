@@ -14,7 +14,9 @@
         "phpmd/phpmd" : "1.4.*"
     },
     "replace": {
-        "slick/common": "self.version"
+        "slick/common": "self.version",
+        "slick/database": "self.version",
+        "slick/utility": "self.version"
     },
     "autoload": {
         "psr-0": {"Slick\\": "src/"}
