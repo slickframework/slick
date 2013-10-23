@@ -2,4 +2,4 @@
 /vendor/
 /nbproject/
 /docs/
-/composer.lock
+/tests/_log
