@@ -26,11 +26,11 @@ class RequestTest extends \Codeception\TestCase\Test
    
    protected $_requestStr = <<<EOR
 GET /page.html HTTP/1.1
-\n\r
+\r\n
 HeaderField1: header-value1
-\n\r
+\r\n
 HeaderField2: header-value2
-\n\r\n\r
+\r\n\r\n
 
 Here is some content
 EOR;
@@ -85,6 +85,58 @@ EOR;
         $this->assertEquals('1.0', $request->getVersion());
         $request->setVersion("11");
     }
-    
+
+    /**
+     * Check if a request is a xml request
+     * @test
+     */
+    public function checkXmlRequest()
+    {
+        $request = Request::fromString(
+            "GET page.html HTTP/1.1\r\nX-Requested-With: XMLHttpRequest\r\n"
+        );
+        $this->assertTrue($request->isXmlHttpRequest());
+        $noXml = Request::fromString("GET page.html HTTP/1.1\r\n");
+        $this->assertFalse($noXml->isXmlHttpRequest());
+        unset($request, $noXml);
+    }
+
+    /**
+     * Check if a request is a flash request
+     * @test
+     */
+    public function checkFlashRequest()
+    {
+        $request = Request::fromString(
+            "GET page.html HTTP/1.1\r\nUser-Agent: Here comes flash\r\n"
+        );
+        $this->assertTrue($request->isFlashRequest());
+        $noFlash = Request::fromString("GET page.html HTTP/1.1\r\n");
+        $this->assertFalse($noFlash->isFlashRequest());
+        unset($request, $noFlash);
+    }
+
+    /**
+     * Check the string ouput of a request 
+     * @test
+     */
+    public function createRequestAsString()
+    {
+        $request = new Request(
+            array(
+                'version' => Request::VERSION_10,
+                'uri' => 'otherPage.php',
+                'headers' => array(
+                    'User-Agent' => 'PHP Test'
+                ),
+                'content' => 'Hello'
+            )
+        );
+        $expected  = "GET otherPage.php HTTP/1.0\r\n";
+        $expected .= "User-Agent: PHP Test\r\n";
+        $expected .= "\r\n";
+        $expected .= "Hello";
+        $this->assertEquals($expected, $request->toString());
+    }
 
 }

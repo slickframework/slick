@@ -338,6 +338,70 @@ class Request extends Base
     }
 
     /**
+     * Is the request a Javascript XMLHttpRequest?
+     *
+     * Should work with Prototype/Script.aculo.us, possibly others.
+     *
+     * @return bool
+     */
+    public function isXmlHttpRequest()
+    {
+        if ($this->hasHeader('X-Requested-With')) {
+            return $this->getHeader('X-Requested-With') == 'XMLHttpRequest';
+        }
+        return false;
+    }
+
+    /**
+     * Is this a Flash request?
+     *
+     * @return bool
+     */
+    public function isFlashRequest()
+    {
+        if ($this->hasHeader('User-Agent')) {
+            return (boolean) stristr($this->getHeader('User-Agent'), ' flash');
+        }
+        return false;
+    }
+
+    /**
+     * Return the formatted request line (first line) for this http request
+     *
+     * @return string
+     */
+    public function renderRequestLine()
+    {
+        return $this->method . ' ' . $this->uri . ' HTTP/' . $this->version;
+    }
+
+    /**
+     * @return string
+     */
+    public function toString()
+    {
+        $str = $this->renderRequestLine() . "\r\n";
+        $str .= $this->_headersToString();
+        $str .= "\r\n";
+        $str .= $this->getContent();
+        return $str;
+    }
+
+    /**
+     * Converts the list of headers to be printed out as string.
+     * 
+     * @return string
+     */
+    protected function _headersToString()
+    {
+        $headers = '';
+        foreach ($this->_headers as $key => $value) {
+            $headers .= "{$key}: {$value}\r\n";
+        }
+        return $headers;
+    }
+
+    /**
      * Concerts the headers string to a valid request headers array
      *
      * @param string $string The headers string from request
