@@ -36,27 +36,37 @@ class RequestTest extends \Codeception\TestCase\Test
             "name" => array(
                 0 => "file0.txt",
                 1 => "file1.txt",
-                2 => "file2.txt"
+                'test' => array(
+                    2 => "file2.txt"
+                )
             ),
             "type" => array(
                 0 => "text/plain",
                 1 => "text/plain",
-                2 => "text/plain"
+                'test' => array(
+                    2 => "text/plain"
+                )
             ),
             "tmp_name" => array(
                 0 => "/tmp/blablabla",
                 1 => "/tmp/phpyzZxta",
-                2 => "/tmp/phpn3nopO"
+                'test' => array(
+                    2 => "/tmp/phpn3nopO"
+                )
             ),
             "error" =>array(
                 0 => 0,
                 1 => 0,
-                2 => 0
+                'test' => array(
+                    2 => 0
+                )
             ),
             "size" =>array(
                 0 => 0,
                 1 => 0,
-                2 => 0
+                'test' => array(
+                    2 => 0
+                )
             )
         )
     );
@@ -175,6 +185,20 @@ class RequestTest extends \Codeception\TestCase\Test
     {
         $request = new Request();
         $this->assertEquals($this->_expectedFiles, $request->getFiles());
+        unset($request);
+
+        $_FILES = array(
+            'upload' => array(
+                'name' => 'file1.txt',
+                'type' => 'text/plain',
+                'tmp_name' => '/tmp/phpyzZxta',
+                'error' => 0,
+                'size' => 0
+            )
+        );
+
+        $request = new Request();
+        $this->assertEquals($_FILES, $request->getFiles());
         unset($request);
     }
 
