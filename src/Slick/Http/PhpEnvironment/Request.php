@@ -56,6 +56,71 @@ class Request extends Http\Request
             // convert PHP $_FILES superglobal
             $this->setFiles($this->_mapPhpFiles());
         }
+
+        $this->setServerParams($_SERVER);
+    }
+
+    public function setServerParams(array $server)
+    {
+        $this->_serverParams = $server;
+
+        // This seems to be the way to get the Authorization header on Apache
+        // @codeCoverageIgnoreStart
+        if (function_exists('apache_request_headers')) {
+            $apacheRequestHeaders = apache_request_headers();
+            if (!isset($this->serverParams['HTTP_AUTHORIZATION'])) {
+                if (isset($apacheRequestHeaders['Authorization'])) {
+                    $this->_serverParams['HTTP_AUTHORIZATION'] 
+                        = $apacheRequestHeaders['Authorization'];
+                } elseif (isset($apacheRequestHeaders['authorization'])) {
+                    $this->serverParams['HTTP_AUTHORIZATION'] 
+                        = $apacheRequestHeaders['authorization'];
+                }
+            }
+        }
+        // @codeCoverageIgnoreEnd
+
+        //set headers
+        $this->_parseServerHeaders($server);
+
+        // set method
+        if (isset($this->serverParams['REQUEST_METHOD'])) {
+            $this->setMethod($this->serverParams['REQUEST_METHOD']);
+        }
+
+        // set HTTP version
+        if (isset($this->serverParams['SERVER_PROTOCOL'])
+            && strpos($this->serverParams['SERVER_PROTOCOL'], self::VERSION_10) !== false
+        ) {
+            $this->setVersion(self::VERSION_10);
+        }
+    }
+
+    protected function _parseServerHeaders($server)
+    {
+        // set headers
+        $headers = array();
+
+        foreach ($server as $key => $value) {
+            if ($value && strpos($key, 'HTTP_') === 0) {
+                if (strpos($key, 'HTTP_COOKIE') === 0) {
+                    // Cookies are handled using the $_COOKIE superglobal
+                    continue;
+                }
+                $name = strtr(substr($key, 5), '_', ' ');
+                $name = strtr(ucwords(strtolower($name)), ' ', '-');
+            } elseif ($value && strpos($key, 'CONTENT_') === 0) {
+                $name = substr($key, 8); // Content-
+                $name = 'Content-' 
+                    . (($name == 'MD5') ? $name : ucfirst(strtolower($name)));
+            } else {
+                continue;
+            }
+
+            $headers[$name] = $value;
+        }
+
+        $this->_headers = array_merge($headers, $this->_headers);
     }
 
     /**
