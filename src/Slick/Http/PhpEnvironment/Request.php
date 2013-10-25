@@ -102,6 +102,19 @@ class Request extends Http\Request
         return $this->_content;
     }
 
+     /**
+     * Get the base URL.
+     *
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        if ($this->_baseUrl === null) {
+            $this->setBaseUrl($this->_detectBaseUrl());
+        }
+        return $this->_baseUrl;
+    }
+
     /**
      * Updates the server parameters
      * 
@@ -361,4 +374,81 @@ class Request extends Http\Request
             }
         }
     }
+
+    /**
+     * Auto-detect the base path from the request environment
+     *
+     * Uses a variety of criteria in order to detect the base URL of the request
+     * (i.e., anything additional to the document root).
+     *
+     *
+     * @return string
+     */
+    protected function detectBaseUrl()
+    {
+        $baseUrl        = '';
+        $server         = $this->getServerParams();
+        $filename       = $server['SCRIPT_FILENAME'];
+        $scriptName     = $server['SCRIPT_NAME'];
+        $phpSelf        = $server['PHP_SELF'];
+        $origScriptName = $server['ORIG_SCRIPT_NAME'];
+
+        if ($scriptName !== null && basename($scriptName) === $filename) {
+            $baseUrl = $scriptName;
+        } elseif ($phpSelf !== null && basename($phpSelf) === $filename) {
+            $baseUrl = $phpSelf;
+        } elseif ($origScriptName !== null && basename($origScriptName) === $filename) {
+            // 1and1 shared hosting compatibility.
+            $baseUrl = $origScriptName;
+        } else {
+            // Backtrack up the SCRIPT_FILENAME to find the portion
+            // matching PHP_SELF.
+
+            $baseUrl  = '/';
+            $basename = basename($filename);
+            if ($basename) {
+                $path     = ($phpSelf ? trim($phpSelf, '/') : '');
+                $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
+            }
+        }
+
+        // Does the base URL have anything in common with the request URI?
+        $requestUri = $this->getRequestUri();
+
+        // Full base URL matches.
+        if (0 === strpos($requestUri, $baseUrl)) {
+            return $baseUrl;
+        }
+
+        // Directory portion of base path matches.
+        $baseDir = str_replace('\\', '/', dirname($baseUrl));
+        if (0 === strpos($requestUri, $baseDir)) {
+            return $baseDir;
+        }
+
+        $truncatedRequestUri = $requestUri;
+
+        if (false !== ($pos = strpos($requestUri, '?'))) {
+            $truncatedRequestUri = substr($requestUri, 0, $pos);
+        }
+
+        $basename = basename($baseUrl);
+
+        // No match whatsoever
+        if (empty($basename) || false === strpos($truncatedRequestUri, $basename)) {
+            return '';
+        }
+
+        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
+        // out of the base path. $pos !== 0 makes sure it is not matching a
+        // value from PATH_INFO or QUERY_STRING.
+        if (strlen($requestUri) >= strlen($baseUrl)
+            && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)
+        ) {
+            $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
+        }
+
+        return $baseUrl;
+    }
+
 }
