@@ -10,6 +10,7 @@
     },
     "target-dir": "Slick/Http",
     "require": {
-        "slick/common": "self.version"
+        "slick/common": "self.version",
+        "zendframework/zend-uri": ">=2.2.4"
     }
 }

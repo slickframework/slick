@@ -238,4 +238,92 @@ class RequestTest extends \Codeception\TestCase\Test
         unset($request);
     }
 
+    /**
+     * Chek the URI creation
+     * @test
+     */
+    public function setCorrectUri()
+    {
+        $request = new Request(array('headers' => array('Host' => 'example.com:8080')));
+        $this->assertInstanceOf('\Zend\Uri\Http', $request->uri);
+        $this->assertEquals('http', $request->uri->getScheme());
+        $this->assertEquals('example.com', $request->uri->getHost());
+        $this->assertEquals(8080, $request->uri->getPort());
+        $this->assertTrue(is_int($request->uri->getPort()));
+
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['SERVER_PORT'] = '13080';
+        $_SERVER['QUERY_STRING'] = 'fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
+        $_SERVER['REQUEST_URI'] = '/index.php?fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
+        $reqService = new Request();
+        $this->assertEquals('example.org', $reqService->uri->getHost());
+        $this->assertEquals(13080, $reqService->uri->getPort());
+        $this->assertEquals('/index.php', $reqService->uri->getPath());
+        $this->assertTrue(is_int($reqService->uri->getPort()));
+        unset($request, $reqService);
+    }
+
+    /**
+     * Check IIS Rewrite Url
+     * @test
+     */
+    public function checkIisRewriteUrl()
+    {
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['SERVER_PORT'] = '13080';
+        $_SERVER['QUERY_STRING'] = 'fld=fldvalue';
+        $_SERVER['REQUEST_URI'] = '/new.php?fld=fldvalue';
+        $_SERVER['HTTP_X_REWRITE_URL'] = '/new_r.php?fld=fldvalue';
+        $_SERVER['HTTP_X_ORIGINAL_URL'] = '/new_v.php?fld=fldvalue';
+        $request = new Request();
+        $this->assertEquals('/new_v.php', $request->uri->getPath());
+        unset($request);
+    }
+
+    /**
+     * Check IIS Rewrite Url
+     * @test
+     */
+    public function checkIisUnencoded()
+    {
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['SERVER_PORT'] = '13080';
+        $_SERVER['QUERY_STRING'] = 'fld=fldvalue';
+        $_SERVER['REQUEST_URI'] = '/new.php?fld=fldvalue';
+        $_SERVER['HTTP_X_REWRITE_URL'] = '/new_r.php?fld=fldvalue';
+        $_SERVER['HTTP_X_ORIGINAL_URL'] = '/new_v.php?fld=fldvalue';
+        $_SERVER['IIS_WasUrlRewritten'] = '1';
+        $_SERVER['UNENCODED_URL'] = '/new_f.php';
+        $request = new Request();
+        $this->assertEquals('/new_f.php', $request->uri->getPath());
+        unset($request);
+    }
+
+    /**
+     * Check IIS 5.0 PHP CGI
+     * @test
+     */
+    public function checkIis5RewriteUrl()
+    {
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['SERVER_PORT'] = '13080';
+        $_SERVER['QUERY_STRING'] = 'fld=fldvalue';
+        $_SERVER['ORIG_PATH_INFO'] = '/new_pf.php';
+        $request = new Request();
+        $this->assertEquals('/new_pf.php', $request->uri->getPath());
+        unset($request);
+    }
+
+    /**
+     * Retrieve the request fron stdin
+     * @test
+     */
+    public function retrieveTheRequestBody()
+    {
+        $request = new Request();
+        $request->setStdIn(dirname(__FILE__) . '/text_in.txt');
+        $this->assertEquals('Some test text...', $request->getContent());
+        unset($request);
+    }
+
 }
