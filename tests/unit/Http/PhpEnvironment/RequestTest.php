@@ -326,4 +326,19 @@ class RequestTest extends \Codeception\TestCase\Test
         unset($request);
     }
 
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath()
+    {
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['SERVER_PORT'] = '13080';
+        $_SERVER['QUERY_STRING'] = 'fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
+        $_SERVER['REQUEST_URI'] = '/index.php?fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
+        $request = new Request();
+        $request->getBaseUrl();
+        unset($request);
+    }
+
 }

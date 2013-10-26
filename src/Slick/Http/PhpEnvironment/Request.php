@@ -116,6 +116,44 @@ class Request extends Http\Request
     }
 
     /**
+     * Set the base URL.
+     *
+     * @param  string $baseUrl
+     * @return \Slick\Http\PhpEnvironment\Request
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->_baseUrl = rtrim($baseUrl, '/');
+        return $this;
+    }
+
+    /**
+     * Set the base path.
+     *
+     * @param  string $basePath
+     * @return \Slick\Http\PhpEnvironment\Request
+     */
+    public function setBasePath($basePath)
+    {
+        $this->_basePath = rtrim($basePath, '/');
+        return $this;
+    }
+
+    /**
+     * Get the base path.
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        if ($this->_basePath === null) {
+            $this->setBasePath($this->_detectBasePath());
+        }
+
+        return $this->basePath;
+    }
+
+    /**
      * Updates the server parameters
      * 
      * @param array $server Usualy the $_SERVER super global
@@ -384,14 +422,17 @@ class Request extends Http\Request
      *
      * @return string
      */
-    protected function detectBaseUrl()
+    protected function _detectBaseUrl()
     {
         $baseUrl        = '';
         $server         = $this->getServerParams();
-        $filename       = $server['SCRIPT_FILENAME'];
-        $scriptName     = $server['SCRIPT_NAME'];
+        $filename       = isset($server['SCRIPT_FILENAME']) ?
+            $server['SCRIPT_FILENAME'] : '';
+        $scriptName     = isset($server['SCRIPT_NAME']) ?
+            $server['SCRIPT_NAME'] : '';
         $phpSelf        = $server['PHP_SELF'];
-        $origScriptName = $server['ORIG_SCRIPT_NAME'];
+        $origScriptName = isset($server['ORIG_SCRIPT_NAME']) ?
+            $server['ORIG_SCRIPT_NAME'] : '';
 
         if ($scriptName !== null && basename($scriptName) === $filename) {
             $baseUrl = $scriptName;
@@ -451,4 +492,31 @@ class Request extends Http\Request
         return $baseUrl;
     }
 
+    /**
+     * Autodetect the base path of the request
+     *
+     * Uses several criteria to determine the base path of the request.
+     *
+     * @return string
+     */
+    protected function _detectBasePath()
+    {
+        $scriptName = isset($this->serverParams['SCRIPT_FILENAME']) ?
+            $this->serverParams['SCRIPT_FILENAME'] : '';
+        $filename = basename($scriptName);
+        $baseUrl  = $this->getBaseUrl();
+
+        // Empty base url detected
+        if ($baseUrl === '') {
+            return '';
+        }
+
+        // basename() matches the script filename; return the directory
+        if (basename($baseUrl) === $filename) {
+            return str_replace('\\', '/', dirname($baseUrl));
+        }
+
+        // Base path is identical to base URL
+        return $baseUrl;
+    }
 }
