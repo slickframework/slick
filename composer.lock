@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "a60880698653f207e190de86d5f6c9f5",
+    "hash": "17fbf58f985634cb0811151e68ae8080",
     "packages": [
         {
             "name": "behat/mink",
@@ -230,12 +230,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "2ebbc749879a47ddf304116c7929dfbcdcd3c7e2"
+                "reference": "43698fb8919c6603d5f6b3b9268ab51eb98720c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/2ebbc749879a47ddf304116c7929dfbcdcd3c7e2",
-                "reference": "2ebbc749879a47ddf304116c7929dfbcdcd3c7e2",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/43698fb8919c6603d5f6b3b9268ab51eb98720c9",
+                "reference": "43698fb8919c6603d5f6b3b9268ab51eb98720c9",
                 "shasum": ""
             },
             "require": {
@@ -286,7 +286,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2013-10-16 23:31:46"
+            "time": "2013-10-25 19:22:57"
         },
         {
             "name": "fabpot/goutte",
