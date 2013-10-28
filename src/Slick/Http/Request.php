@@ -12,8 +12,9 @@
 
 namespace Slick\Http;
 
-use Slick\Common\Base,
-    Slick\Http\Exception;
+use Slick\Http\Exception;
+use Zend\Uri\Http as HttpUri,
+    Zend\Uri\Exception as UriException;
 
 /**
  * Request wrapps an HTTP request
@@ -21,7 +22,7 @@ use Slick\Common\Base,
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Request extends Base
+class Request extends Message
 {
 
     /**#@+
@@ -75,18 +76,6 @@ class Request extends Base
      * @var array Query parameters
      */
     protected $_queryParams = array();
-
-    /**
-     * @readwrite
-     * @var string The request content body
-     */
-    protected $_content = null;
-
-    /**
-     * @readwrite
-     * @var array Request headers
-     */
-    protected $_headers = array();
 
     /**
      * A factory for a Request object from a well-formed Http Request string
@@ -162,78 +151,35 @@ class Request extends Base
     }
 
     /**
-     * Set the HTTP version for this object, one of 1.0 or 1.1
-     * (\Slick\Http\Request::VERSION_10, \Slick\Http\Request::VERSION_11)
+     * Set the URI/URL for this request
+     * 
+     * This can be a string or an instance of Zend\Uri\Http
      *
-     * @param  string $version (Must be 1.0 or 1.1)
-     * @return \Slick\Http\Request
-     * @throws Exception\InvalidArgumentException
+     * @param  string|HttpUri $uri
+     * 
+     * @return Request
+     * 
+     * @throws \Slick\Http\Exception\InvalidArgumentException
      */
-    public function setVersion($version)
+    public function setUri($uri)
     {
-        if ($version != self::VERSION_10 && $version != self::VERSION_11) {
+        if (is_string($uri)) {
+            try {
+                $uri = new HttpUri($uri);
+            } catch (UriException\InvalidUriPartException $e) {
+                throw new Exception\InvalidArgumentException(
+                    sprintf('Invalid URI passed as string (%s)', (string) $uri),
+                    $e->getCode(),
+                    $e
+                );
+            }
+        } elseif (!($uri instanceof HttpUri)) {
             throw new Exception\InvalidArgumentException(
-                'Not valid or not supported HTTP version: ' . $version
+                'URI must be an instance of Zend\Uri\Http or a string'
             );
         }
-        $this->_version = $version;
-        return $this;
-    }
+        $this->_uri = $uri;
 
-    /**
-     * Returns the list of request headers.
-     * 
-     * @return array The request headers
-     */
-    public function getHeaders()
-    {
-        if (is_string($this->_headers)) {
-            $this->_headers = $this->_headersFromString($this->_headers);
-        }
-        return $this->_headers;
-    }
-
-    /**
-     * Checks if a header with provided ame exists.
-     * 
-     * @param  string  $name The header name to check
-     * 
-     * @return boolean True if header exists, false otherwise.
-     */
-    public function hasHeader($name)
-    {
-        $headers = $this->getHeaders();
-        return isset($headers[$name]);
-    }
-
-    /**
-     * Retrives the value of a given header
-     * 
-     * @param  String $name    The header name to check
-     * @param  mixed  $default The default value id headers doesn't exists
-     * 
-     * @return string The header value
-     */
-    public function getHeader($name, $default = null)
-    {
-        $headers = $this->getHeaders();
-        if (isset($headers[$name])) {
-            return $headers[$name];
-        }
-        return $default;
-    }
-
-    /**
-     * Sets a header
-     * 
-     * @param string $name  The header name to add
-     * @param string $value The correspondent header value
-     *
-     * @return \Slick\Http\Request
-     */
-    public function setHeader($name, $value = null)
-    {
-        $this->_headers[$name] = $value;
         return $this;
     }
 
@@ -386,51 +332,5 @@ class Request extends Base
         $str .= $this->getContent();
         return $str;
     }
-
-    /**
-     * Converts the list of headers to be printed out as string.
-     * 
-     * @return string
-     */
-    protected function _headersToString()
-    {
-        $headers = '';
-        foreach ($this->_headers as $key => $value) {
-            $headers .= "{$key}: {$value}\r\n";
-        }
-        return $headers;
-    }
-
-    /**
-     * Concerts the headers string to a valid request headers array
-     *
-     * @param string $string The headers string from request
-     * 
-     * @return array The headers array
-     */
-    protected function _headersFromString($string)
-    {
-        $headers = array();
-        $lines = explode("\r\n", $string);
-
-        // iterate the header lines, some might be continuations
-        foreach ($lines as $line) {
-
-            // check if a header name is present
-            if (
-                preg_match(
-                    '/(?P<name>[a-zA-Z0-9_-]+):(?P<value>.*)/',
-                    trim($line),
-                    $matches
-                )
-            ) {
-                $headers[$matches['name']] = trim($matches['value']);
-                
-            }
-        }
-
-        return $headers;
-    }
-
 
 }

@@ -330,14 +330,136 @@ class RequestTest extends \Codeception\TestCase\Test
      * Detect the base url from the request
      * @test
      */
-    public function detectTheCorrectBasePath()
+    public function detectTheCorrectBasePath0()
     {
-        $_SERVER['SERVER_NAME'] = 'example.org';
-        $_SERVER['SERVER_PORT'] = '13080';
-        $_SERVER['QUERY_STRING'] = 'fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
-        $_SERVER['REQUEST_URI'] = '/index.php?fld=fldvalue&fld2=fldvalue2&fld3=fldvalue3';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = '/var/www/myappdir/page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/page.php';  
+        $_SERVER['PHP_SELF'] = '/myappdir/page.php';
         $request = new Request();
-        $request->getBaseUrl();
+        $this->assertEquals('/myappdir/page.php', $request->getBaseUrl());
+        $this->assertEquals('/myappdir', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath1()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = 'page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/page.php';  
+        $_SERVER['PHP_SELF'] = '/myappdir/page.php';
+        $request = new Request();
+        $this->assertEquals('/myappdir/page.php', $request->getBaseUrl());
+        $this->assertEquals('/myappdir', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath2()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = 'page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/page_1.php';  
+        $_SERVER['PHP_SELF'] = '/myappdir/webroot/page.php';
+        $request = new Request();
+        $this->assertEquals('/myappdir/webroot/page.php', $request->getBaseUrl());
+        $this->assertEquals('/myappdir/webroot', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath3()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = 'page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/page_1.php';  
+        //$_SERVER['PHP_SELF'] = '/myappdir/webroot/page.php';
+        $_SERVER['ORIG_SCRIPT_NAME'] = '/myappdir/webroot/page.php';
+        $request = new Request();
+        $this->assertEquals('/myappdir/webroot/page.php', $request->getBaseUrl());
+        $this->assertEquals('/myappdir/webroot', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath4()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = 'test\page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/test\page.php';  
+        $_SERVER['PHP_SELF'] = '/myappdir/page.php';
+
+        $request = new Request();
+        $this->assertEquals('/myappdir', $request->getBaseUrl());
+        $this->assertEquals('/myappdir', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath5()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = 'url=/controller/page/1&ext=html';
+        $_SERVER['REQUEST_URI'] = '/myappdir/?url=/controller/page/1&ext=html';
+        $_SERVER['SCRIPT_FILENAME'] = 'page.php';
+        $_SERVER['SCRIPT_NAME'] = '/myappdir/page_1.php';  
+        $_SERVER['PHP_SELF'] = '/myappdir/webroot/page.php';
+
+        $request = new Request();
+        $this->assertEquals('', $request->getBaseUrl());
+        $this->assertEquals('', $request->getBasePath());
+        unset($request);
+    }
+
+    /**
+     * Detect the base url from the request
+     * @test
+     */
+    public function detectTheCorrectBasePath6()
+    {
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['SERVER_PORT'] = '80';
+        $_SERVER['QUERY_STRING'] = '';
+        $_SERVER['REQUEST_URI'] = '/myappdir/page.php';
+        $_SERVER['SCRIPT_FILENAME'] = 'page.php';
+        $_SERVER['SCRIPT_NAME'] = 'page.php';  
+        $_SERVER['PHP_SELF'] = 'page.php';
+
+        $request = new Request();
+        $this->assertEquals('/myappdir/page.php', $request->getBaseUrl());
+        $this->assertEquals('/myappdir', $request->getBasePath());
         unset($request);
     }
 

@@ -48,7 +48,6 @@ EOR;
         $this->assertEquals('GET', $request->getMethod());
         $this->assertEquals(Request::VERSION_11, $request->getVersion());
         $this->assertEquals('/page.html', $request->getUri());
-        //$this->assertEquals('Here is some content', trim($request->getContent()));
         $this->assertEquals('header-value1', $request->getHeader('HeaderField1', false));
         $this->assertTrue($request->hasHeader('HeaderField2'));
         $this->assertInstanceOf('\Slick\Http\Request', $request->setHeader('test12', '1234'));
@@ -71,6 +70,30 @@ EOR;
         $this->assertTrue($simpleRequest->isOptions());
 
         Request::fromString("Test");
+    }
+
+    /**
+     * Testing the seturi method
+     * @test
+     * @expectedException \Slick\Http\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Invalid URI passed as string (ssl::My buggy URI!)
+     */
+    public function createUriFromString()
+    {
+        $request = new Request();
+        $request->setUri('ssl::My buggy URI!');
+    }
+
+    /**
+     * Testing the seturi method with wron object type
+     * @test
+     * @expectedException \Slick\Http\Exception\InvalidArgumentException
+     * @expectedExceptionMessage URI must be an instance of Zend\Uri\Http or a string
+     */
+    public function createUriFromObject()
+    {
+        $request = new Request();
+        $request->setUri(new \StdClass());
     }
 
     /**

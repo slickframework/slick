@@ -150,7 +150,7 @@ class Request extends Http\Request
             $this->setBasePath($this->_detectBasePath());
         }
 
-        return $this->basePath;
+        return $this->_basePath;
     }
 
     /**
@@ -452,6 +452,7 @@ class Request extends Http\Request
                 $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
             }
         }
+
 
         // Does the base URL have anything in common with the request URI?
         $requestUri = $this->getRequestUri();
