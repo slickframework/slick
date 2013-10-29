@@ -12,12 +12,14 @@
     "require": {
         "codeception/codeception": "dev-master",
         "phpmd/phpmd": "1.4.*",
-        "zendframework/zend-uri": ">=2.2.4"
+        "zendframework/zend-uri": ">=2.2.4",
+        "monolog/monolog": "~1.4"
     },
     "replace": {
         "slick/common": "self.version",
         "slick/database": "self.version",
-        "slick/utility": "self.version"
+        "slick/utility": "self.version",
+        "slick/log": "self.version"
     },
     "autoload": {
         "psr-0": {"Slick\\": "src/"}
