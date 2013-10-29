@@ -11,7 +11,8 @@
     ],
     "require": {
         "codeception/codeception": "dev-master",
-        "phpmd/phpmd" : "1.4.*"
+        "phpmd/phpmd": "1.4.*",
+        "zendframework/zend-uri": ">=2.2.4"
     },
     "replace": {
         "slick/common": "self.version",

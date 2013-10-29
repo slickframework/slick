@@ -1,0 +1,16 @@
+{
+    "name": "slick/http",
+    "description": "HTTP libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "http"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Http\\": ""
+        }
+    },
+    "target-dir": "Slick/Http",
+    "require": {
+        "slick/common": "self.version",
+        "zendframework/zend-uri": ">=2.2.4"
+    }
+}
