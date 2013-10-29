@@ -17,7 +17,12 @@ use Monolog\Logger,
 	Monolog\Handler\SyslogHandler;
 
 /**
- * 
+ * Factory for a Monolog logger.
+ *
+ * The default handler is Syslog
+ *
+ * @package   Slick\Log
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Log extends Base
 {
