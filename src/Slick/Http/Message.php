@@ -12,7 +12,8 @@
 
 namespace Slick\Http;
 
-use Slick\Common\Base;
+use Slick\Common\Base,
+    Slick\Http\Exception;
 
 /**
  * Represents an HTTP message, used in request and response.
@@ -71,19 +72,6 @@ abstract class Message extends Base
     }
 
     /**
-     * Returns the list of request headers.
-     * 
-     * @return array The request headers
-     */
-    public function getHeaders()
-    {
-        if (is_string($this->_headers)) {
-            $this->_headers = $this->_headersFromString($this->_headers);
-        }
-        return $this->_headers;
-    }
-
-    /**
      * Checks if a header with provided ame exists.
      * 
      * @param  string  $name The header name to check
@@ -124,6 +112,32 @@ abstract class Message extends Base
     public function setHeader($name, $value = null)
     {
         $this->_headers[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Set the response headers list
+     * 
+     * @param string|array $headers The string from HTTP request or a array with
+     *   the list of headers for this response.
+     *
+     * @return \Slick\Http\Response A sefl instance for method call chains.
+     *
+     * @throws \Slick\Http\Exception\InvalidArgumentException If the param
+     *   isn't a string or an array with header values.
+     */
+    public function setHeaders($headers)
+    {
+        if (is_string($headers)) {
+            $headers = $this->_headersFromString($headers);
+        } else if (!is_array($headers)) {
+            throw new Exception\InvalidArgumentException(
+                "Invalid headers provided. It must be a string or an array " .
+                "with header values."
+            );
+            
+        }
+        $this->_headers = $headers;
         return $this;
     }
 
