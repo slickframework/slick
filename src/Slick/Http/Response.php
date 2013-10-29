@@ -15,7 +15,7 @@ namespace Slick\Http;
 use Slick\Http\Exception;
 
 /**
- * Response
+ * General HTTP response
  *
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -164,18 +164,22 @@ class Response extends Message
     /**
      * @readwrite
      * @var string|null Null means it will be looked up from the 
-     *   $reasonPhrase list above
+     *   $_recommendedReasonPhrases list above
+     *
+     * @see  \Slick\Http\Response::$_recommendedReasonPhrases
      */
     protected $_reasonPhrase = null;
 
     /**
-     * Populate object from string
+     * A factory for a Response object from a well-formed Http Response string
      *
-     * @param  string $string
+     * @param  string $string A well-formed Http Response string
      * 
-     * @return \Slick\Http\Response
+     * @return \Slick\Http\Response A new Response object from given
+     *   message string
      * 
-     * @throws \Slick\Http\Exception\InvalidArgumentException
+     * @throws \Slick\Http\Exception\InvalidArgumentException If the string
+     *   provided as argument is not a valid HTTP response message.
      */
     public static function fromString($string)
     {
@@ -235,11 +239,12 @@ class Response extends Message
     /**
      * Set HTTP status code and (optionally) message
      *
-     * @param  int $code
+     * @param  int $code The HTTP status code (Must be numeric)
      * 
-     * @return \Slick\Http\Response
+     * @return \Slick\Http\Response A self instance for method call chain
      * 
-     * @throws \Slick\Http\Exception\InvalidArgumentException
+     * @throws \Slick\Http\Exception\InvalidArgumentException If the status
+     *   is not a valid numeric value
      */
     public function setStatusCode($code)
     {
@@ -256,9 +261,9 @@ class Response extends Message
     /**
      * Set the response status message
      * 
-     * @param string $reasonPhrase
+     * @param string $reasonPhrase Response status message string
      * 
-     * @return \Slick\Http\Response
+     * @return \Slick\Http\Response A self instance for method call chain
      */
     public function setReasonPhrase($reasonPhrase)
     {
@@ -269,7 +274,7 @@ class Response extends Message
     /**
      * Get HTTP status message
      *
-     * @return string
+     * @return string The current response status message
      */
     public function getReasonPhrase()
     {
@@ -282,7 +287,8 @@ class Response extends Message
     /**
      * Does the status code indicate a client error?
      *
-     * @return bool
+     * @return bool True if status code is between 400 (inclusive) and 500,
+     *  for all other codes it will return false
      */
     public function isClientError()
     {
@@ -293,7 +299,8 @@ class Response extends Message
     /**
      * Is the request forbidden due to ACLs?
      *
-     * @return bool
+     * @return bool rue if status code is 403, for all other codes
+     *   it will return false
      */
     public function isForbidden()
     {
@@ -303,7 +310,8 @@ class Response extends Message
     /**
      * Is the current status "informational"?
      *
-     * @return bool
+     * @return bool True if status code is between 100 (inclusive) and 200,
+     *  for all other codes it will return false
      */
     public function isInformational()
     {
@@ -314,7 +322,8 @@ class Response extends Message
     /**
      * Does the status code indicate the resource is not found?
      *
-     * @return bool
+     * @return bool bool True if status code is 404, for all other codes
+     *   it will return false
      */
     public function isNotFound()
     {
@@ -324,7 +333,8 @@ class Response extends Message
     /**
      * Do we have a normal, OK response?
      *
-     * @return bool
+     * @return bool bool rue if status code is 200, for all other codes
+     *   it will return false
      */
     public function isOk()
     {
@@ -334,7 +344,8 @@ class Response extends Message
     /**
      * Does the status code reflect a server error?
      *
-     * @return bool
+     * @return bool True if status code is between 500 (inclusive) and 600,
+     *  for all other codes it will return false
      */
     public function isServerError()
     {
@@ -345,7 +356,8 @@ class Response extends Message
     /**
      * Do we have a redirect?
      *
-     * @return bool
+     * @return bool True if status code is between 300 (inclusive) and 400,
+     *  for all other codes it will return false
      */
     public function isRedirect()
     {
@@ -356,7 +368,8 @@ class Response extends Message
     /**
      * Was the response successful?
      *
-     * @return bool
+     * @return bool True if status code is between 200 (inclusive) and 300,
+     *  for all other codes it will return false
      */
     public function isSuccess()
     {
@@ -367,7 +380,7 @@ class Response extends Message
     /**
      * Render the status line header
      *
-     * @return string
+     * @return string The status line header
      */
     public function renderStatusLine()
     {
@@ -381,9 +394,9 @@ class Response extends Message
     }
 
     /**
-     * Render entire response as HTTP response string
+     * Returns the formatted full Http response message string
      *
-     * @return string
+     * @return string Http response message as string
      */
     public function toString()
     {

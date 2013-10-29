@@ -1,13 +1,29 @@
 <?php
 
+/**
+ * Response
+ * 
+ * @package   Slick\Http\PhpEnvironment
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.0.0
+ */
+
 namespace Slick\Http\PhpEnvironment;
 
 use Slick\Http\Response as HttpResponse;
 
+/**
+ * Response HTTP message with values from PHP environment
+ *
+ * @package   Slick\Http\PhpEnvironment
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
 class Response extends HttpResponse
 {
 
-	/**
+    /**
      * @read
      * @var boolean A flag for send headers state
      */
@@ -24,8 +40,8 @@ class Response extends HttpResponse
      */
     public function __construct($options = array())
     {
-    	parent::__construct($options);
-    	$this->_version = $this->_detectVersion();
+        parent::__construct($options);
+        $this->_version = $this->_detectVersion();
     }
 
     /**
@@ -77,7 +93,7 @@ class Response extends HttpResponse
     public function send()
     {
         $this->sendHeaders()
-        	->sendContent();
+            ->sendContent();
         return $this;
     }
 
@@ -89,9 +105,9 @@ class Response extends HttpResponse
      */
     protected function _detectVersion()
     {
-    	$version = self::VERSION_10;
+        $version = self::VERSION_10;
         if (isset($_SERVER['SERVER_PROTOCOL'])
-        	&& $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1'
+            && $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1'
         ) {
             $version = self::VERSION_11;
         }

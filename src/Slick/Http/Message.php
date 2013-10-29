@@ -16,7 +16,7 @@ use Slick\Common\Base,
     Slick\Http\Exception;
 
 /**
- * Represents an HTTP message, used in request and response.
+ * Generic HTTP message used in request and response classes.
  *
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>

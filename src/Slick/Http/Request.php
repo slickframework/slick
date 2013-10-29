@@ -17,7 +17,7 @@ use Zend\Uri\Http as HttpUri,
     Zend\Uri\Exception as UriException;
 
 /**
- * Request wrapps an HTTP request
+ * General HTTP request
  *
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -80,11 +80,13 @@ class Request extends Message
     /**
      * A factory for a Request object from a well-formed Http Request string
      *
-     * @param  string $string
+     * @param  string $string A well-formed Http Request message string
      * 
-     * @return \Slick\Http\Request
+     * @return \Slick\Http\Request A new Request object from given
+     *   message string
      * 
-     * @throws \Slick\Http\Exception\InvalidArgumentException
+     * @throws \Slick\Http\Exception\InvalidArgumentException If the string
+     *   provided as argument is not a valid HTTP request message.
      */
     public static function fromString($string)
     {
@@ -314,7 +316,7 @@ class Request extends Message
     /**
      * Return the formatted request line (first line) for this http request
      *
-     * @return string
+     * @return string Formated request line for this http request
      */
     public function renderRequestLine()
     {
@@ -322,7 +324,9 @@ class Request extends Message
     }
 
     /**
-     * @return string
+     * Returns the formatted full Http request message string
+     * 
+     * @return string Http request message as string
      */
     public function toString()
     {

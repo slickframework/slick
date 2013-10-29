@@ -1,7 +1,13 @@
 <?php
 
 /**
+ * Request
  * 
+ * @package   Slick\Http\PhpEnvironment
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.0.0
  */
 
 namespace Slick\Http\PhpEnvironment;
@@ -11,7 +17,10 @@ use Slick\Http,
 use Zend\Uri\Http as HttpUri;
 
 /**
- * 
+ * Request HTTP message with values from PHP environment
+ *
+ * @package   Slick\Http\PhpEnvironment
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Request extends Http\Request
 {
@@ -53,9 +62,9 @@ class Request extends Http\Request
     protected $_basePath;
 
     /**
-     * This is for tests only
+     * 
      * @readwrite
-     * @var string
+     * @var string This is for reading the request from in
      */
     protected $_stdIn = 'php://input';
 
@@ -88,7 +97,7 @@ class Request extends Http\Request
     /**
      * Get raw request body
      *
-     * @return string
+     * @return string The content portion form response message 
      */
     public function getContent()
     {
@@ -105,7 +114,7 @@ class Request extends Http\Request
      /**
      * Get the base URL.
      *
-     * @return string
+     * @return string The base URL (path/file.html)
      */
     public function getBaseUrl()
     {
@@ -118,8 +127,10 @@ class Request extends Http\Request
     /**
      * Set the base URL.
      *
-     * @param  string $baseUrl
-     * @return \Slick\Http\PhpEnvironment\Request
+     * @param  string $baseUrl The base URL for this message
+     * 
+     * @return \Slick\Http\PhpEnvironment\Request A self instance for method
+     *   call chain.
      */
     public function setBaseUrl($baseUrl)
     {
@@ -130,8 +141,10 @@ class Request extends Http\Request
     /**
      * Set the base path.
      *
-     * @param  string $basePath
-     * @return \Slick\Http\PhpEnvironment\Request
+     * @param  string $basePath The base path for this message.
+     * 
+     * @return \Slick\Http\PhpEnvironment\Request A self instance for method
+     *   call chain.
      */
     public function setBasePath($basePath)
     {
@@ -142,7 +155,7 @@ class Request extends Http\Request
     /**
      * Get the base path.
      *
-     * @return string
+     * @return string This response base path
      */
     public function getBasePath()
     {
@@ -158,7 +171,7 @@ class Request extends Http\Request
      * 
      * @param array $server Usualy the $_SERVER super global
      *
-     * @return /Slick/Http/PhpEnvironment/Request A self instance for method
+     * @return \Slick\Http\PhpEnvironment\Request A self instance for method
      *   call chains.
      */
     public function setServerParams(array $server)
@@ -276,7 +289,7 @@ class Request extends Http\Request
      * Looks at a variety of criteria in order to attempt to autodetect a base
      * URI, including rewrite URIs, proxy URIs, etc.
      *
-     * @return string
+     * @return string Detected request URI
      */
     protected function _detectRequestUri()
     {
@@ -368,9 +381,10 @@ class Request extends Http\Request
 
     /**
      * Convert PHP superglobal $_FILES into more sane parameter=value structure
+     * 
      * This handles form file input with brackets (name=files[])
      *
-     * @return array
+     * @return array A more readable/workable upload files estructure
      */
     protected function _mapPhpFiles()
     {
@@ -397,10 +411,16 @@ class Request extends Http\Request
     }
 
     /**
+     * Iterates over a given array to change its structure.
+     *
+     * This is used in \Slick\Http\PhpEnvironment::_mapPhpFiles() method
+     * 
      * @param array        $array
      * @param string       $paramName
      * @param int|string   $index
      * @param string|array $value
+     *
+     * @see  \Slick\Http\PhpEnvironment::_mapPhpFiles()
      */
     protected function _mapPhpFileParam(&$array, $paramName, $index, $value)
     {
@@ -420,7 +440,7 @@ class Request extends Http\Request
      * (i.e., anything additional to the document root).
      *
      *
-     * @return string
+     * @return string detected base URL for this request
      */
     protected function _detectBaseUrl()
     {
@@ -498,7 +518,7 @@ class Request extends Http\Request
      *
      * Uses several criteria to determine the base path of the request.
      *
-     * @return string
+     * @return string Detected base path for this request
      */
     protected function _detectBasePath()
     {
