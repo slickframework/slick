@@ -10,6 +10,6 @@
     },
     "target-dir": "Slick/Utility",
     "require": {
-        
+        "slick/common": "self.version"
     }
 }

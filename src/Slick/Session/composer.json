@@ -10,6 +10,6 @@
     },
     "target-dir": "Slick/Session",
     "require": {
-        "slick/common": "self.version",
+        "slick/common": "self.version"
     }
 }
