@@ -7,7 +7,7 @@ setup:
         action: "install"
 test:
     codeception:
-        config: codeception.yml
+        config: "codeception.yml"
     php_mess_detector:
         allow_failures: true
     php_code_sniffer:
