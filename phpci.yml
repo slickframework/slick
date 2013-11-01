@@ -5,6 +5,8 @@ build_settings:
 setup:
     composer:
         action: "install"
+    shell:
+        command: "mkdir tests/_log"
 test:
     codeception:
         config: "codeception.yml"
@@ -14,3 +16,4 @@ test:
         standard: "ZEND"
     php_cpd:
         allow_failures: true
+    php_loc:
