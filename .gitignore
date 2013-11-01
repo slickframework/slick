@@ -2,5 +2,4 @@
 /vendor/
 /nbproject/
 /docs/
-Slick2.sublime-project
-Slick2.sublime-workspace
+/composer.lock
