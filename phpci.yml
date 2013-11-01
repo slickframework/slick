@@ -5,8 +5,6 @@ build_settings:
 setup:
     composer:
         action: "install"
-    shell:
-        command: "mkdir ./tests/_log"
 test:
     codeception:
         config: "codeception.yml"
