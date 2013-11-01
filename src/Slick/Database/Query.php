@@ -322,14 +322,14 @@ abstract class Query extends Base implements Query\QueryInterface
     /**
      * Adds the join tables, conditions and fields to the query.
      *
-     * @param string $join   The table to join.
-     * @param string $on     The join condition clause
-     * @param array  $fields The list of fields to add to select.
-     * @param string $type   One of 'LEFT', 'INNER', 'OUT'. Defaults to 'LEFT'
+     * @param string $join     The table to join.
+     * @param string $onClause The join condition clause
+     * @param array  $fields   The list of fields to add to select.
+     * @param string $type     One of LEFT, INNER, OUT. Defaults to LEFT
      * 
      * @return \Slick\Database\Query Sefl instance for method chaining calls.
      */
-    public function join($join, $on, $fields = array(), $type = null)
+    public function join($join, $onClause, $fields = array(), $type = null)
     {
         if (empty($join)) {
             throw new Exception\InvalidArgumentException(
@@ -337,14 +337,14 @@ abstract class Query extends Base implements Query\QueryInterface
             );
         }
 
-        if (empty($on)) {
+        if (empty($onClause)) {
             throw new Exception\InvalidArgumentException(
                 "Invalid argument. Enter a valid 'on' clause"
             );
         }
 
         $this->_fields += array($join => $fields);
-        $this->_join[] = trim("{$type} JOIN {$join} ON {$on}");
+        $this->_join[] = trim("{$type} JOIN {$join} ON {$onClause}");
 
         return $this;
     }
@@ -445,11 +445,15 @@ abstract class Query extends Base implements Query\QueryInterface
             );
         }
 
-        $useJoin = preg_match('/(in \(\?\)|between \(\?\)|not in \(\?\))/i', $arguments[0]);
+        $useJoin = preg_match(
+            '/(in \(\?\)|between \(\?\)|not in \(\?\))/i',
+            $arguments[0]
+        );
         $arguments[0] = preg_replace('#\?#', '%s', $arguments[0]);
         $slicedArguments = array_slice($arguments, 1, null, true);
 
-        foreach ($slicedArguments as $i => $parameter) {
+        $keys = array_keys($slicedArguments);
+        foreach ($keys as $i) {
             $args = $this->_quote($arguments[$i], (boolean) $useJoin);
             if (is_array($args)) {
                 unset($arguments[$i]);
@@ -473,7 +477,7 @@ abstract class Query extends Base implements Query\QueryInterface
         $where = $order = $limit = $join = '';
         $template = "SELECT %s FROM %s %s %s %s %s";
 
-        foreach ($this->fields as $table => $_fields) {
+        foreach ($this->fields as $_fields) {
             foreach ($_fields as $field => $alias) {
                 if (is_string($field)) {
                     $fields[] = "{$field} AS {$alias}";

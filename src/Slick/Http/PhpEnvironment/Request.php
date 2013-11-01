@@ -203,8 +203,9 @@ class Request extends Http\Request
         }
 
         // set HTTP version
-        if (isset($this->serverParams['SERVER_PROTOCOL'])
-            && strpos($this->serverParams['SERVER_PROTOCOL'], self::VERSION_10) !== false
+        $srv = $this->serverParams;
+        if (isset($srv['SERVER_PROTOCOL'])
+            && strpos($srv['SERVER_PROTOCOL'], self::VERSION_10) !== false
         ) {
             $this->setVersion(self::VERSION_10);
         }
@@ -229,17 +230,16 @@ class Request extends Http\Request
 
     /**
      * Sets the request URI basedo on environment settings.
-     * 
-     * @param array $server Usualy the $_SERVER super global
      */
-    protected function _setUri($server)
+    protected function _setUri()
     {
         // set URI
         $uri = new HttpUri();
 
         // URI scheme
-        $scheme = (!empty($this->serverParams['HTTPS'])
-                   && $this->serverParams['HTTPS'] !== 'off') ? 'https' : 'http';
+        $server = $this->serverParams;
+        $scheme = (!empty($server['HTTPS'])
+                   && $server['HTTPS'] !== 'off') ? 'https' : 'http';
         $uri->setScheme($scheme);
 
         // URI host & port
@@ -458,7 +458,9 @@ class Request extends Http\Request
             $baseUrl = $scriptName;
         } elseif ($phpSelf !== null && basename($phpSelf) === $filename) {
             $baseUrl = $phpSelf;
-        } elseif ($origScriptName !== null && basename($origScriptName) === $filename) {
+        } elseif ($origScriptName !== null
+            && basename($origScriptName) === $filename
+        ) {
             // 1and1 shared hosting compatibility.
             $baseUrl = $origScriptName;
         } else {
@@ -469,7 +471,8 @@ class Request extends Http\Request
             $basename = basename($filename);
             if ($basename) {
                 $path     = ($phpSelf ? trim($phpSelf, '/') : '');
-                $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
+                $baseUrl .= substr($path, 0, strpos($path, $basename));
+                $baseUrl .= $basename;
             }
         }
 
@@ -497,7 +500,9 @@ class Request extends Http\Request
         $basename = basename($baseUrl);
 
         // No match whatsoever
-        if (empty($basename) || false === strpos($truncatedRequestUri, $basename)) {
+        if (empty($basename)
+            || false === strpos($truncatedRequestUri, $basename)
+        ) {
             return '';
         }
 

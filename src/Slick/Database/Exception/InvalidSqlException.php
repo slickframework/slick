@@ -19,30 +19,30 @@ namespace Slick\Database\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class InvalidSqlException extends \LogicException
-	implements ExceptionInterface
+    implements ExceptionInterface
 {
 
-	/**
-	 * @var string The sql sent to database service.
-	 */
-	public $sql = null;
+    /**
+     * @var string The sql sent to database service.
+     */
+    public $sql = null;
 
-	/**
-	 * @var string The service response error.
-	 */
-	public $error = null;
+    /**
+     * @var string The service response error.
+     */
+    public $error = null;
 
-	/**
-	 * Overrides the default constructor to set sql and error.
-	 *  
-	 * @param string $message The exception error message.
-	 * @param string $error   The service response error.
-	 * @param string $sql     The sent SQL string.
-	 */
-	public function __construct($message, $error, $sql)
-	{
-		parent::__construct($message);
-		$this->sql = $sql;
-		$this->error = $error;
-	}
+    /**
+     * Overrides the default constructor to set sql and error.
+     *  
+     * @param string $message The exception error message.
+     * @param string $error   The service response error.
+     * @param string $sql     The sent SQL string.
+     */
+    public function __construct($message, $error, $sql)
+    {
+        parent::__construct($message);
+        $this->sql = $sql;
+        $this->error = $error;
+    }
 }

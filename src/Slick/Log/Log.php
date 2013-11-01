@@ -14,7 +14,7 @@ namespace Slick\Log;
 
 use Slick\Common\Base;
 use Monolog\Logger,
-	Monolog\Handler\SyslogHandler;
+    Monolog\Handler\SyslogHandler;
 
 /**
  * Factory for a Monolog logger.
@@ -27,7 +27,7 @@ use Monolog\Logger,
 class Log extends Base
 {
 
-	/**
+    /**
      * @read
      * @var array A list of available loggers.
      */
@@ -83,7 +83,7 @@ class Log extends Base
     protected function _setDefaultHandlers(\Monolog\Logger $logger)
     {
         if (empty($this->_handlers)) {
-        	$socketHandler = new SyslogHandler('myfacility', 'local6');
+            $socketHandler = new SyslogHandler('myfacility', 'local6');
             array_push($this->_handlers, $socketHandler);
         }
 

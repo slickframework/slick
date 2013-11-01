@@ -146,7 +146,9 @@ class Inspector
     public function getMethodMeta($method)
     {
         if (!isset($this->_meta['methods'][$method])) {
-            $comment = $this->_getReflection()->getMethod($method)->getDocComment();
+            $comment = $this->_getReflection()
+                ->getMethod($method)
+                ->getDocComment();
             if (!empty($comment)) {
                 $this->_meta['methods'][$method] = $this->_parse($comment);
             } else {

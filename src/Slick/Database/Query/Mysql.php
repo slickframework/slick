@@ -23,18 +23,18 @@ use Slick\Database;
 class Mysql extends Database\Query
 {
 
-	/**
-	 * Handy method to add a 'LEFT' join to the query
-	 * 
-	 * @param string $join   The table to join.
-     * @param string $on     The join condition clause
-     * @param array  $fields The list of fields to add to select.
+    /**
+     * Handy method to add a 'LEFT' join to the query
      * 
-	 * @return \Slick\Database\Query\Mysql Sefl instance for method
-	 *   chaining calls.
-	 */
-	public function leftJoin($join, $on, $fields = array())
+     * @param string $join     The table to join.
+     * @param string $onClause The join condition clause
+     * @param array  $fields   The list of fields to add to select.
+     * 
+     * @return \Slick\Database\Query\Mysql Sefl instance for method
+     *   chaining calls.
+     */
+    public function leftJoin($join, $onClause, $fields = array())
     {
-        return $this->join($join, $on, $fields, 'LEFT');
+        return $this->join($join, $onClause, $fields, 'LEFT');
     }
 }

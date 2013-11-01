@@ -33,7 +33,8 @@ use Slick\Utility\Text,
  * @package    Slick\Common
  * @author     Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class Base {
+abstract class Base
+{
     
     /**
      * @var \Slick\common\Inspector The self inspector object.
@@ -44,7 +45,9 @@ abstract class Base {
      * @readwrite
      * @var mixed Used by codeception in test mockups.
      */
+    // @codingStandardsIgnoreStart
     public $___mocked;
+    // @codingStandardsIgnoreEnd
     
     /**
      * Constructor assign ptoperties based on the array or object given.
@@ -83,7 +86,9 @@ abstract class Base {
      */
     public function __sleep()
     {
+        // @codingStandardsIgnoreStart
         unset($this->_inspector, $this->___mocked);
+        // @codingStandardsIgnoreEnd
         return array_keys(get_object_vars($this));
     }
 
@@ -242,7 +247,7 @@ abstract class Base {
             if (empty($meta['@readwrite']) && empty($meta['@read'])) {
                 $className = get_class($this);
                 throw new Exception\WriteOnlyException(
-                     "Trying to read the values of a write only property."
+                    "Trying to read the values of a write only property."
                     ." {$className}::\${$property} has annotation @write."
                 );
             }

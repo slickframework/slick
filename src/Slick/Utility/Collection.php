@@ -26,7 +26,7 @@ abstract class Collection extends Base implements
     \Iterator, \Countable, \Serializable, \arrayaccess
 {
 
-	/**
+    /**
      * @var integer Record position
      */
     protected $_position = 0;

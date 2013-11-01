@@ -34,14 +34,14 @@ interface QueryInterface
     /**
      * Adds the join tables, conditions and fields to the query.
      *
-     * @param string $join   The table to join.
-     * @param string $on     The join condition clause
-     * @param array  $fields The list of fields to add to select.
-     * @param string $type   One of 'LEFT', 'INNER', 'OUT'. Defaults to 'LEFT'
+     * @param string $join     The table to join.
+     * @param string $onClause The join condition clause
+     * @param array  $fields   The list of fields to add to select.
+     * @param string $type     One of LEFT, INNER, OUT. Defaults to LEFT
      * 
      * @return \Slick\Database\Query Sefl instance for method chaining calls.
      */
-    public function join($join, $on, $fields = array(), $type = 'LEFT');
+    public function join($join, $onClause, $fields = array(), $type = 'LEFT');
 
     /**
      * Adds the limit and page to the query.

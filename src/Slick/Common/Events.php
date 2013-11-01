@@ -23,7 +23,7 @@ class Events
     /**
      * @var array A list of callback methods.
      */
-    private static $_callbacks = array();
+    protected static $_callbacks = array();
 
     /**
      * Avoid the creation of an ArrayMethods instance.
@@ -51,10 +51,10 @@ class Events
      */
     public static function add($type, $callback)
     {
-        if (empty(self::$_callbacks[$type])) {
-            self::$_callbacks[$type] = array();
+        if (empty(Events::$_callbacks[$type])) {
+            Events::$_callbacks[$type] = array();
         }
-        self::$_callbacks[$type][] = $callback;
+        Events::$_callbacks[$type][] = $callback;
     }
     
     /**
@@ -65,8 +65,8 @@ class Events
      */
     public static function fire($type, $parameters = array())
     {
-        if (!empty(self::$_callbacks[$type])) {
-            foreach (self::$_callbacks[$type] as $callback) {
+        if (!empty(Events::$_callbacks[$type])) {
+            foreach (Events::$_callbacks[$type] as $callback) {
                 call_user_func_array($callback, $parameters);
             }
         }
@@ -80,10 +80,10 @@ class Events
      */
     public static function remove($type, $callback)
     {
-        if (!empty(self::$_callbacks[$type])) {
-            foreach (self::$_callbacks[$type] as $i => $found) {
+        if (!empty(Events::$_callbacks[$type])) {
+            foreach (Events::$_callbacks[$type] as $i => $found) {
                 if ($callback == $found) {
-                    unset(self::$_callbacks[$type][$i]);
+                    unset(Events::$_callbacks[$type][$i]);
                 }
             }
         }

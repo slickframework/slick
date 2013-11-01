@@ -90,7 +90,7 @@ class Response extends Message
      * @read
      * @var array Recommended Reason Phrases
      */
-    protected $_recommendedReasonPhrases = array(
+    protected $_standardPhrases = array(
         // INFORMATIONAL CODES
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -164,9 +164,9 @@ class Response extends Message
     /**
      * @readwrite
      * @var string|null Null means it will be looked up from the 
-     *   $_recommendedReasonPhrases list above
+     *   $_standardPhrases list above
      *
-     * @see  \Slick\Http\Response::$_recommendedReasonPhrases
+     * @see  \Slick\Http\Response::$_standardPhrases
      */
     protected $_reasonPhrase = null;
 
@@ -192,17 +192,21 @@ class Response extends Message
 
         $response = new static();
 
-        $regex   = '/^HTTP\/(?P<version>1\.[01]) (?P<status>\d{3})(?:[ ]+(?P<reason>.*))?$/';
+        $regex   = 
+            '/^HTTP\/(?P<ver>1\.[01]) (?P<sts>\d{3})(?:[ ]+(?P<re>.*))?$/';
         $matches = array();
         if (!preg_match($regex, $firstLine, $matches)) {
             throw new Exception\InvalidArgumentException(
-                'A valid response status line was not found in the provided string'
+                'A valid response status line was not found in the provided '
+                .'string'
             );
         }
 
-        $response->version = $matches['version'];
-        $response->setStatusCode($matches['status']);
-        $response->setReasonPhrase((isset($matches['reason']) ? $matches['reason'] : ''));
+        $response->version = $matches['ver'];
+        $response->setStatusCode($matches['sts']);
+        $response->setReasonPhrase(
+            (isset($matches['re']) ? $matches['re'] : '')
+        );
 
         if (count($lines) == 0) {
             return $response;
@@ -279,7 +283,7 @@ class Response extends Message
     public function getReasonPhrase()
     {
         if ($this->_reasonPhrase == null) {
-            return $this->_recommendedReasonPhrases[$this->_statusCode];
+            return $this->_standardPhrases[$this->_statusCode];
         }
         return $this->_reasonPhrase;
     }
