@@ -1,6 +1,7 @@
 build_settings:
     ignore:
         - "tests"
+        - "vendor"
 setup:
     composer:
         action: "install"
