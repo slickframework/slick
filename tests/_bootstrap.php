@@ -2,7 +2,7 @@
 
 // This is global bootstrap for autoloading
 
-$projectRoot = dirname(dirname(dirname(__FILE__)));
+$projectRoot = dirname(dirname(__FILE__));
 $loader = $projectRoot . '/vendor/autoload.php';
 
 if (!class_exists('Slick\Common\Base')) {
