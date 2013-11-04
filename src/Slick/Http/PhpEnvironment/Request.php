@@ -221,7 +221,13 @@ class Request extends Http\Request
             $this->setVersion(self::VERSION_10);
         }
 
-        $this->_setUri($server);
+        $builder = new RequestUriBuilder(
+            array(
+                'request' => $this,
+                'serverParams' => $server
+            )
+        );
+        $this->setUri($builder->getUri());
 
         return $this;
     }
@@ -254,61 +260,6 @@ class Request extends Http\Request
             $this->_requestUri = $this->_requestUriDetector->getRequestUri();
         }
         return $this->_requestUri;
-    }
-
-    /**
-     * Sets the request URI basedo on environment settings.
-     */
-    protected function _setUri()
-    {
-        // set URI
-        $uri = new HttpUri();
-
-        // URI scheme
-        $server = $this->serverParams;
-        $scheme = (!empty($server['HTTPS'])
-                   && $server['HTTPS'] !== 'off') ? 'https' : 'http';
-        $uri->setScheme($scheme);
-
-        // URI host & port
-        $host = null;
-        $port = null;
-
-        // Set the host
-        if ($this->hasHeader('Host')) {
-            $host = $this->getHeader('Host', null);
-
-            // works for regname, IPv4 & IPv6
-            if (preg_match('#\:(\d+)$#', $host, $matches)) {
-                $host = substr($host, 0, -1 * (strlen($matches[1]) + 1));
-                $port = (int) $matches[1];
-            }
-        }
-
-        if (!$host && isset($this->serverParams['SERVER_NAME'])) {
-            $host = $this->serverParams['SERVER_NAME'];
-            if (isset($this->serverParams['SERVER_PORT'])) {
-                $port = (int) $this->serverParams['SERVER_PORT'];
-            }
-        }
-
-        $uri->setHost($host);
-        $uri->setPort($port);
-
-        // URI path
-        $requestUri = $this->getRequestUri();
-        if (($qpos = strpos($requestUri, '?')) !== false) {
-            $requestUri = substr($requestUri, 0, $qpos);
-        }
-
-        $uri->setPath($requestUri);
-
-        // URI query
-        if (isset($this->serverParams['QUERY_STRING'])) {
-            $uri->setQuery($this->serverParams['QUERY_STRING']);
-        }
-
-        $this->setUri($uri);
     }
 
     /**
@@ -408,34 +359,7 @@ class Request extends Http\Request
      */
     protected function _detectBaseUrl()
     {
-        $baseUrl        = '';
-
-        $filename       = $this->getServerParam('SCRIPT_FILENAME');
-        $scriptName     = $this->getServerParam('SCRIPT_NAME');
-        $phpSelf        = $this->getServerParam('PHP_SELF');
-        $origScriptName = $this->getServerParam('ORIG_SCRIPT_NAME');
-
-        if ($scriptName !== null && basename($scriptName) === $filename) {
-            $baseUrl = $scriptName;
-        } elseif ($phpSelf !== null && basename($phpSelf) === $filename) {
-            $baseUrl = $phpSelf;
-        } elseif ($origScriptName !== null
-            && basename($origScriptName) === $filename
-        ) {
-            // 1and1 shared hosting compatibility.
-            $baseUrl = $origScriptName;
-        } else {
-            // Backtrack up the SCRIPT_FILENAME to find the portion
-            // matching PHP_SELF.
-
-            $baseUrl  = '/';
-            $basename = basename($filename);
-            if ($basename) {
-                $path     = ($phpSelf ? trim($phpSelf, '/') : '');
-                $baseUrl .= substr($path, 0, strpos($path, $basename));
-                $baseUrl .= $basename;
-            }
-        }
+        $baseUrl = $this->_getBaseUrlFromServer();
 
 
         // Does the base URL have anything in common with the request URI?
@@ -504,6 +428,40 @@ class Request extends Http\Request
         }
 
         // Base path is identical to base URL
+        return $baseUrl;
+    }
+
+    protected function _getBaseUrlFromServer()
+    {
+        $baseUrl        = '';
+
+        $filename       = $this->getServerParam('SCRIPT_FILENAME');
+        $scriptName     = $this->getServerParam('SCRIPT_NAME');
+        $phpSelf        = $this->getServerParam('PHP_SELF');
+        $origScriptName = $this->getServerParam('ORIG_SCRIPT_NAME');
+
+        if ($scriptName !== null && basename($scriptName) === $filename) {
+            $baseUrl = $scriptName;
+        } elseif ($phpSelf !== null && basename($phpSelf) === $filename) {
+            $baseUrl = $phpSelf;
+        } elseif ($origScriptName !== null
+            && basename($origScriptName) === $filename
+        ) {
+            // 1and1 shared hosting compatibility.
+            $baseUrl = $origScriptName;
+        } else {
+            // Backtrack up the SCRIPT_FILENAME to find the portion
+            // matching PHP_SELF.
+
+            $baseUrl  = '/';
+            $basename = basename($filename);
+            if ($basename) {
+                $path     = ($phpSelf ? trim($phpSelf, '/') : '');
+                $baseUrl .= substr($path, 0, strpos($path, $basename));
+                $baseUrl .= $basename;
+            }
+        }
+
         return $baseUrl;
     }
 }
