@@ -2,4 +2,8 @@
 /vendor/
 /nbproject/
 /docs/
-/tests/_log
+/tests/_log/coverage
+/tests/_log/coverage.serialized
+/tests/_log/*.html
+/tests/_log/unit-*
+/composer.lock
