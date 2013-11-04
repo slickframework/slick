@@ -69,6 +69,12 @@ class Request extends Http\Request
     protected $_stdIn = 'php://input';
 
     /**
+     * @read
+     * @var \Slick\Http\PhpEnvironment\RequestUriDetector
+     */
+    protected $_requestUriDetector = null;
+
+    /**
      * Overrides the default constructor to retrive environment info
      * 
      * @param array $options Initialization options
@@ -84,6 +90,9 @@ class Request extends Http\Request
 
         parent::__construct($options);
 
+        $this->_requestUriDetector =
+            new RequestUriDetector(array('serverParams' => $_SERVER));
+
         $this->_envParams = $_ENV;
 
         if ($_FILES) {
@@ -92,6 +101,8 @@ class Request extends Http\Request
         }
 
         $this->setServerParams($_SERVER);
+
+        
     }
 
     /**
@@ -216,6 +227,23 @@ class Request extends Http\Request
     }
 
     /**
+     * Returns an element from $_SERVER params.
+     * 
+     * @param  string $name The element name to retrieve
+     * 
+     * @return string The server value for the given element name or
+     *  null if elemente is not found.
+     */
+    public function getServerParam($name)
+    {
+        $server = $this->getServerParams();
+        if (isset($server[$name])) {
+            return $server[$name];
+        }
+        return null;
+    }
+
+    /**
      * Returns the request URI for this request.
      * 
      * @return string HTTP requet URI
@@ -223,7 +251,7 @@ class Request extends Http\Request
     public function getRequestUri()
     {
         if ($this->_requestUri === null) {
-            $this->_requestUri = $this->_detectRequestUri();
+            $this->_requestUri = $this->_requestUriDetector->getRequestUri();
         }
         return $this->_requestUri;
     }
@@ -281,70 +309,6 @@ class Request extends Http\Request
         }
 
         $this->setUri($uri);
-    }
-
-    /**
-     * Detect the base URI for the request
-     *
-     * Looks at a variety of criteria in order to attempt to autodetect a base
-     * URI, including rewrite URIs, proxy URIs, etc.
-     *
-     * @return string Detected request URI
-     */
-    protected function _detectRequestUri()
-    {
-        $requestUri = null;
-        $server     = $this->getServerParams();
-
-        // Check this first so IIS will catch.
-        $httpXRewriteUrl = isset($server['HTTP_X_REWRITE_URL']) ? 
-            $server['HTTP_X_REWRITE_URL'] : null;
-        if ($httpXRewriteUrl !== null) {
-            $requestUri = $httpXRewriteUrl;
-        }
-
-        // Check for IIS 7.0 or later with ISAPI_Rewrite
-        $httpXOriginalUrl = isset($server['HTTP_X_ORIGINAL_URL']) ?
-            $server['HTTP_X_ORIGINAL_URL'] : null;
-        if ($httpXOriginalUrl !== null) {
-            $requestUri = $httpXOriginalUrl;
-        }
-
-        // IIS7 with URL Rewrite: make sure we get the unencoded url
-        // (double slash problem).
-        $iisUrlRewritten = isset($server['IIS_WasUrlRewritten']) ?
-            $server['IIS_WasUrlRewritten'] : null;
-
-        $unencodedUrl    = isset($server['UNENCODED_URL']) ?
-            $server['UNENCODED_URL'] : '';
-        if ('1' == $iisUrlRewritten && '' !== $unencodedUrl) {
-            return $unencodedUrl;
-        }
-
-        // HTTP proxy requests setup request URI with scheme and host [and port]
-        // + the URL path, only use URL path.
-        if (!$httpXRewriteUrl) {
-            $requestUri = isset($server['REQUEST_URI']) ? 
-                $server['REQUEST_URI'] : null;
-        }
-
-        if ($requestUri !== null) {
-            return preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
-        }
-
-        // IIS 5.0, PHP as CGI.
-        $origPathInfo =isset($server['ORIG_PATH_INFO']) ?
-            $server['ORIG_PATH_INFO'] : null;
-        if ($origPathInfo !== null) {
-            $queryString = $server['QUERY_STRING'] ?
-                $server['QUERY_STRING'] : '';
-            if ($queryString !== '') {
-                $origPathInfo .= '?' . $queryString;
-            }
-            return $origPathInfo;
-        }
-
-        return '/';
     }
 
     /**
@@ -445,14 +409,11 @@ class Request extends Http\Request
     protected function _detectBaseUrl()
     {
         $baseUrl        = '';
-        $server         = $this->getServerParams();
-        $filename       = isset($server['SCRIPT_FILENAME']) ?
-            $server['SCRIPT_FILENAME'] : '';
-        $scriptName     = isset($server['SCRIPT_NAME']) ?
-            $server['SCRIPT_NAME'] : '';
-        $phpSelf        = $server['PHP_SELF'];
-        $origScriptName = isset($server['ORIG_SCRIPT_NAME']) ?
-            $server['ORIG_SCRIPT_NAME'] : '';
+
+        $filename       = $this->getServerParam('SCRIPT_FILENAME');
+        $scriptName     = $this->getServerParam('SCRIPT_NAME');
+        $phpSelf        = $this->getServerParam('PHP_SELF');
+        $origScriptName = $this->getServerParam('ORIG_SCRIPT_NAME');
 
         if ($scriptName !== null && basename($scriptName) === $filename) {
             $baseUrl = $scriptName;
