@@ -19,6 +19,8 @@ use Slick\Http\Exception;
  *
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * 
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 class Response extends Message
 {
@@ -180,6 +182,8 @@ class Response extends Message
      * 
      * @throws \Slick\Http\Exception\InvalidArgumentException If the string
      *   provided as argument is not a valid HTTP response message.
+     *
+     * @SuppressWarnings(PHPMD)
      */
     public static function fromString($string)
     {

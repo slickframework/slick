@@ -21,6 +21,8 @@ use Zend\Uri\Http as HttpUri,
  *
  * @package   Slick\Http
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * 
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 class Request extends Message
 {

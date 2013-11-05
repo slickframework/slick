@@ -32,6 +32,11 @@ class Request extends Http\Request
     protected $_serverParams = array();
 
     /**
+     * Use server params trait
+     */
+    use ServerParams;
+
+    /**
      * @readwrite
      * @var array PHP environment params ($_ENV)
      */
@@ -75,25 +80,26 @@ class Request extends Http\Request
     protected $_requestUriDetector = null;
 
     /**
+     * @read
+     * @var \Slick\Http\PhpEnvironment\RequestBaseUrl
+     */
+    protected $_requestBaseUrl = null;
+
+    /**
      * Overrides the default constructor to retrive environment info
      * 
      * @param array $options Initialization options
      */
     public function __construct($options = array())
     {
-        if ($_GET) {
-            $this->_queryParams = $_GET;
-        }
-        if ($_POST) {
-            $this->_postParams = $_POST;
-        }
+        $this->_queryParams = $_GET;
+        $this->_postParams  = $_POST;
+        $this->_envParams   = $_ENV;
 
         parent::__construct($options);
 
         $this->_requestUriDetector =
             new RequestUriDetector(array('serverParams' => $_SERVER));
-
-        $this->_envParams = $_ENV;
 
         if ($_FILES) {
             // convert PHP $_FILES superglobal
@@ -102,7 +108,54 @@ class Request extends Http\Request
 
         $this->setServerParams($_SERVER);
 
-        
+        $this->_requestBaseUrl = new RequestBaseUrl(
+            array(
+                'serverParams' => $this->_serverParams,
+                'request' => $this
+            )
+        );
+    }
+
+    /**
+     * Updates the server parameters
+     * 
+     * @param array $server Usualy the $_SERVER super global
+     *
+     * @return \Slick\Http\PhpEnvironment\Request A self instance for method
+     *   call chains.
+     */
+    public function setServerParams(array $server)
+    {
+        $this->_serverParams = $server;
+
+        //Set apache headers.
+        $this->_setApacheAuthHeaders();
+
+        //set headers
+        $this->_parseServerHeaders($server);
+
+        // set method
+        if (isset($this->serverParams['REQUEST_METHOD'])) {
+            $this->setMethod($this->serverParams['REQUEST_METHOD']);
+        }
+
+        // set HTTP version
+        $srv = $this->serverParams;
+        if (isset($srv['SERVER_PROTOCOL'])
+            && strpos($srv['SERVER_PROTOCOL'], Request::VERSION_10) !== false
+        ) {
+            $this->setVersion(Request::VERSION_10);
+        }
+
+        $builder = new RequestUriBuilder(
+            array(
+                'request' => $this,
+                'serverParams' => $server
+            )
+        );
+        $this->setUri($builder->getUri());
+
+        return $this;
     }
 
     /**
@@ -122,7 +175,7 @@ class Request extends Http\Request
         return $this->_content;
     }
 
-     /**
+    /**
      * Get the base URL.
      *
      * @return string The base URL (path/file.html)
@@ -130,7 +183,7 @@ class Request extends Http\Request
     public function getBaseUrl()
     {
         if ($this->_baseUrl === null) {
-            $this->setBaseUrl($this->_detectBaseUrl());
+            $this->setBaseUrl($this->_requestBaseUrl->getBaseUrl());
         }
         return $this->_baseUrl;
     }
@@ -171,82 +224,10 @@ class Request extends Http\Request
     public function getBasePath()
     {
         if ($this->_basePath === null) {
-            $this->setBasePath($this->_detectBasePath());
+            $this->setBasePath($this->_requestBaseUrl->getBasePath());
         }
 
         return $this->_basePath;
-    }
-
-    /**
-     * Updates the server parameters
-     * 
-     * @param array $server Usualy the $_SERVER super global
-     *
-     * @return \Slick\Http\PhpEnvironment\Request A self instance for method
-     *   call chains.
-     */
-    public function setServerParams(array $server)
-    {
-        $this->_serverParams = $server;
-
-        // This seems to be the way to get the Authorization header on Apache
-        // @codeCoverageIgnoreStart
-        if (function_exists('apache_request_headers')) {
-            $apacheRequestHeaders = apache_request_headers();
-            if (!isset($this->serverParams['HTTP_AUTHORIZATION'])) {
-                if (isset($apacheRequestHeaders['Authorization'])) {
-                    $this->_serverParams['HTTP_AUTHORIZATION'] 
-                        = $apacheRequestHeaders['Authorization'];
-                } elseif (isset($apacheRequestHeaders['authorization'])) {
-                    $this->serverParams['HTTP_AUTHORIZATION'] 
-                        = $apacheRequestHeaders['authorization'];
-                }
-            }
-        }
-        // @codeCoverageIgnoreEnd
-
-        //set headers
-        $this->_parseServerHeaders($server);
-
-        // set method
-        if (isset($this->serverParams['REQUEST_METHOD'])) {
-            $this->setMethod($this->serverParams['REQUEST_METHOD']);
-        }
-
-        // set HTTP version
-        $srv = $this->serverParams;
-        if (isset($srv['SERVER_PROTOCOL'])
-            && strpos($srv['SERVER_PROTOCOL'], self::VERSION_10) !== false
-        ) {
-            $this->setVersion(self::VERSION_10);
-        }
-
-        $builder = new RequestUriBuilder(
-            array(
-                'request' => $this,
-                'serverParams' => $server
-            )
-        );
-        $this->setUri($builder->getUri());
-
-        return $this;
-    }
-
-    /**
-     * Returns an element from $_SERVER params.
-     * 
-     * @param  string $name The element name to retrieve
-     * 
-     * @return string The server value for the given element name or
-     *  null if elemente is not found.
-     */
-    public function getServerParam($name)
-    {
-        $server = $this->getServerParams();
-        if (isset($server[$name])) {
-            return $server[$name];
-        }
-        return null;
     }
 
     /**
@@ -348,120 +329,32 @@ class Request extends Http\Request
         }
     }
 
+    // @codeCoverageIgnoreStart
     /**
-     * Auto-detect the base path from the request environment
-     *
-     * Uses a variety of criteria in order to detect the base URL of the request
-     * (i.e., anything additional to the document root).
-     *
-     *
-     * @return string detected base URL for this request
+     * Check for apache headers.
      */
-    protected function _detectBaseUrl()
+    protected function _setApacheAuthHeaders()
     {
-        $baseUrl = $this->_getBaseUrlFromServer();
+        if (!function_exists('apache_request_headers')) {
+            return;
+        }    
 
+        // This seems to be the way to get the Authorization header on Apache
+        
+        $apacheRequestHeaders = apache_request_headers();
 
-        // Does the base URL have anything in common with the request URI?
-        $requestUri = $this->getRequestUri();
-
-        // Full base URL matches.
-        if (0 === strpos($requestUri, $baseUrl)) {
-            return $baseUrl;
+        if (isset($this->serverParams['HTTP_AUTHORIZATION'])) {
+            return;
         }
 
-        // Directory portion of base path matches.
-        $baseDir = str_replace('\\', '/', dirname($baseUrl));
-        if (0 === strpos($requestUri, $baseDir)) {
-            return $baseDir;
+        if (isset($apacheRequestHeaders['Authorization'])) {
+            $this->_serverParams['HTTP_AUTHORIZATION'] 
+                = $apacheRequestHeaders['Authorization'];
+        } elseif (isset($apacheRequestHeaders['authorization'])) {
+            $this->serverParams['HTTP_AUTHORIZATION'] 
+                = $apacheRequestHeaders['authorization'];
         }
-
-        $truncatedRequestUri = $requestUri;
-
-        if (false !== ($pos = strpos($requestUri, '?'))) {
-            $truncatedRequestUri = substr($requestUri, 0, $pos);
-        }
-
-        $basename = basename($baseUrl);
-
-        // No match whatsoever
-        if (empty($basename)
-            || false === strpos($truncatedRequestUri, $basename)
-        ) {
-            return '';
-        }
-
-        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
-        // out of the base path. $pos !== 0 makes sure it is not matching a
-        // value from PATH_INFO or QUERY_STRING.
-        if (strlen($requestUri) >= strlen($baseUrl)
-            && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)
-        ) {
-            $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
-        }
-
-        return $baseUrl;
+        
     }
-
-    /**
-     * Autodetect the base path of the request
-     *
-     * Uses several criteria to determine the base path of the request.
-     *
-     * @return string Detected base path for this request
-     */
-    protected function _detectBasePath()
-    {
-        $scriptName = isset($this->serverParams['SCRIPT_FILENAME']) ?
-            $this->serverParams['SCRIPT_FILENAME'] : '';
-        $filename = basename($scriptName);
-        $baseUrl  = $this->getBaseUrl();
-
-        // Empty base url detected
-        if ($baseUrl === '') {
-            return '';
-        }
-
-        // basename() matches the script filename; return the directory
-        if (basename($baseUrl) === $filename) {
-            return str_replace('\\', '/', dirname($baseUrl));
-        }
-
-        // Base path is identical to base URL
-        return $baseUrl;
-    }
-
-    protected function _getBaseUrlFromServer()
-    {
-        $baseUrl        = '';
-
-        $filename       = $this->getServerParam('SCRIPT_FILENAME');
-        $scriptName     = $this->getServerParam('SCRIPT_NAME');
-        $phpSelf        = $this->getServerParam('PHP_SELF');
-        $origScriptName = $this->getServerParam('ORIG_SCRIPT_NAME');
-
-        if ($scriptName !== null && basename($scriptName) === $filename) {
-            $baseUrl = $scriptName;
-        } elseif ($phpSelf !== null && basename($phpSelf) === $filename) {
-            $baseUrl = $phpSelf;
-        } elseif ($origScriptName !== null
-            && basename($origScriptName) === $filename
-        ) {
-            // 1and1 shared hosting compatibility.
-            $baseUrl = $origScriptName;
-        } else {
-            // Backtrack up the SCRIPT_FILENAME to find the portion
-            // matching PHP_SELF.
-
-            $baseUrl  = '/';
-            $basename = basename($filename);
-            if ($basename) {
-                $path     = ($phpSelf ? trim($phpSelf, '/') : '');
-                $baseUrl .= substr($path, 0, strpos($path, $basename));
-                $baseUrl .= $basename;
-            }
-        }
-
-        return $baseUrl;
-    }
+    // @codeCoverageIgnoreEnd
 }
