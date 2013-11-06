@@ -13,7 +13,7 @@
 namespace Utility;
 
 use Codeception\Util\Stub;
-use Slick\Utility\Collection;
+use Slick\Utility\Collections\Collection;
 
 /**
  * Collection test case
@@ -115,6 +115,12 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertEquals(4, count($this->_collection));
         $expected = array("one", "two", "three", "four");
         $this->assertEquals($expected, $this->_collection->getElements());
+        $cl = new MyCollection();
+        $cl->add("five")->add("six");
+        $this->_collection->addAll($cl);
+        $this->assertEquals(6, count($this->_collection));
+        $expected = array("one", "two", "three", "four", "five", "six");
+        $this->assertEquals($expected, $this->_collection->getElements());
     }
 
     /**
@@ -147,6 +153,42 @@ class CollectionTest extends \Codeception\TestCase\Test
         $cl->add("five");
         $this->assertFalse($this->_collection->containsAll($cl));
 
+    }
+
+    /**
+     * Remove objets from colletcion test
+     * @test
+     */
+    public function removeObjects()
+    {
+        $this->assertFalse($this->_collection->remove("ten"));
+        $expected = array("one", "two", "three");
+        $this->assertEquals($expected, $this->_collection->getElements());
+        $this->assertTrue($this->_collection->remove("one"));
+        $expected = array(1 => "two", 2 => "three");
+        $this->assertEquals($expected, $this->_collection->getElements());
+        $cl = new MyCollection(array('elements' => array("ten")));
+        $this->assertFalse($this->_collection->removeAll($cl));
+        $this->assertEquals($expected, $this->_collection->getElements());
+        $cl->add("three");
+        $this->assertTrue($this->_collection->removeAll($cl));
+        $expected = array(1 => "two");
+        $this->assertEquals($expected, $this->_collection->getElements());
+    }
+
+    /**
+     * Retain collection elements
+     * @test
+     */
+    public function retainCollectionElements()
+    {
+        $cl = clone($this->_collection);
+        $this->assertFalse($this->_collection->retainAll($cl));
+        $cl->remove("two");
+        $this->assertTrue($this->_collection->retainAll($cl));
+        $this->assertFalse($this->_collection->contains("tow"));
+        $this->assertTrue($this->_collection->contains("one"));
+        $this->assertEquals(2, sizeof($this->_collection));
     }
 
 }

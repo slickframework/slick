@@ -3,16 +3,14 @@
 /**
  * Collection
  *
- * @package   Slick\Utility
+ * @package   Slick\Utility\Collections
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
-namespace Slick\Utility;
-
-use Slick\Utility\Collections\AbstractCollection;
+namespace Slick\Utility\Collections;
 
 /**
  * Collection handles collections of objects.
@@ -48,7 +46,7 @@ abstract class Collection extends AbstractCollection implements
      * 
      * @param  string $serialized String representation of a collection
      * 
-     * @return \Slick\Utility\Collection A collection object
+     * @return \Slick\Utility\Collections\Collection A collection object
      */
     public function unserialize($serialized)
     {
@@ -59,8 +57,8 @@ abstract class Collection extends AbstractCollection implements
     /**
      * Rewind the Iterator to the first element
      * 
-     * @return \Slick\Utility\Collection A collection instance for method
-     *  call chains.
+     * @return \Slick\Utility\Collections\Collection A collection instance
+     *  for method call chains.
      */
     public function rewind()
     {
@@ -95,8 +93,8 @@ abstract class Collection extends AbstractCollection implements
     /**
      * Move forward to next element
      * 
-     * @return \Slick\Utility\Collection A collection instance for method
-     *  call chains.
+     * @return \Slick\Utility\Collections\Collection A collection instance
+     *  for method call chains.
      */
     public function next()
     {
