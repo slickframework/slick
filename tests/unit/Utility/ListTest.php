@@ -62,6 +62,8 @@ class ListTest extends \Codeception\TestCase\Test
     /**
      * Adding an element to an expecific location
      * @test
+     * @expectedException \Slick\Utility\Exception\IndexOutOfBoundsException
+     * @expectedExceptionMessage The index '10' is out of this list bounds.
      */
     public function addElementToEspecificPosition()
     {
@@ -77,6 +79,56 @@ class ListTest extends \Codeception\TestCase\Test
         $this->assertTrue($this->_list->add(1, 0));
         $expected = array(1, 2, 3, 4, 5, 6);
         $this->assertEquals($expected, $this->_list->getElements());
+
+        try {
+            $this->_list->add(8, "five");
+            $this->fail("This should raise an exception here.");
+        } catch(\Slick\Utility\Exception $e) {
+            $this->assertInstanceOf('\ErrorException', $e);
+            $this->assertInstanceOf(
+                '\Slick\Utility\Exception\InvalidArgumentException',
+                $e
+            );
+            $expected = "Index must be a valid, zero base integer or null.";
+            $this->assertEquals($expected, $e->getMessage());
+        }
+
+        $this->_list->add(8, 10);
+    }
+
+    /**
+     * Add an elements collection to a list
+     * @test
+     * @expectedException \Slick\Utility\Exception\IndexOutOfBoundsException
+     * @expectedExceptionMessage The index '20' is out of this list bounds.
+     */
+    public function addCollectionToList()
+    {
+        $this->_list->setElements(array(2, 3, 5));
+        $list = clone($this->_list);
+        $this->assertTrue($this->_list->addAll($list));
+        $expected = array(2, 3, 5, 2, 3, 5);
+        $this->assertEquals($expected, $this->_list->elements);
+
+        $this->_list = clone($list);
+        $this->assertTrue($this->_list->addAll($list, 2));
+        $expected = array(2, 3, 2, 3, 5, 5);
+        $this->assertEquals($expected, $this->_list->elements);
+
+        try {
+            $this->_list->addAll($list, "");
+            $this->fail("This should raise an exception here.");
+        } catch(\Slick\Utility\Exception $e) {
+            $this->assertInstanceOf('\ErrorException', $e);
+            $this->assertInstanceOf(
+                '\Slick\Utility\Exception\InvalidArgumentException',
+                $e
+            );
+            $expected = "Index must be a valid, zero base integer or null.";
+            $this->assertEquals($expected, $e->getMessage());
+        }
+
+        $this->_list->addAll($list, 20);
     }
 
 }
