@@ -99,9 +99,30 @@ class ListTest extends \Codeception\TestCase\Test
                 'elements' => array("two", "three")
             )
         );
+        $this->_list->addAll($cl, 1);
         $expected = array("one", "two", "three", "four", "five");
         $this->assertEquals($expected, $this->_list->getElements());
 
+        $this->_list->addAll($cl);
+        $expected = array("one", "two", "three", "four", "five", "two", "three");
+        $this->assertEquals($expected, $this->_list->getElements());
+
+        $this->assertEquals("four", $this->_list->get(3));
+        $this->assertInstanceOf('Utility\MyList', $this->_list->set("test", 3));
+        $this->assertEquals("test", $this->_list->get(3));
+    }
+
+    /**
+     * Retrive a sublist
+     * @test
+     */
+    public function retrieveSubList()
+    {
+        $this->_list->elements = array("one", "two", "three", "four", "five");
+        $list = $this->_list->subList(1, 2);
+        $this->assertInstanceOf('Utility\MyList', $list);
+        $this->assertEquals(2, sizeof($list));
+        $this->assertEquals("three", $list->get(1));
     }
 
 }

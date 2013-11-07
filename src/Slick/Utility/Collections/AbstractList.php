@@ -28,8 +28,7 @@ abstract class AbstractList extends Collection implements
      * internal list.
      * 
      * @param mixed|object $element  The object to add
-     * @param insteger     $index    The index (position) where to insert
-     *   the value provided value.
+     * @param integer      $index    The index (position) where to insert
      *
      * @return \Slick\Utility\Collections\AbstractList A list instance
      *  for method call chains.
@@ -70,7 +69,7 @@ abstract class AbstractList extends Collection implements
      * If no index is given, alll the elements will be added to the end of the 
      * internal list.
      * 
-     * @param \Slick\Utility\Collections\Collection $cl The collection to add
+     * @param \Slick\Utility\Collections\Collection $col The collection to add
      * @param integer                               $index The position where
      *   to insert the provided collection
      *
@@ -83,29 +82,91 @@ abstract class AbstractList extends Collection implements
      *   index < 0 or the index > list size.
      */
     public function addAll(
-        \Slick\Utility\Collections\Collection $cl, $index = null)
+        \Slick\Utility\Collections\Collection $col, $index = null)
     {
         $this->_checkIndex($index);
 
-        $elements = $cl->getElements();
+        $elements = $col->getElements();
+
         if (!is_null($index)) {
             $left = array_slice($this->_elements, 0, $index);
             $right = array_slice($this->_elements, $index);
             $this->_elements = $left;
 
             foreach ($elements as $new) {
-                $this->add($new);
+                $this->_elements[] = $new;
             }
             
             foreach ($right as $value) {
-                $this->add($value);
+                $this->_elements[] = $value;
             }
         } else {
             foreach ($elements as $new) {
-                $this->add($new);
+                $this->_elements[] = $new;
             }
         }
         return $this;
+    }
+
+    /**
+     * Returns the element at the specified position in this list.
+     * 
+     * @param integer $index The position where element is in this list
+     * 
+     * @return mixed|object The object that is at the provided index (position)
+     *
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If the index
+     *   is not a zero based positive integer.
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the
+     *   index < 0 or the index > list size.
+     */
+    public function get($index)
+    {
+        $this->_checkIndex($index);
+        return $this->_elements[$index];
+    }
+
+    /**
+     * Replaces the element at the given position with the provided element
+     * 
+     * @param mixed|object $element  The object to add
+     * @param integer      $index    The index (position) where to update
+     *
+     * @return \Slick\Utility\Collections\AbstractList A list instance
+     *  for method call chains.
+     *
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If the index
+     *   is not a zero based positive integer.
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the
+     *   index < 0 or the index > list size.
+     */
+    public function set($element, $index)
+    {
+        $this->_checkIndex($index);
+        $this->_elements[$index] = $element;
+        return $this;
+    }
+
+    /**
+     * Returns a view of the portion of this list between the specified index, inclusive,
+     * and the length requested.
+     * 
+     * @param integer $index  The start position of the sublist
+     * @param integer $length The amount of elements to retrieve
+     * 
+     * @return \Slick\Utility\Collections\AbstractList
+     *
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If the index
+     *   is not a zero based positive integer.
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the
+     *   index < 0 or the index > list size.
+     */
+    public function subList($index, $length = null)
+    {
+        $this->_checkIndex($index);
+        $elements = array_slice($this->_elements, $index, $length);
+        $class = get_class($this);
+        return new $class(array('elements' => $elements));
     }
 
     /**
@@ -121,7 +182,11 @@ abstract class AbstractList extends Collection implements
      */
     public function offsetSet($offset, $value)
     {
-        $this->add($value, $offset);
+        if (is_null($offset)) {
+            $this->add($value);
+        } else {
+            $this->set($value, $offset);
+        }
     }
 
     /**
@@ -187,7 +252,7 @@ abstract class AbstractList extends Collection implements
         }
 
         // Index must be withind the list bounds.
-        if ($index < 0 || $index > sizeof($this->_elements)) {
+        if ($index < 0 || $index >= sizeof($this->_elements)) {
             throw new Exception\IndexOutOfBoundsException(
                 "The index '{$index}' is not in between 0 and "
                 . sizeof($this->_elements)
