@@ -12,6 +12,8 @@
 
 namespace Slick\Utility\Exception;
 
+use Slick\Utility\Exception as UtilityException;
+
 /**
  * InvalidArgumentException
  *
@@ -19,7 +21,7 @@ namespace Slick\Utility\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class InvalidArgumentException extends \ErrorException
-    implements ExceptionInterface
+    implements UtilityException
 {
     
 }

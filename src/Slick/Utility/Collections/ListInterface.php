@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Abstract List
+ * List interface
  *
  * @package   Slick\Utility\Collections
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,9 +13,12 @@
 namespace Slick\Utility\Collections;
 
 /**
- * AbstractList class provides a skeletal implementation of the List interface
+ * ListInterface - An ordered collection (also known as a sequence)
+ *
+ * @package   Slick\Utility\Collections
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractList extends AbstractCollection implements ListInterface
+interface ListInterface extends Collection
 {
 
     /**
@@ -27,21 +30,7 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      *
      * @return boolean True if collection has change as a result of the call
      */
-    public function add($element, $index = null)
-    {
-        if (!is_null($index)) {
-            $left = array_slice($this->_elements, 0, $index);
-            $right = array_slice($this->_elements, $index);
-            $this->_elements = $left;
-            $this->_elements[] =$element;
-            foreach ($right as $shifted) {
-                $this->_elements[] = $shifted;
-            }
-        } else {
-            $this->_elements[] = $element;
-        }
-        return true;
-    }
+    public function add($element, $index = null);
 
     /**
      * Inserts all of the elements in the specified collection into this list
@@ -55,8 +44,5 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      * @return boolean True if collection has change as a result of the call
      */
     public function addAll(
-        \Slick\Utility\Collections\Collection $collection, $index = null)
-    {
-
-    }
+        \Slick\Utility\Collections\Collection $collection, $index = null);
 }

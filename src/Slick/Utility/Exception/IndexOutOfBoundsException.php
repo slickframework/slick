@@ -12,6 +12,8 @@
 
 namespace Slick\Utility\Exception;
 
+use Slick\Utility\Exception as UtilityException;
+
 /**
  * IndexOutOfBoundsException
  *
@@ -19,7 +21,7 @@ namespace Slick\Utility\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class IndexOutOfBoundsException extends \RuntimeException
-    implements ExceptionInterface
+    implements UtilityException
 {
     
 }

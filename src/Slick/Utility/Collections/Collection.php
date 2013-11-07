@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Collection
+ * Collection interface
  *
  * @package   Slick\Utility\Collections
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,105 +13,90 @@
 namespace Slick\Utility\Collections;
 
 /**
- * Collection handles collections of objects.
- *
- * @package   Slick\Utility
- * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * Collection interface
  */
-abstract class Collection extends AbstractCollection implements
-    \Countable, \Serializable, \Iterator
+interface Collection extends \Iterator
 {
-    /**
-     * Count elements in this collection
-     * 
-     * @return int The total elements
-     */
-    public function count()
-    {
-        return count($this->_elements);
-    }
 
     /**
-     * Serializes the collection object
+     * Adds an element to the collection
      * 
-     * @return string String representation of this collection
+     * @param mixed|object $element The elemente to add to the collection
+     * 
+     * @return boolean True if collection has change as a result of the call
      */
-    public function serialize()
-    {
-        return serialize($this->_elements);
-    }
+    public function add($element);
 
     /**
-     * Unserializes the provided string to a collection
+     * Adds all of the elements in the specified collection to this collection
      * 
-     * @param  string $serialized String representation of a collection
-     * 
-     * @return \Slick\Utility\Collections\Collection A collection object
+     * @param \Slick\Utility\Collections\Collection $collection Collection
+     *   containing elements to be added to this collection.
+     *
+     * @return boolean True if collection has change as a result of the call
      */
-    public function unserialize($serialized)
-    {
-        parent::__construct(array());
-        $this->_elements = unserialize($serialized);
-    }
+    public function addAll(\Slick\Utility\Collections\Collection $collection);
 
     /**
-     * Rewind the Iterator to the first element
+     * Returns true if this collection contains the specified element
      * 
-     * @return \Slick\Utility\Collections\Collection A collection instance
-     *  for method call chains.
+     * @param mixed|object $element Element whose presence in this collection
+     *   is to be tested
+     *   
+     * @return boolean True if this collection contains the specified element
      */
-    public function rewind()
-    {
-        $this->_position = 0;
-        return $this;
-    }
+    public function contains($element);
 
     /**
-     * Return the current element
+     * Returns true if this collection contains all of the elements in the
+     * specified collection.
      * 
-     * @return mixed|null The element at current position or null if its out
-     *  of index
+     * @param \Slick\Utility\Collections\Collection $collection collection
+     *   to be checked for containment in this collection
+     *   
+     * @return boolean true if this collection contains all of the elements in
+     *   the specified collection
      */
-    public function current()
-    {
-        if (!$this->valid()) {
-            return null;
-        }
-        return $this->_elements[$this->_position];
-    }
+    public function containsAll(
+        \Slick\Utility\Collections\Collection $collection);
 
     /**
-     * Return the key of the current element
+     * Removes a single instance of the specified element from this
+     * collection, if it is present
      * 
-     * @return int The current elemten key
+     * @param mixed|object $element Element to be removed from this
+     *   collection, if present
+     *   
+     * @return boolean True if collection has change as a result of the call
      */
-    public function key()
-    {
-        return $this->_position;
-    }
+    public function remove($element);
 
     /**
-     * Move forward to next element
+     * Removes all of this collection's elements that are also contained in
+     * the specified collection
      * 
-     * @return \Slick\Utility\Collections\Collection A collection instance
-     *  for method call chains.
+     * @param \Slick\Utility\Collections\Collection $collection Collection
+     *   containing elements to be removed from this collection.
+     *   
+     * @return boolean True if this collection changed as a result of the call
      */
-    public function next()
-    {
-        ++$this->_position;
-        return $this;
-    }
+    public function removeAll(\Slick\Utility\Collections\Collection $collection);
 
     /**
-     * Checks if current position is valid.
+     * Retains only the elements in this collection that are contained in the
+     * specified collection
      * 
-     * @return boolean True if the current position has an element,
-     *   False it current position has not an element.
+     * @param \Slick\Utility\Collections\Collection $collection Collection
+     *   containing elements to be retained in this collection
+     *   
+     * @return boolean True if this collection changed as a result of the call
      */
-    public function valid()
-    {
-        return isset($this->_elements[$this->_position]);
-    }
+    public function retainAll(\Slick\Utility\Collections\Collection $collection);
 
-    
+    /**
+     * Returns the number of elements in this collection
+     * 
+     * @return integer The number of elements in this collection
+     */
+    public function size();
 }

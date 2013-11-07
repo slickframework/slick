@@ -13,7 +13,7 @@
 namespace Utility;
 
 use Codeception\Util\Stub;
-use Slick\Utility\Collections\Collection;
+use Slick\Utility\Collections\AbstractCollection;
 
 /**
  * Collection test case
@@ -85,19 +85,14 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertEquals(0, $this->_collection->key());
         $this->assertTrue($this->_collection->valid());
         $this->assertEquals("one", $this->_collection->current());
-        $this->assertInstanceOf(
-            '\Utility\MyCollection',
-            $this->_collection->next()
-        );
+        $this->_collection->next();
         $this->assertTrue($this->_collection->valid());
         $this->assertEquals("two", $this->_collection->current());
-        $this->_collection->next()->next();
+        $this->_collection->next();
+        $this->_collection->next();
         $this->assertFalse($this->_collection->valid());
         $this->assertNull($this->_collection->current());
-        $this->assertInstanceOf(
-            '\Utility\MyCollection',
-            $this->_collection->rewind()
-        );
+        $this->_collection->rewind();
         $this->assertEquals(0, $this->_collection->key());
         $this->assertTrue($this->_collection->valid());
     }
@@ -108,15 +103,13 @@ class CollectionTest extends \Codeception\TestCase\Test
      */
     public function addElementsToCollection()
     {
-        $this->assertInstanceOf(
-            '\Utility\MyCollection',
-            $this->_collection->add("four")
-        );
+        $this->assertTrue($this->_collection->add("four"));
         $this->assertEquals(4, count($this->_collection));
         $expected = array("one", "two", "three", "four");
         $this->assertEquals($expected, $this->_collection->getElements());
         $cl = new MyCollection();
-        $cl->add("five")->add("six");
+        $cl->add("five");
+        $cl->add("six");
         $this->_collection->addAll($cl);
         $this->assertEquals(6, count($this->_collection));
         $expected = array("one", "two", "three", "four", "five", "six");
@@ -129,10 +122,7 @@ class CollectionTest extends \Codeception\TestCase\Test
      */
     public function clearACollention()
     {
-        $this->assertInstanceOf(
-            '\Utility\MyCollection',
-            $this->_collection->clear()
-        );
+       $this->_collection->clear();
         $this->assertEquals(0, $this->_collection->key());
         $this->assertFalse($this->_collection->valid());
         $this->assertTrue($this->_collection->isEmpty());
@@ -148,11 +138,11 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertFalse($this->_collection->contains("five"));
 
         $cl = new MyCollection();
-        $cl->add("one")->add("two");
+        $cl->add("one");
+        $cl->add("two");
         $this->assertTrue($this->_collection->containsAll($cl));
         $cl->add("five");
         $this->assertFalse($this->_collection->containsAll($cl));
-
     }
 
     /**
@@ -165,8 +155,10 @@ class CollectionTest extends \Codeception\TestCase\Test
         $expected = array("one", "two", "three");
         $this->assertEquals($expected, $this->_collection->getElements());
         $this->assertTrue($this->_collection->remove("one"));
+
         $expected = array(1 => "two", 2 => "three");
         $this->assertEquals($expected, $this->_collection->getElements());
+        
         $cl = new MyCollection(array('elements' => array("ten")));
         $this->assertFalse($this->_collection->removeAll($cl));
         $this->assertEquals($expected, $this->_collection->getElements());
@@ -196,7 +188,7 @@ class CollectionTest extends \Codeception\TestCase\Test
 /**
  * A test collection
  */
-class MyCollection extends Collection
+class MyCollection extends AbstractCollection
 {
 
 }
