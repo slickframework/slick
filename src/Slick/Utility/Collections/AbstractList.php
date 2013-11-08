@@ -28,6 +28,11 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      *   to be inserted
      *
      * @return boolean True if collection has change as a result of the call
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
      */
     public function add($element, $index = null)
     {
@@ -57,6 +62,11 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      *   to insert the first element from the specified collection
      *
      * @return boolean True if collection has change as a result of the call
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
      */
     public function addAll(
         \Slick\Utility\Collections\Collection $collection, $index = null)
@@ -77,6 +87,136 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
         return true;
     }
 
+    /**
+     * Returns the element at the specified position in this list.
+     * 
+     * @param integer $index Index of the element to return
+     * 
+     * @return mixed|object the element at the specified position in this list
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
+     */
+    public function get($index)
+    {
+        $this->_checkIndex($index);
+
+        return $this->_elements[$index];
+    }
+
+    /**
+     * Replaces the element at the specified position in this list with the
+     * specified element
+     * 
+     * @param mixed|object $element Element to be stored at the
+     *  specified position
+     * @param integer      $index   Index of the element to replace
+     *
+     * @return mixed|Object the element previously at the specified position
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
+     */
+    public function set($element, $index)
+    {
+        $this->_checkIndex($index);
+
+        $old = $this->_elements[$index];
+        $this->_elements[$index] = $element;
+        return $old;
+    }
+
+    /**
+     * Returns the index of the first occurrence of the specified element in
+     * this list, or -1
+     * 
+     * @param mixed|object $element Element to search for
+     * @param boolean      $last Set it to true to return the last occurrence
+     *  of the especified element.
+     * 
+     * @return integer the index of the first occurrence of the specified
+     *  element in this list, or -1 if this list does not contain the element
+     */
+    public function indexOf($element, $last = false)
+    {
+        $indx = -1;
+        foreach ($this->_elements as $index => $item) {
+            if (is_a($element, '\Slick\Utility\Comparable')) {
+                if ($element->compare($item)) {
+                    if (!$last)
+                        return $index;
+                    $indx = $index;
+                }
+            } else if ($element == $item) {
+                if (!$last)
+                    return $index;
+                $indx = $index;
+            }
+        }
+        return $indx;
+    }
+
+    /**
+     * Removes a single instance of the specified element from this
+     * collection, if it is present
+     *
+     * If element implements Slick\Comparable interface
+     * Slick\Comparable::compare() will be used to check if element
+     * exists in this collection.
+     * If its not a Slick\Comparable a regula "==" comparation will
+     * be performed to check element existance.
+     * 
+     * @param mixed|object $element Element to be removed from this
+     *   collection, if present
+     *   
+     * @return boolean True if collection has change as a result of the call
+     */
+    public function remove($element)
+    {
+        $changed = parent::remove($element);
+        if ($changed) {
+            $this->_elements = array_values($this->_elements);
+        }
+        return $changed;
+    }
+
+    /**
+     * Removes all of this collection's elements that are also contained in
+     * the specified collection
+     *
+     * If element implements Slick\Comparable interface
+     * Slick\Comparable::compare() will be used to check if element
+     * exists in this collection.
+     * If its not a Slick\Comparable a regula "==" comparation will
+     * be performed to check element existance.
+     * 
+     * @param \Slick\Utility\Collections\Collection $collection Collection
+     *   containing elements to be removed from this collection.
+     *   
+     * @return boolean True if this collection changed as a result of the call
+     */
+    public function removeAll(\Slick\Utility\Collections\Collection $collection)
+    {
+        $changed = parent::removeAll($collection);
+        if ($changed) {
+            $this->_elements = array_values($this->_elements);
+        }
+        return $changed;
+    }
+
+    /**
+     * Retains only the elements in this collection that are contained in the
+     * specified collection
+     * 
+     * @param \Slick\Utility\Collections\Collection $collection Collection
+     *   containing elements to be retained in this collection
+     *   
+     * @return boolean True if this collection changed as a result of the call
+     */
     public function retainAll(
         \Slick\Utility\Collections\Collection $collection)
     {
@@ -85,6 +225,30 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
             $this->_elements = array_values($this->_elements);
         }
         return $changed;
+    }
+
+    /**
+     * Returns the sequence of elements from the list as specified by
+     * the index and length parameters.
+     * 
+     * @param integer $index  Index of the first position in the list
+     * @param integer $length If length is given and is positive, then the
+     *  sequence will have up to that many elements in it.
+     * 
+     * @return \Slick\Utility\Common\AbstractList A sub list of this list
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
+     */
+    public function subList($index = 0, $length = null)
+    {
+        $this->_checkIndex($index);
+
+        $class = get_class($this);
+        $subList = array_slice($this->_elements, $index, $length);
+        return new $class(array('elements' => $subList));
     }
 
     /**

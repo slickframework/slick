@@ -131,6 +131,108 @@ class ListTest extends \Codeception\TestCase\Test
         $this->_list->addAll($list, 20);
     }
 
+    /**
+     * Retain all form a acollection
+     * @test
+     */
+    public function retainFromCollection()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 5));
+        $cl = new MyList(array('elements' => array(2, 3, 4)));
+        $this->assertTrue($this->_list->retainAll($cl));
+        $expected = array(2, 3, 4);
+        $this->assertEquals($expected, $this->_list->getElements());
+    }
+
+    /**
+     * Remove elements
+     * @test
+     */
+    public function removeElements()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 5));
+        $this->assertTrue($this->_list->remove(3));
+        $expected = array(1, 2, 4, 5);
+        $this->assertEquals($expected, $this->_list->getElements());
+        $cl = new MyList(array('elements' => array(2, 3, 4)));
+        $this->assertTrue($this->_list->removeAll($cl));
+        $expected = array(1, 5);
+        $this->assertEquals($expected, $this->_list->getElements());
+    }
+
+    /**
+     * Get an element in the provided index
+     * @test
+     * @expectedException \Slick\Utility\Exception\IndexOutOfBoundsException
+     * @expectedExceptionMessage The index '20' is out of this list bounds.
+     */
+    public function getAnElement()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 5));
+        $this->assertEquals(3, $this->_list->get(2));
+
+        try {
+            $this->_list->get("");
+            $this->fail("This should raise an exception here.");
+        } catch(\Slick\Utility\Exception $e) {
+            $this->assertInstanceOf('\ErrorException', $e);
+            $this->assertInstanceOf(
+                '\Slick\Utility\Exception\InvalidArgumentException',
+                $e
+            );
+            $expected = "Index must be a valid, zero base integer or null.";
+            $this->assertEquals($expected, $e->getMessage());
+        }
+
+        $this->_list->get(20);
+    }
+
+    /**
+     * Update an evement value
+     * @test
+     */
+    public function setAnElement()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 5));
+        $this->assertEquals(3, $this->_list->set(0, 2));
+        $expected = array(1, 2, 0, 4, 5);
+        $this->assertEquals($expected, $this->_list->elements);
+    }
+
+    /**
+     * Index of an element
+     * @test
+     */
+    public function getIndexOf()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 3));
+        $this->assertEquals(-1, $this->_list->indexOf(6));
+        $this->assertEquals(2, $this->_list->indexOf(3));
+        $this->assertEquals(4, $this->_list->indexOf(3, true));
+        $this->_list->clear();
+
+        $obj = new MyObject(array('value' => 6));
+        $this->_list->add(new MyObject(array('value' => 3)));
+        $this->_list->add($obj);
+        $this->_list->add(clone($obj));
+
+        $this->assertEquals(1, $this->_list->indexOf($obj));
+        $this->assertEquals(2, $this->_list->indexOf($obj, true));
+    }
+
+    /**
+     * Get a sublist from a list
+     * @test
+     */
+    public function getSubList()
+    {
+        $this->_list->setElements(array(1, 2, 3, 4, 3));
+
+        $otherList = $this->_list->subList(1, 3);
+        $expected = array(2, 3, 4);
+        $this->assertEquals($expected, $otherList->getElements());
+    }
+
 }
 
 /**
@@ -139,4 +241,19 @@ class ListTest extends \Codeception\TestCase\Test
 class MyList extends AbstractList
 {
 
+}
+
+class MyObject extends \Slick\Common\Base 
+    implements \Slick\Utility\Comparable
+{
+    /**
+     * @readwrite
+     * @var integer
+     */
+    protected $_value = 0;
+
+    public function compare($compare)
+    {
+        return $compare->getValue() == $this->_value;
+    }
 }

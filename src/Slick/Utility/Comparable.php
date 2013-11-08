@@ -28,5 +28,5 @@ interface Comparable
      * 
      * @return boolean True if the current object is equals to the provided one
      */
-    function compare(self $compare);
+    public function compare($compare);
 }
