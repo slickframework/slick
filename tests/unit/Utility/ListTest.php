@@ -244,7 +244,6 @@ class MyList extends AbstractList
 }
 
 class MyObject extends \Slick\Common\Base 
-    implements \Slick\Utility\Comparable
 {
     /**
      * @readwrite
@@ -252,8 +251,4 @@ class MyObject extends \Slick\Common\Base
      */
     protected $_value = 0;
 
-    public function compare($compare)
-    {
-        return $compare->getValue() == $this->_value;
-    }
 }

@@ -22,11 +22,12 @@ interface Comparable
 {
 
     /**
-     * Compares current object with the provided object.
+     * Compares this object with the specified object for order. 
      * 
-     * @param object  $compare The object to compare with
+     * @param object $object The object to compare with
      * 
-     * @return boolean True if the current object is equals to the provided one
+     * @return integer A negative integer, zero, or a positive integer as this
+     *  object is less than, equal to, or greater than the specified object.
      */
-    public function compare($compare);
+    public function compareTo($object);
 }

@@ -145,8 +145,8 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
     {
         $indx = -1;
         foreach ($this->_elements as $index => $item) {
-            if (is_a($element, '\Slick\Utility\Comparable')) {
-                if ($element->compare($item)) {
+            if (is_a($element, '\Slick\Common\Base')) {
+                if ($element->equals($item)) {
                     if (!$last)
                         return $index;
                     $indx = $index;
@@ -164,11 +164,12 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      * Removes a single instance of the specified element from this
      * collection, if it is present
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param mixed|object $element Element to be removed from this
      *   collection, if present
@@ -188,11 +189,12 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
      * Removes all of this collection's elements that are also contained in
      * the specified collection
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param \Slick\Utility\Collections\Collection $collection Collection
      *   containing elements to be removed from this collection.

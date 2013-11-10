@@ -1,0 +1,16 @@
+{
+    "name": "slick/filesystem",
+    "description": "File system support for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "file system"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\FileSystem\\": ""
+        }
+    },
+    "target-dir": "Slick/FileSystem",
+    "require": {
+        "slick/common": "self.version",
+        "slick/utility": "self.version"
+    }
+}

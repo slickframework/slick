@@ -45,4 +45,48 @@ interface ListInterface extends Collection
      */
     public function addAll(
         \Slick\Utility\Collections\Collection $collection, $index = null);
+
+    /**
+     * Returns the element at the specified position in this list.
+     * 
+     * @param integer $index Index of the element to return
+     * 
+     * @return mixed|object the element at the specified position in this list
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
+     */
+    public function get($index);
+
+    /**
+     * Replaces the element at the specified position in this list with the
+     * specified element
+     * 
+     * @param mixed|object $element Element to be stored at the
+     *  specified position
+     * @param integer      $index   Index of the element to replace
+     *
+     * @return mixed|Object the element previously at the specified position
+     *
+     * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
+     *   is out of range (index < 0 || index >= size())
+     * @throws \Slick\Utility\Exception\InvalidArgumentException If index is
+     *   not a numeric value.
+     */
+    public function set($element, $index);
+
+    /**
+     * Returns the index of the first occurrence of the specified element in
+     * this list, or -1
+     * 
+     * @param mixed|object $element Element to search for
+     * @param boolean      $last Set it to true to return the last occurrence
+     *  of the especified element.
+     * 
+     * @return integer the index of the first occurrence of the specified
+     *  element in this list, or -1 if this list does not contain the element
+     */
+    public function indexOf($element, $last = false);
 }

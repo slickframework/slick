@@ -72,6 +72,40 @@ abstract class Base
             }
         }
     }
+
+    /**
+     * Compares current object with provided one for equality
+     * 
+     * @param mixed|ojbect $object The object to compare with
+     * 
+     * @return boolean True if the provided object is equal to this object
+     */
+    public function equals($object)
+    {
+        if (!is_object($object)) {
+            return false;
+        }
+
+        if (!is_a($object, get_class($this))) {
+            return false;
+        }
+
+        $props = array_keys(get_object_vars($this));
+        $skip = array('_inspector', '___mocked');
+
+        $equals = true;
+        foreach ($props as $property) {
+            if (in_array($property, $skip)) {
+                continue;
+            }
+            $property = str_replace('_', '', $property);
+
+            if ($this->$property != $object->$property) {
+                return false;
+            }
+        }
+        return $equals;
+    }
     
     /**
      * Sets necessary properties when unserializing.

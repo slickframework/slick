@@ -13,7 +13,7 @@
 namespace Slick\Utility\Collections;
 
 use Slick\Common\Base,
-    Slick\Common\Exception;
+    Slick\Utility\Exception;
 
 /**
  * This class provides a skeletal implementation of the Collection interface
@@ -76,8 +76,9 @@ abstract class AbstractCollection extends Base Implements
             );
         }
 
+        $this->_elements = array();
         foreach ($elements as $element) {
-            $this->add($element);
+            $this->_elements[] = $element ;
         }
     }
 
@@ -113,11 +114,12 @@ abstract class AbstractCollection extends Base Implements
     /**
      * Returns true if this collection contains the specified element
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param mixed|object $element Element whose presence in this collection
      *   is to be tested
@@ -127,8 +129,8 @@ abstract class AbstractCollection extends Base Implements
     public function contains($element)
     {
         foreach ($this->_elements as $item) {
-            if (is_a($element, 'Slick\Common\Comparable')) {
-                if ($element->compare($item))
+            if (is_a($element, 'Slick\Common\Base')) {
+                if ($element->equals($item))
                     return true;
             } else if ($element == $item) {
                 return true;
@@ -141,11 +143,12 @@ abstract class AbstractCollection extends Base Implements
      * Returns true if this collection contains all of the elements in the
      * specified collection.
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param \Slick\Utility\Collections\Collection $collection collection
      *   to be checked for containment in this collection
@@ -168,11 +171,12 @@ abstract class AbstractCollection extends Base Implements
      * Removes a single instance of the specified element from this
      * collection, if it is present
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param mixed|object $element Element to be removed from this
      *   collection, if present
@@ -183,8 +187,8 @@ abstract class AbstractCollection extends Base Implements
     {
         $changed = false;
         foreach ($this->_elements as $key => $item) {
-            if (is_a($element, 'Slick\Common\Comparable')) {
-                if ($element->compare($element)) {
+            if (is_a($element, 'Slick\Common\Base')) {
+                if ($element->equals($element)) {
                     unset($this->_elements[$key]);
                     $changed = true;
                 }
@@ -200,11 +204,12 @@ abstract class AbstractCollection extends Base Implements
      * Removes all of this collection's elements that are also contained in
      * the specified collection
      *
-     * If element implements Slick\Comparable interface
-     * Slick\Comparable::compare() will be used to check if element
-     * exists in this collection.
-     * If its not a Slick\Comparable a regula "==" comparation will
+     * If element is a Slick\Common\Base, Slick\Common\Base::equals()
+     * will be used to check if element exists in this collection.
+     * If its not a Slick\Common\Base a regula "==" comparation will
      * be performed to check element existance.
+     *
+     * @see Slick\Common\Base::equals()
      * 
      * @param \Slick\Utility\Collections\Collection $collection Collection
      *   containing elements to be removed from this collection.

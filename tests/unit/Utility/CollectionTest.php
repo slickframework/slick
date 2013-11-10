@@ -100,6 +100,8 @@ class CollectionTest extends \Codeception\TestCase\Test
     /**
      * Test the add
      * @test
+     * @expectedException Slick\Utility\Exception\InvalidArgumentException
+     * 
      */
     public function addElementsToCollection()
     {
@@ -114,6 +116,12 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertEquals(6, count($this->_collection));
         $expected = array("one", "two", "three", "four", "five", "six");
         $this->assertEquals($expected, $this->_collection->getElements());
+
+        $elements = array(1, 2, 3, 4);
+        $this->_collection->setElements($elements);
+        $this->assertEquals($elements, $this->_collection->elements);
+
+        $this->_collection->setElements("Some test");
     }
 
     /**
@@ -143,6 +151,12 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertTrue($this->_collection->containsAll($cl));
         $cl->add("five");
         $this->assertFalse($this->_collection->containsAll($cl));
+
+        $obj = new TestObject(array('value' => 3));
+        $std = new \StdClass();
+        $this->assertTrue($this->_collection->add($std));
+        $this->assertTrue($this->_collection->add($obj));
+        $this->assertTrue($this->_collection->contains($obj));
     }
 
     /**
@@ -166,6 +180,11 @@ class CollectionTest extends \Codeception\TestCase\Test
         $this->assertTrue($this->_collection->removeAll($cl));
         $expected = array(1 => "two");
         $this->assertEquals($expected, $this->_collection->getElements());
+
+        $obj = new TestObject(array('value' => 15));
+        $col = new MyCollection(array('elements' => array($obj)));
+        $this->assertTrue($col->remove($obj));
+        $this->assertTrue($col->isEmpty());
     }
 
     /**
@@ -190,5 +209,15 @@ class CollectionTest extends \Codeception\TestCase\Test
  */
 class MyCollection extends AbstractCollection
 {
+
+}
+
+class TestObject extends \Slick\Common\Base 
+{
+    /**
+     * @readwrite
+     * @var integer
+     */
+    protected $_value = 0;
 
 }
