@@ -12,7 +12,8 @@
 namespace FileSystem;
 
 use Codeception\Util\Stub;
-use Slick\FileSystem\Folder;
+use Slick\FileSystem\Folder,
+    Slick\FileSystem\File;
 
 /**
  * Folder test case
@@ -87,6 +88,56 @@ class FolderTest extends \Codeception\TestCase\Test
         $folder = new Folder(array('name' => $this->_path .'/..'));
         $nodes = $folder->getNodes();
         $this->assertInstanceOf('\FilesystemIterator', $nodes);
+    }
+
+    /**
+     * Checks the return of FileSystemList
+     * @test
+     */
+    public function checkFolderIterator()
+    {
+        $folder = new Folder(array('name' => $this->_path .'/..'));
+        $file = new File($folder->details->getRealPath() . '/test.txt');
+        foreach ($folder->nodes as $node) {
+            $this->assertInstanceOf('Slick\FileSystem\Node', $node);
+            if ($node->details->isDir()) {
+                $this->assertInstanceOf('Slick\FileSystem\Folder', $node);
+            } else {
+                $this->assertInstanceOf('Slick\FileSystem\File', $node);
+            }
+        }
+        $file->delete();
+    }
+
+    /**
+     * Check, add and get files.
+     * @test
+     */
+    public function manipulateFiles()
+    {
+        $folder = new Folder(array('name' => $this->_path));
+        $file = $folder->file('example.txt');
+        $this->assertTrue($folder->hasFile('example.txt'));
+        $this->assertFalse($folder->hasFile('other-example.txt'));
+        $this->assertInstanceOf('Slick\FileSystem\File', $file);
+        $file->delete();
+    }
+
+    /**
+     * Check, add and get files.
+     * @test
+     */
+    public function manipulateFolders()
+    {
+        $base = new Folder(array('name' => $this->_path));
+        $folder = $base->folder('example');
+
+        $this->assertTrue($base->hasFolder('example'));
+        $this->assertFalse($base->hasFolder('other-example'));
+        $this->assertInstanceOf('Slick\FileSystem\Folder', $folder);
+
+        $folder->delete();
+        $base->delete();
     }
 
 }

@@ -97,4 +97,22 @@ class FileTest extends \Codeception\TestCase\Test
         $file->delete();
     }
 
+    /**
+     * Read and write file content
+     * @test
+     */
+    public function readWriteContent()
+    {
+        $file = new File($this->_path .'/example.txt');
+        $content = "Hello world";
+        $this->assertTrue($file->write($content));
+        $this->assertEquals($content, $file->read());
+        $content .= PHP_EOL . "New line";
+        $this->assertTrue($file->write("New line", File::MODE_APPEND));
+        $this->assertEquals($content, $file->read());
+        $content = "First line" . PHP_EOL . $content;
+        $this->assertTrue($file->write("First line", File::MODE_PREPEND));
+        $file->delete();
+    }
+
 }
