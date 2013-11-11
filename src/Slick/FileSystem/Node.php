@@ -15,96 +15,54 @@ namespace Slick\FileSystem;
 use Slick\Common\Base;
 
 /**
- * Node is a generic entity on a given file system
+ * Node represents a entry (file/folder) in a given file system path.
  *
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- *
- * @property string $name Node name
- * @property string $path Node path in file system
- * @property boolean $exists Does the node exists on the given path
- * @property boolean $writable The node is writable
- *
- * @method {boolean} isWritable() isWritable() Check if the node is writable
- * @method {string} getName() getName() Returns the node name
- * @method {string} getPath() getPath() Returns the node path 
  */
 abstract class Node extends Base
 {
 
 	/**
-	 * @readwrite
-	 * @var string Node name
-	 */
-	protected $_name;
-
-	/**
-	 * @readwrite
-	 * @var string Node path in file system
-	 */
-	protected $_path;
-
-	/**
 	 * @read
-	 * @var boolean Does the node exists on the given path
+	 * @var \SplFileObject The file object infomation
 	 */
-	protected $_exists = false;
+	protected $_details = null;
 
 	/**
-	 * @read
-	 * @var boolean The node is writable
+	 * @readwrite
+	 * @var boolean A flag for automatic node creation.
 	 */
-	protected $_writable = false;
+	protected $_autoCreate = true;
 
 	/**
-	 * Overrides default constructor to accept only the node path and name.
-	 *
-	 * Name can be a full path to node. If so you don't need to provide a path
-	 * for this node.
+	 * Delets current node.
 	 * 
-	 * @param string $name The node name
-	 * @param string $path The node full path
+	 * @return boolean True if current node was deleted successfully.
 	 */
-	protected function __construct($name, $path = null)
+	public function delete()
 	{
-		$fullPath = str_replace(array('//', '\\'), '/', $path .'/'. $name);
-		$parts = explode('/', $fullPath);
-		$name = array_pop($parts);
-		$path = '/' . implode('/', $parts);
-
-		parent::__construct(array('name' => $name, 'path' => $path));
-
-		$this->_exists = file_exists($fullPath);
-		$this->_writable = is_writable($fullPath);
+		if ($this->details->isDir()) {
+			return @rmdir($this->details->getRealPath());
+		}
+		return @unlink($this->details->getRealPath());
 	}
 
 	/**
-	 * Sets current node base path.
-	 * 
-	 * @param string $path The new node full path
-	 *
-	 * @return \Slick\FileSystem\Node A sefl instance for method call chains
-	 */
-	abstract public function setPath($path);
-
-	/**
-	 * Sets the current file a new name
-	 * 
-	 * @param string $nsme The new node name
-	 *
-	 * @return \Slick\FileSystem\Node A sefl instance for method call chains
-	 */
-	public function setName($name)
+     * Compares current object with provided one for equality
+     * 
+     * @param mixed|ojbect $object The object to compare with
+     * 
+     * @return boolean True if the provided object is equal to this object
+     */
+	public function equals($object)
 	{
-		$fullPath = $this->_path .'/'. ltrim($name, '/');
-		$this->_exists = file_exists($fullPath);
-		$this->_writable = is_writable($fullPath);
-		return $this; 
-	}
+		if (!is_a($object, '\Slick\FileSystem\Node')) {
+			return false;
+		}
 
-	public function getFullPath()
-	{
-		return $this->path  .'/'. $this->name;
-	}
+		$path = $this->details->getRealPath();
 
+		return $path == $object->details->getRealPath();
+	}
 }

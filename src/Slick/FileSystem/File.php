@@ -2,7 +2,7 @@
 
 /**
  * File
- *
+ * 
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -13,47 +13,73 @@
 namespace Slick\FileSystem;
 
 /**
- * File is a specific file system node type
+ * File represents a single file in file system
  *
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class File extends Node
 {
+    /**
+     * @read
+     * @var \Slick\FileSystem\Folder This node's folder
+     */
+    protected $_folder = null;
 
-	/**
-	 * @readwrite
-	 * @var \Slick\FileSystem\Folder This file containing folder.
-	 */
-	protected $_folder = null;
+    /**
+     * Construct a new file object
+     *
+     * A URL can be used as a filename with this function if the fopen wrappers have
+     * been enabled. See fopen() for more details on how to specify the filename. See
+     * the Supported Protocols and Wrappers for links to information about what
+     * abilities the various wrappers have, notes on their usage, and information on
+     * any predefined variables they may provide.
+     * 
+     * @param string   $name           The node (File/Folder) to read.
+     * @param string   $openMode       The mode in which to open the file.
+     * @param boolean  $useIncludePath Whether to search in the include_path for name.
+     *
+     * @see http://www.php.net/manual/en/function.fopen.php See fopen() for a
+     *  list of allowed modes and wrappers.
+     *
+     * @throws \Slick\FileSystem\Exception\OpenFileException If the name cannot
+     *  be opened.
+     */
+    public function __construct($name, $openMode = "w+", $useIncludePath = false)
+    {
+        parent::__construct(array());
 
-	/**
-	 * Overrides the Node constructor to set the containing folder for this file
-	 * 
-	 * @param string $name The node name
-	 * @param string $path The node full path
-	 */
-	public function __construct($name, $path = null)
-	{
-		parent::__construct($name, $path = null);
+        try {
+            $this->_details = new \SplFileObject(
+                $name,
+                $openMode,
+                $useIncludePath
+            );
+        } catch (\RuntimeException $exc) {
+            $msg = $exc->getMessage();
+            throw new Exception\OpenFileException(
+                "Error while open/creating file system node '{$name}': {$msg}",
+                1,
+                $exc
+            );
+            
+        }
+    }
 
-		$this->_folder = new Folder($this->_path);
-	}
-
-	/**
-	 * Sets current file base path.
-	 * 
-	 * @param string $path The new node full path
-	 *
-	 * @return \Slick\FileSystem\Node A sefl instance for method call chains
-	 */
-	public function setPath($path)
-	{
-		$fullPath = rtrim($path, '/') .'/'. $this->_name;
-		$this->_exists = file_exists($fullPath);
-		$this->_writable = is_writable($fullPath);
-		$this->_folder = new Folder($path);
-	}
-
-	
+    /**
+     * Retrurs this file folder.
+     * 
+     * @return \Slick\FileSystem\Folder The folder object for this file.
+     */
+    public function getFolder()
+    {
+    	if (is_null($this->_folder)) {
+    		$this->_folder = new Folder(
+                array(
+                    'name' => $this->details->getPath()
+                )
+    		);
+    	}
+    	return $this->_folder;
+    }
 }

@@ -13,61 +13,61 @@
 namespace Slick\FileSystem;
 
 /**
- * Folder is a directory in file system
+ * Folder - Represents a folder node in a given file system
  *
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Folder extends Node
 {
-
+	
 	/**
 	 * @read
-	 * @var \Slick\FileSystem\FileList A list of files.
+	 * @var \FilesystemIterator The list of folder objects
 	 */
-	protected $_files = null;
+	protected $_nodes = null;
 
 	/**
-	 * Sets current node base path.
-	 * 
-	 * @param string $path The new node full path
+	 * @readwrite
+	 * @var boolean
+	 */
+	protected $_autoCreate = true;
+
+	/**
+	 * @readwrite
+	 * @var string Folder full path and name.
+	 */
+	protected $_name = null;
+
+	/**
+	 * Override the base constructor to set and/or create the directory
 	 *
-	 * @return \Slick\FileSystem\Node A sefl instance for method call chains
+	 * @see  Slick\Common\Base::__construct()
 	 */
-	abstract public function setPath($path)
+	public function __construct($options = array())
 	{
-		$fullPath = rtrim($path, '/') .'/'. $this->_name;
-		$this->_exists = file_exists($fullPath);
-		$this->_writable = is_writable($fullPath);
+		parent::__construct($options);
+		
+		if (!is_dir($this->name) && $this->isAutoCreate()) {
+			mkdir($this->name);
+		}
+
+		$this->_details = new \SplFileInfo($this->name);
 	}
 
 	/**
-	 * Returns the list of files in this folder
-	 * @return [type]
+	 * Returns an interator for this folder nodes
+	 * 
+	 * @return \FilesystemIterator A list of folder objects
 	 */
-	public function getFiles()
+	public function getNodes()
 	{
-		if (!is_a($this->_files, 'Slick\FileSystem\FileList')) {
-			$this->_loadFiles();
+		if (is_null($this->_nodes)) {
+			$this->_nodes = new \FilesystemIterator(
+				$this->details->getRealPath()
+			);
 		}
-		return $this->_elements;
+		return $this->_nodes;
 	}
 
-	/**
-	 * Reads local files and creates the lit of files for this folder
-	 */
-	protected function _loadFiles()
-	{
-		$list = new FileList();
-		$directory = $this->getFullPath();
-
-		$fileNames = scandir($directory);
-
-		foreach ($fileNames as $fileName) {
-			if (!is_dir($fileName)) {
-				$list->add(new File($directory .'/'. $fileName));
-			}
-		}
-		$this->_files = $list;
-	}
 }
