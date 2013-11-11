@@ -68,7 +68,7 @@ interface ListInterface extends Collection
      *  specified position
      * @param integer      $index   Index of the element to replace
      *
-     * @return mixed|Object the element previously at the specified position
+     * @return boolean True if collection has change as a result of the call
      *
      * @throws \Slick\Utility\Exception\IndexOutOfBoundsException If the index
      *   is out of range (index < 0 || index >= size())
