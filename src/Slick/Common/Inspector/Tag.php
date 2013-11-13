@@ -47,6 +47,15 @@ class Tag
 		$value = ArrayMethods::clean(
             ArrayMethods::trim(Text::split($this->_raw, ","))
         );
-        $this->value = new \ArrayIterator($value);
+        
+        $elements = count($value);
+
+        if ($elements > 1) {
+        	$this->value = new \ArrayIterator($value);
+        } else if ($elements == 1) {
+        	$this->value = reset($value);
+        }
+
+
 	}
 }

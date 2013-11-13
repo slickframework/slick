@@ -77,16 +77,19 @@ class InspectorTest extends \Codeception\TestCase\Test
      */
     public function readClassMetaData()
     {
-        $expected = array(
-            '@package' => array('Test\Common\Examples'),
-            '@author' => array('Filipe Silva <silvam.filipe@gmail.com>'),
-            '@test' => true
-        );
+
         $result = $this->_inspector->getClassMeta();
-        print_r($result); die();
-        $this->assertEquals($expected, $result);
+        $this->assertInstanceOf('Slick\Common\Inspector\TagList', $result);
+        $this->assertTrue($result['@package']->value == 'Test\Common\Examples');
+        $this->assertTrue($result['@author']->value == 'Filipe Silva <silvam.filipe@gmail.com>');
+        $this->assertTrue($result['@test']->value);
+
+        $this->assertTrue($result->hasTag('@author'));
+
+        $this->assertFalse($result->getTag('@read'));
+        
         $inspector = new Inspector('\Common\Examples\Motor');
-        $this->assertEmpty($inspector->getClassMeta());
+        $this->assertTrue(count($inspector->getClassMeta()) == 0);
         unset($inspector);
     }
 

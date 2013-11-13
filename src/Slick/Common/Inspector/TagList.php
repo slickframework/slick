@@ -23,7 +23,7 @@ class TagList extends \ArrayIterator implements TagListInterface
 
 	public function append(\Slick\Common\Inspector\Tag $tag)
 	{
-		parent::append($tag);
+		$this[$tag->name] = $tag;
 	}
 
 	public function offsetSet($offsetSet, $value)
@@ -35,23 +35,14 @@ class TagList extends \ArrayIterator implements TagListInterface
 
 	public function hasTag($name)
 	{
-		/** @var $tag \Slick\Common\Inspector\Tag $tag */
-		foreach ($this as $tag) {
-			if (strtolower($name) == strtolower($tag->name)) {
-				return true;
-			}
-		}
-
-		return false;
+		return $this->offsetExists($name);
 	}
 
 	public function getTag($name)
 	{
-		foreach ($this as $tag) {
-			if (strtolower($name) == strtolower($tag->name)) {
-				return $tag;
-			}
-		}
+		if ($this->offsetExists($name)) {
+			return $this[$name];
+		}		
 		return false;
 	}
 }
