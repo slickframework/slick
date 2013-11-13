@@ -13,7 +13,8 @@
 namespace Slick\Common;
 
 use Slick\Utility\Text,
-    Slick\Utility\ArrayMethods;
+    Slick\Utility\ArrayMethods,
+    Slick\Common\Inspector\ClassMetaData;
 
 /**
  * Inspector uses PHP reflection to inspect classes or objects.
@@ -33,6 +34,11 @@ class Inspector
      * @var \ReflectionClass The reflection data for given class.
      */
     protected $_reflection = null;
+
+    /**
+     * @var \Slick\Common\Inspector\ClassMetaData Class meta data object
+     */
+    protected $_metaData = null;
 
     /**
      * @var array Class metadata.
@@ -70,16 +76,7 @@ class Inspector
      */
     public function getClassMeta()
     {
-        if (empty($this->_meta['class'])) {
-            $comment = $this->_getReflection()->getDocComment();
-
-            if (!empty($comment)) {
-                $this->_meta['class'] = $this->_parse($comment);
-            } else {
-                $this->_meta['class'] = array();
-            }
-        }
-        return $this->_meta['class'];
+        return $this->_getClassMetaData()->getClassTags();
     }
     
     /**
@@ -169,6 +166,14 @@ class Inspector
             $this->_reflection = new \ReflectionClass($this->_class);
         }
         return $this->_reflection;
+    }
+
+    protected function _getClassMetaData()
+    {
+        if (is_null($this->_metaData)) {
+            $this->_metaData = new ClassMetaData($this->_getReflection());
+        }
+        return $this->_metaData;
     }
     
     /**

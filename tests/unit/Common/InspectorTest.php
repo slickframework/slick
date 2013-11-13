@@ -82,7 +82,9 @@ class InspectorTest extends \Codeception\TestCase\Test
             '@author' => array('Filipe Silva <silvam.filipe@gmail.com>'),
             '@test' => true
         );
-        $this->assertEquals($expected, $this->_inspector->getClassMeta());
+        $result = $this->_inspector->getClassMeta();
+        print_r($result); die();
+        $this->assertEquals($expected, $result);
         $inspector = new Inspector('\Common\Examples\Motor');
         $this->assertEmpty($inspector->getClassMeta());
         unset($inspector);
