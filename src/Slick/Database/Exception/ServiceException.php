@@ -12,13 +12,15 @@
 
 namespace Slick\Database\Exception;
 
+use Slick\Database\Exception as DatabaseException;
+
 /**
  * Service Exception
  *
  * @package   Slick\Database\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ServiceException extends \RuntimeException implements ExceptionInterface
+class ServiceException extends \RuntimeException implements DatabaseException
 {
     
 }

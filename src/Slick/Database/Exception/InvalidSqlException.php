@@ -12,6 +12,8 @@
 
 namespace Slick\Database\Exception;
 
+use Slick\Database\Exception as DatabaseException;
+
 /**
  * Invalid Sql Exception
  *
@@ -19,7 +21,7 @@ namespace Slick\Database\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class InvalidSqlException extends \LogicException
-    implements ExceptionInterface
+    implements DatabaseException
 {
 
     /**

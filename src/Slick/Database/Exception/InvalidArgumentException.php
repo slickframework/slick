@@ -12,6 +12,8 @@
 
 namespace Slick\Database\Exception;
 
+use Slick\Database\Exception as DatabaseException;
+
 /**
  * InvalidArgumentException
  *
@@ -19,7 +21,7 @@ namespace Slick\Database\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class InvalidArgumentException extends \ErrorException
-    implements ExceptionInterface
+    implements DatabaseException
 {
     
 }
