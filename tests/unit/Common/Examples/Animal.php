@@ -42,7 +42,7 @@ class Animal extends Base
     protected $_dead = false;
 
     /**
-     * @write
+     * @write  
      * @var boolean Animal medical state
      */
     protected $_sick = false;

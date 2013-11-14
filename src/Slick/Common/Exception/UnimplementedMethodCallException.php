@@ -12,6 +12,8 @@
 
 namespace Slick\Common\Exception;
 
+use Slick\Common\Exception as CommonException;
+
 /**
  * UnimplementedMethodCallException
  *
@@ -19,7 +21,7 @@ namespace Slick\Common\Exception;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class UnimplementedMethodCallException extends \LogicException
-    implements ExceptionInterface
+    implements CommonException
 {
     
 }

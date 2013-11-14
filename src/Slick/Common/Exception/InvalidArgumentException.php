@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Write Only Exception
- * 
+ * Invalid Argument Exception
+ *
  * @package   Slick\Common\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -15,13 +15,12 @@ namespace Slick\Common\Exception;
 use Slick\Common\Exception as CommonException;
 
 /**
- * WriteOnlyException
+ * InvalidArgumentException
  *
  * @package   Slick\Common\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class WriteOnlyException extends \LogicException
-    implements CommonException
+class InvalidArgumentException extends \RuntimeException implements CommonException
 {
-    
+
 }

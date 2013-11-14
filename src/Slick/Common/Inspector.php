@@ -14,7 +14,8 @@ namespace Slick\Common;
 
 use Slick\Utility\Text,
     Slick\Utility\ArrayMethods,
-    Slick\Common\Inspector\ClassMetaData;
+    Slick\Common\Inspector\ClassMetaData,
+    Slick\Common\Exception;
 
 /**
  * Inspector uses PHP reflection to inspect classes or objects.
@@ -50,12 +51,12 @@ class Inspector
     );
 
     /**
-     * @var array List of class properties
+     * @var \ArrayIterator List of class properties
      */
     protected $_properties = array();
 
     /**
-     * @var array List of class methods.
+     * @var \ArrayIterator List of class methods.
      */
     protected $_methods = array();
 
@@ -88,6 +89,7 @@ class Inspector
     {
         if (empty($this->_properties)) {
             $properties = $this->_getReflection()->getProperties();
+            $this->_properties = new \ArrayIterator();
             foreach ($properties as $property) {
                 $this->_properties[] = $property->getName();
             }
@@ -104,6 +106,7 @@ class Inspector
     {
         if (empty($this->_methods)) {
             $methods = $this->_getReflection()->getMethods();
+            $this->_methods = new \ArrayIterator();
             foreach ($methods as $method) {
                 $this->_methods[] = $method->getName();
             }
@@ -120,17 +123,14 @@ class Inspector
      */
     public function getPropertyMeta($property)
     {
-        if (!isset($this->_meta['properties'][$property])) {
-            $comment = $this->_getReflection()
-                ->getProperty($property)
-                ->getDocComment();
-            if (!empty($comment)) {
-                $this->_meta['properties'][$property] = $this->_parse($comment);
-            } else {
-                $this->_meta['properties'][$property] = null;
-            }
+        if (!in_array($property, $this->getClassProperties()->getArrayCopy())) {
+            $name = $this->_getReflection()->getName();
+            throw new Exception\InvalidArgumentException(
+                "The class {$name} doesn't have a property called {$property}"
+            );
         }
-        return $this->_meta['properties'][$property];
+
+        return $this->_getClassMetaData()->getPropertyMeta($property);
     }
     
     /**
@@ -138,21 +138,19 @@ class Inspector
      *
      * @param string $method The method name to retrieve the meta data.
      * 
-     * @return array A key/value(s) associative array from method comment.
+     * @return \Slick\Common\Inspector\TagList A list of tags of the inspected
+     *  method
      */
     public function getMethodMeta($method)
     {
-        if (!isset($this->_meta['methods'][$method])) {
-            $comment = $this->_getReflection()
-                ->getMethod($method)
-                ->getDocComment();
-            if (!empty($comment)) {
-                $this->_meta['methods'][$method] = $this->_parse($comment);
-            } else {
-                $this->_meta['methods'][$method] = null;
-            }
+        if (!in_array($method, $this->getClassMethods()->getArrayCopy())) {
+            $name = $this->_getReflection()->getName();
+            throw new Exception\InvalidArgumentException(
+                "The class {$name} doesn't have a method called {$method}"
+            );
         }
-        return $this->_meta['methods'][$method];
+
+        return $this->_getClassMetaData()->getMethodMeta($method);
     }
     
     /**
@@ -168,6 +166,11 @@ class Inspector
         return $this->_reflection;
     }
 
+    /**
+     * Returns the class meta data objcect for this class
+     * 
+     * @return \Slick\Common\Inspector\ClassMetaData
+     */
     protected function _getClassMetaData()
     {
         if (is_null($this->_metaData)) {
@@ -176,38 +179,4 @@ class Inspector
         return $this->_metaData;
     }
     
-    /**
-     * Parses the docblock comment to retrieve anotaion tags like @tag.
-     *
-     * It will scan the comment to find anotation tags and creates an
-     * array of (@tag name as key) tag values. If a tag with no
-     * value is found, it will have a boolean TRUE value.
-     * 
-     * @param string $comment The comment to parse.
-     * 
-     * @return array A key/value(s) associative array from comment.
-     */
-    protected function _parse($comment)
-    {
-        $meta = array();
-        $pattern = "(@[a-zA-Z]+\s*[a-zA-Z0-9\\\,=\s\.\@\<\>_\-]*)";
-        
-        $matches = Text::match($comment, $pattern);
-        if ($matches != null) {
-            foreach ($matches as $match) {
-                $parts = ArrayMethods::clean(
-                    ArrayMethods::trim(Text::split($match, "[\s*]", 2))
-                );
-
-                $meta[$parts[0]] = true;
-
-                if (sizeof($parts) > 1) {
-                    $meta[$parts[0]] = ArrayMethods::clean(
-                        ArrayMethods::trim(Text::split($parts[1], ","))
-                    );
-                }
-            }
-        }
-        return $meta;
-    }
 }

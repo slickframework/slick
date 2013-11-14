@@ -12,7 +12,8 @@
 
 namespace Common;
 
-use Slick\Common\Inspector;
+use Slick\Common\Inspector,
+    Slick\Common\Inspector\TagList;
 use Common\Examples;
 
 /**
@@ -100,7 +101,7 @@ class InspectorTest extends \Codeception\TestCase\Test
      */
     public function readClassProperties()
     {
-        $expected = array('_brand', '_model');
+        $expected = new \ArrayIterator(array('_brand', '_model'));
         $this->assertEquals($expected, $this->_inspector->getClassProperties());
 }
     
@@ -111,7 +112,7 @@ class InspectorTest extends \Codeception\TestCase\Test
      */
     public function readClassMethods()
     {
-        $expected = array('start', 'stop');
+        $expected = new \ArrayIterator(array('start', 'stop'));
         $this->assertEquals($expected, $this->_inspector->getClassMethods());
     }
     
@@ -119,30 +120,48 @@ class InspectorTest extends \Codeception\TestCase\Test
      * Read property meta data
      * 
      * @test
+     * @expectedException Slick\Common\Exception\InvalidArgumentException
      */
     public function readPropertyMetaData()
     {
-        $expected = array(
-            '@var' => array('string The car brand'),
-            '@readwrite' => true,
-        );
-        $this->assertEquals($expected, $this->_inspector->getPropertyMeta('_brand'));
-        $this->assertNull($this->_inspector->getPropertyMeta('_model'));
+        $result =  $this->_inspector->getPropertyMeta('_brand');
+        $this->assertInstanceOf('Slick\Common\Inspector\TagList', $result);
+        $this->assertTrue($result->hasTag('@var'));
+        $this->assertTrue($result['@readwrite']->value);
+        $tag = $result['@hasMany'];
+        $this->assertEquals('test', $tag->value['table']);
+        $this->assertEquals('my_brand', $tag->getForeignKey());
+        $this->assertNull($tag->getOtherName());
+        $this->assertTrue(count($this->_inspector->getPropertyMeta('_model')) == 0);
+
+        $this->_inspector->getPropertyMeta('_unknown');
     }
     
     /**
      * Read method meta data
      * 
      * @test
+     * @expectedException Slick\Common\Exception\InvalidArgumentException
      */
     public function readMethodMetaData()
     {
-        $expected = array(
-            '@return' => array('boolean The car state'),
-            '@throws' => array('\Exception'),
-        );
-        $this->assertEquals($expected, $this->_inspector->getMethodMeta('start'));
-        $this->assertNull($this->_inspector->getMethodMeta('stop'));
+        $tags = $this->_inspector->getMethodMeta('start');
+        $this->assertEquals('\Exception', $tags->getTag('@throws')->value);
+        $this->assertEquals('boolean The car state', $tags->getTag('@return')->value);
+        $this->assertEquals(0, count($this->_inspector->getMethodMeta('stop')));
+        $this->_inspector->getMethodMeta('_unknown');
+    }
+
+    /**
+     * Check if only the Tag can be added to a tag list
+     * @test
+     * @expectedException Slick\Common\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Only a Slick\Common\Inspector\Tag object can be added to a TagList
+     */
+    public function checkTagListAppend()
+    {
+        $tgl = new TagList();
+        $tgl[] = "Hello exception!";
     }
 
 }

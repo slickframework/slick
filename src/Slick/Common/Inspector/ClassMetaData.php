@@ -48,7 +48,8 @@ class ClassMetaData
 	/**
 	 * Creats a ClassMetaData with a provided class reflection object
 	 * 
-	 * @param \ReflectionClass $reflection Reflection object for current inspected class
+	 * @param \ReflectionClass $reflection Reflection object for current
+	 *  inspected class
 	 */
 	public function __construct(\ReflectionClass $reflection)
 	{
@@ -70,6 +71,48 @@ class ClassMetaData
 			$this->_parse($comment, $this->_class);
 		}
 		return $this->_class;
+	}
+
+	/**
+	 * Returns the list of tags for provided property name
+	 * 
+	 * @param string $name The property name to inspect.
+	 * 
+	 * @return \Slick\Common\TagList The list of tags of inspected property
+	 */
+	public function getPropertyMeta($name)
+	{
+		if (!isset($this->_properties[$name])) {
+        	$this->_properties[$name] = new TagList();
+			$comment = $this->_reflection
+                ->getProperty($name)
+                ->getDocComment();
+            if (!empty($comment)) {
+            	$this->_parse($comment, $this->_properties[$name]);
+            }
+		}
+		return $this->_properties[$name];
+	}
+
+	/**
+	 * Returns the list of tags for provided method name
+	 * 
+	 * @param string $name The name of the method to be inspected
+	 * 
+	 * @return \Slick\Common\TagList The list of tags of inspected method
+	 */
+	public function getMethodMeta($name)
+	{
+		if (!isset($this->_methods[$name])) {
+        	$this->_methods[$name] = new TagList();
+			$comment = $this->_reflection
+                ->getMethod($name)
+                ->getDocComment();
+            if (!empty($comment)) {
+            	$this->_parse($comment, $this->_methods[$name]);
+            }
+		}
+		return $this->_methods[$name];
 	}
 
 	/**

@@ -208,9 +208,9 @@ abstract class Base
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
-            $meta = $this->_inspector->getPropertyMeta($property);
+            $tags = $this->_inspector->getPropertyMeta($property);
 
-            if (empty($meta['@readwrite']) && empty($meta['@read'])) {
+            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
                 $className = get_class($this);
                 throw new Exception\WriteOnlyException(
                     "Trying to read the values of a write only property."
@@ -239,9 +239,9 @@ abstract class Base
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
-            $meta = $this->_inspector->getPropertyMeta($property);
+            $tags = $this->_inspector->getPropertyMeta($property);
 
-            if (empty($meta['@readwrite']) && empty($meta['@write'])) {
+            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@write')) {
                 $className = get_class($this);
                 throw new Exception\ReadOnlyException(
                     "Trying to assign a value to a read only property."
@@ -276,9 +276,9 @@ abstract class Base
         $property = "_{$normalized}";
 
         if (property_exists($this, $property)) {
-            $meta = $this->_inspector->getPropertyMeta($property);
-            
-            if (empty($meta['@readwrite']) && empty($meta['@read'])) {
+            $tags = $this->_inspector->getPropertyMeta($property);
+
+            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
                 $className = get_class($this);
                 throw new Exception\WriteOnlyException(
                     "Trying to read the values of a write only property."

@@ -51,11 +51,37 @@ class Tag
         $elements = count($value);
 
         if ($elements > 1) {
-        	$this->value = new \ArrayIterator($value);
+        	$this->value = new \ArrayIterator($this->_parseValue($value));
         } else if ($elements == 1) {
         	$this->value = reset($value);
         }
+	}
 
+	protected function _parseValue($value)
+	{
+		$elements = array();
+		foreach ($value as $prop) {
+			$split = ArrayMethods::trim(Text::split($prop, "[=*]", 2));
+			if (count($split) > 1) {
+				$elements[strtolower($split[0])] = $split[1];
+			} else {
+				$elements[] = $prop;
+			}
+		}
+		return $elements;
+	}
 
+	public function __call($method, $rags)
+	{
+        $getMatches = Text::match($method, "^get([a-zA-Z0-9\_]+)$");
+
+        if (sizeof($getMatches) > 0) {
+        	$index = strtolower($getMatches[0]);
+        	if ($this->value->offsetExists($index)) {
+            	return $this->value[$index];
+            }             	
+        }
+        
+        return null;
 	}
 }

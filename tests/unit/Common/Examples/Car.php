@@ -24,7 +24,8 @@ class Car
     
     /**
      * @readwrite
-     * @var string The car brand 
+     * @var string The car brand
+     * @hasMany Model, table=test, foreignKey=my_brand
      */
     protected $_brand;
     
