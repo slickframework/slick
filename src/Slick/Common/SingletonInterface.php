@@ -10,6 +10,8 @@
  * @since      Version 1.0.0
  */
 
+namespace Slick\Common;
+
 /**
  * SingletonInterface
  *
@@ -19,5 +21,16 @@
 interface SingletonInterface
 {
 
-     public static function getInstance($options = array());
+	/**
+     * Returns the *Singleton* instance of this class.
+     *
+     * @staticvar SingletonInterface $instance The *Singleton* instances
+     *  of this class.
+     *
+     * @param array $options The list of property values of this instance.
+     *
+     * @return SingletonInterface The *Singleton* instance.
+     */
+    public static function getInstance($options = array());
+
 }

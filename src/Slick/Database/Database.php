@@ -32,24 +32,9 @@ class Database extends Base
 
     /**
      * @readwrite
-     * @var \Slick\Utility\PropertyList A list of connector options
+     * @var array A list of connector options
      */
     protected $_options = null;
-
-    /**
-     * Sets the options for this driver.
-     *
-     * This methos ensures that options is a property list.
-     * 
-     * @param \Slick\Utility\PropertyList $options Connector options
-     *
-     * @return \Slick\Database\Database A self instance for method call chains
-     */
-    public function setOptions(\Slick\Utility\PropertyList $options)
-    {
-        $this->_options = $options;
-        return $this;
-    }
 
     /**
      * Initializes an database connector.

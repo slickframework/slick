@@ -12,7 +12,7 @@
 
 namespace Slick\Database\Connector;
 
-use Slick\Common\Base;
+use Slick\Common\BaseSingleton;
 
 /**
  * Abstract Connector is a basic implementation of Connector interface
@@ -20,8 +20,27 @@ use Slick\Common\Base;
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractConnector extends Base implements ConnectorInterface
+abstract class AbstractConnector extends BaseSingleton implements ConnectorInterface
 {
+
+    /**
+     * @readwrite
+     * @var \Slick\Utility\PropertyList A list of connector options
+     */
+    protected $_options = null;
+
+    /**
+     * @readwrite
+     * @var \PDO The PHP Data Object (PDO) object
+     */
+    protected $_dataObject = null;
+
+    /**
+     * @read
+     * @var boolean A flag that indicates the connection state
+     */
+    protected $_connected = false;
+
 
     /**
      * Connects to database service.
@@ -29,11 +48,8 @@ abstract class AbstractConnector extends Base implements ConnectorInterface
      * @return \Slick\Database\Connector\ConnectorInterface
      *   A self instance for chain method calls.
      */
-    public function connect()
-    {
-        return $this;
-    }
-
+    abstract public function connect();
+    
     /**
      * Disconnects from database service.
      * 
@@ -42,6 +58,8 @@ abstract class AbstractConnector extends Base implements ConnectorInterface
      */
     public function disconnect()
     {
+        $this->_dataObject = null;
+        $this->_connected = false;
         return $this;
     }
 
@@ -97,5 +115,10 @@ abstract class AbstractConnector extends Base implements ConnectorInterface
         
     }
 
+    /**
+     * Sets the dsn to use with PDO initializarion
+     * 
+     * @return string The DSN string to initilize the PDO class.
+     */
     abstract public function getDsn();
 }
