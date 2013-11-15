@@ -100,8 +100,9 @@ class Mysql extends AbstractConnector
      */
     public function connect()
     {
+        $className = $this->_dboClass;
         try {
-            $this->dataObject = new \PDO(
+            $this->dataObject = new $className(
                 $this->getDsn(),
                 $this->_username,
                 $this->_password
@@ -117,5 +118,15 @@ class Mysql extends AbstractConnector
         }
 
         return $this;
+    }
+
+    /**
+     * Returns a corresponding query instance.
+     * 
+     * @return \Slick\Database\Query\Mysql
+     */
+    public function query()
+    {
+
     }
 }

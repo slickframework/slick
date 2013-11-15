@@ -12,7 +12,8 @@
 
 namespace Slick\Database\Connector;
 
-use Slick\Common\BaseSingleton;
+use Slick\Common\BaseSingleton,
+    Slick\Database\Exception;
 
 /**
  * Abstract Connector is a basic implementation of Connector interface
@@ -36,10 +37,22 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
     protected $_dataObject = null;
 
     /**
-     * @read
+     * @readwrite
      * @var boolean A flag that indicates the connection state
      */
     protected $_connected = false;
+
+    /**
+     * @write
+     * @var string The class name of Data object
+     */
+    protected $_dboClass = '\PDO';
+
+    /**
+     * @readwrite
+     * @var \PDOStatement Last statement used
+     */
+    protected $_lastStatement = null;
 
 
     /**
@@ -68,10 +81,7 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
      * 
      * @return \Slick\Database\Query\QueryInterface
      */
-    public function query()
-    {
-
-    }
+    abstract public function query();
     
     /**
      * Executes the provided SQL statement.
@@ -80,39 +90,69 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
      * 
      * @return \PDOStatement The connector response from server.
      */
-    public function execute($sql)
+    public function execute($query)
     {
-
+        
     }
     
     /**
      * Returns the ID of the last row to be inserted.
      *
-     * @return integer The last insertd ID value.
+     * @return string The last insertd ID value.
+     *
+     * @throws \Slick\Database\Exception\ServiceException If this connector
+     *  hasn't a valid PDO object
      */
     public function getLastInsertId()
     {
+        if (!$this->_isValidService()) {
+            throw new Exception\ServiceException(
+                "Not connected to a valid database service."
+            );
+        }
 
+        return $this->_dataObject->lastInsertId();
     }
 
     /**
      * Returns the number of rows affected by the last SQL query executed.
      *
      * @return integer The number of rows affected by last query.
+     *
+     * @throws \Slick\Database\Exception\ServiceException If this connector
+     *  hasn't a valid PDO object
      */
     public function getAffectedRows()
     {
+        if (!$this->_isValidService()) {
+            throw new Exception\ServiceException(
+                "Not connected to a valid database service."
+            );
+        }
 
+        if (!is_null($this->_lastStatement))
+            return $this->_lastStatement->rowCount();
+        
+        return 0;
     }
 
     /**
      * Returns the last error of occur.
      *
      * @return string The last error of occur.
+     *
+     * @throws \Slick\Database\Exception\ServiceException If this connector
+     *  hasn't a valid PDO object
      */
     public function getLastError()
     {
-        
+        if (!$this->_isValidService()) {
+            throw new Exception\ServiceException(
+                "Not connected to a valid database service."
+            );
+        }
+        $errorInfo = $this->_dataObject->errorInfo();
+        return $errorInfo[2];
     }
 
     /**
@@ -121,4 +161,20 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
      * @return string The DSN string to initilize the PDO class.
      */
     abstract public function getDsn();
+
+    /**
+     * Checks if this connector has a valid data access object.
+     *
+     * @return boolean The connection state. True if connected.
+     */
+    protected function _isValidService()
+    {
+        $isService = !is_null($this->_dataObject);
+
+        if ($isService && $this->isConnected()) {
+            return true;
+        }
+
+        return false;
+    }
 }
