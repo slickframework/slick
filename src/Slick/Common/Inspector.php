@@ -152,6 +152,18 @@ class Inspector
 
         return $this->_getClassMetaData()->getMethodMeta($method);
     }
+
+    /**
+     * Checks if the methos is defined in the inpected class
+     * 
+     * @param string $name The method name to verify
+     * 
+     * @return boolean True if method is defined in the inspected class
+     */
+    public function hasMethod($name)
+    {
+        return in_array($name, $this->getClassMethods()->getArrayCopy());
+    }
     
     /**
      * Returns the reflection object for inpected class

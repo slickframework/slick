@@ -12,7 +12,8 @@
 
 namespace Slick\Database\Connector;
 
-use Slick\Database\Exception;
+use Slick\Database\Exception,
+    Slick\Database\Query\Query;
 
 /**
  * Mysql database connector
@@ -122,11 +123,19 @@ class Mysql extends AbstractConnector
 
     /**
      * Returns a corresponding query instance.
+     *
+     * @param string $sql The sql string to perform
      * 
-     * @return \Slick\Database\Query\Mysql
+     * @return \Slick\Database\Query\Query
      */
-    public function query()
+    public function query($sql = null)
     {
-
+        return new Query(
+            array(
+                'dialect' => 'Mysql',
+                'connector' => $this,
+                'sql' => $sql
+            )
+        );
     }
 }

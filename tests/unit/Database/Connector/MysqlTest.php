@@ -107,6 +107,17 @@ class MysqlTest extends \Codeception\TestCase\Test
         $this->_connector->getLastError();
     }
 
+    /**
+     * Checks the connector query creator
+     * @test
+     */
+    public function createAQuery()
+    {
+        $query = $this->_connector->query();
+        $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $query);
+        $this->assertEquals($query->connector, $this->_connector);
+    }
+
 }
 
 class FakePDO extends \PDO

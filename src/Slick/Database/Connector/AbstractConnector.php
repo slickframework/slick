@@ -13,7 +13,8 @@
 namespace Slick\Database\Connector;
 
 use Slick\Common\BaseSingleton,
-    Slick\Database\Exception;
+    Slick\Database\Exception,
+    Slick\Common\Inspector;
 
 /**
  * Abstract Connector is a basic implementation of Connector interface
@@ -161,6 +162,37 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
      * @return string The DSN string to initilize the PDO class.
      */
     abstract public function getDsn();
+
+    /**
+     * Magic method to handle undefined methods call.
+     *
+     * This method gives this connecto the ability to behave as a proxy for
+     * the Slick\Database\Connector\AbstractConnector::$_dataObject.
+     *
+     * It check is it has the calling method defined and returns its execution
+     * If the method its not define the \Slick\Base::__call() will be returned
+     * as it can be a property getter or setter call.
+     *
+     * @see  Slick\Database\Connector\AbstractConnector::$_dataObject
+     * @see  Slick\Base::__call()
+     * 
+     * @param string $method    The method name
+     * @param array  $arguments The arguments set with the calling
+     * 
+     * @return mixed  The return of the used method.
+     */
+    public function __call($method, $arguments = array())
+    {
+        $podInspector = new Inspector('\PDO');
+        if ($podInspector->hasMethod($method)) {
+            return call_user_func_array(
+                array($this->_dataObject, $method),
+                $arguments
+            );
+        }
+
+        return parent::__call($method, $arguments);
+    }
 
     /**
      * Checks if this connector has a valid data access object.
