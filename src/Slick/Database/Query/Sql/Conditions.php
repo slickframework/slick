@@ -47,4 +47,22 @@ class Conditions extends Base
 		}
 		return $this;
 	}
+
+	public function toString()
+	{
+		$str = '';
+
+		$numPredicates = sizeof($this->_predicates);
+		for ($i = 0; $i < $numPredicates; $i++) {
+			
+			$str .= "{$this->_predicates[$i]} ";
+
+			// middle element, add operation
+			if (isset($this->_predicates[$i+1])) {
+				$str .= "{$this->_operations[$i]} ";
+			} 
+		}
+
+		return trim($str);
+	}
 }

@@ -126,5 +126,7 @@ abstract class AbstractSql extends Base implements SqlInterface
 				->addPredicate($predicate)
 				->addOperation($operation);
 		}
+
+		return $this;
 	}
 }

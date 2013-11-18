@@ -12,7 +12,8 @@
 
 namespace Slick\Database\Query\Sql;
 
-use Slick\Common\Base;
+use Slick\Common\Base,
+	Slick\Database\Exception;
 
 /**
  * Transformer
@@ -76,8 +77,10 @@ class Transformer extends Base
 				break;
 			
 			default:
-				// TODO: Throw an exception here
-				break;
+				throw new Exception\UndefinedSqlDialectException(
+					"The dialect '{$this->_dialect}' is not defined."
+				);
+				
 		}
 
 		return $this;

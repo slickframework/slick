@@ -34,6 +34,7 @@ class SelectTest extends \Codeception\TestCase\Test
     protected $_select = null;
 
     protected static $_lastQuery;
+    protected static $_usedParams = array();
    
     /**
      * Creates the databse connector
@@ -222,13 +223,161 @@ class SelectTest extends \Codeception\TestCase\Test
             )
         );
         $this->_select->setQuery($query);
-        $this->_select->where(array("id = '?'" => 23));
-        $this->_select->all();
+        $this->_select
+            ->where(array("id = '?'" => 23))
+            ->andWhere(array("Active = :active" => array(':active' => true)))
+            ->orderBy('name DESC')
+            ->limit(15)
+            ->groupBy('Origin')
+            ->all();
         $expected = <<<EOS
 SELECT * FROM users
-WHERE id = ':id'
+WHERE id = '?' AND Active = :active
+GROUP BY Origin
+ORDER BY name DESC
+LIMIT 15
+EOS;
+        $this->assertEquals(trim($expected), self::$_lastQuery);
+
+        $this->_select
+            ->limit(10, 1)
+            ->join('profile', 'profile.user_id = users.id', array('picture', 'path'))
+            ->all();
+        $expected = <<<EOS
+SELECT users.*, profile.picture, profile.path FROM users
+LEFT JOIN profile ON profile.user_id = users.id
+WHERE id = '?' AND Active = :active
+GROUP BY Origin
+ORDER BY name DESC
+LIMIT 10, 1
 EOS;
         $this->assertEquals(trim($expected), self::$_lastQuery);
     }
 
+    /**
+     * Check transformer dialect creation
+     * @test
+     * @expectedException Slick\Database\Exception\UndefinedSqlDialectException
+     * @expectedExceptionMessage The dialect 'OtherSql' is not defined.
+     */
+    public function checkTransformerDialectCreation()
+    {
+        $query = Stub::construct(
+            'Slick\Database\Query\Query',
+            array(
+                array(
+                    'dialect' => 'OtherSql',
+                    'connector' => $this->_select->query->connector
+                )
+            ),
+            array(
+                'execute' => function($params) {
+                    return true;
+                },
+                'prepare' => function($sql) {
+                    self::$_lastQuery = $sql;
+                    return $sql;
+                }
+            )
+        );
+        $this->_select->setQuery($query);
+        $this->_select->all();
+    }
+
+    /**
+     * Check first method on select 
+     * @test
+     */
+    public function checkFirstMethod()
+    {
+
+        $query = Stub::construct(
+            'Slick\Database\Query\Query',
+            array(
+                array(
+                    'dialect' => 'Mysql',
+                    'connector' => $this->_select->query->connector
+                )
+            ),
+            array(
+                'execute' => function($params) {
+                    self::$_usedParams = $params;
+                    return new \ArrayObject(
+                        array(
+                            0 => array(
+                                'id' => 1,
+                                'name' => 'Filipe Silva',
+                                'email' => 'silvam.filipe@gmail'
+                            )
+                        )
+                    );
+                },
+                'prepare' => function($sql) {
+                    self::$_lastQuery = $sql;
+                    return $sql;
+                }
+            )
+        );
+        $this->_select->setQuery($query);
+        $this->_select
+            ->where(array('id = ?' => 1))
+            ->first();
+
+        $expected = <<<EOS
+SELECT * FROM users
+WHERE id = ?
+LIMIT 1
+EOS;
+        $this->assertEquals(array(1), self::$_usedParams);
+        $this->assertEquals(trim($expected), self::$_lastQuery);
+
+    }
+
+/**
+     * Check count method on select 
+     * @test
+     */
+    public function checkCountMethod()
+    {
+
+        $query = Stub::construct(
+            'Slick\Database\Query\Query',
+            array(
+                array(
+                    'dialect' => 'Mysql',
+                    'connector' => $this->_select->query->connector
+                )
+            ),
+            array(
+                'execute' => function($params) {
+                    self::$_usedParams = $params;
+                    return new \ArrayObject(
+                        array(
+                            0 => array(
+                                'totalRows' => 123,
+                            )
+                        )
+                    );
+                },
+                'prepare' => function($sql) {
+                    self::$_lastQuery = $sql;
+                    return $sql;
+                }
+            )
+        );
+        $this->_select->setQuery($query);
+        $result = $this->_select
+            ->where(array('id = ?' => 2))
+            ->join('profile', 'profile.user_id = users.id', array('picture', 'path'))
+            ->count();
+
+        $expected = <<<EOS
+SELECT COUNT(*) AS totalRows FROM users
+LEFT JOIN profile ON profile.user_id = users.id
+WHERE id = ?
+EOS;
+        $this->assertEquals(array(2), self::$_usedParams);
+        $this->assertEquals(trim($expected), self::$_lastQuery);
+        $this->assertEquals(123, $result);
+    }
 }

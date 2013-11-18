@@ -39,12 +39,14 @@ abstract class Standard extends Base implements Dialect
 		$parts = explode('\\', get_class($this->_sql));
 		$name = array_pop($parts);
 
+		$statement = null;
+
 		switch ($name) {
 			case 'Select':
-				return $this->select();
-				
+				$statement = $this->select();
+				break;				
 		}
-		return null;
+		return $statement;
 	}
 
 	/**

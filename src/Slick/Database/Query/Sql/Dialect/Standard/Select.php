@@ -28,12 +28,14 @@ class Select extends Base
 	 */
 	protected $_sql;
 
+	/**
+	 * @var string The query template
+	 */
 	protected $_select = <<<EOT
 SELECT <fields><joinFields> FROM <tableName>
 <joins>
 <where>
 <groupBy>
-<having>
 <orderBy>
 <limit>
 EOT;
@@ -45,37 +47,186 @@ EOT;
 	 */
 	public function getStatement()
 	{
-		return trim(
-			str_replace(
-				array(
-					'<fields>', '<joinFields>', '<tableName>',
-					'<joins>', '<where>', '<groupBy>', '<having>',
-					'<orderBy>', '<limit>'
-				),
-				array(
-					$this->getFields(),
-					$this->getJoinFields(),
-					$this->_sql->getTableName(),
-					null,
-					null, 
-					null,
-					null,
-					null,
-					null
-				),
-				$this->_select
+		return $this->_fixBlanks(
+			trim(
+				str_replace(
+					array(
+						'<fields>', '<joinFields>', '<tableName>',
+						'<joins>', '<where>', '<groupBy>',
+						'<orderBy>', '<limit>'
+					),
+					array(
+						$this->getFields(),
+						$this->getJoinFields(),
+						$this->_sql->getTableName(),
+						$this->getJoins(), 
+						$this->getWhere(),
+						$this->getGroupBy(),
+						$this->getOrderBy(),
+						$this->getLimit()
+					),
+					$this->_select
+				)
 			)
 		);
 	}
 
-	protected function getFields()
+	/**
+	 * Returns the field list from Select object
+	 * 
+	 * @return string The field list
+	 */
+	public function getFields()
 	{
+		$joins = $this->_sql->getJoins();
 		$fields = $this->_sql->getFields();
+
+		if (count($joins) > 0 && $this->_sql->prefixTableName) {
+			$table = $this->_sql->getTableName();
+			foreach ($fields as $key => $field) {
+				$fields[$key] = "{$table}.{$field}";
+			}
+		}
+
 		return implode(', ', $fields);
 	}
 
-	protected function getJoinFields()
+	/**
+	 * Returns the join fields for this query
+	 * 
+	 * @return string The comma seperated field names
+	 */
+	public function getJoinFields()
 	{
-		return null;
+		$fields = null;
+		$tmpFields = array();
+		$joins = $this->_sql->getJoins();
+
+		if (count($joins) > 0) {
+			foreach ($joins as $join) {
+				$tmpJoin = array();
+				foreach ($join['fields'] as $field) {
+					$tmpJoin[] = "{$join['table']}.{$field}";
+				}
+				$tmpFields[] = implode(', ', $tmpJoin);
+			}
+			$fields = ', '. implode(', ', $tmpFields);
+			if (trim($fields) == ',') $fields = null;
+		}
+
+		return $fields;
 	}
+
+	/**
+	 * Returns the JOIN clauses for this query
+	 * 
+	 * @return string The join clauses string
+	 */
+	public function getJoins()
+	{
+		$template = "%s JOIN %s ON %s";
+		$joinsStr = null;
+
+		$joins = $this->_sql->getJoins();
+		$tmpJoin = array();
+		if (count($joins) > 0) {
+			foreach ($joins as $join) {
+				$tmpJoin[] = sprintf(
+					$template,
+					$join['type'],
+					$join['table'],
+					$join['onClause']
+				);
+			}
+			$joinsStr = implode(PHP_EOL, $tmpJoin);
+		}
+
+		return $joinsStr;
+	}
+
+	/**
+	 * Returns the WHERE clause for this query
+	 * 
+	 * @return string The where clause string
+	 */
+	public function getWhere()
+	{
+		$template = "WHERE %s";
+		$where = null;
+		if (count($this->_sql->conditions->predicates) > 0) {
+			$where = trim(
+				sprintf($template, $this->_sql->conditions->toString())
+			);
+		}
+
+		return $where;
+	}
+
+	/**
+	 * Returns the order by clause for this query
+	 * 
+	 * @return string The order by clause string
+	 */
+	public function getOrderBy()
+	{
+		$template = "ORDER BY %s";
+		$orderBy = null;
+		if (!is_null($this->_sql->orderBy)) {
+			$orderBy = trim(sprintf($template, $this->_sql->getOrderBy()));
+		}
+		return $orderBy;
+	}
+
+	/**
+	 * Returns the group by clause for this query
+	 * 
+	 * @return string The group by clause string
+	 */
+	public function getGroupBy()
+	{
+		$template = "GROUP BY %s";
+		$groupBy = null;
+		if (!is_null($this->_sql->groupBy)) {
+			$groupBy = trim(sprintf($template, $this->_sql->getGroupBy()));
+		}
+		return $groupBy;
+	}
+
+	/**
+	 * Returns the limit clause for this query
+	 * 
+	 * @return string The limit clause string
+	 */
+	public function getLimit()
+	{
+		if ($this->_sql->limit <= 0) {
+			return null;
+		}
+
+		if ($this->_sql->offset > 0) {
+			return "LIMIT {$this->_sql->limit}, {$this->_sql->offset}";
+		} 
+		return "LIMIT {$this->_sql->limit}";
+	}
+
+	/**
+	 * Removes the blank lines in the query string
+	 * 
+	 * @param string $str The query string to fix
+	 * 
+	 * @return string The fixed query string.
+	 */
+	protected function _fixBlanks($str)
+	{
+		$lines = explode(PHP_EOL, $str);
+		$clean = array();
+		foreach ($lines as $line) {
+			if (trim($line) != "") {
+				$clean[] = $line;
+			}
+		}
+
+		return implode(PHP_EOL, $clean);
+	}
+
 }
