@@ -108,6 +108,10 @@ class Mysql extends AbstractConnector
                 $this->_username,
                 $this->_password
             );
+            $this->dataObject->setAttribute(
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_EXCEPTION
+            );
             $this->_connected = true;
         } catch (\PDOException $e) {
             $msg = $e->getMessage();

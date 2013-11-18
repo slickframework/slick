@@ -14,6 +14,7 @@ namespace Slick\Database\Query;
 
 use Slick\Common\Base,
     Slick\Database\RecordList,
+    Slick\Database\Exception,
     Slick\Database\Query\Sql,
     Slick\Database\Query\Sql\Transformer;
 
@@ -113,8 +114,18 @@ class Query extends Base implements QueryInterface
     public function prepare($sql)
     {
         $this->_sql = $sql;
-        $this->_preparedStatement = $this->_connector
+        try {
+            $this->_preparedStatement = $this->_connector
                 ->prepare($sql);
+        } catch (\PDOException $exp) {
+            $message = $exp->getMessage();
+            throw new Exception\InvalidSqlException(
+                "Error preparing SQL statement: {$message}",
+                $sql,
+                $exp
+            );
+            
+        }
         return $this->_preparedStatement;
     }
 
@@ -127,8 +138,10 @@ class Query extends Base implements QueryInterface
      */
     public function execute($params = array())
     {
-        $stm = $this->_preparedStatement->execute($params);
-        return new RecordList($stm->fetchAll($this->_fetchMode));
+        $result = new RecordList();
+        if ($this->_preparedStatement->execute($params))
+            $result = new RecordList($this->_preparedStatement->fetchAll($this->_fetchMode));
+        return $result;
     }
 
     /**

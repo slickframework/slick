@@ -196,6 +196,13 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
     {
         $podInspector = new Inspector('\PDO');
         if ($podInspector->hasMethod($method)) {
+            
+            if (!$this->_isValidService()) {
+                throw new Exception\ServiceException(
+                    "Not connected to a valid database service."
+                );
+            }
+
             return call_user_func_array(
                 array($this->_dataObject, $method),
                 $arguments

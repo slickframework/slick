@@ -79,6 +79,10 @@ class SQLite extends AbstractConnector implements ConnectorInterface
         $className = $this->_dboClass;
         try {
             $this->dataObject = new $className($this->getDsn());
+            $this->dataObject->setAttribute(
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_EXCEPTION
+            );
             $this->_connected = true;
         } catch (\PDOException $e) {
             $msg = $e->getMessage();

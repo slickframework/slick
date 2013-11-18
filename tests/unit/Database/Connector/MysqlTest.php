@@ -143,6 +143,11 @@ class FakePDO extends \PDO
 
     }
 
+    public function setAttribute($name, $value)
+    {
+        return true;
+    }
+
     public function lastInsertId()
     {
         return 23;

@@ -72,10 +72,9 @@ class SQLiteTest extends \Codeception\TestCase\Test
     public function retrieveQuery()
     {
         $db = $this->_connector->connect();
-        $query = $db->query("SELECT * FROM table");
+        $query = $db->query("CREATE TABLE n(x INTEGER, y, z, PRIMARY KEY(x ASC))");
         $this->assertInstanceOf('Slick\Database\Query\Query', $query);
         $this->assertEquals('SQLite', $query->dialect);
-        $this->assertEquals("SELECT * FROM table", $query->sql);
         $this->assertSame($db, $query->connector);
     }
 
