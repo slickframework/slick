@@ -76,6 +76,22 @@ class MysqlTest extends \Codeception\TestCase\Test
     }
 
     /**
+     * Execute a sing call sql
+     * @test
+     * @expectedException Slick\Database\Exception\ServiceException
+     * @expectedExceptionMessage Not connected to a valid database service.
+     */
+    public function executeSingleQuery()
+    {
+        $pdo = new FakePDO('fake');
+        $this->_connector->dataObject = $pdo;
+        $this->_connector->connected = true;
+        $this->assertEquals(34, $this->_connector->execute("Some query"));
+        $this->_connector->connected = false;
+        $this->_connector->execute('test');
+    }
+
+    /**
      * get affected rows
      * @test
      * @expectedException Slick\Database\Exception\ServiceException
@@ -137,6 +153,11 @@ class FakePDO extends \PDO
         return array(
             2 => "Error message"
         );
+    }
+
+    public function exec($sql)
+    {
+        return 34;
     }
 
 }

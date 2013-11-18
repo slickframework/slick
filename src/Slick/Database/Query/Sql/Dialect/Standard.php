@@ -23,40 +23,40 @@ use Slick\Common\Base;
 abstract class Standard extends Base implements Dialect
 {
 
-	/**
-	 * @readwrite
-	 * @var \Slick\Database\Query\SqlInterface
-	 */
-	protected $_sql;
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\SqlInterface
+     */
+    protected $_sql;
 
-	/**
-	 * Retrieves the SQL statment for current dialect
-	 * 
-	 * @return string The correct SQL statment
-	 */
-	public function getStatement()
-	{
-		$parts = explode('\\', get_class($this->_sql));
-		$name = array_pop($parts);
+    /**
+     * Retrieves the SQL statment for current dialect
+     * 
+     * @return string The correct SQL statment
+     */
+    public function getStatement()
+    {
+        $parts = explode('\\', get_class($this->_sql));
+        $name = array_pop($parts);
 
-		$statement = null;
+        $statement = null;
 
-		switch ($name) {
-			case 'Select':
-				$statement = $this->select();
-				break;				
-		}
-		return $statement;
-	}
+        switch ($name) {
+            case 'Select':
+                $statement = $this->select();
+                break;              
+        }
+        return $statement;
+    }
 
-	/**
-	 * Parses a Select SQL object into its string query
-	 * 
-	 * @return string The SQL Select query statement string
-	 */
-	public function select()
-	{
-		$dialect = new Standard\Select(array('sql' => $this->_sql));
-		return $dialect->getStatement();
-	}
+    /**
+     * Parses a Select SQL object into its string query
+     * 
+     * @return string The SQL Select query statement string
+     */
+    public function select()
+    {
+        $dialect = new Standard\Select(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
 }

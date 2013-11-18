@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Mysql
- * 
+ * SQLite
+ *
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -16,43 +16,19 @@ use Slick\Database\Exception,
     Slick\Database\Query\Query;
 
 /**
- * Mysql database connector
+ * SQLite Database connecto for SQLite database
  *
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Mysql extends AbstractConnector
+class SQLite extends AbstractConnector implements ConnectorInterface
 {
 
     /**
      * @readwrite
-     * @var string The Mysql Server user name
+     * @var string
      */
-    protected $_username;
-
-    /**
-     * @readwrite
-     * @var string The Mysql Server user password
-     */
-    protected $_password;
-
-    /**
-     * @readwrite
-     * @var string The Mysql Server host name
-     */
-    protected $_hostname;
-
-    /**
-     * @readwrite
-     * @var string The Mysql Server database
-     */
-    protected $_database;
-
-    /**
-     * @readwrite
-     * @var integer The Mysql Server port
-     */
-    protected $_port = 3306;
+    protected $_file = ':memory:';
 
     /**
      * Returns the *Singleton* instance of this class.
@@ -62,7 +38,7 @@ class Mysql extends AbstractConnector
      *
      * @param array $options The list of property values of this instance.
      *
-     * @return \Slick\Database\Connector\Mysql The *Singleton* instance.
+     * @return \Slick\Database\Connector\SQLite The *Singleton* instance.
      */
     public static function getInstance($options = array())
     {
@@ -73,7 +49,7 @@ class Mysql extends AbstractConnector
                 'Slick\Database\Connector\ConnectorInterface'
             )
         ) {
-            $instance = new Mysql($options);
+            $instance = new SQLite($options);
         }
         return $instance;
     }
@@ -85,29 +61,24 @@ class Mysql extends AbstractConnector
      */
     public function getDsn()
     {
-        $dsn = "mysql:host=%s;dbname=%s";
+        $dsn = "sqlite:%s";
         return sprintf(
             $dsn,
-            $this->hostname,
-            $this->database
+            $this->file
         );
     }
 
     /**
      * Connects to database service.
      *
-     * @return \Slick\Database\Connector\Mysql
+     * @return \Slick\Database\Connector\SQLite
      *   A self instance for chain method calls.
      */
     public function connect()
     {
         $className = $this->_dboClass;
         try {
-            $this->dataObject = new $className(
-                $this->getDsn(),
-                $this->_username,
-                $this->_password
-            );
+            $this->dataObject = new $className($this->getDsn());
             $this->_connected = true;
         } catch (\PDOException $e) {
             $msg = $e->getMessage();
@@ -132,7 +103,7 @@ class Mysql extends AbstractConnector
     {
         return new Query(
             array(
-                'dialect' => 'Mysql',
+                'dialect' => 'SQLite',
                 'connector' => $this,
                 'sql' => $sql
             )

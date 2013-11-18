@@ -85,15 +85,26 @@ abstract class AbstractConnector extends BaseSingleton implements ConnectorInter
     abstract public function query();
     
     /**
-     * Executes the provided SQL statement.
+     * Executes an SQL statement in a single function call, returning the
+     * number of rows affected by the statement
      *
      * @param string $sql The SQL statment to execute.
      * 
-     * @return \PDOStatement The connector response from server.
+     * @return integer The number of rows that were modified or deleted by
+     * the SQL statement you issued
+     *
+     * @throws \Slick\Database\Exception\ServiceException If this connector
+     *  hasn't a valid PDO object
      */
-    public function execute($query)
+    public function execute($sql)
     {
-        
+        if (!$this->_isValidService()) {
+            throw new Exception\ServiceException(
+                "Not connected to a valid database service."
+            );
+        }
+
+        return $this->_dataObject->exec($sql);
     }
     
     /**
