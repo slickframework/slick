@@ -95,6 +95,11 @@ class Select extends AbstractSql implements SelectInterface
 		return reset($result);
 	}
 
+	/**
+	 * Count the rows for current where conditions
+	 * 
+	 * @return integer The total rows for current conditions
+	 */
 	public function count()
 	{
 		$limit = $this->_limit;
