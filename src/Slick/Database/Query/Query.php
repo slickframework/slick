@@ -104,6 +104,18 @@ class Query extends Base implements QueryInterface
     }
 
     /**
+     * Creates a 'Insert' SQL statement
+     * 
+     * @param string $tableName The table name for insert statement
+     * @return \Slick\Database\Query\Sql\Insert The SQL insert object
+     */
+    public function insert($tableName)
+    {
+        $this->_sqlStatement = new Sql\Insert($tableName, $this);
+        return $this->_sqlStatement;
+    }
+
+    /**
      * Creates a prepared statement, ready to receive params from given SQL
      * 
      * @param string $sql The SQL statement to prepare

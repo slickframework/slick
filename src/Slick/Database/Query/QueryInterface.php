@@ -22,12 +22,21 @@ interface QueryInterface
 {
 
     /**
-     * Creates a 'Select' SQL statement
+     * Creates a prepared statement, ready to receive params from given SQL
      * 
-     * @param string $tableName The table name for select statement
-     * @param array  $fields    A list of fields to retreive whit query
+     * @param string $sql The SQL statement to prepare
      * 
-     * @return \Slick\Database\Query\Sql\Select The SQL select object
+     * @return /PDOStatement A prepared PDOStatement object
+     * @see  http://www.php.net/manual/en/class.pdostatement.php
      */
-    public function select($tableName, $fields = array('*'));
+    public function prepare($sql);
+
+    /**
+     * Executes current query, binding the provided parameters
+     * 
+     * @param array $params List of parameters to set before execute que query
+     * 
+     * @return \Slick\Database\RecordList A record list with the query results
+     */
+    public function execute($params = array());
 }
