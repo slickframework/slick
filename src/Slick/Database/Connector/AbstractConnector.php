@@ -22,7 +22,8 @@ use Slick\Common\BaseSingleton,
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractConnector extends BaseSingleton implements ConnectorInterface
+abstract class AbstractConnector extends BaseSingleton
+    implements ConnectorInterface
 {
 
     /**

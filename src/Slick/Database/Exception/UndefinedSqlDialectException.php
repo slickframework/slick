@@ -21,7 +21,7 @@ use Slick\Database\Exception as DbException;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class UndefinedSqlDialectException extends \RuntimeException
-	implements DbException
+    implements DbException
 {
 
 }

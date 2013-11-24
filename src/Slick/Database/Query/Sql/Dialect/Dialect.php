@@ -21,10 +21,10 @@ namespace Slick\Database\Query\Sql\Dialect;
 interface Dialect
 {
 
-	/**
-	 * Retrieves the SQL statment for current dialect
-	 * 
-	 * @return string The correct SQL statment
-	 */
-	public function getStatement();
+    /**
+     * Retrieves the SQL statment for current dialect
+     * 
+     * @return string The correct SQL statment
+     */
+    public function getStatement();
 }

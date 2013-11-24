@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SqlInterface
+ * DeleteInterface
  *
  * @package   Slick\Database\Query\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,21 +13,18 @@
 namespace Slick\Database\Query\Sql;
 
 /**
- * SqlInterface define a general SQL statement
+ * DeleteInterface
  *
  * @package   Slick\Database\Query\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface SqlInterface
+interface DeleteInterface
 {
 
     /**
-     * Adds a condition to the where clause
+     * Deletes the data in the tatble
      * 
-     * @param array $conditions The condition to add.
-     * 
-     * @return \Slick\Database\Query\Sql\SqlInterface A self instance for
-     *  method call chains
+     * @return boolean True if data was successfully deleted
      */
-    public function where($conditions);
+    public function execute();
 }

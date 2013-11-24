@@ -33,7 +33,7 @@ use Slick\Utility\Text;
  */
 abstract class BaseSingleton implements SingletonInterface
 {
-	/**
+    /**
      * @var \Slick\common\Inspector The self inspector object.
      */
     private $_inspector = null;
@@ -46,12 +46,12 @@ abstract class BaseSingleton implements SingletonInterface
     public $___mocked;
     // @codingStandardsIgnoreEnd
 
-	/**
-	 * Trait with method for base class
-	 */
-	use BaseMethods;
+    /**
+     * Trait with method for base class
+     */
+    use BaseMethods;
 
-	/**
+    /**
      * Protected constructor to prevent creating a new instance of the
      * *Singleton* via the `new` operator from outside of this class.
      * 

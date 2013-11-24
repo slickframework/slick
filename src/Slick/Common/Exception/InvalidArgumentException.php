@@ -20,7 +20,8 @@ use Slick\Common\Exception as CommonException;
  * @package   Slick\Common\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class InvalidArgumentException extends \RuntimeException implements CommonException
+class InvalidArgumentException extends \RuntimeException
+    implements CommonException
 {
 
 }

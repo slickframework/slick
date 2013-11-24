@@ -21,7 +21,7 @@ use Slick\Database\Exception as DbException;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class UnsupportedSyntaxException extends \RuntimeException
-	implements DbException
+    implements DbException
 {
 
 }

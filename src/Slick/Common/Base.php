@@ -99,11 +99,15 @@ abstract class Base
             if (in_array($property, $skip)) {
                 continue;
             }
+            $tags = $this->_inspector->getPropertyMeta($property);
             $property = str_replace('_', '', $property);
-
-            if ($this->$property != $object->$property) {
+            
+            if (!$tags->hasTag('@write')
+                && $this->$property != $object->$property
+            ) {
                 return false;
             }
+
         }
         return $equals;
     }

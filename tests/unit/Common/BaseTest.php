@@ -142,4 +142,23 @@ class BaseTest extends \Codeception\TestCase\Test
         $dog->name;
     }
 
+    /**
+     * Using Base::equals() to compare objects
+     * @test
+     */
+    public function compareObjects()
+    {
+        $dog = new Examples\Animal(array('name' => 'Dog'));
+        $car = new Examples\Car();
+        $this->assertFalse($dog->equals(array()));
+        $this->assertFalse($dog->equals($car));
+        $bidDog = new Examples\Animal(array('name' => 'Dog'));
+        $this->assertTrue($dog->equals($bidDog));
+        $cat = new Examples\Animal(array('name' => 'Cat'));
+        $this->assertFalse($dog->equals($cat));
+        $bidDog->setPet(true);
+        $this->assertFalse($dog->equals($bidDog));
+
+    }
+
 }

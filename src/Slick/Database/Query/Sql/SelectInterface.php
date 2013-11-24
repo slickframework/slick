@@ -21,5 +21,25 @@ namespace Slick\Database\Query\Sql;
 interface SelectInterface extends SqlInterface
 {
 
+    /**
+     * Returns a RecordList with all records result for this select.
+     * 
+     * @return \Slick\DataBase\RecordList
+     */
+    public function all();
+
+    /**
+     * Retrieves the first row of a given select query
+     * 
+     * @return object The record or null.
+     */
+    public function first();
+
+    /**
+     * Count the rows for current where conditions
+     * 
+     * @return integer The total rows for current conditions
+     */
+    public function count();
 
 }

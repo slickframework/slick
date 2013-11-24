@@ -21,7 +21,7 @@ namespace Slick\Common;
 interface SingletonInterface
 {
 
-	/**
+     /**
      * Returns the *Singleton* instance of this class.
      *
      * @staticvar SingletonInterface $instance The *Singleton* instances

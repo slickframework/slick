@@ -116,6 +116,30 @@ class Query extends Base implements QueryInterface
     }
 
     /**
+     * Creates a 'Update' SQL statement
+     * 
+     * @param string $tableName The table name for update statement
+     * @return \Slick\Database\Query\Sql\Update The SQL update object
+     */
+    public function update($tableName)
+    {
+        $this->_sqlStatement = new Sql\Update($tableName, $this);
+        return $this->_sqlStatement;
+    }
+
+    /**
+     * Creates a 'Delete' SQL statement
+     * 
+     * @param string $tableName The table name for delete statement
+     * @return \Slick\Database\Query\Sql\Delete The SQL delete object
+     */
+    public function delete($tableName)
+    {
+        $this->_sqlStatement = new Sql\Delete($tableName, $this);
+        return $this->_sqlStatement;
+    }
+
+    /**
      * Creates a prepared statement, ready to receive params from given SQL
      * 
      * @param string $sql The SQL statement to prepare
@@ -152,7 +176,9 @@ class Query extends Base implements QueryInterface
     {
         $result = new RecordList();
         if ($this->_preparedStatement->execute($params))
-            $result = new RecordList($this->_preparedStatement->fetchAll($this->_fetchMode));
+            $result = new RecordList(
+                $this->_preparedStatement->fetchAll($this->_fetchMode)
+            );
         return $result;
     }
 

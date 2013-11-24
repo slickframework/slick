@@ -13,7 +13,8 @@
 namespace Slick\Database\Query\Sql;
 
 use Slick\Common\Base,
-	Slick\Database\Query\Sql\Conditions;
+    Slick\Database\Query\Sql\Conditions,
+    Slick\Database\Query\QueryInterface;
 
 /**
  * AbstractSql is a base implementation for SqlInterface
@@ -23,110 +24,109 @@ use Slick\Common\Base,
  */
 abstract class AbstractSql extends Base implements SqlInterface
 {
-	/**
-	 * @readwrite
-	 * @var \Slick\Database\Query\Query
-	 */
-	protected $_query = null;
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\Query
+     */
+    protected $_query = null;
 
-	/**
-	 * @readwrite
-	 * @var array a list of parameters for this query
-	 */
-	protected $_params = array();
+    /**
+     * @readwrite
+     * @var array a list of parameters for this query
+     */
+    protected $_params = array();
 
-	/**
-	 * @readwrite
-	 * @var string The table name that will be used in this query
-	 */
-	protected $_tableName;
+    /**
+     * @readwrite
+     * @var string The table name that will be used in this query
+     */
+    protected $_tableName;
 
-	/**
-	 * @readwrite
-	 * @var array The list of fields used in this query
-	 */
-	protected $_fields = array('*');
+    /**
+     * @readwrite
+     * @var array The list of fields used in this query
+     */
+    protected $_fields = array('*');
 
-	/**
-	 * @readwrite
-	 * @var \Slick\Database\Query\Sql\Conditions
-	 */
-	protected $_conditions;
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\Sql\Conditions
+     */
+    protected $_conditions;
 
-	/**
-	 * Creates a new SQL statement
-	 * 
-	 * @param string                               $tableName The database
-	 *  table for this statment
-	 * @param array                                $fields    The list of
-	 *  fields to use in query
-	 * @param \Slick\Database\Query\QueryInterface $query     The query object
-	 *  that gives this statement a context
-	 */
-	public function __construct(
-		$tableName, $fields = array('*'),
-		\Slick\Database\Query\QueryInterface $query)
-	{
-		$options = array(
-			'tableName' => $tableName,
-			'fields' => $fields,
-			'query' => $query
-		);
+    /**
+     * Creates a new SQL statement
+     * 
+     * @param string                               $tableName The database
+     *  table for this statment
+     * @param array                                $fields    The list of
+     *  fields to use in query
+     * @param \Slick\Database\Query\QueryInterface $query     The query object
+     *  that gives this statement a context
+     */
+    public function __construct(
+        $tableName, $fields = array('*'), QueryInterface $query = null)
+    {
+        $options = array(
+            'tableName' => $tableName,
+            'fields' => $fields,
+            'query' => $query
+        );
 
-		parent::__construct($options);
+        parent::__construct($options);
 
-		$this->_conditions = new Conditions();
-	}
+        $this->_conditions = new Conditions();
+    }
 
-	/**
-	 * Adds a conditions to this statement
-	 * 
-	 * @param array $conditions A pair of values in this
-	 * @return [type]             [description]
-	 */
-	public function where($conditions)
-	{
-		return $this->_where($conditions);
-	}
+    /**
+     * Adds a conditions to this statement
+     * 
+     * @param array $conditions A pair of values in this
+     * @return [type]             [description]
+     */
+    public function where($conditions)
+    {
+        return $this->_where($conditions);
+    }
 
-	public function andWhere($conditions)
-	{
-		return $this->where($conditions);
-	}
+    public function andWhere($conditions)
+    {
+        return $this->where($conditions);
+    }
 
-	public function orWhere($conditions)
-	{
-		return $this->_where($conditions, 'OR');
-	}
+    public function orWhere($conditions)
+    {
+        return $this->_where($conditions, 'OR');
+    }
 
-	protected function _where($conditions, $operation = 'AND')
-	{
-		foreach ($conditions as $predicate => $param) {
-			//param is a list for IN predicate
-			if (preg_match('/IN \([0-9a-z\?:]*\)/i', $predicate)
-				&& is_array($param)
-			) {
-				$this->_params[] = implode(', ', $param);
-					
-			} else if (is_array($param)) {
-				//param has multiple entries
-				foreach ($param as $key => $value) {
-					if (preg_match('/:[a-z_]*/i', $key)) {
-						$this->_params[$key] = $value;
-					} else {
-						$this->_params[] = $value;
-					}
-				}
+    protected function _where($conditions, $operation = 'AND')
+    {
+        foreach ($conditions as $predicate => $param) {
+            //param is a list for IN predicate
+            if (preg_match('/IN \([0-9a-z\?:]*\)/i', $predicate)
+                && is_array($param)
+            ) {
+                $this->_params[] = implode(', ', $param);
+                    
+            } else if (is_array($param)) {
+                //param has multiple entries
+                foreach ($param as $key => $value) {
+                    if (preg_match('/:[a-z_]*/i', $key)) {
+                        $this->_params[$key] = $value;
+                    } else {
+                        $this->_params[] = $value;
+                    }
+                }
 
-			} else {
-				$this->_params[] = $param;
-			}
+            } else {
+                $this->_params[] = $param;
+            }
 
-			$this->conditions
-				->addPredicate($predicate)
-				->addOperation($operation);
-		}
+            $this->conditions
+                ->addPredicate($predicate)
+                ->addOperation($operation);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 }

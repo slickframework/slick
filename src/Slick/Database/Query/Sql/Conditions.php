@@ -22,47 +22,47 @@ use Slick\Common\Base;
  */
 class Conditions extends Base
 {
-	/**
-	 * @readwrite
-	 * @var array A list of predicates (conditions)
-	 */
-	protected $_predicates = array();
+    /**
+     * @readwrite
+     * @var array A list of predicates (conditions)
+     */
+    protected $_predicates = array();
 
-	/**
-	 * @readwrite
-	 * @var array A list of operations that will tie the predicates
-	 */
-	protected $_operations = array();
+    /**
+     * @readwrite
+     * @var array A list of operations that will tie the predicates
+     */
+    protected $_operations = array();
 
-	public function addPredicate($predicate)
-	{
-		$this->_predicates[] = $predicate;
-		return $this;
-	}
+    public function addPredicate($predicate)
+    {
+        $this->_predicates[] = $predicate;
+        return $this;
+    }
 
-	public function addOperation($operation)
-	{
-		if (sizeof($this->_predicates) > 1) {
-			$this->_operations[] = $operation;
-		}
-		return $this;
-	}
+    public function addOperation($operation)
+    {
+        if (sizeof($this->_predicates) > 1) {
+            $this->_operations[] = $operation;
+        }
+        return $this;
+    }
 
-	public function toString()
-	{
-		$str = '';
+    public function toString()
+    {
+        $str = '';
 
-		$numPredicates = sizeof($this->_predicates);
-		for ($i = 0; $i < $numPredicates; $i++) {
-			
-			$str .= "{$this->_predicates[$i]} ";
+        $numPredicates = sizeof($this->_predicates);
+        for ($i = 0; $i < $numPredicates; $i++) {
+            
+            $str .= "{$this->_predicates[$i]} ";
 
-			// middle element, add operation
-			if (isset($this->_predicates[$i+1])) {
-				$str .= "{$this->_operations[$i]} ";
-			} 
-		}
+            // middle element, add operation
+            if (isset($this->_predicates[$i+1])) {
+                $str .= "{$this->_operations[$i]} ";
+            } 
+        }
 
-		return trim($str);
-	}
+        return trim($str);
+    }
 }

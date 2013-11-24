@@ -44,7 +44,19 @@ abstract class Standard extends Base implements Dialect
         switch ($name) {
             case 'Select':
                 $statement = $this->select();
-                break;              
+                break;
+
+            case 'Insert':
+                $statement = $this->insert();
+                break;
+
+            case 'Update':
+                $statement = $this->update();
+                break;
+
+            case 'Delete':
+                $statement = $this->delete();
+                break;
         }
         return $statement;
     }
@@ -57,6 +69,39 @@ abstract class Standard extends Base implements Dialect
     public function select()
     {
         $dialect = new Standard\Select(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses an Insert SQL object into its string query
+     * 
+     * @return string The SQL Insert query statement string
+     */
+    public function insert()
+    {
+        $dialect = new Standard\Insert(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses an Update SQL object into its string query
+     * 
+     * @return string The SQL Update query statement string
+     */
+    public function update()
+    {
+        $dialect = new Standard\Update(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses an Delete SQL object into its string query
+     * 
+     * @return string The SQL Delete query statement string
+     */
+    public function delete()
+    {
+        $dialect = new Standard\Delete(array('sql' => $this->_sql));
         return $dialect->getStatement();
     }
 }
