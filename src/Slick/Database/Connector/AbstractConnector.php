@@ -84,6 +84,13 @@ abstract class AbstractConnector extends BaseSingleton
      * @return \Slick\Database\Query\QueryInterface
      */
     abstract public function query();
+
+    /**
+     * Returns a corresponding DDL query instance.
+     * 
+     * @return \Slick\Database\Query\QueryInterface
+     */
+    abstract public function ddlQuery();
     
     /**
      * Executes an SQL statement in a single function call, returning the

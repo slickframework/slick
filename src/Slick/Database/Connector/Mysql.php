@@ -13,7 +13,8 @@
 namespace Slick\Database\Connector;
 
 use Slick\Database\Exception,
-    Slick\Database\Query\Query;
+    Slick\Database\Query\Query,
+    Slick\Database\Query\DDLQuery;
 
 /**
  * Mysql database connector
@@ -135,6 +136,22 @@ class Mysql extends AbstractConnector
     public function query($sql = null)
     {
         return new Query(
+            array(
+                'dialect' => 'Mysql',
+                'connector' => $this,
+                'sql' => $sql
+            )
+        );
+    }
+
+    /**
+     * Returns a corresponding DDL query instance.
+     * 
+     * @return \Slick\Database\Query\DDLQuery
+     */
+    public function ddlQuery($sql = null)
+    {
+        return new DDLQuery(
             array(
                 'dialect' => 'Mysql',
                 'connector' => $this,
