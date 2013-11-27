@@ -28,7 +28,7 @@ abstract class AbstractConnector extends BaseSingleton
 
     /**
      * @readwrite
-     * @var \Slick\Utility\PropertyList A list of connector options
+     * @var array A list of connector options
      */
     protected $_options = null;
 
