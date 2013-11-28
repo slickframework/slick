@@ -63,7 +63,7 @@ class SessionTest extends \Codeception\TestCase\Test
      * Initializing a driver given a driver class name
      * @test
      * @expectedException Slick\Session\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The session type '\Session\CrazyDriver' doesn't inherited from Slick\Driver\DriverInterface.
+     * @expectedExceptionMessage The session type '\Session\CrazyDriver' doesn't inherited from Slick\Session\Driver\DriverInterface.
      */
     public function initializeDriverFromClassName()
     {
