@@ -59,7 +59,7 @@ class Session extends Base
             } else {
                 throw new Exception\InvalidArgumentException(
                     "The session type '{$driver}' doesn't inherited from "
-                    ."Slick\Driver\DriverInterface."
+                    ."Slick\Session\Driver\DriverInterface."
                 );
             }
         }
