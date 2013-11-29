@@ -12,6 +12,9 @@
 
 namespace Slick\Database\Query\Ddl;
 
+use Slick\Database\Query\Ddl\Utility\ElementList,
+    Slick\Database\Query\QueryInterface;
+
 /**
  * Create
  *
@@ -46,13 +49,34 @@ class Create extends AbstractDdl
      * @param array|object $options The properties for the object
      *  beeing constructed.
      */
- 	public function __construct($options = array())
- 	{
- 		$this->_columns = new ElementList();
- 		$this->_indexes = new ElementList();
- 		$this->_foreignKeys = new ElementList();
+    public function __construct($tableName, QueryInterface $query)
+    {
+        $this->_columns = new ElementList();
+        $this->_indexes = new ElementList();
+        $this->_foreignKeys = new ElementList();
 
- 		parent::__construct($options);
- 	}
+        parent::__construct($tableName, $query);
+    }
+
+    /**
+     * Adds a column to current create query
+     * 
+     * @param string $name    The column name
+     * @param array  $options Column definitions (size, type, etc..)
+     *
+     * @return \Slick\Database\Query\Ddl\Create A self instance for method
+     *  call cahins
+     */
+    public function addColumn($name, $options = array())
+    {
+        $options['name'] = $name;
+        $this->_columns->append(new Utility\Column($options));
+        return $this;
+    }
+
+    public function addForeignKey($options = array())
+    {
+
+    }
 
 }

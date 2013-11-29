@@ -12,7 +12,8 @@
 
 namespace Database\Query\Ddl;
 use Codeception\Util\Stub,
-    Slick\Database\Database;
+    Slick\Database\Database,
+    Slick\Database\Query\Ddl\Utility\Column;
 
 /**
  * CREATE TABLE statment test case
@@ -53,6 +54,68 @@ class CreateTest extends \Codeception\TestCase\Test
     public function retreiveCreateQuery()
     {
         $this->assertInstanceOf('Slick\Database\Query\Ddl\Create', $this->_create);
+    }
+
+    /**
+     * Add columns to the create definition
+     * @test
+     * @expectedException Slick\Database\Exception\InvalidArgumentException
+     */
+    public function addColumns()
+    {
+        $this->_create
+            ->addColumn(
+                'id',
+                array(
+                    'autoIncrement' => true,
+                    'primaryKey' => true,
+                    'type' => Column::TYPE_INTEGER,
+                    'unsigned' => true,
+                    'description' => 'Users primary key'
+                )
+            )
+            ->addColumn(
+                'name',
+                array(
+                    'notNull' => true,
+                    'type' => Column::TYPE_TEXT,
+                    'size' => Column::SIZE_SMALL
+                )
+            )
+            ->addColumn(
+                'active',
+                array(
+                    'type' => Column::TYPE_BOOLEAN,
+                    'default' => 1,
+                    'description' => 'The user affilate state'
+                )
+            );
+
+        $columns = $this->_create->getColumns();
+
+        $this->assertTrue(
+            $columns->contains(
+                new Column(
+                    array(
+                        'notNull' => true,
+                        'type' => Column::TYPE_TEXT,
+                        'size' => Column::SIZE_SMALL,
+                        'name' => 'name'
+                    )
+                )
+            )
+        );
+
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ElementList', $columns);
+        $this->assertEquals(Column::SIZE_SMALL, $columns[1]->size);
+
+        $this->_create
+            ->addColumn(
+                'other',
+                array(
+                    'type' => 'text'
+                )
+            );
     }
 
 }

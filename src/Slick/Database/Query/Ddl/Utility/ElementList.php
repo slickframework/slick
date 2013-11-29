@@ -12,6 +12,8 @@
 
 namespace Slick\Database\Query\Ddl\Utility;
 
+use Slick\Database\Exception;
+
 /**
  * ElementList - List of table elements (columns, indexes, foreignKeys)
  *
@@ -25,29 +27,10 @@ class ElementList extends \ArrayObject
      * Appends a table element to the element list
      * 
      * @param \Slick\Database\Query\Ddl\Utility\TableElementInterface $value
-     * 
-     * @return boolean True if the list has changed as a result of this call
      */
     public function append(TableElementInterface $value)
     {
-        return $this->update(null, $value);
-    }
-
-    /**
-     * Updates or inserts the element at a given key
-     * 
-     * @param mixed                                                   $key
-     * @param \Slick\Database\Query\Ddl\Utility\TableElementInterface $value
-     * 
-     * @return boolean True if the list has changed as a result of this call
-     */
-    public function update($key, TableElementInterface $value)
-    {
-        if (!$this->contains($value)) {
-            $this[$key] = $value;
-            return true;
-        }
-        return false;
+        $this[] = $value;
     }
 
     /**
@@ -58,12 +41,21 @@ class ElementList extends \ArrayObject
      * 
      * @param mixed $offset The index being set.
      * @param mixed $value  The new value for the index.
-     * 
-     * @return boolean True if the list has changed as a result of this call
      */
     public function offsetSet($offset, $value)
     {
-        return $this->update($offset, $value);
+        if (
+            !is_a(
+                $value,
+                'Slick\Database\Query\Ddl\Utility\TableElementInterface'
+            )
+        ) {
+            throw new Exception\InvalidArgumentException(
+                "Table element list only accepts TableElementInterface objects."
+            );
+            
+        }
+        parent::offsetSet($offset, $value);
     }
 
     /**
