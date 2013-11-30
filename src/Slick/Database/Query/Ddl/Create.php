@@ -13,6 +13,8 @@
 namespace Slick\Database\Query\Ddl;
 
 use Slick\Database\Query\Ddl\Utility\ElementList,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
+    Slick\Database\Query\Ddl\Utility\Index,
     Slick\Database\Query\QueryInterface;
 
 /**
@@ -42,6 +44,11 @@ class Create extends AbstractDdl
      */
     protected $_foreignKeys;
 
+    /**
+     * @readwrite
+     * @var array A list of table options
+     */
+    protected $_options;
 
     /**
      * Overrides default constructor to initilize the table elements lists
@@ -74,9 +81,88 @@ class Create extends AbstractDdl
         return $this;
     }
 
+    /**
+     * Adds a foreignKey to the list of foreign keys of this table
+     *
+     * You can create the ForeignKey object or use an array or standard class
+     * with the properties for this foreign key addition
+     * 
+     * @param ForeignKey|array $options The object or the options to create
+     * the object
+     *
+     * @return \Slick\Database\Query\Ddl\Create A self instance for method
+     *  call chains
+     */
     public function addForeignKey($options = array())
     {
+        if (is_a($options, 'Slick\Database\Query\Ddl\Utility\ForeignKey')) {
+            $this->_foreignKeys->append($options);
+        } else {
+            $this->_foreignKeys->append(new ForeignKey($options));
+        }
+        return $this;
+    }
 
+    /**
+     * Adds an index to the current create statement
+     * 
+     * @param Index|string $column  An Index object or a column name.
+     * @param array        $options A property values for Index creation
+     *
+     * @return \Slick\Database\Query\Ddl\Create A self instance for method
+     *  call chains
+     *
+     * @throws Slick\Database\Exception\InvalidArgumentException If the column
+     *  parameter is not an Index objet or a column name.
+     */
+    public function addIndex($column, $options = array())
+    {
+        if (is_a($column, 'Slick\Database\Query\Ddl\Utility\Index')) {
+            $index = $column;
+        } else if (is_string($column)) {
+            $options = array_merge(
+                array(
+                    'name' => "{$column}_idx",
+                    'indexColumns' => array($column),
+                ),
+                $options
+            );
+            $index = new Index($options);
+        } else {
+            throw new Exception\InvalidArgumentException(
+                "To add an indec to a create statement you must use a Index ".
+                "object or a column name."
+            );
+            
+        }
+        $this->_indexes->append($index);
+    }
+
+    /**
+     * Add a table option to this create statement
+     * 
+     * @param string $key   Option name
+     * @param string $value Options value
+     *
+     * @return \Slick\Database\Query\Ddl\Create A self instance for method
+     *  call chains
+     */
+    public function addOption($key, $value)
+    {
+        $this->_options[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Returns a RecordList with all records result for this select.
+     * 
+     * @return \Slick\DataBase\RecordList
+     */
+    public function all()
+    {
+        return $this->getQuery()
+            ->prepareSql($this)
+            ->execute();
     }
 
 }

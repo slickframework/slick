@@ -13,7 +13,8 @@
 namespace Database\Query\Ddl;
 use Codeception\Util\Stub,
     Slick\Database\Database,
-    Slick\Database\Query\Ddl\Utility\Column;
+    Slick\Database\Query\Ddl\Utility\Column,
+    Slick\Database\Query\Ddl\Utility\ForeignKey;
 
 /**
  * CREATE TABLE statment test case
@@ -116,6 +117,35 @@ class CreateTest extends \Codeception\TestCase\Test
                     'type' => 'text'
                 )
             );
+    }
+
+    /**
+     * Try to add foreign keys to the create statement
+     * @test
+     */
+    public function addForeignKeys()
+    {
+        $expected = array(
+            'name' => 'fk_profile',
+            'referencedTable' => 'profile',
+            'indexColumns' => array('profile_id' => 'id'),
+            'onUpdate' => ForeignKey::NO_ACTION,
+            'onDelete' => ForeignKey::CASCADE
+        );
+        $result = $this->_create->addForeignKey($expected);
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Create', $result);
+
+        $fk = new ForeignKey($expected);
+        $fk->setName('fk_author')->setReferencedTable('users')
+            ->setIndexColumns(array())
+            ->addIndexColumn('author_id', 'id')
+            ->setOnDelete(ForeignKey::NO_ACTION);
+
+        $stm = $this->_create->addForeignKey($fk);
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Create', $stm);
+        $fks = $this->_create->getForeignKeys();
+        $this->assertEquals('profile', $fks[0]->referencedTable);
+        $this->assertEquals(array('author_id' => 'id'), $fks[1]->indexColumns);
     }
 
 }

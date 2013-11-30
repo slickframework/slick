@@ -21,13 +21,4 @@ namespace Slick\Database\Query\Sql;
 interface SqlInterface
 {
 
-    /**
-     * Adds a condition to the where clause
-     * 
-     * @param array $conditions The condition to add.
-     * 
-     * @return \Slick\Database\Query\Sql\SqlInterface A self instance for
-     *  method call chains
-     */
-    public function where($conditions);
 }

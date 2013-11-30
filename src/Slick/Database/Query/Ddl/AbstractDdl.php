@@ -13,7 +13,8 @@
 namespace Slick\Database\Query\Ddl;
 
 use Slick\Common\Base,
-    Slick\Database\Query\QueryInterface;
+    Slick\Database\Query\QueryInterface,
+    Slick\Database\Query\Sql\SqlInterface;
 
 /**
  * AbstractDdl
@@ -21,7 +22,7 @@ use Slick\Common\Base,
  * @package   Slick\Database\Query\Ddl
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractDdl extends Base
+abstract class AbstractDdl extends Base implements SqlInterface
 {
     /**
      * @readwrite
