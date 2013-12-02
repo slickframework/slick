@@ -52,9 +52,15 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * @readwrite
-     * @var string The query string to perform
+     * @var string|array The query string to perform
      */
     protected $_sql = null;
+
+    /**
+     * @readwrite
+     * @var boolean Flag for multiple statements
+     */
+    protected $_multiple = false;
 
     /**
      * @readwrite
@@ -99,6 +105,11 @@ abstract class AbstractQuery extends Base implements QueryInterface
     public function prepare($sql)
     {
         $this->_sql = $sql;
+        $this->_multiple = $this->_isMultimple($sql);
+        if ($this->_multiple) {
+            return $this;
+        }
+
         try {
             $this->_preparedStatement = $this->_connector
                 ->prepare($sql);
@@ -111,7 +122,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
             );
             
         }
-        return $this->_preparedStatement;
+        return $this;
     }
 
     /**
@@ -124,10 +135,16 @@ abstract class AbstractQuery extends Base implements QueryInterface
     public function execute($params = array())
     {
         $result = new RecordList();
+        if ($this->_multiple) {
+            $this->_multiple = false;
+            return (boolean) $this->_connector->exec($this->_sql);
+        }
+        
         if ($this->_preparedStatement->execute($params))
             $result = new RecordList(
                 $this->_preparedStatement->fetchAll($this->_fetchMode)
             );
+
         return $result;
     }
 
@@ -158,4 +175,22 @@ abstract class AbstractQuery extends Base implements QueryInterface
         $this->prepare($sql);
         return $this;
     }
+
+    /**
+     * Checks if a sql string contains multiple statements
+     * 
+     * @param string $sql The query string
+     * 
+     * @return boolean True if has multimple statemetns
+     */
+    protected function _isMultimple($sql)
+    {
+        $sql = trim($sql, '; ');
+        $statements = explode(';', $sql);
+        if (sizeof($statements) > 1) {
+            return true;
+        }
+        return false;
+    }
+
 }

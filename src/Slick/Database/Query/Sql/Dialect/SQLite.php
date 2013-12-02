@@ -32,4 +32,14 @@ class SQLite extends Standard
         return $dialect->getStatement();
     }
 
+    /**
+     * Parses a Create SQL 
+     * @return [type] [description]
+     */
+    public function create()
+    {
+        $dialect = new SQLite\Create(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
 }

@@ -23,7 +23,7 @@ use Slick\Common\Base;
 class ForeignKey extends Base implements TableElementInterface
 {
 
-	/**#@+
+    /**#@+
      * @const int The on delete and on update actions
      */
     const NO_ACTION = 0;
@@ -36,45 +36,45 @@ class ForeignKey extends Base implements TableElementInterface
      * @readwrite
      * @var string
      */
-	protected $_name;
+    protected $_name;
 
-	/**
-	 * @readwrite
-	 * @var string The referenced table name
-	 */
-	protected $_referencedTable;
+    /**
+     * @readwrite
+     * @var string The referenced table name
+     */
+    protected $_referencedTable;
 
-	/**
-	 * @readwrite
-	 * @var array A key/value pair for field/reference values
-	 */
-	protected $_indexColumns = array();
+    /**
+     * @readwrite
+     * @var array A key/value pair for field/reference values
+     */
+    protected $_indexColumns = array();
 
-	/**
-	 * @readwrite
-	 * @var integer The action upon update
-	 */
-	protected $_onUpdate = SELF::NO_ACTION;
+    /**
+     * @readwrite
+     * @var integer The action upon update
+     */
+    protected $_onUpdate = self::NO_ACTION;
 
-	/**
-	 * @readwrite
-	 * @var integer The action upon delete
-	 */
-	protected $_onDelete = SELF::NO_ACTION;
+    /**
+     * @readwrite
+     * @var integer The action upon delete
+     */
+    protected $_onDelete = self::NO_ACTION;
 
 
-	/**
-	 * Adds a ner indec column reference to this foreignKey
-	 * 
-	 * @param string $name      The table field name
-	 * @param string $reference The referenced table field name
-	 *
-	 * @return \Slick\Database\Query\Ddl\Utility\ForeignKey A sel instance for
-	 *  method call chains.
-	 */
-	public function addIndexColumn($name, $reference)
-	{
-		$this->_indexColumns[$name] = $reference;
-		return $this;
-	}
+    /**
+     * Adds a ner indec column reference to this foreignKey
+     * 
+     * @param string $name      The table field name
+     * @param string $reference The referenced table field name
+     *
+     * @return \Slick\Database\Query\Ddl\Utility\ForeignKey A sel instance for
+     *  method call chains.
+     */
+    public function addIndexColumn($name, $reference)
+    {
+        $this->_indexColumns[$name] = $reference;
+        return $this;
+    }
 }

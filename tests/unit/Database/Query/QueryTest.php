@@ -63,7 +63,6 @@ class QueryTest extends \Codeception\TestCase\Test
     public function prepareAndExecuteQuery()
     {
         $pst = $this->_query->prepare("CREATE TABLE t(x INTEGER, y, z, PRIMARY KEY(x ASC))");
-        $this->assertInstanceOf('PDOStatement', $pst);
         $this->_query->execute();
         $this->_query->prepare("Some Silly Query");
     }
