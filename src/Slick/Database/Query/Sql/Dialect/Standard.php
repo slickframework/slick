@@ -57,6 +57,10 @@ abstract class Standard extends Base implements Dialect
             case 'Delete':
                 $statement = $this->delete();
                 break;
+
+            case 'Create':
+                $statement = $this->create();
+                break;
         }
         return $statement;
     }
@@ -102,6 +106,17 @@ abstract class Standard extends Base implements Dialect
     public function delete()
     {
         $dialect = new Standard\Delete(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses an CREATE DDL object into its string query
+     * 
+     * @return string The DDL CREATE query statement string
+     */
+    public function create()
+    {
+        $dialect = new Standard\Create(array('sql' => $this->_sql));
         return $dialect->getStatement();
     }
 }

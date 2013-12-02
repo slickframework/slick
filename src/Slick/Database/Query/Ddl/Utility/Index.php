@@ -27,9 +27,10 @@ class Index extends Base implements TableElementInterface
 	/**#@+
      * @const int The index types
      */
-    const INDEX    = 0;
-    const FULLTEXT = 1;
-    const UNIQUE   = 2;
+    const PRIMARY_KEY = 0;
+    const INDEX       = 1;
+    const FULLTEXT    = 2;
+    const UNIQUE      = 3;
     /**#@-*/
 
     /**#@+
@@ -63,7 +64,7 @@ class Index extends Base implements TableElementInterface
 	 * @readwrite
 	 * @var integer The type for this index storage
 	 */
-	protected $_storageType = STORAGE_NONE;
+	protected $_storageType = self::STORAGE_NONE;
 
 	/**
 	 * Sets the type for this index.
@@ -82,7 +83,7 @@ class Index extends Base implements TableElementInterface
 	 */
 	public function setType($type)
 	{
-		if ($type < 0 || $type > 2) {
+		if ((!is_numeric($type)) || $type < 0 || $type > 3) {
 			throw new Exception\InvalidArgumentException(
 				"Trying to set an unknown index type"
 			);
@@ -109,7 +110,7 @@ class Index extends Base implements TableElementInterface
 	 */
 	public function setStorageType($type)
 	{
-		if ($type < 0 || $type > 3) {
+		if ((!is_numeric($type)) || $type < 0 || $type > 3) {
 			throw new Exception\InvalidArgumentException(
 				"Trying to set an unknown index storage type"
 			);

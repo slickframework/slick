@@ -15,7 +15,8 @@ namespace Slick\Database\Query\Ddl;
 use Slick\Database\Query\Ddl\Utility\ElementList,
     Slick\Database\Query\Ddl\Utility\ForeignKey,
     Slick\Database\Query\Ddl\Utility\Index,
-    Slick\Database\Query\QueryInterface;
+    Slick\Database\Query\QueryInterface,
+    Slick\Database\Exception;
 
 /**
  * Create
@@ -33,7 +34,7 @@ class Create extends AbstractDdl
     protected $_columns;
 
     /**
-     * @read
+     * @readwrite
      * @var Slick\Database\Query\Ddl\Utility
      */
     protected $_indexes;
@@ -48,7 +49,7 @@ class Create extends AbstractDdl
      * @readwrite
      * @var array A list of table options
      */
-    protected $_options;
+    protected $_options = array();
 
     /**
      * Overrides default constructor to initilize the table elements lists
@@ -136,6 +137,7 @@ class Create extends AbstractDdl
             
         }
         $this->_indexes->append($index);
+        return $this;
     }
 
     /**
@@ -154,11 +156,11 @@ class Create extends AbstractDdl
     }
 
     /**
-     * Returns a RecordList with all records result for this select.
+     * Executes the create query.
      * 
-     * @return \Slick\DataBase\RecordList
+     * @return boolean True if query was executed successfully
      */
-    public function all()
+    public function execute()
     {
         return $this->getQuery()
             ->prepareSql($this)
