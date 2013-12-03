@@ -29,7 +29,7 @@ class Create extends AbstractDdl
     
     /**
      * @read
-     * @var Slick\Database\Query\Ddl\Utility
+     * @var \Slick\Database\Query\Ddl\Utility\ElementList
      */
     protected $_columns;
 
@@ -54,8 +54,8 @@ class Create extends AbstractDdl
     /**
      * Overrides default constructor to initilize the table elements lists
      * 
-     * @param array|object $options The properties for the object
-     *  beeing constructed.
+     * @param strig $tableName The table name for this query statement
+     * @param \Slick\Database\Query\QueryInterface $query
      */
     public function __construct($tableName, QueryInterface $query)
     {
