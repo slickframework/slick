@@ -7,3 +7,6 @@
 /tests/_log/*.html
 /tests/_log/unit-*
 /composer.lock
+/.settings/
+/.buildpath
+/.project
