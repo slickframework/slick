@@ -24,7 +24,7 @@ interface TableElementInterface
     /**
      * Compares current object with provided one for equality
      * 
-     * @param mixed|ojbect $object The object to compare with
+     * @param mixed|object $object The object to compare with
      * 
      * @return boolean True if the provided object is equal to this object
      */

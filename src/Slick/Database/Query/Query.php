@@ -21,8 +21,7 @@ use Slick\Database\Query\Sql;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Query extends AbstractQuery implements QueryInterface
-{  
-
+{
     /**
      * Creates a 'Select' SQL statement
      * 

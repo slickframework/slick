@@ -12,6 +12,9 @@
 
 namespace Slick\Database\Query\Ddl;
 
+use Slick\Database\Query\Ddl\Utility\ElementList;
+use Slick\Database\Query\Ddl\Utility\Column;
+
 /**
  * Alter
  *
@@ -21,10 +24,16 @@ namespace Slick\Database\Query\Ddl;
 class Alter extends Create
 {
     /**
-     *
+     * @readwrite
      * @var \Slick\Database\Query\Ddl\Utility\ElementList
      */
     protected $_dropedColumns = null;
+    
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\Ddl\Utility\ElementList
+     */
+    protected $_changedColumns = null;
 
     /**
      * Overrides constructor to set initial values on properties
@@ -36,13 +45,14 @@ class Alter extends Create
         $tableName, \Slick\Database\Query\QueryInterface $query)
     {
         parent::__construct($tableName, $query);
-        $this->_dropedColumns = new Utility\ElementList();
+        $this->_dropedColumns = new ElementList();
+        $this->_changedColumns = new ElementList();
     }
 
     /**
-     * Sets a columns to be droped (deleted)
+     * Sets a columns to be dropped (deleted)
      * 
-     * @param type $name The column name to remove
+     * @param type $name The columns name to remove
      * 
      * @return \Slick\Database\Query\Ddl\Alter A self instance for method call
      *  chains
@@ -53,4 +63,26 @@ class Alter extends Create
         $this->_dropedColumns->append($col);
         return $this;
     }
+
+    /**
+     * Changes an existing column in the table
+     *  
+     * @param string|Column $name The new column name or a Column object.
+     * @param array $options A list of options for the column
+     * 
+     * @see \Slick\Database\Query\Ddl\Utility\Column
+     * 
+     * @return \Slick\Database\Query\Ddl\Alter
+     */
+	public function changeColumn($name, $options = array())
+	{
+		if (is_a($name, 'Slick\Database\Query\Ddl\Utility\Column')) {
+			$this->_changedColumns->append($name);
+		} else {
+			$options['name'] = $name;
+			$this->_changedColumns->append(new Column($options));
+		}
+		
+		return $this;
+	}
 }
