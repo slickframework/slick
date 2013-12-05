@@ -114,7 +114,7 @@ class Create extends AbstractDdl
      *  call chains
      *
      * @throws Slick\Database\Exception\InvalidArgumentException If the column
-     *  parameter is not an Index objet or a column name.
+     *  parameter is not an Index object or a column name.
      */
     public function addIndex($column, $options = array())
     {

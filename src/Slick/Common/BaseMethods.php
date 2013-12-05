@@ -30,9 +30,9 @@ trait BaseMethods {
      * this method will check if the property exists and if the annotation
      * flags, like @read, @write or @readwrite are set to proper set or get the
      * property value.
-     * If the property can't be read or written an execption will be trown.
+     * If the property can't be read or written an exception will be thrown.
      * If the method isn't one of "getProperty", "setProperty" or "isProperty"
-     * an exception will be trown saying that the method isn't implemented.
+     * an exception will be thrown saying that the method isn't implemented.
      *
      * @param string $name      The calling method.
      * @param array  $arguments An array with the arguments passed to the
@@ -44,13 +44,15 @@ trait BaseMethods {
      * @throws \Slick\Common\Exception\BadConstructorException
      * @throws \Slick\Common\Exception\UnimplementedMethodCallException
      */
+	// @codingStandardsIgnoreStart
     public function __call($name, $arguments)
     {
+    	// @codingStandardsIgnoreEnd
         if (is_null($this->_inspector)) {
             throw new Exception\BadConstructorException(
-                "The constructor isn\'t correct for use Slick\Common\Base"
+                "The constructor is not correct for use Slick\Common\Base"
                 ." class. You need to call 'parent::__construct()' for the"
-                ." right object initializantion."
+                ." right object initialization."
             );
         }
 
@@ -100,8 +102,10 @@ trait BaseMethods {
      * 
      *  @throws \Slick\Common\Exception\WriteOnlyException
      */
+    // @codingStandardsIgnoreStart
     protected function _getter($name)
     {
+    	// @codingStandardsIgnoreEnd
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
@@ -131,8 +135,10 @@ trait BaseMethods {
      * @throws \Slick\Common\Exception\ReadOnlyException
      * @throws \Slick\Common\Exception\UndefinedPropertyException
      */
+    // @codingStandardsIgnoreStart
     protected function _setter($name, $value)
     {
+    	// @codingStandardsIgnoreEnd
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
@@ -167,8 +173,10 @@ trait BaseMethods {
      * 
      * @throws \Slick\Common\Exception\WriteOnlyException
      */
+    // @codingStandardsIgnoreStart
     protected function _is($name)
     {
+    	// @codingStandardsIgnoreEnd
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
 
@@ -200,8 +208,10 @@ trait BaseMethods {
      * 
      * @see \Slick\Common\Base::__call()
      */
+    // @codingStandardsIgnoreStart
     public function __get($name)
     {
+    	// @codingStandardsIgnoreEnd
         $function = "get".ucfirst($name);
         return $this->$function();
     }
@@ -220,8 +230,10 @@ trait BaseMethods {
      * 
      * @see \Slick\Common\Base::__call()
      */
+    // @codingStandardsIgnoreStart
     public function __set($name, $value)
     {
+    	// @codingStandardsIgnoreEnd
         $function = "set".ucfirst($name);
         return $this->$function($value);
     }

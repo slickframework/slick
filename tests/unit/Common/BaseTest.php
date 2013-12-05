@@ -134,7 +134,7 @@ class BaseTest extends \Codeception\TestCase\Test
      * Instanciating a class that doesn't call parent constructor
      * @test
      * @expectedException \Slick\Common\Exception\BadConstructorException
-     * @expectedExceptionMessage The constructor isn\'t correct for use Slick\Common\Base class. You need to call 'parent::__construct()' for the right object initializantion.
+     * @expectedExceptionMessage The constructor is not correct for use Slick\Common\Base class. You need to call 'parent::__construct()' for the right object initialization.
      */
     public function userABadConstructor()
     {

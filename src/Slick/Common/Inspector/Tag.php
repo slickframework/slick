@@ -66,19 +66,21 @@ class Tag
     }
 
     /**
-     * A magic method to retrive named values
+     * A magic method to retrieve named values
      *
      * If a tag has named values, like name1=value1, name2=value2, ... 
-     * you can retreive those values using the get<Name>() magic method.
+     * you can retrieve those values using the get<Name>() magic method.
      * For example $this->getName1() will return "value1" while
      * $this->getOtherName() will return null.
      * 
      * @param string $method The method called
-     * @param array  $rags   The arguments that were used in the call
+     * @param array  $args   The arguments that were used in the call
      * 
      * @return null|string The named value or null if name doesn't exists
+     * 
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __call($method, $rags)
+    public function __call($method, $args)
     {
         $getMatches = Text::match($method, "^get([a-zA-Z0-9\_]+)$");
 

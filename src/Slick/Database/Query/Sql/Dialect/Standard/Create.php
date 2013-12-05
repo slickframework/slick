@@ -162,25 +162,11 @@ EOS;
         $values = array();
         foreach ($indexes as $index) {
             if ($index->type == Index::PRIMARY_KEY) {
-                $values[] = "{$this->_tab}PRIMARY KEY (`{$index->indexColumns[0]}`)";
+                $values[] = "{$this->_tab}PRIMARY KEY " .
+                	"(`{$index->indexColumns[0]}`)";
             } else {
-                $storage = null;
-                if ($index->getStorageType() != Index::STORAGE_NONE) {
-                    switch ($index->getStorageType()) {
-                        case Index::STORAGE_BTREE:
-                            $storage = ' USING BTREE';
-                            break;
-
-                        case Index::STORAGE_RTREE:
-                            $storage = ' USING RTREE';
-                            break;
-
-                        case Index::STORAGE_HASH:
-                            $storage = ' USING HASH';
-                            break;
-                    }
-                } 
-
+                
+				$storage = $this->_getIndexStorage($index);
                 $columns = array();
 
                 foreach ($index->getIndexColumns() as $colName) {
@@ -194,16 +180,45 @@ EOS;
                 if ($index->type == Index::UNIQUE) {
                     $prefix = 'UNIQUE ';
                 }
-                $values[] = "{$this->_tab}{$prefix}INDEX `{$index->name}`{$storage} ({$columns})";
+                $values[] = "{$this->_tab}{$prefix}INDEX `{$index->name}`".
+                	"{$storage} ({$columns})";
             }
         }
         if (sizeof($values) > 0)
             return ",\n". implode(",\n", $values);
         return null;
     }
+    
+    /**
+     * Returns the storage type for the provided index
+     * 
+     * @param Index $index
+     * 
+     * @return string
+     */
+    protected function _getIndexStorage(Index $index)
+    {
+    	$storage = null;
+    	if ($index->getStorageType() != Index::STORAGE_NONE) {
+    		switch ($index->getStorageType()) {
+    			case Index::STORAGE_BTREE:
+    				$storage = ' USING BTREE';
+    				break;
+    	
+    			case Index::STORAGE_RTREE:
+    				$storage = ' USING RTREE';
+    				break;
+    	
+    			case Index::STORAGE_HASH:
+    				$storage = ' USING HASH';
+    				break;
+    		}
+    	}
+    	return $storage;
+    }
 
     /**
-     * Generate constraints for foreign keys for this create tatble statetment
+     * Generate constraints for foreign keys for this create table statement
      * @return string
      */
     protected function _getConstraints()
@@ -218,43 +233,9 @@ EOS;
         ON UPDATE %s
 EOS;
         foreach ($foreignKeys as $foreignKey) {
-            switch ($foreignKey->onDelete) {
-                case ForeignKey::RESTRICT:
-                    $onDelete = 'RESTRICT';
-                    break;
-
-                case ForeignKey::SET_NULL:
-                    $onDelete = 'SET NULL';
-                    break;
-
-                case ForeignKey::CASCADE:
-                    $onDelete = 'CASCADE';
-                    break;
-                
-                case ForeignKey::NO_ACTION:
-                default:
-                    $onDelete = 'NO ACTION';
-                    break;
-            }
-
-            switch ($foreignKey->onUpdate) {
-                case ForeignKey::RESTRICT:
-                    $onUpdate = 'RESTRICT';
-                    break;
-
-                case ForeignKey::SET_NULL:
-                    $onUpdate = 'SET NULL';
-                    break;
-
-                case ForeignKey::CASCADE:
-                    $onUpdate = 'CASCADE';
-                    break;
-                
-                case ForeignKey::NO_ACTION:
-                default:
-                    $onUpdate = 'NO ACTION';
-                    break;
-            }
+        	$onDelete = $this->_getOnAction($foreignKey->onDelete);
+        	$onUpdate = $this->_getOnAction($foreignKey->onUpdate);
+            
             $fks = array_keys($foreignKey->indexColumns);
             $items[] = sprintf(
                 $template,
@@ -271,6 +252,24 @@ EOS;
             return ",\n". implode(",\n", $items);
         return null;
 
+    }
+    
+    protected function _getOnAction($action)
+    {
+    	switch ($action) {
+    		case ForeignKey::RESTRICT:
+    			return 'RESTRICT';
+    	
+    		case ForeignKey::SET_NULL:
+    			return 'SET NULL';
+    	
+    		case ForeignKey::CASCADE:
+    			return 'CASCADE';
+    	
+    		case ForeignKey::NO_ACTION:
+    		default:
+    			return  'NO ACTION';
+    	}
     }
 
     protected function _getColumnType(Column $col)

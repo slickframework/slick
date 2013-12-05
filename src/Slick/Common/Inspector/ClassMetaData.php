@@ -124,7 +124,6 @@ class ClassMetaData
      */
     protected function _parse($comment, \Slick\Common\Inspector\TagList &$list)
     {
-        $meta = array();
         $pattern = "(@[a-zA-Z]+\s*[a-zA-Z0-9\\\,=\s\.\@\<\>_\-]*)";
         
         $matches = Text::match($comment, $pattern);

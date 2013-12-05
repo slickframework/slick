@@ -12,8 +12,11 @@
 
 namespace Slick\Database\Query\Ddl;
 
-use Slick\Database\Query\Ddl\Utility\ElementList;
-use Slick\Database\Query\Ddl\Utility\Column;
+use Slick\Database\Query\Ddl\Utility\ElementList,
+	Slick\Database\Query\Ddl\Utility\Column,
+	Slick\Database\Query\Ddl\Utility\ForeignKey,
+	Slick\Database\Query\Ddl\Utility\Index;
+use Symfony\Component\EventDispatcher\Tests\CallableClass;
 
 /**
  * Alter
@@ -27,13 +30,25 @@ class Alter extends Create
      * @readwrite
      * @var \Slick\Database\Query\Ddl\Utility\ElementList
      */
-    protected $_dropedColumns = null;
+    protected $_droppedColumns = null;
     
     /**
      * @readwrite
      * @var \Slick\Database\Query\Ddl\Utility\ElementList
      */
     protected $_changedColumns = null;
+    
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\Ddl\Utility\ElementList
+     */
+    protected $_droppedForeignKeys = null; 
+    
+    /**
+     * @readwrite
+     * @var \Slick\Database\Query\Ddl\Utility\ElementList
+     */
+    protected $_droppedIndexes = null;
 
     /**
      * Overrides constructor to set initial values on properties
@@ -47,6 +62,8 @@ class Alter extends Create
         parent::__construct($tableName, $query);
         $this->_dropedColumns = new ElementList();
         $this->_changedColumns = new ElementList();
+        $this->_droppedForeignKeys = new ElementList();
+        $this->_droppedIndexes = new ElementList();
     }
 
     /**
@@ -83,6 +100,41 @@ class Alter extends Create
 			$this->_changedColumns->append(new Column($options));
 		}
 		
+		return $this;
+	}
+	
+	/**
+	 * Sets a foreign key to be deleted
+	 * 
+	 * @param string $name Foreign key constraint name
+	 * 
+	 * @return \Slick\Database\Query\Ddl\Alter A self instance for method
+	 *  call chains.
+	 */
+	public function dropForeignKey($name)
+	{
+		$frk = new ForeignKey();
+		$frk->setName($name);
+		$this->_droppedForeignKeys->append($frk);
+		return $this;
+	}
+	
+	/**
+	 * Sets an index to be deleted
+	 * 
+	 * @param string $column The column name
+	 * 
+	 * @return \Slick\Database\Query\Ddl\Alter
+	 */
+	public function dropIndex($column)
+	{
+		$idx = new Index(
+			array(
+         		'name' => "{$column}_idx",
+                'indexColumns' => array($column),
+            )
+		);
+		$this->_droppedIndexes->append($idx);
 		return $this;
 	}
 }

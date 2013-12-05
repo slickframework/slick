@@ -122,7 +122,8 @@ EOS;
             if ($index->type == Index::UNIQUE) {
                 $prefix = 'UNIQUE ';
             }
-            $values[] = "CREATE {$prefix}INDEX `{$index->name}`{$storage} ON {$tableName} ({$columns})";
+            $values[] = "CREATE {$prefix}INDEX `{$index->name}`{$storage} ".
+            	"ON {$tableName} ({$columns})";
             
         }
         if (sizeof($values) > 0)

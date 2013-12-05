@@ -115,8 +115,9 @@ class Select extends AbstractSql implements SelectInterface
 
         $joins = $this->getJoins();
         $copyJoins = clone($joins);
-
-        foreach ($copyJoins as $key => $join) {
+        
+        $keys = array_keys($copyJoins->getArrayCopy());
+        foreach ($keys as $key) {
             $joins[$key]['fields'] = array();
         }
 
