@@ -61,6 +61,10 @@ abstract class Standard extends Base implements Dialect
             case 'Create':
                 $statement = $this->create();
                 break;
+
+            case 'Alter':
+                $statement = $this->alter();
+                break;
         }
         return $statement;
     }
@@ -117,6 +121,17 @@ abstract class Standard extends Base implements Dialect
     public function create()
     {
         $dialect = new Standard\Create(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses an ALTER DDL object into its string query
+     * 
+     * @return string The DDL ALTER query statement string
+     */
+    public function alter()
+    {
+        $dialect = new Standard\Alter(array('sql' => $this->_sql));
         return $dialect->getStatement();
     }
 }

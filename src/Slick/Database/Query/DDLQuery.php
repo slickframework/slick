@@ -33,5 +33,16 @@ class DDLQuery extends AbstractQuery implements QueryInterface
         return $this->_sqlStatement;
     }
 
-
+    /**
+     * Crates a "ALTER TABLE" SQL statement
+     * 
+     * @param string $tableName The table name to alter.
+     * 
+     * @return \Slick\Database\Query\Ddl\Alter The SQL ALTER TABLE object
+     */
+	public function alter($tableName)
+	{
+		$this->_sqlStatement = new Ddl\Create($tableName, $this);
+		return $this->_sqlStatement;
+	}
 }
