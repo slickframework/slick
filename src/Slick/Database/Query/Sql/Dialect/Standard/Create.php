@@ -35,6 +35,12 @@ class Create extends Base
 
     /**
      * @read
+     * @var string To use in column definition perfix
+     */
+    protected $_definitionPrefix = '';
+
+    /**
+     * @read
      * @var string The Create Table template SQL
      */
     protected $_template = <<<EOS
@@ -108,7 +114,7 @@ EOS;
         $columns = $this->_sql->getColumns();
         $items = array();
         foreach ($columns as $column) {
-            $str  = "`{$column->name}` ";
+            $str  = "{$this->_definitionPrefix}`{$column->name}` ";
             $str .= $this->_getColumnType($column);
             
             if ($column->isUnsigned()) {
@@ -145,7 +151,7 @@ EOS;
                 array_unshift($indexes, $idx);
                 $this->_sql->setIndexes(new ElementList($indexes));
             }
-
+            $str = trim($str);
             $items[] = "{$this->_tab}{$str}";
         }
 
@@ -156,7 +162,7 @@ EOS;
      * Generate Index definitions for create table statement
      * @return string
      */
-    protected function _getIndexes()
+    protected function _getIndexes($pre = '')
     {
         $indexes = $this->_sql->getIndexes();
         $values = array();
@@ -175,10 +181,10 @@ EOS;
                 $columns = implode(', ', $columns);
                 $prefix = '';
                 if ($index->type == Index::FULLTEXT) {
-                    $prefix = "FULLTEXT ";
+                    $prefix = "{$pre}FULLTEXT ";
                 }
                 if ($index->type == Index::UNIQUE) {
-                    $prefix = 'UNIQUE ';
+                    $prefix = "{$pre}UNIQUE ";
                 }
                 $values[] = "{$this->_tab}{$prefix}INDEX `{$index->name}`".
                 	"{$storage} ({$columns})";
@@ -256,20 +262,25 @@ EOS;
     
     protected function _getOnAction($action)
     {
+        $return = null;
     	switch ($action) {
     		case ForeignKey::RESTRICT:
-    			return 'RESTRICT';
+    			$return = 'RESTRICT';
+                break;
     	
     		case ForeignKey::SET_NULL:
-    			return 'SET NULL';
+    			$return = 'SET NULL';
+                break;
     	
     		case ForeignKey::CASCADE:
-    			return 'CASCADE';
+    			$return = 'CASCADE';
+                break;
     	
     		case ForeignKey::NO_ACTION:
     		default:
-    			return  'NO ACTION';
+    			$return = 'NO ACTION';
     	}
+        return $return;
     }
 
     protected function _getColumnType(Column $col)

@@ -42,7 +42,7 @@ class DDLQuery extends AbstractQuery implements QueryInterface
      */
 	public function alter($tableName)
 	{
-		$this->_sqlStatement = new Ddl\Create($tableName, $this);
+		$this->_sqlStatement = new Ddl\Alter($tableName, $this);
 		return $this->_sqlStatement;
 	}
 }

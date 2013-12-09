@@ -60,7 +60,7 @@ class Alter extends Create
         $tableName, \Slick\Database\Query\QueryInterface $query)
     {
         parent::__construct($tableName, $query);
-        $this->_dropedColumns = new ElementList();
+        $this->_droppedColumns = new ElementList();
         $this->_changedColumns = new ElementList();
         $this->_droppedForeignKeys = new ElementList();
         $this->_droppedIndexes = new ElementList();
@@ -77,7 +77,7 @@ class Alter extends Create
     public function dropColumn($name)
     {
         $col = new Utility\Column(array('name' => $name));
-        $this->_dropedColumns->append($col);
+        $this->_droppedColumns->append($col);
         return $this;
     }
 
