@@ -15,6 +15,7 @@ namespace Database\Query\Sql\Dialect;
 use Codeception\Util\Stub;
 use Slick\Database\Database,
     Slick\Database\Query\Ddl\Utility\Index,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
     Slick\Database\Query\Ddl\Utility\Column;
 
 /**
@@ -133,6 +134,89 @@ EOS;
         $expected = <<<EOS
 ALTER TABLE `users`
     ADD UNIQUE INDEX `name_idx` (`name` ASC)
+EOS;
+        $this->assertEquals($expected, self::$_lastQuery);
+    }
+
+    /**
+     * Add a foreign key
+     * @test
+     */
+    public function addConstraint()
+    {
+        $this->_mockQuery();
+        $frk = new ForeignKey(
+            array(
+                'name' => 'profilefk',
+                'referencedTable' => 'profiles',
+                'indexColumns' => array('profile_id' => 'id'),
+                'onDelete' => ForeignKey::SET_NULL
+            )
+        );
+        $this->_alter->addForeignKey($frk)->execute();
+        $expected = <<<EOS
+ALTER TABLE `users`
+    ADD CONSTRAINT `profilefk`
+        FOREIGN KEY (`profile_id`)
+        REFERENCES `profiles` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE NO ACTION
+EOS;
+        $this->assertEquals($expected, self::$_lastQuery);
+    }
+
+    /**
+     * A full statement query
+     * @test
+     */
+    public function fullStatement()
+    {
+        $this->_mockQuery();
+        $frk = new ForeignKey(
+            array(
+                'name' => 'profilefk',
+                'referencedTable' => 'profiles',
+                'indexColumns' => array('profile_id' => 'id'),
+                'onDelete' => ForeignKey::SET_NULL
+            )
+        );
+        $this->_alter
+            ->addColumn(
+                'delete',
+                array(
+                    'type' => Column::TYPE_BOOLEAN,
+                    'default' => 0,
+                    'notNull' => true
+                )
+            )
+            ->changeColumn(
+                'updated',
+                array(
+                    'type' => Column::TYPE_DATETIME,
+                    'notNull' => true
+                )
+            )
+            ->addForeignKey($frk)
+            ->addIndex('name', array('type' => Index::UNIQUE))
+            ->dropColumn('age')
+            ->dropForeignKey('profile_fk')
+            ->dropIndex('name')
+            ->setOption('ENGINE', 'InnoDB')
+            ->execute();
+        $expected = <<<EOS
+ALTER TABLE `users`
+    ADD COLUMN `delete` BOOLEAN NOT NULL DEFAULT '0',
+    CHANGE COLUMN `updated` `updated` DATETIME NOT NULL,
+    DROP COLUMN `age`,
+    ADD UNIQUE INDEX `name_idx` (`name` ASC),
+    DROP INDEX `name_idx`,
+    ADD CONSTRAINT `profilefk`
+        FOREIGN KEY (`profile_id`)
+        REFERENCES `profiles` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE NO ACTION,
+    DROP FOREIGN KEY `profile_fk`,
+ENGINE = 'InnoDB'
 EOS;
         $this->assertEquals($expected, self::$_lastQuery);
     }

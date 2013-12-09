@@ -42,4 +42,14 @@ class SQLite extends Standard
         return $dialect->getStatement();
     }
 
+    /**
+     * Parses a Alter SQL 
+     * @return [type] [description]
+     */
+    public function alter()
+    {
+        $dialect = new SQLite\Alter(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
 }

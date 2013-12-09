@@ -40,9 +40,22 @@ class DDLQuery extends AbstractQuery implements QueryInterface
      * 
      * @return \Slick\Database\Query\Ddl\Alter The SQL ALTER TABLE object
      */
-	public function alter($tableName)
-	{
-		$this->_sqlStatement = new Ddl\Alter($tableName, $this);
-		return $this->_sqlStatement;
-	}
+    public function alter($tableName)
+    {
+        $this->_sqlStatement = new Ddl\Alter($tableName, $this);
+        return $this->_sqlStatement;
+    }
+
+    /**
+     * Crates a "DROP TABLE" SQL statement
+     * 
+     * @param string $tableName The table name to alter.
+     * 
+     * @return \Slick\Database\Query\Ddl\Drop The SQL DROP TABLE object
+     */
+    public function drop($tableName)
+    {
+        $this->_sqlStatement = new Ddl\Drop($tableName, $this);
+        return $this->_sqlStatement;
+    }
 }

@@ -80,25 +80,37 @@ EOS;
         $columns = $this->_sql->getColumns();
         $items = array();
         foreach ($columns as $column) {
-            $str  = "`{$column->name}` ";
-            $str .= $this->_getColumnType($column);
-
-            if ($column->isNotNull()) {
-                $str .= ' NOT NULL';
-            } 
-            if ($column->isPrimaryKey()) {
-                $str .= ' PRIMARY KEY';
-            }
-
-            
-            if (strlen($column->default) > 0) {
-                $str .= " DEFAULT '{$column->default}'";
-            }
-
-            $items[] = "{$this->_tab}{$str}";
+            $items[] = "{$this->_tab}" . $this->_getColumnDef($column);
         }
 
         return implode(",\n", $items);
+    }
+
+    /**
+     * Generate a column definition SQL
+     * 
+     * @param  Column $column Column object
+     * 
+     * @return string
+     */
+    protected function _getColumnDef(Column $column)
+    {
+        $str  = "`{$column->name}` ";
+        $str .= $this->_getColumnType($column);
+
+        if ($column->isNotNull()) {
+            $str .= ' NOT NULL';
+        } 
+        if ($column->isPrimaryKey()) {
+            $str .= ' PRIMARY KEY';
+        }
+
+        
+        if (strlen($column->default) > 0) {
+            $str .= " DEFAULT '{$column->default}'";
+        }
+
+        return $str;
     }
 
     /**
@@ -123,7 +135,7 @@ EOS;
                 $prefix = 'UNIQUE ';
             }
             $values[] = "CREATE {$prefix}INDEX `{$index->name}`{$storage} ".
-            	"ON {$tableName} ({$columns})";
+                "ON {$tableName} ({$columns})";
             
         }
         if (sizeof($values) > 0)

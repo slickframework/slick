@@ -13,9 +13,9 @@
 namespace Slick\Database\Query\Ddl;
 
 use Slick\Database\Query\Ddl\Utility\ElementList,
-	Slick\Database\Query\Ddl\Utility\Column,
-	Slick\Database\Query\Ddl\Utility\ForeignKey,
-	Slick\Database\Query\Ddl\Utility\Index;
+    Slick\Database\Query\Ddl\Utility\Column,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
+    Slick\Database\Query\Ddl\Utility\Index;
 use Symfony\Component\EventDispatcher\Tests\CallableClass;
 
 /**
@@ -91,50 +91,64 @@ class Alter extends Create
      * 
      * @return \Slick\Database\Query\Ddl\Alter
      */
-	public function changeColumn($name, $options = array())
-	{
-		if (is_a($name, 'Slick\Database\Query\Ddl\Utility\Column')) {
-			$this->_changedColumns->append($name);
-		} else {
-			$options['name'] = $name;
-			$this->_changedColumns->append(new Column($options));
-		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Sets a foreign key to be deleted
-	 * 
-	 * @param string $name Foreign key constraint name
-	 * 
-	 * @return \Slick\Database\Query\Ddl\Alter A self instance for method
-	 *  call chains.
-	 */
-	public function dropForeignKey($name)
-	{
-		$frk = new ForeignKey();
-		$frk->setName($name);
-		$this->_droppedForeignKeys->append($frk);
-		return $this;
-	}
-	
-	/**
-	 * Sets an index to be deleted
-	 * 
-	 * @param string $column The column name
-	 * 
-	 * @return \Slick\Database\Query\Ddl\Alter
-	 */
-	public function dropIndex($column)
-	{
-		$idx = new Index(
-			array(
-         		'name' => "{$column}_idx",
+    public function changeColumn($name, $options = array())
+    {
+        if (is_a($name, 'Slick\Database\Query\Ddl\Utility\Column')) {
+            $this->_changedColumns->append($name);
+        } else {
+            $options['name'] = $name;
+            $this->_changedColumns->append(new Column($options));
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Sets a foreign key to be deleted
+     * 
+     * @param string $name Foreign key constraint name
+     * 
+     * @return \Slick\Database\Query\Ddl\Alter A self instance for method
+     *  call chains.
+     */
+    public function dropForeignKey($name)
+    {
+        $frk = new ForeignKey();
+        $frk->setName($name);
+        $this->_droppedForeignKeys->append($frk);
+        return $this;
+    }
+    
+    /**
+     * Sets an index to be deleted
+     * 
+     * @param string $column The column name
+     * 
+     * @return \Slick\Database\Query\Ddl\Alter
+     */
+    public function dropIndex($column)
+    {
+        $idx = new Index(
+            array(
+                'name' => "{$column}_idx",
                 'indexColumns' => array($column),
             )
-		);
-		$this->_droppedIndexes->append($idx);
-		return $this;
-	}
+        );
+        $this->_droppedIndexes->append($idx);
+        return $this;
+    }
+
+    /**
+     * Sets a table option to this alter statement
+     * 
+     * @param string $name  Option name
+     * @param string $value Option value
+     *
+     * @return \Slick\Database\Query\Ddl\Alter A self instance for method
+     *  call chains
+     */
+    public function setOption($name, $value)
+    {
+        return $this->addOption($name, $value);
+    }
 }

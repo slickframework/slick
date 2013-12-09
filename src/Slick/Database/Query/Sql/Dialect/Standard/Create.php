@@ -114,48 +114,55 @@ EOS;
         $columns = $this->_sql->getColumns();
         $items = array();
         foreach ($columns as $column) {
-            $str  = "{$this->_definitionPrefix}`{$column->name}` ";
-            $str .= $this->_getColumnType($column);
-            
-            if ($column->isUnsigned()) {
-                $str .= ' UNSIGNED';
-            }
-            if ($column->isZeroFill()) {
-                $str .= ' ZEROFILL';
-            }
-
-            if ($column->isNotNull()) {
-                $str .= ' NOT NULL';
-            } else {
-                $str .= ' NULL';
-            }
-
-            if ($column->isAutoIncrement()) {
-                $str .= ' AUTO_INCREMENT';
-            }
-            if (strlen($column->default) > 0) {
-                $str .= " DEFAULT '{$column->default}'";
-            }
-            if (strlen($column->description) > 0) {
-                $str .= " COMMENT '{$column->description}'";
-            }
-
-            if ($column->isPrimaryKey()) {
-                $idx = new Index(
-                    array(
-                        'type' => Index::PRIMARY_KEY,
-                        'indexColumns' => array($column->name)
-                    )
-                );
-                $indexes = $this->_sql->getIndexes()->getArrayCopy();
-                array_unshift($indexes, $idx);
-                $this->_sql->setIndexes(new ElementList($indexes));
-            }
+            $str = $this->_definitionPrefix . $this->_getColumnDef($column);
             $str = trim($str);
             $items[] = "{$this->_tab}{$str}";
         }
 
         return implode(",\n", $items);
+    }
+
+    protected function _getColumnDef(Column $column)
+    {
+        $str  = "`{$column->name}` ";
+        $str .= $this->_getColumnType($column);
+        
+        if ($column->isUnsigned()) {
+            $str .= ' UNSIGNED';
+        }
+        if ($column->isZeroFill()) {
+            $str .= ' ZEROFILL';
+        }
+
+        if ($column->isNotNull()) {
+            $str .= ' NOT NULL';
+        } else {
+            $str .= ' NULL';
+        }
+
+        if ($column->isAutoIncrement()) {
+            $str .= ' AUTO_INCREMENT';
+        }
+        if (strlen($column->default) > 0) {
+            $str .= " DEFAULT '{$column->default}'";
+        }
+        if (strlen($column->description) > 0) {
+            $str .= " COMMENT '{$column->description}'";
+        }
+
+        if ($column->isPrimaryKey()) {
+            $idx = new Index(
+                array(
+                    'type' => Index::PRIMARY_KEY,
+                    'indexColumns' => array($column->name)
+                )
+            );
+            $indexes = $this->_sql->getIndexes()->getArrayCopy();
+            array_unshift($indexes, $idx);
+            $this->_sql->setIndexes(new ElementList($indexes));
+        }
+        
+        return $str;
     }
 
     /**
@@ -169,10 +176,10 @@ EOS;
         foreach ($indexes as $index) {
             if ($index->type == Index::PRIMARY_KEY) {
                 $values[] = "{$this->_tab}PRIMARY KEY " .
-                	"(`{$index->indexColumns[0]}`)";
+                    "(`{$index->indexColumns[0]}`)";
             } else {
                 
-				$storage = $this->_getIndexStorage($index);
+                $storage = $this->_getIndexStorage($index);
                 $columns = array();
 
                 foreach ($index->getIndexColumns() as $colName) {
@@ -187,7 +194,7 @@ EOS;
                     $prefix = "{$pre}UNIQUE ";
                 }
                 $values[] = "{$this->_tab}{$prefix}INDEX `{$index->name}`".
-                	"{$storage} ({$columns})";
+                    "{$storage} ({$columns})";
             }
         }
         if (sizeof($values) > 0)
@@ -204,47 +211,48 @@ EOS;
      */
     protected function _getIndexStorage(Index $index)
     {
-    	$storage = null;
-    	if ($index->getStorageType() != Index::STORAGE_NONE) {
-    		switch ($index->getStorageType()) {
-    			case Index::STORAGE_BTREE:
-    				$storage = ' USING BTREE';
-    				break;
-    	
-    			case Index::STORAGE_RTREE:
-    				$storage = ' USING RTREE';
-    				break;
-    	
-    			case Index::STORAGE_HASH:
-    				$storage = ' USING HASH';
-    				break;
-    		}
-    	}
-    	return $storage;
+        $storage = null;
+        if ($index->getStorageType() != Index::STORAGE_NONE) {
+            switch ($index->getStorageType()) {
+                case Index::STORAGE_BTREE:
+                    $storage = ' USING BTREE';
+                    break;
+        
+                case Index::STORAGE_RTREE:
+                    $storage = ' USING RTREE';
+                    break;
+        
+                case Index::STORAGE_HASH:
+                    $storage = ' USING HASH';
+                    break;
+            }
+        }
+        return $storage;
     }
 
     /**
      * Generate constraints for foreign keys for this create table statement
      * @return string
      */
-    protected function _getConstraints()
+    protected function _getConstraints($pre = '')
     {
         $foreignKeys = $this->_sql->getForeignKeys();
         $items = array();
         $template = <<<EOS
-    CONSTRAINT `%s`
+    %sCONSTRAINT `%s`
         FOREIGN KEY (`%s`)
         REFERENCES `%s` (`%s`)
         ON DELETE %s
         ON UPDATE %s
 EOS;
         foreach ($foreignKeys as $foreignKey) {
-        	$onDelete = $this->_getOnAction($foreignKey->onDelete);
-        	$onUpdate = $this->_getOnAction($foreignKey->onUpdate);
+            $onDelete = $this->_getOnAction($foreignKey->onDelete);
+            $onUpdate = $this->_getOnAction($foreignKey->onUpdate);
             
             $fks = array_keys($foreignKey->indexColumns);
             $items[] = sprintf(
                 $template,
+                $pre,
                 $foreignKey->name,
                 $fks[0],
                 $foreignKey->referencedTable,
@@ -263,23 +271,23 @@ EOS;
     protected function _getOnAction($action)
     {
         $return = null;
-    	switch ($action) {
-    		case ForeignKey::RESTRICT:
-    			$return = 'RESTRICT';
+        switch ($action) {
+            case ForeignKey::RESTRICT:
+                $return = 'RESTRICT';
                 break;
-    	
-    		case ForeignKey::SET_NULL:
-    			$return = 'SET NULL';
+        
+            case ForeignKey::SET_NULL:
+                $return = 'SET NULL';
                 break;
-    	
-    		case ForeignKey::CASCADE:
-    			$return = 'CASCADE';
+        
+            case ForeignKey::CASCADE:
+                $return = 'CASCADE';
                 break;
-    	
-    		case ForeignKey::NO_ACTION:
-    		default:
-    			$return = 'NO ACTION';
-    	}
+        
+            case ForeignKey::NO_ACTION:
+            default:
+                $return = 'NO ACTION';
+        }
         return $return;
     }
 
