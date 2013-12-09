@@ -149,4 +149,15 @@ abstract class Standard extends Base implements Dialect
         $dialect = new Standard\Drop(array('sql' => $this->_sql));
         return $dialect->getStatement();
     }
+
+    /**
+     * Parses an definitio DDL object into its string query
+     * 
+     * @return string The DDL definitio query statement string
+     */
+    public function definition()
+    {
+        $dialect = new Standard\Definition(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
 }

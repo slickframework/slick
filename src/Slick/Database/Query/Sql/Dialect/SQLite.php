@@ -34,7 +34,7 @@ class SQLite extends Standard
 
     /**
      * Parses a Create SQL 
-     * @return [type] [description]
+     * @return string The SQL create query statement string
      */
     public function create()
     {
@@ -44,11 +44,21 @@ class SQLite extends Standard
 
     /**
      * Parses a Alter SQL 
-     * @return [type] [description]
+     * @return string The SQL alter query statement string
      */
     public function alter()
     {
         $dialect = new SQLite\Alter(array('sql' => $this->_sql));
+        return $dialect->getStatement();
+    }
+
+    /**
+     * Parses a Definition SQL 
+     * @return string The SQL Definition query statement string
+     */
+    public function definition()
+    {
+        $dialect = new SQLite\Definition(array('sql' => $this->_sql));
         return $dialect->getStatement();
     }
 

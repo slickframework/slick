@@ -43,6 +43,13 @@ interface ConnectorInterface
      * @return \Slick\Database\Query\QueryInterface
      */
     public function query();
+
+    /**
+     * Returns a corresponding ddl query instance.
+     * 
+     * @return \Slick\Database\Query\QueryInterface
+     */
+    public function ddlQuery();
     
     /**
      * Executes the provided SQL statement.

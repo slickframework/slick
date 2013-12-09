@@ -58,4 +58,17 @@ class DDLQuery extends AbstractQuery implements QueryInterface
         $this->_sqlStatement = new Ddl\Drop($tableName, $this);
         return $this->_sqlStatement;
     }
+
+    /**
+     * Crates a definition SQL statement
+     * 
+     * @param string $tableName The table name to alter.
+     * 
+     * @return \Slick\Database\Query\Ddl\Definition The definition object
+     */
+    public function definition($tableName)
+    {
+        $this->_sqlStatement = new Ddl\Definition($tableName, $this);
+        return $this->_sqlStatement;
+    }
 }
