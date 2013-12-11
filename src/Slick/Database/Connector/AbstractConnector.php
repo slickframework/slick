@@ -106,7 +106,7 @@ abstract class AbstractConnector extends BaseSingleton
      */
     public function execute($sql)
     {
-        if (!$this->_isValidService()) {
+        if (!$this->isValidService()) {
             throw new Exception\ServiceException(
                 "Not connected to a valid database service."
             );
@@ -125,7 +125,7 @@ abstract class AbstractConnector extends BaseSingleton
      */
     public function getLastInsertId()
     {
-        if (!$this->_isValidService()) {
+        if (!$this->isValidService()) {
             throw new Exception\ServiceException(
                 "Not connected to a valid database service."
             );
@@ -144,7 +144,7 @@ abstract class AbstractConnector extends BaseSingleton
      */
     public function getAffectedRows()
     {
-        if (!$this->_isValidService()) {
+        if (!$this->isValidService()) {
             throw new Exception\ServiceException(
                 "Not connected to a valid database service."
             );
@@ -166,7 +166,7 @@ abstract class AbstractConnector extends BaseSingleton
      */
     public function getLastError()
     {
-        if (!$this->_isValidService()) {
+        if (!$this->isValidService()) {
             throw new Exception\ServiceException(
                 "Not connected to a valid database service."
             );
@@ -205,7 +205,7 @@ abstract class AbstractConnector extends BaseSingleton
         $podInspector = new Inspector('\PDO');
         if ($podInspector->hasMethod($method)) {
             
-            if (!$this->_isValidService()) {
+            if (!$this->isValidService()) {
                 throw new Exception\ServiceException(
                     "Not connected to a valid database service."
                 );
@@ -225,7 +225,7 @@ abstract class AbstractConnector extends BaseSingleton
      *
      * @return boolean The connection state. True if connected.
      */
-    protected function _isValidService()
+    public function isValidService()
     {
         $isService = !is_null($this->_dataObject);
 

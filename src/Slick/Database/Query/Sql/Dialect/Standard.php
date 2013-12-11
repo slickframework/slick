@@ -69,6 +69,10 @@ abstract class Standard extends Base implements Dialect
             case 'Drop':
                 $statement = $this->drop();
                 break;
+
+            case 'Definition':
+                $statement = $this->definition();
+                break;
         }
         return $statement;
     }

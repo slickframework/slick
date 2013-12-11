@@ -74,4 +74,22 @@ class ElementList extends \ArrayObject
         }
         return false;
     }
+
+    /**
+     * Traverses the element list to find an element with the provided name
+     * 
+     * @param string $name The element name to find
+     * 
+     * @return TableElementInterface|false The matched table element or
+     *  boolean false if not found. 
+     */
+    public function findByName($name)
+    {
+        foreach ($this as $element) {
+            if ($element->name == $name) {
+                return $element;
+            }
+        }
+        return false;
+    }
 }

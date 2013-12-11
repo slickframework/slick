@@ -65,6 +65,12 @@ class Column extends Base implements TableElementInterface
 
     /**
      * @readwrite
+     * @var integer The column length
+     */
+    protected $_length = 0;
+
+    /**
+     * @readwrite
      * @var boolean The is this a primary key
      */
     protected $_primaryKey = false;
@@ -97,7 +103,7 @@ class Column extends Base implements TableElementInterface
      * @readwrite
      * @var string Default value
      */
-    protected $_default;
+    protected $_default = null;
 
     /**
      * @readwrite
@@ -131,9 +137,70 @@ class Column extends Base implements TableElementInterface
         }
 
         if ($type == self::TYPE_BOOLEAN) {
-            $this->_size = 1;
+            $this->_length = 1;
         }
         $this->_type = $type;
         return $this;
+    }
+
+    /**
+     * Returns a string version of this column
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        $type = $this->typeAsString();
+        $str  = "'{$this->name}' {$type}";
+        $str .= ($this->_length > 0) ? "({$this->_length})" : "";
+        $str .= " {$this->size}";
+        $str .= ($this->isPrimaryKey()) ? " PRIMARY KEY" :  "";
+        $str .= ($this->isNotNull()) ? " NOT NULL" :  " NULL";
+        $str .= ($this->isUnsigned()) ? " UNSIGNED" :  "";
+        $str .= ($this->isAutoIncrement()) ? " AUTO INCREMENT" :  "";
+        $str .= (!is_null($this->default)) ?
+            " DEFAULT '{$this->default}'" :  "";
+        $str .= (!is_null($this->description)) ?
+            " DESCRIPTION '{$this->description}'" :  "";
+        return $str;
+    }
+
+    /**
+     * Returns the name of the type for this column
+     * 
+     * @return string
+     */
+    public function typeAsString()
+    {
+        switch ($this->_type) {
+            case self::TYPE_INTEGER:
+                $str = 'INTEGER';
+                break;
+
+            case self::TYPE_FLOAT:
+                $str = 'FLOAT';
+                break;
+
+            case self::TYPE_VARCHAR:
+                $str = 'VARCHAR';
+                break;
+
+            case self::TYPE_BLOB:
+                $str = 'BLOB';
+                break;
+
+            case self::TYPE_BOOLEAN:
+                $str = 'BOOLEAN';
+                break;
+
+            case self::TYPE_DATETIME:
+                $str = 'DATETIME';
+                break;
+
+            case self::TYPE_TEXT:
+            default:
+                $str = 'TEXT';
+        }
+        return $str;
     }
 }

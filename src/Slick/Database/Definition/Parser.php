@@ -30,7 +30,7 @@ class Parser
      * @param  string $dialect
      * @param  \Slick\Database\RecordList $data 
      * 
-     * @return Slick\Database\Definition\Parser\AbstractParser
+     * @return Slick\Database\Definition\Parser\ParserInterface
      */
     public static function getParser($dialect, RecordList $data)
     {

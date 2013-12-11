@@ -74,6 +74,12 @@ class TableDefinition extends Base
     protected $_dialect = 'Standard';
 
     /**
+     * @readwrite
+     * @var \Slick\Database\Definition\Parser\ParserInterface
+     */
+    protected $_parser;
+
+    /**
      * Construct - Set the table name and database connector
      * 
      * @param string $tableName 
@@ -86,9 +92,15 @@ class TableDefinition extends Base
             'connector' => $connector
         );
         parent::__construct($options);
-        $this->_retrieveData();
     }
 
+    /**
+     * Returns the columns of this table definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A Column list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::Column
+     */
     public function getColumns()
     {
         if (
@@ -97,18 +109,36 @@ class TableDefinition extends Base
                 'Slick\Database\Query\Ddl\UtilityElementList'
             )
         ) {
-            
+            $this->_columns = $this->getParser()->getColumns();
         }
+        return $this->_columns;
+    }
+
+    /**
+     * Returns the parser for current dialect
+     * 
+     * @return \Slick\Database\Definition\Parser\ParserInterface
+     */
+    public function getParser()
+    {
+        if (is_null($this->_parser)) {
+            $this->_parser = Parser::getParser(
+                $this->_dialect,
+                $this->_resultSet
+            );
+        }
+        return $this->_parser;
     }
 
     /**
      * Retrives the information from the database
      */
-    protected function _retrieveData()
+    public function load()
     {
         $query = $this->connector->ddlQuery();
         $this->_dialect = $query->getDialect();
 
         $this->_resultSet = $query->definition($this->tableName)->execute();
+        return $this;
     }
 }
