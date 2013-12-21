@@ -117,7 +117,7 @@ class TableDefinition extends Base
     /**
      * Returns the indexes of this table definition
      * 
-     * @return \Slick\Database\Query\Ddl\Utility\ElementList A Index list
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList An Index list
      * 
      * @see  Slick\Database\Query\Ddl\Utility::Index
      */
@@ -132,6 +132,26 @@ class TableDefinition extends Base
             $this->_indexes = $this->getParser()->getIndexes();
         }
         return $this->_indexes;
+    }
+
+    /**
+     * Returns the foreign keys of this table definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A ForeignKey list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::ForeignKey
+     */
+    public function getForeignKeys()
+    {
+        if (
+            !is_a(
+                $this->_indexes,
+                'Slick\Database\Query\Ddl\UtilityElementList'
+            )
+        ) {
+            $this->_foreignKeys = $this->getParser()->getForeignKeys();
+        }
+        return $this->_foreignKeys;
     }
 
     /**

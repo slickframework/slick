@@ -141,6 +141,28 @@ class TableDefinitionTest extends \Codeception\TestCase\Test
         );
     }
 
+    /**
+     * Rtrieve table constraints
+     * @test
+     */
+    public function getForeignKeys()
+    {
+        $parser = Stub::make(
+            'Slick\Database\Definition\Parser\Mysql',
+            array(
+                'getForeignKeys' => function() {
+                    return new ElementList();
+                }
+            )
+        );
+        $this->_tableDefinition->parser = $parser;
+        $foreignKeys = $this->_tableDefinition->getForeignKeys();
+        $this->assertInstanceOf(
+            'Slick\Database\Query\Ddl\Utility\ElementList',
+            $foreignKeys
+        );
+    }
+
 }
 
 class MockConnector extends Mysql

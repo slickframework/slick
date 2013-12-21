@@ -15,7 +15,8 @@ namespace Database\Definition\Parser;
 use Codeception\Util\Stub;
 use Slick\Database\RecordList,
     Slick\Database\Definition\Parser\Mysql,
-    Slick\Database\Query\Ddl\Utility\Index;
+    Slick\Database\Query\Ddl\Utility\Index,
+    Slick\Database\Query\Ddl\Utility\ForeignKey;
 
 /**
  * Mysql parser test case
@@ -42,7 +43,9 @@ CREATE TABLE `users` (
  PRIMARY KEY (`id`),
  UNIQUE KEY `name_idx` (`name`),
  KEY `author_fk_idx` (`author_id`),
- FULLTEXT KEY `name_ft` (`name`)
+ FULLTEXT KEY `name_ft` (`name`),
+ CONSTRAINT `author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
+ CONSTRAINT `profile` FOREIGN KEY (`profile_id`) REFERENCES `profiles` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 EOS;
         $recordList = new RecordList(array($data));
@@ -86,6 +89,28 @@ EOS;
             $indexes->findByName('author_fk_idx')->getType()
         );
         $this->assertEquals(array('name'), $indexes->findByName('name_ft')->getIndexColumns());
+    }
+
+    /**
+     * Retrieve foreign keys (constraints)
+     * @test
+     */
+    public function retrieveForeignKeys()
+    {
+        $constraints = $this->_mysql->getForeignKeys();
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ElementList', $constraints);
+        $author = $constraints->findByName('author');
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ForeignKey', $author);
+        $this->assertEquals('users', $author->getReferencedTable());
+        $this->assertEquals(array('author_id' => 'id'), $author->getIndexColumns());
+        $this->assertEquals(ForeignKey::NO_ACTION, $author->onUpdate);
+        $this->assertEquals(ForeignKey::SET_NULL, $author->onDelete);
+
+        $profile = $constraints->findByName('profile');
+        $this->assertEquals('profiles', $profile->getReferencedTable());
+        $this->assertEquals(array('profile_id' => 'id'), $profile->getIndexColumns());
+        $this->assertEquals(ForeignKey::RESTRICT, $profile->onUpdate);
+        $this->assertEquals(ForeignKey::CASCADE, $profile->onDelete);
     }
 
 }

@@ -14,6 +14,7 @@ namespace Slick\Database\Definition\Parser;
 
 use Slick\Database\Query\Ddl\Utility\Column,
     Slick\Database\Query\Ddl\Utility\Index,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
     Slick\Database\Query\Ddl\Utility\ElementList;
 
 /**
@@ -76,7 +77,7 @@ class Mysql extends AbstractParser
     /**
      * Returns the indexes on this data definition
      * 
-     * @return \Slick\Database\Query\Ddl\Utility\ElementList A Index list
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList An Index list
      * 
      * @see  Slick\Database\Query\Ddl\Utility::Index
      */
@@ -93,6 +94,25 @@ class Mysql extends AbstractParser
     }
 
     /**
+     * Returns the foreign keys on this data definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A foreign key list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::ForeignKey
+     */
+    public function getForeignKeys()
+    {
+        $foreignKeys = new ElementList();
+        foreach ($this->getLines() as $line) {
+            $frk = $this->_parseFrk($line);
+            if ($frk) {
+                $foreignKeys->append($frk);
+            }
+        }
+        return $foreignKeys;
+    }
+
+    /**
      * Retrive the definition lines from data
      * 
      * @return array
@@ -101,11 +121,11 @@ class Mysql extends AbstractParser
     {
         if (!is_array($this->_lines)) {
             $prop = 'Create Table';
-            preg_match_all('/(.*\,|.*\))/i', $this->_data[0]->$prop, $matches);
+            preg_match_all('/(?P<l>.*),?\n/i', $this->_data[0]->$prop, $matches);
 
-            foreach ($matches[0] as $line) {
+            foreach ($matches['l'] as $line) {
                 $line = rtrim(trim($line), ',');
-                if ($line != ')') {
+                if (strpos($line, 'CREATE TABLE') === false) {
                     $this->_lines[] = $line;
                 }
             }
@@ -199,6 +219,57 @@ class Mysql extends AbstractParser
             $this->_setIndexType($index, $matches['t']);
         }
         return $index;
+    }
+
+    /**
+     * Parses a line from result to create a foreign key
+     * 
+     * @param string $line Constraint definition line from query
+     * 
+     * @return ForeignKey|false A foreign key created from the definition line
+     *  or boolean false if the line isn't a constraint definition.
+     */
+    protected function _parseFrk($line)
+    {
+        $regExp = '/CONSTRAINT `(?P<n>[a-z]+)` FOREIGN KEY \(`(?P<fk>[a-z-_]+)`\) ';
+        $regExp .= 'REFERENCES `(?P<rft>[a-z-_]+)` \(`(?P<rf>[a-z-_]+)`\) ON ';
+        $regExp .= 'DELETE (?P<del>[a-z\s]+) ON UPDATE (?P<upd>[a-z\s]+)/i';
+
+        $foreignKey = false;
+        if (preg_match($regExp, $line, $matches)) {
+            $foreignKey = new ForeignKey(
+                array(
+                    'name' => $matches['n'],
+                    'referencedTable' => $matches['rft'],
+                    'indexColumns' => array($matches['fk'] => $matches['rf']),
+                    'onDelete' => $this->_checkFkAction($matches['del']),
+                    'onUpdate' => $this->_checkFkAction($matches['upd'])
+                )
+            );
+        }
+        return $foreignKey;
+    }
+
+    protected function _checkFkAction($str)
+    {
+        switch (trim($str)) {
+            case 'SET NULL':
+                $action = ForeignKey::SET_NULL;
+                break;
+
+            case 'RESTRICT':
+                $action = ForeignKey::RESTRICT;
+                break;
+
+            case 'CASCADE':
+                $action = ForeignKey::CASCADE;
+                break;
+            
+            case 'NO ACTION':
+            default:
+                $action = ForeignKey::NO_ACTION;
+        }
+        return $action;
     }
 
     /**
