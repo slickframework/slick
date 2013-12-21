@@ -15,6 +15,7 @@ namespace Database\Definition\Parser;
 use Codeception\Util\Stub;
 use Slick\Database\RecordList,
     Slick\Database\Query\Ddl\Utility\Column,
+    Slick\Database\Query\Ddl\Utility\Index,
     Slick\Database\Definition\Parser\SQLite;
 
 /**
@@ -48,6 +49,8 @@ class SQLiteTest extends \Codeception\TestCase\Test
     "name" TEXT NOT NULL,
     "full_name" TEXT,
     "active" INTEGER,
+    "file" BLOB,
+    "avg" REAL,
     "created" TEXT NOT NULL
 )'
             ),
@@ -57,6 +60,13 @@ class SQLiteTest extends \Codeception\TestCase\Test
                 'tbl_name' => 'users',
                 'rootpage' => '2',
                 'sql' => 'CREATE UNIQUE INDEX "name_idx" on users (name ASC)'
+            ),
+            (object) array(
+                'type' => 'index',
+                'name' => 'avg_idx',
+                'tbl_name' => 'users',
+                'rootpage' => '5',
+                'sql' => 'CREATE INDEX "avg_idx" on users (name ASC)'
             )
         );
 
@@ -93,7 +103,34 @@ class SQLiteTest extends \Codeception\TestCase\Test
         $columns = $this->_sqlite->getColumns();
         $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ElementList', $columns);
         $fullName = $columns->findByName('full_name');
+        $active = $columns->findByName('active');
+        $avg = $columns->findByName('avg');
+        $file = $columns->findByName('file');
+        $id = $columns->findByName('id');
+        $name = $columns->findByName('name');
         $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\Column', $fullName);
         $this->assertEquals(Column::TYPE_TEXT, $fullName->getType());
+        $this->assertEquals(Column::TYPE_INTEGER, $active->getType());
+        $this->assertEquals(Column::TYPE_FLOAT, $avg->getType());
+        $this->assertEquals(Column::TYPE_BLOB, $file->getType());
+        $this->assertTrue($id->isPrimaryKey());
+        $this->assertTrue($id->isAutoIncrement());
+        $this->assertTrue($id->isNotNull());
+        $this->assertTrue($name->isNotNull());
+        $this->assertFalse($fullName->isNotNull());
+    }
+
+    /**
+     * Retrieve the indexes from parser
+     * @test
+     */
+    public function getIndexes()
+    {
+        $indexes = $this->_sqlite->getIndexes();
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ElementList', $indexes);
+        $name = $indexes->findByName('name_idx');
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\Index', $name);
+        $this->assertEquals(Index::UNIQUE, $name->getType());
+        $this->assertEquals(array('name'), $name->getIndexColumns());
     }
 }

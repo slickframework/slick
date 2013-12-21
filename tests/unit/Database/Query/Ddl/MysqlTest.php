@@ -25,7 +25,7 @@ class MysqlTest extends \Codeception\TestCase\Test
 {
 
     /**
-     * Create a Msql DDL Query
+     * Create a Mysql DDL Query
      * @test
      */
     public function createMysqlDdlQuery()

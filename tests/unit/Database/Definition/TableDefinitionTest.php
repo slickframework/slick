@@ -119,6 +119,28 @@ class TableDefinitionTest extends \Codeception\TestCase\Test
         );
     }
 
+    /**
+     * Retrieve indexes from definition
+     * @test
+     */
+    public function getIndexes()
+    {
+        $parser = Stub::make(
+            'Slick\Database\Definition\Parser\Mysql',
+            array(
+                'getIndexes' => function() {
+                    return new ElementList();
+                }
+            )
+        );
+        $this->_tableDefinition->parser = $parser;
+        $indexes = $this->_tableDefinition->getIndexes();
+        $this->assertInstanceOf(
+            'Slick\Database\Query\Ddl\Utility\ElementList',
+            $indexes
+        );
+    }
+
 }
 
 class MockConnector extends Mysql

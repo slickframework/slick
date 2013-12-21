@@ -85,11 +85,13 @@ class ElementList extends \ArrayObject
      */
     public function findByName($name)
     {
+        $match = false;
         foreach ($this as $element) {
             if ($element->name == $name) {
-                return $element;
+                $match = $element;
+                break;
             }
         }
-        return false;
+        return $match;
     }
 }

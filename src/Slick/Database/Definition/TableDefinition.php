@@ -115,6 +115,26 @@ class TableDefinition extends Base
     }
 
     /**
+     * Returns the indexes of this table definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A Index list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::Index
+     */
+    public function getIndexes()
+    {
+        if (
+            !is_a(
+                $this->_indexes,
+                'Slick\Database\Query\Ddl\UtilityElementList'
+            )
+        ) {
+            $this->_indexes = $this->getParser()->getIndexes();
+        }
+        return $this->_indexes;
+    }
+
+    /**
      * Returns the parser for current dialect
      * 
      * @return \Slick\Database\Definition\Parser\ParserInterface

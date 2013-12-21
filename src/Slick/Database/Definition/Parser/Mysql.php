@@ -13,6 +13,7 @@
 namespace Slick\Database\Definition\Parser;
 
 use Slick\Database\Query\Ddl\Utility\Column,
+    Slick\Database\Query\Ddl\Utility\Index,
     Slick\Database\Query\Ddl\Utility\ElementList;
 
 /**
@@ -70,6 +71,25 @@ class Mysql extends AbstractParser
             $this->_checkPrimaryKey($line, $columns);
         }
         return $columns;
+    }
+
+    /**
+     * Returns the indexes on this data definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A Index list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::Index
+     */
+    public function getIndexes()
+    {
+        $indexes = new ElementList();
+        foreach ($this->getLines() as $line) {
+            $index = $this->_parseIndex($line);
+            if ($index) {
+                $indexes->append($index);
+            }
+        }
+        return $indexes;
     }
 
     /**
@@ -158,6 +178,30 @@ class Mysql extends AbstractParser
     }
 
     /**
+     * Parses a line from result to create an index
+     * 
+     * @param string $line Index definition line from query
+     * 
+     * @return Index|false An index created from the definition line or
+     *  boolean false if the line isn't an index definition.
+     */
+    protected function _parseIndex($line)
+    {
+        $regExp = '/(?P<t>[a-z]*)\s?KEY `(?P<n>.*)` \(`(?P<f>.*)`\),?/i';
+        $index = false;
+        if (preg_match($regExp, $line, $matches)) {
+            $index = new Index(
+                array(
+                    'name' => trim($matches['n']),
+                    'indexColumns' => explode(', ', $matches['f'])
+                )
+            );
+            $this->_setIndexType($index, $matches['t']);
+        }
+        return $index;
+    }
+
+    /**
      * Check if line is a primary key index and sets the appropriate flag in
      * the corresponding column.
      * 
@@ -223,6 +267,28 @@ class Mysql extends AbstractParser
         }
 
         return $return;
+    }
+
+    /**
+     * Sets appropriate index type
+     * 
+     * @param Index  $index The index object to set the type
+     * @param string $type  The text type from SQL
+     */
+    protected function _setIndexType(Index &$index, $type)
+    {
+        switch ($type) {
+            case 'UNIQUE':
+                $index->setType(Index::UNIQUE);
+                break;
+            
+            case 'FULLTEXT':
+                $index->setType(Index::FULLTEXT);
+                break;
+
+            default:
+                $index->setType(Index::INDEX);
+        }
     }
 
 }

@@ -138,6 +138,8 @@ class Column extends Base implements TableElementInterface
 
         if ($type == self::TYPE_BOOLEAN) {
             $this->_length = 1;
+        } else {
+            $this->_length = 0;
         }
         $this->_type = $type;
         return $this;
