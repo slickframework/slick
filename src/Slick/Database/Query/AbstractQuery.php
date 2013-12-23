@@ -139,11 +139,15 @@ abstract class AbstractQuery extends Base implements QueryInterface
             $this->_multiple = false;
             return (boolean) $this->_connector->exec($this->_sql);
         }
-        
+
         if ($this->_preparedStatement->execute($params))
-            $result = new RecordList(
-                $this->_preparedStatement->fetchAll($this->_fetchMode)
-            );
+            if (strpos(get_class($this), 'DDLQuery') === false) {
+                $result = new RecordList(
+                    $this->_preparedStatement->fetchAll($this->_fetchMode)
+                );
+            } else {
+                $result = true;
+            }            
 
         return $result;
     }

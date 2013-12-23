@@ -16,6 +16,7 @@ use Codeception\Util\Stub;
 use Slick\Database\RecordList,
     Slick\Database\Query\Ddl\Utility\Column,
     Slick\Database\Query\Ddl\Utility\Index,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
     Slick\Database\Definition\Parser\SQLite;
 
 /**
@@ -51,7 +52,10 @@ class SQLiteTest extends \Codeception\TestCase\Test
     "active" INTEGER,
     "file" BLOB,
     "avg" REAL,
-    "created" TEXT NOT NULL
+    "created" TEXT NOT NULL,
+    "author_id" INTEGER,
+    CONSTRAINT author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT profile FOREIGN KEY (profile_id) REFERENCES profile (id) ON DELETE SET NULL ON UPDATE RESTRICT 
 )'
             ),
             (object) array(
@@ -132,5 +136,26 @@ class SQLiteTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\Index', $name);
         $this->assertEquals(Index::UNIQUE, $name->getType());
         $this->assertEquals(array('name'), $name->getIndexColumns());
+
+    }
+
+    /**
+     * Retrives the foreign keys constraints
+     * @test
+     */
+    public function getForeignKeys()
+    {
+        $frks = $this->_sqlite->getForeignKeys();
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ElementList', $frks);
+        $author = $frks->findByName('author');
+        $this->assertInstanceOf('Slick\Database\Query\Ddl\Utility\ForeignKey', $author);
+        $this->assertEquals(array('author_id' => 'id'), $author->getIndexColumns());
+        $this->assertEquals('users', $author->getReferencedTable());
+        $this->assertEquals(ForeignKey::CASCADE, $author->getOnDelete());
+        $this->assertEquals(ForeignKey::NO_ACTION, $author->getOnUpdate());
+
+        $profile = $frks->findByName('profile');
+        $this->assertEquals(ForeignKey::SET_NULL, $profile->getOnDelete());
+        $this->assertEquals(ForeignKey::RESTRICT, $profile->getOnUpdate());
     }
 }

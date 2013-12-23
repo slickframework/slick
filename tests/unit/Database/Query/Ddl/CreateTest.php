@@ -204,7 +204,7 @@ class CreateTest extends \Codeception\TestCase\Test
                 'username',
                 array(
                     'type' => Column::TYPE_VARCHAR,
-                    'size' => 255,
+                    'length' => 255,
                     'notNull' => true
                 )
             )

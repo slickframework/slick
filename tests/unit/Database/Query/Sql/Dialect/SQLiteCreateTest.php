@@ -52,7 +52,7 @@ class SQLiteCreateTest extends \Codeception\TestCase\Test
                 'username',
                 array(
                     'type' => Column::TYPE_VARCHAR,
-                    'size' => 255,
+                    'length' => 255,
                     'notNull' => true
                 )
             )
@@ -123,7 +123,7 @@ EOS;
                 'username',
                 array(
                     'type' => Column::TYPE_VARCHAR,
-                    'size' => 255,
+                    'length' => 255,
                     'notNull' => true,
                     'description' => 'Some text'
                 )

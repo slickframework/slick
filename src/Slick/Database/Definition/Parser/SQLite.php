@@ -14,6 +14,7 @@ namespace Slick\Database\Definition\Parser;
 
 use Slick\Database\Query\Ddl\Utility\Column,
     Slick\Database\Query\Ddl\Utility\Index,
+    Slick\Database\Query\Ddl\Utility\ForeignKey,
     Slick\Database\Query\Ddl\Utility\ElementList,
     Slick\Utility\ArrayMethods;
 
@@ -85,6 +86,25 @@ class SQLite extends AbstractParser
     }
 
     /**
+     * Returns the foreign keys on this data definition
+     * 
+     * @return \Slick\Database\Query\Ddl\Utility\ElementList A ForeignKey list
+     * 
+     * @see  Slick\Database\Query\Ddl\Utility::ForeignKey
+     */
+    public function getForeignKeys()
+    {
+        $frks = new ElementList();
+        foreach ($this->getLines() as $line) {
+            $frk = $this->_parseForeignKey($line);
+            if ($frk) {
+                $frks->append($frk);
+            }
+        }
+        return $frks;
+    }
+
+    /**
      * returns the query lines for parsing
      * 
      * @return array The list of lines form the query.
@@ -93,7 +113,7 @@ class SQLite extends AbstractParser
     {
         if (!is_array($this->_lines)) {
             $query = '';
-            $regExp = '/"[a-z_]+"\s.*(,|\s\))/i';
+            $regExp = '/(?P<l>.*),?\n/i';
             $this->_lines = array();
             foreach ($this->_data as $row) {
                 if ($row->type == 'table') {
@@ -103,7 +123,12 @@ class SQLite extends AbstractParser
             }
 
             if (preg_match_all($regExp, $query, $matches)) {
-                $this->_lines = $matches[0];
+                foreach ($matches['l'] as $line) {
+                    $line = rtrim(trim($line), ',');
+                    if (strpos($line, 'CREATE TABLE') === false) {
+                        $this->_lines[] = $line;
+                    }
+                }
             }
         }
 
@@ -135,6 +160,30 @@ class SQLite extends AbstractParser
         }
 
         return $column;
+    }
+
+    protected function _parseForeignKey($line)
+    {
+        $regExp  = '/CONSTRAINT (?P<name>[a-z-_]+) FOREIGN KEY ';
+        $regExp .= '\((?P<frk>[a-z-_]+)\) REFERENCES (?P<table>[a-z-_ ]+) ';
+        $regExp .= '\((?P<ref>[a-z-_]+)\) ON DELETE (?P<del>[a-z-_ ]+) ON ';
+        $regExp .= 'UPDATE (?P<upd>[a-z- _]+)/i';
+
+        $frk = false;
+
+        if (preg_match($regExp, $line, $matches)) {
+            $frk = new ForeignKey(
+                array(
+                    'name' => $matches['name'],
+                    'indexColumns' => array($matches['frk'] => $matches['ref']),
+                    'referencedTable' => $matches['table'],
+                    'onDelete' => $this->_checkFkAction($matches['del']),
+                    'onUpdate' => $this->_checkFkAction($matches['upd'])
+                )
+            );
+        }
+
+        return $frk;
     }
 
     /**
@@ -178,5 +227,27 @@ class SQLite extends AbstractParser
             $column->notNull = true;
         }
 
+    }
+
+    protected function _checkFkAction($str)
+    {
+        switch (trim($str)) {
+            case 'SET NULL':
+                $action = ForeignKey::SET_NULL;
+                break;
+
+            case 'RESTRICT':
+                $action = ForeignKey::RESTRICT;
+                break;
+
+            case 'CASCADE':
+                $action = ForeignKey::CASCADE;
+                break;
+            
+            case 'NO ACTION':
+            default:
+                $action = ForeignKey::NO_ACTION;
+        }
+        return $action;
     }
 }

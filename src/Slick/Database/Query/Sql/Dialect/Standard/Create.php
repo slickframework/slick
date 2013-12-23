@@ -186,7 +186,7 @@ EOS;
                     $columns[] = "`{$colName}` ASC";
                 }
                 $columns = implode(', ', $columns);
-                $prefix = '';
+                $prefix = "{$pre}";
                 if ($index->type == Index::FULLTEXT) {
                     $prefix = "{$pre}FULLTEXT ";
                 }
@@ -319,7 +319,7 @@ EOS;
                 break;
 
             case Column::TYPE_VARCHAR:
-                $type = "VARCHAR({$col->size})";
+                $type = "VARCHAR({$col->length})";
                 break;
 
         }
