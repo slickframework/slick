@@ -115,7 +115,7 @@ class UpdateTest extends \Codeception\TestCase\Test
             self::$_usedParams
         );
         $expected = <<<EOT
-UPDATE users SET (`name`=:name, `email`=:email)
+UPDATE users SET `name`=:name, `email`=:email
 WHERE id = :id
 EOT;
         $this->assertEquals($expected, self::$_lastQuery);

@@ -22,8 +22,8 @@ class Definition extends AbstractDdl
 {
     /**
      * Executes the drop query.
-     * 
-     * @return boolean True if query was executed successfully
+     *
+     * @return \Slick\Database\RecordList A record list with the query results
      */
     public function execute()
     {

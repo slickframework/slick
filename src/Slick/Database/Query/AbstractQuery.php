@@ -64,23 +64,23 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * @readwrite
-     * @var /PDOStatement The prepared statement to ru
+     * @var \PDOStatement The prepared statement to ru
      */
     protected $_preparedStatement = null;
 
     /**
-     * @see http://www.php.net/manual/en/pdostatement.fetch.php 
+     * @see http://www.php.net/manual/en/pdostatement.fetch.php
      * @var integer The data fetch mode for queries
      */
     protected $_fetchMode = \PDO::FETCH_OBJ;
-    
+
     /**
      * Overrides base constructor to check sql presence.
      *
      * If the query is constructed with a provided sql query string it will
      * prepare that string and set the PDOStatement object ready to be
      * executed
-     * 
+     *
      * @param array $options A list of name/value pairs for object
      * initialization
      */
@@ -96,9 +96,9 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * Creates a prepared statement, ready to receive params from given SQL
-     * 
+     *
      * @param string $sql The SQL statement to prepare
-     * 
+     *
      * @return /PDOStatement A prepared PDOStatement object
      * @see  http://www.php.net/manual/en/class.pdostatement.php
      */
@@ -120,41 +120,52 @@ abstract class AbstractQuery extends Base implements QueryInterface
                 $sql,
                 $exp
             );
-            
+
         }
         return $this;
     }
 
     /**
      * Executes current query, binding the provided parameters
-     * 
+     *
      * @param array $params List of parameters to set before execute que query
-     * 
+     *
      * @return \Slick\Database\RecordList A record list with the query results
      */
     public function execute($params = array())
     {
         $result = new RecordList();
-        if ($this->_multiple) {
-            $this->_multiple = false;
-            return (boolean) $this->_connector->exec($this->_sql);
+        try {
+            if ($this->_multiple) {
+                $this->_multiple = false;
+                return (boolean) $this->_connector->exec($this->_sql);
+            }
+
+            if ($this->_preparedStatement->execute($params)) {
+                if ($this->_preparedStatement->columnCount() > 0) {
+                    $result = new RecordList(
+                        $this->_preparedStatement->fetchAll($this->_fetchMode)
+                    );
+                } else {
+                    $result = true;
+                }
+            }
+        } catch (\PDOException $exp) {
+            $error = "Error executing query: ";
+            $error .= $exp->getMessage();
+            $error .= ' SQL: '. $this->_sql;
+            throw new Exception\InvalidSqlException(
+    	        $error,
+                $this->_sql,
+                $exp
+            );
         }
-
-        if ($this->_preparedStatement->execute($params))
-            if (strpos(get_class($this), 'DDLQuery') === false) {
-                $result = new RecordList(
-                    $this->_preparedStatement->fetchAll($this->_fetchMode)
-                );
-            } else {
-                $result = true;
-            }            
-
         return $result;
     }
 
     /**
      * Returns current SQL transformer
-     * 
+     *
      * @return Slick\Database\Query\Sql\Transformer
      */
     public function getTransformer()
@@ -167,9 +178,9 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * Prepares a PDOStatement based on a provided SQL Statement object.
-     * 
+     *
      * @param  \Slick\Database\Query\Sql\SqlInterface $sql
-     * 
+     *
      * @return \Slick\Database\Query\Query A self instance for method
      * call chains
      */
@@ -182,9 +193,9 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * Checks if a sql string contains multiple statements
-     * 
+     *
      * @param string $sql The query string
-     * 
+     *
      * @return boolean True if has multimple statemetns
      */
     protected function _isMultimple($sql)

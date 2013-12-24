@@ -56,7 +56,7 @@ abstract class AbstractSql extends Base implements SqlInterface
 
     /**
      * Creates a new SQL statement
-     * 
+     *
      * @param string                               $tableName The database
      *  table for this statment
      * @param array                                $fields    The list of
@@ -79,21 +79,36 @@ abstract class AbstractSql extends Base implements SqlInterface
     }
 
     /**
-     * Adds a conditions to this statement
-     * 
-     * @param array $conditions A pair of values in this
-     * @return [type]             [description]
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return AbstractSql A self instance for method chain calls.
      */
     public function where($conditions)
     {
         return $this->_where($conditions);
     }
 
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return AbstractSql A self instance for method chain calls.
+     */
     public function andWhere($conditions)
     {
         return $this->where($conditions);
     }
 
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return AbstractSql A self instance for method chain calls.
+     */
     public function orWhere($conditions)
     {
         return $this->_where($conditions, 'OR');
@@ -107,7 +122,7 @@ abstract class AbstractSql extends Base implements SqlInterface
                 && is_array($param)
             ) {
                 $this->_params[] = implode(', ', $param);
-                    
+
             } else if (is_array($param)) {
                 //param has multiple entries
                 foreach ($param as $key => $value) {

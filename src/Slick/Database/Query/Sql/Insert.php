@@ -31,10 +31,10 @@ class Insert extends AbstractSql implements InsertInterface
 
     /**
      * Creates a new SQL statement
-     * 
+     *
      * @param string                               $tableName The database
      *  table for this statment
-     * 
+     *
      * @param \Slick\Database\Query\QueryInterface $query     The query object
      *  that gives this statement a context
      */
@@ -45,10 +45,10 @@ class Insert extends AbstractSql implements InsertInterface
 
     /**
      * Sets the data to insert
-     * 
+     *
      * @param array $data A list of fieldName/value pairs
      *
-     * @return \Slick\Database\Query\Sql\InsertInterface A self instance for
+     * @return \Slick\Database\Query\Sql\Insert A self instance for
      *  method call chains
      */
     public function set(array $data)
@@ -66,7 +66,7 @@ class Insert extends AbstractSql implements InsertInterface
 
     /**
      * Inserts the data in the tatble
-     * 
+     *
      * @return boolean True if data was successfully saved
      */
     public function save()

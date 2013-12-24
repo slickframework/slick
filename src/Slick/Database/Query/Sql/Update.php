@@ -31,10 +31,10 @@ class Update extends AbstractSql implements UpdateInterface
 
     /**
      * Creates a new SQL statement
-     * 
+     *
      * @param string                               $tableName The database
      *  table for this statment
-     * 
+     *
      * @param \Slick\Database\Query\QueryInterface $query     The query object
      *  that gives this statement a context
      */
@@ -45,10 +45,10 @@ class Update extends AbstractSql implements UpdateInterface
 
     /**
      * Sets the data to update
-     * 
+     *
      * @param array $data A list of fieldName/value pairs
      *
-     * @return \Slick\Database\Query\Sql\InsertInterface A self instance for
+     * @return \Slick\Database\Query\Sql\Update A self instance for
      *  method call chains
      */
     public function set(array $data)
@@ -66,7 +66,7 @@ class Update extends AbstractSql implements UpdateInterface
 
     /**
      * Inserts the data in the tatble
-     * 
+     *
      * @return boolean True if data was successfully saved
      */
     public function save()

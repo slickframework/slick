@@ -56,9 +56,9 @@ class Mysql extends AbstractParser
 
     /**
      * Returns the columns on this data definition
-     * 
+     *
      * @return \Slick\Database\Query\Ddl\Utility\ElementList A Column list
-     * 
+     *
      * @see  Slick\Database\Query\Ddl\Utility::Column
      */
     public function getColumns()
@@ -76,9 +76,9 @@ class Mysql extends AbstractParser
 
     /**
      * Returns the indexes on this data definition
-     * 
+     *
      * @return \Slick\Database\Query\Ddl\Utility\ElementList An Index list
-     * 
+     *
      * @see  Slick\Database\Query\Ddl\Utility::Index
      */
     public function getIndexes()
@@ -95,9 +95,9 @@ class Mysql extends AbstractParser
 
     /**
      * Returns the foreign keys on this data definition
-     * 
+     *
      * @return \Slick\Database\Query\Ddl\Utility\ElementList A foreign key list
-     * 
+     *
      * @see  Slick\Database\Query\Ddl\Utility::ForeignKey
      */
     public function getForeignKeys()
@@ -114,7 +114,7 @@ class Mysql extends AbstractParser
 
     /**
      * Retrive the definition lines from data
-     * 
+     *
      * @return array
      */
     public function getLines()
@@ -135,15 +135,16 @@ class Mysql extends AbstractParser
 
     /**
      * Parses a line from result to create a column
-     * 
+     *
      * @param string $line Column definition line from query
-     * 
+     *
      * @return Column|false A column created from the definition line or
      *  boolean false if the line isn't a column definition.
      */
     protected function _parseColumn($line)
     {
-        $regExp = '/`(?P<name>[a-z_]+)`\s(?P<type>[a-z]+)\(?(?P<length>[0-9]*)\)?(?P<properties>.*)/i';
+        $regExp = '/^`(?P<name>[a-z_]+)`\s(?P<type>[a-z]+)';
+        $regExp .= '\(?(?P<length>[0-9]*)\)?(?P<properties>.*)/i';
         if (!preg_match($regExp, $line, $matches)) {
             return false;
         }
@@ -152,7 +153,7 @@ class Mysql extends AbstractParser
         if (strlen($matches['length'])) {
             $column->length = $matches['length'];
         }
-        
+
         preg_match(
             '/(?P<size>(TINY|LONG|MEDIUM|SMALL|BIG)?)(?P<type>[a-z]+)/i',
             $matches['type'],
@@ -199,9 +200,9 @@ class Mysql extends AbstractParser
 
     /**
      * Parses a line from result to create an index
-     * 
+     *
      * @param string $line Index definition line from query
-     * 
+     *
      * @return Index|false An index created from the definition line or
      *  boolean false if the line isn't an index definition.
      */
@@ -223,17 +224,18 @@ class Mysql extends AbstractParser
 
     /**
      * Parses a line from result to create a foreign key
-     * 
+     *
      * @param string $line Constraint definition line from query
-     * 
+     *
      * @return ForeignKey|false A foreign key created from the definition line
      *  or boolean false if the line isn't a constraint definition.
      */
     protected function _parseFrk($line)
     {
-        $regExp = '/CONSTRAINT `(?P<n>[a-z]+)` FOREIGN KEY \(`(?P<fk>[a-z-_]+)`\) ';
-        $regExp .= 'REFERENCES `(?P<rft>[a-z-_]+)` \(`(?P<rf>[a-z-_]+)`\) ON ';
-        $regExp .= 'DELETE (?P<del>[a-z\s]+) ON UPDATE (?P<upd>[a-z\s]+)/i';
+        $regExp = '/CONSTRAINT `(?P<n>[a-z-_]+)` FOREIGN KEY ';
+        $regExp .= '\(`(?P<fk>[a-z-_]+)`\) REFERENCES `(?P<rft>[a-z-_]+)` ';
+        $regExp .= '\(`(?P<rf>[a-z-_]+)`\) ON DELETE (?P<del>[a-z\s]+) ON ';
+        $regExp .= 'UPDATE (?P<upd>[a-z\s]+)/i';
 
         $foreignKey = false;
         if (preg_match($regExp, $line, $matches)) {
@@ -264,7 +266,7 @@ class Mysql extends AbstractParser
             case 'CASCADE':
                 $action = ForeignKey::CASCADE;
                 break;
-            
+
             case 'NO ACTION':
             default:
                 $action = ForeignKey::NO_ACTION;
@@ -275,7 +277,7 @@ class Mysql extends AbstractParser
     /**
      * Check if line is a primary key index and sets the appropriate flag in
      * the corresponding column.
-     * 
+     *
      * @param  string      $line    Primary key definition line from query
      * @param  ElementList $columns The current list of columns
      */
@@ -299,10 +301,10 @@ class Mysql extends AbstractParser
 
     /**
      * Retrieves the column type from provided MySQL type string
-     * 
+     *
      * @param string  $type MySQL type string
      * @param integer $len  The parser column length
-     * 
+     *
      * @return integer The correct column type
      */
     protected function _matchType($type, $len = 0)
@@ -322,9 +324,9 @@ class Mysql extends AbstractParser
 
     /**
      * Retrieves the column size fot the provided MySql type string
-     * 
+     *
      * @param string $size MySql type string (size part: TINY, BIG, ...)
-     * 
+     *
      * @return string The correct column size
      */
     protected function _matchSize($size)
@@ -342,7 +344,7 @@ class Mysql extends AbstractParser
 
     /**
      * Sets appropriate index type
-     * 
+     *
      * @param Index  $index The index object to set the type
      * @param string $type  The text type from SQL
      */
@@ -352,7 +354,7 @@ class Mysql extends AbstractParser
             case 'UNIQUE':
                 $index->setType(Index::UNIQUE);
                 break;
-            
+
             case 'FULLTEXT':
                 $index->setType(Index::FULLTEXT);
                 break;

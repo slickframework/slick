@@ -2,7 +2,7 @@
 
 /**
  * Update
- * 
+ *
  * @package   Slick\Database\Query\Sql\Dialect\Standard
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -32,13 +32,13 @@ class Update extends Base
      * @var string The query template
      */
     protected $_insert = <<<EOT
-UPDATE %s SET (%s)
+UPDATE %s SET %s
 %s
 EOT;
 
     /**
      * Returns the SQL query string for current Select SQL Object
-     * 
+     *
      * @return String The SQL query string
      */
     public function getStatement()
@@ -55,7 +55,7 @@ EOT;
 
     /**
      * Returns a string containing the field names seperated by commas
-     * 
+     *
      * @return string The field list as string
      */
     public function getColumns()
@@ -69,7 +69,7 @@ EOT;
 
     /**
      * Returns the WHERE clause for this query
-     * 
+     *
      * @return string The where clause string
      */
     public function getWhere()
