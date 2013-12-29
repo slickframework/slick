@@ -121,7 +121,11 @@ class Mysql extends AbstractParser
     {
         if (!is_array($this->_lines)) {
             $prop = 'Create Table';
-            preg_match_all('/(?P<l>.*),?\n/i', $this->_data[0]->$prop, $matches);
+            preg_match_all(
+                '/(?P<l>.*),?\n/i',
+                $this->_data[0]->$prop,
+                $matches
+            );
 
             foreach ($matches['l'] as $line) {
                 $line = rtrim(trim($line), ',');
@@ -160,7 +164,10 @@ class Mysql extends AbstractParser
             $parts
         );
 
-        $column->type = $this->_matchType(trim($parts['type']), $matches['length']);
+        $column->type = $this->_matchType(
+            trim($parts['type']),
+            $matches['length']
+        );
         $column->size = $this->_matchSize($parts['size']);
 
         if (strpos(strtoupper($matches['properties']), 'NOT NULL')) {

@@ -162,7 +162,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
             $error .= $exp->getMessage();
             $error .= ' SQL: '. $this->_sql;
             throw new Exception\InvalidSqlException(
-    	        $error,
+                $error,
                 $this->_sql,
                 $exp
             );

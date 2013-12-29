@@ -36,6 +36,7 @@ class Definition extends Base
      */
     public function getStatement()
     {
-        return "SELECT * FROM sqlite_master WHERE tbl_name='{$this->_sql->tableName}'";
+        $name = $this->_sql->tableName;
+        return "SELECT * FROM sqlite_master WHERE tbl_name='{$name}'";
     }
 }

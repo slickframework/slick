@@ -149,6 +149,8 @@ class Column extends Base implements TableElementInterface
      * Returns a string version of this column
      * 
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __toString()
     {

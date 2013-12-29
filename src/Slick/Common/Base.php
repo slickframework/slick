@@ -28,6 +28,8 @@ namespace Slick\Common;
  *
  * @package    Slick\Common
  * @author     Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 abstract class Base
 {

@@ -74,6 +74,7 @@ abstract class BaseSingleton implements SingletonInterface
      * *Singleton* instance.
      *
      * @codeCoverageIgnore
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      * @return void
      */
     private function __clone()
@@ -85,6 +86,7 @@ abstract class BaseSingleton implements SingletonInterface
      * instance.
      *
      * @codeCoverageIgnore
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      * @return void
      */
     private function __wakeup()
