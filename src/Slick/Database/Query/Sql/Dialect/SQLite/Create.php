@@ -104,10 +104,14 @@ EOS;
         if ($column->isPrimaryKey()) {
             $str .= ' PRIMARY KEY';
         }
-
         
         if (strlen($column->default) > 0) {
             $str .= " DEFAULT '{$column->default}'";
+        }
+
+        if ($column->isAutoIncrement()) {
+            $str  = "`{$column->name}` ";
+            $str.= 'INTEGER PRIMARY KEY AUTOINCREMENT';
         }
 
         return $str;
@@ -139,7 +143,7 @@ EOS;
             
         }
         if (sizeof($values) > 0)
-            return ";\n". implode(",\n", $values).';';
+            return ";\n". implode(";\n", $values).';';
         return null;
     }
 }

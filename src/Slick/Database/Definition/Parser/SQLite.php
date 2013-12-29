@@ -32,6 +32,10 @@ class SQLite extends AbstractParser
      */
     protected $_lines = null;
 
+    protected $_regFk = '/CONSTRAINT [ `"](?P<name>[a-z-_]+).*\n*\s*FOREIGN KEY \(?[ `"](?P<frk>[a-z-_]+)[ `"]\)?.*\n*\s*REFERENCES [ `"](?P<table>[a-z-_]+)[ `"] \([ `"](?P<ref>[a-z-_]+)[ `"]\)\n*\s*ON DELETE (?P<del>[a-z ]+)\s*\n*\s*ON update (?P<upd>[a-z ]+)/i';
+
+    protected $_frks = array();
+
     /**
      * Returns the columns on this data definition
      * 
@@ -95,7 +99,8 @@ class SQLite extends AbstractParser
     public function getForeignKeys()
     {
         $frks = new ElementList();
-        foreach ($this->getLines() as $line) {
+        $this->getLines();
+        foreach ($this->_frks as $line) {
             $frk = $this->_parseForeignKey($line);
             if ($frk) {
                 $frks->append($frk);
@@ -130,6 +135,10 @@ class SQLite extends AbstractParser
                     }
                 }
             }
+
+            if (preg_match_all($this->_regFk, $row->sql, $lines)) {
+                $this->_frks = $lines[0];
+            }
         }
 
         return $this->_lines;
@@ -146,7 +155,9 @@ class SQLite extends AbstractParser
     protected function _parseColumn($line)
     {
         $line = trim($line);
-        $regExp = '/"(?P<name>[a-z_]+)"\s(?P<type>[a-z]+)(\s(?P<properties>.*)|)/i';
+        //$regExp = '/"(?P<name>[a-z_]+)"\s(?P<type>[a-z]+)\(?[0-9]*\)?(\s(?P<properties>.*)|)/i';
+        $regExp = '/[`"](?P<name>[a-z-_]+)[`"] (?P<type>[a-z_]+)\(?[0-9]*\)?\s?';
+        $regExp .= '(?P<properties>[a-z\s]*)/i';
         $column = false;
         
         if (preg_match($regExp, $line, $matches)) {
@@ -164,14 +175,10 @@ class SQLite extends AbstractParser
 
     protected function _parseForeignKey($line)
     {
-        $regExp  = '/CONSTRAINT (?P<name>[a-z-_]+) FOREIGN KEY ';
-        $regExp .= '\((?P<frk>[a-z-_]+)\) REFERENCES (?P<table>[a-z-_ ]+) ';
-        $regExp .= '\((?P<ref>[a-z-_]+)\) ON DELETE (?P<del>[a-z-_ ]+) ON ';
-        $regExp .= 'UPDATE (?P<upd>[a-z- _]+)/i';
 
         $frk = false;
 
-        if (preg_match($regExp, $line, $matches)) {
+        if (preg_match($this->_regFk, $line, $matches)) {
             $frk = new ForeignKey(
                 array(
                     'name' => $matches['name'],
@@ -194,17 +201,23 @@ class SQLite extends AbstractParser
      */
     protected function _setType(Column &$column, $type)
     {
+        $type = str_replace(array('BIG', 'TINY', 'SMALL', 'MEDIUM', 'LONG'), '', $type);
         switch ($type) {
             case 'REAL':
                 $column->setType(Column::TYPE_FLOAT);
                 break;
 
             case 'INTEGER':
+            case 'INT':
                 $column->setType(Column::TYPE_INTEGER);
                 break;
 
             case 'BLOB':
                 $column->setType(Column::TYPE_BLOB);
+                break;
+
+            case 'VARCHAR':
+                $column->setType(Column::TYPE_VARCHAR);
                 break;
             
             case 'TEXT':

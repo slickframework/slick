@@ -81,10 +81,10 @@ class SQLiteCreateTest extends \Codeception\TestCase\Test
                 )
             )
             ->execute();
-
-        $expected = <<<EOS
+        $expected = array();
+        $expected[] = <<<EOS
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT NOT NULL PRIMARY KEY,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `username` VARCHAR(255) NOT NULL,
     `author_id` MEDIUMINT NOT NULL,
     CONSTRAINT `author_fk`
@@ -92,10 +92,10 @@ CREATE TABLE IF NOT EXISTS `users` (
         REFERENCES `users` (`id`)
         ON DELETE SET NULL
         ON UPDATE NO ACTION
-);
-CREATE UNIQUE INDEX `username_idx` ON users (`username` ASC);
+)
 EOS;
-            $this->assertEquals($expected, $query->sql);
+        $expected[] = "CREATE UNIQUE INDEX `username_idx` ON users (`username` ASC)";
+        $this->assertEquals($expected, $query->sql);
     }
 
     /**
@@ -151,7 +151,7 @@ EOS;
 
         $expected = <<<EOS
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT NOT NULL PRIMARY KEY,
+    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
     `username` VARCHAR(255) NOT NULL,
     `author_id` MEDIUMINT NOT NULL DEFAULT '1',
     CONSTRAINT `author_fk`

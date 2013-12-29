@@ -15,7 +15,8 @@ namespace Slick\Database\Query;
 use Slick\Common\Base,
     Slick\Database\RecordList,
     Slick\Database\Exception,
-    Slick\Database\Query\Sql\Transformer;
+    Slick\Database\Query\Sql\Transformer,
+    Slick\Utility\ArrayMethods;
 
 /**
  * AbstractQuery
@@ -138,7 +139,14 @@ abstract class AbstractQuery extends Base implements QueryInterface
         try {
             if ($this->_multiple) {
                 $this->_multiple = false;
-                return (boolean) $this->_connector->exec($this->_sql);
+                foreach ($this->_sql as $sql) {
+                    $result = $this->_connector->exec($sql);
+                    if ($result === false) {
+                        return false;
+                    }
+                }
+                
+                return  true;
             }
 
             if ($this->_preparedStatement->execute($params)) {
@@ -153,7 +161,11 @@ abstract class AbstractQuery extends Base implements QueryInterface
         } catch (\PDOException $exp) {
             $error = "Error executing query: ";
             $error .= $exp->getMessage();
-            $error .= ' SQL: '. $this->_sql;
+            if (is_array($this->_sql)) {
+                $error .= ' SQL: '. implode("\n", $this->_sql);
+            } else {
+                $error .= ' SQL: '. $this->_sql;
+            }
             throw new Exception\InvalidSqlException(
     	        $error,
                 $this->_sql,
@@ -200,9 +212,10 @@ abstract class AbstractQuery extends Base implements QueryInterface
      */
     protected function _isMultimple($sql)
     {
-        $sql = trim($sql, '; ');
+        $sql = trim(trim($sql, ';'));
         $statements = explode(';', $sql);
         if (sizeof($statements) > 1) {
+            $this->_sql = ArrayMethods::trim($statements);
             return true;
         }
         return false;

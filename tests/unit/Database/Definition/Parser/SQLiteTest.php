@@ -54,8 +54,16 @@ class SQLiteTest extends \Codeception\TestCase\Test
     "avg" REAL,
     "created" TEXT NOT NULL,
     "author_id" INTEGER,
-    CONSTRAINT author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT profile FOREIGN KEY (profile_id) REFERENCES profile (id) ON DELETE SET NULL ON UPDATE RESTRICT 
+    CONSTRAINT `author`
+        FOREIGN KEY (`author_id`)
+        REFERENCES `users` (`id`)
+        ON DELETE CASCADE 
+        ON UPDATE NO ACTION,
+    CONSTRAINT `profile`
+        FOREIGN KEY (`profile_id`)
+        REFERENCES `profile` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE RESTRICT 
 )'
             ),
             (object) array(
