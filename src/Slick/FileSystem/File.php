@@ -38,15 +38,17 @@ class File extends Node
     /**
      * Construct a new file object
      *
-     * A URL can be used as a filename with this function if the fopen wrappers have
-     * been enabled. See fopen() for more details on how to specify the filename. See
-     * the Supported Protocols and Wrappers for links to information about what
-     * abilities the various wrappers have, notes on their usage, and information on
-     * any predefined variables they may provide.
+     * A URL can be used as a filename with this function if the fopen wrappers
+     * have been enabled. See fopen() for more details on how to specify the
+     * filename. See the Supported Protocols and Wrappers for links to
+     * information about what abilities the various wrappers have, notes on
+     * their usage, and information on any predefined variables they may
+     * provide.
      * 
      * @param string   $name           The node (File/Folder) to read.
      * @param string   $openMode       The mode in which to open the file.
-     * @param boolean  $useIncludePath Whether to search in the include_path for name.
+     * @param boolean  $useIncludePath Whether to search in the include_path
+     *  for name.
      *
      * @see http://www.php.net/manual/en/function.fopen.php See fopen() for a
      *  list of allowed modes and wrappers.
@@ -54,7 +56,8 @@ class File extends Node
      * @throws \Slick\FileSystem\Exception\OpenFileException If the name cannot
      *  be opened.
      */
-    public function __construct($name, $openMode = "w+", $useIncludePath = false)
+    public function __construct(
+        $name, $openMode = "w+", $useIncludePath = false)
     {
         parent::__construct(array());
 

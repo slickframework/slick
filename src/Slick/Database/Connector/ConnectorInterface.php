@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Database connector interface
- * 
+ * Connector Interface
+ *
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -13,17 +13,18 @@
 namespace Slick\Database\Connector;
 
 /**
- * Database connector interface
+ * Connector Interface defines a database connector
  *
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 interface ConnectorInterface
 {
+
     /**
      * Connects to database service.
      *
-     * @return \Slick\Database\Connector
+     * @return \Slick\Database\Connector\ConnectorInterface
      *   A self instance for chain method calls.
      */
     public function connect();
@@ -31,7 +32,7 @@ interface ConnectorInterface
     /**
      * Disconnects from database service.
      * 
-     * @return \Slick\Database\Connector
+     * @return \Slick\Database\Connector\ConnectorInterface
      *   A self instance for chain method calls.
      */
     public function disconnect();
@@ -39,29 +40,26 @@ interface ConnectorInterface
     /**
      * Returns a corresponding query instance.
      * 
-     * @return \Slick\Database\Query
+     * @return \Slick\Database\Query\QueryInterface
      */
     public function query();
 
+    /**
+     * Returns a corresponding ddl query instance.
+     * 
+     * @return \Slick\Database\Query\QueryInterface
+     */
+    public function ddlQuery();
+    
     /**
      * Executes the provided SQL statement.
      *
      * @param string $sql The SQL statment to execute.
      * 
-     * @return mixed The \Slick\Database\Connector::query() result.
-     * @see \Slick\Database\Connector::query()
+     * @return \PDOStatement The connector response from server.
      */
     public function execute($sql);
-
-    /**
-     * Escapes the provided value to make it safe for queries.
-     *
-     * @param string $value The value to escape.
-     * 
-     * @return string A safe string for queries.
-     */
-    public function escape($value);
-
+    
     /**
      * Returns the ID of the last row to be inserted.
      *

@@ -10,6 +10,7 @@
     },
     "target-dir": "Slick/Database",
     "require": {
-        "slick/common": "self.version"
+        "slick/common": "self.version",
+        "slick/utility": "self.version"
     }
 }

@@ -23,46 +23,46 @@ use Slick\Common\Base;
 abstract class Node extends Base
 {
 
-	/**
-	 * @read
-	 * @var \SplFileObject The file object infomation
-	 */
-	protected $_details = null;
+    /**
+     * @read
+     * @var \SplFileObject The file object infomation
+     */
+    protected $_details = null;
 
-	/**
-	 * @readwrite
-	 * @var boolean A flag for automatic node creation.
-	 */
-	protected $_autoCreate = true;
+    /**
+     * @readwrite
+     * @var boolean A flag for automatic node creation.
+     */
+    protected $_autoCreate = true;
 
-	/**
-	 * Delets current node.
-	 * 
-	 * @return boolean True if current node was deleted successfully.
-	 */
-	public function delete()
-	{
-		if ($this->details->isDir()) {
-			return @rmdir($this->details->getRealPath());
-		}
-		return @unlink($this->details->getRealPath());
-	}
+    /**
+     * Delets current node.
+     * 
+     * @return boolean True if current node was deleted successfully.
+     */
+    public function delete()
+    {
+        if ($this->details->isDir()) {
+            return @rmdir($this->details->getRealPath());
+        }
+        return @unlink($this->details->getRealPath());
+    }
 
-	/**
+    /**
      * Compares current object with provided one for equality
      * 
      * @param mixed|ojbect $object The object to compare with
      * 
      * @return boolean True if the provided object is equal to this object
      */
-	public function equals($object)
-	{
-		if (!is_a($object, '\Slick\FileSystem\Node')) {
-			return false;
-		}
+    public function equals($object)
+    {
+        if (!is_a($object, '\Slick\FileSystem\Node')) {
+            return false;
+        }
 
-		$path = $this->details->getRealPath();
+        $path = $this->details->getRealPath();
 
-		return $path == $object->details->getRealPath();
-	}
+        return $path == $object->details->getRealPath();
+    }
 }

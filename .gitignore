@@ -6,4 +6,8 @@
 /tests/_log/coverage.serialized
 /tests/_log/*.html
 /tests/_log/unit-*
+/tests/_log/functional-*
 /composer.lock
+/.settings/
+/.buildpath
+/.project

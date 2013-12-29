@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Database query interface
- * 
+ * QueryInterface
+ *
  * @package   Slick\Database\Query
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -13,8 +13,8 @@
 namespace Slick\Database\Query;
 
 /**
- * Database query interface
- * 
+ * QueryInterface define a database query behavior
+ *
  * @package   Slick\Database\Query
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
@@ -22,94 +22,21 @@ interface QueryInterface
 {
 
     /**
-     * From clause for queries.
-     *
-     * @param string $from   The table name for the query.
-     * @param array  $fields A list of fields to select. Defaults to all.
+     * Creates a prepared statement, ready to receive params from given SQL
      * 
-     * @return \Slick\Database\Query Sefl instance for method chaining calls.
-     */
-    public function from($from, $fields = array('*'));
-
-    /**
-     * Adds the join tables, conditions and fields to the query.
-     *
-     * @param string $join     The table to join.
-     * @param string $onClause The join condition clause
-     * @param array  $fields   The list of fields to add to select.
-     * @param string $type     One of LEFT, INNER, OUT. Defaults to LEFT
+     * @param string $sql The SQL statement to prepare
      * 
-     * @return \Slick\Database\Query Sefl instance for method chaining calls.
+     * @return /PDOStatement A prepared PDOStatement object
+     * @see  http://www.php.net/manual/en/class.pdostatement.php
      */
-    public function join($join, $onClause, $fields = array(), $type = 'LEFT');
+    public function prepare($sql);
 
     /**
-     * Adds the limit and page to the query.
-     *
-     * @param integer $limit The number of rows to retrieve.
-     * @param integer $page  The page for offset calculation.
+     * Executes current query, binding the provided parameters
      * 
-     * @return \Slick\Database\Query Sefl instance for method chaining calls.
-     */
-    public function limit($limit, $page = 1);
-
-    /**
-     * Adds the order clause to the selected query.
-     *
-     * @param string $order     The order field name(s).
-     * @param string $direction The order direction: ASC, DESC;
-     *   Defaults to ASC.
-     *   
-     * @return \Slick\Database\Query Sefl instance for method chaining calls.
-     */
-    public function order($order, $direction = 'ASC');
-
-    /**
-     * Adds the where clause replacing the ? for the given arguments quoted.
-     *
-     * @param string $clause  Where clause string.
-     * @param mixed $param1   The values to quote and add.
-     * @param mixed $param... The values...
+     * @param array $params List of parameters to set before execute que query
      * 
-     * @return \Slick\Database\Query Sefl instance for method chaining calls.
+     * @return \Slick\Database\RecordList A record list with the query results
      */
-    public function where();
-
-    /**
-     * Saves the provided data. If where isn't defined it will do an insert
-     * otherwise it will do an update.
-     *
-     * @param array|Object $data The data to update.
-     * 
-     * @return integer The last inserted id for new records or 0 for updates.
-     */
-    public function save($data);
-
-    /**
-     * Deletes records for current where statement.
-     *
-     * @return integer The total rows affected by delete operation.
-     */
-    public function delete();
-
-    /**
-     * Returns the first row of a table.
-     *
-     * @return array The first row data.
-     */
-    public function first();
-
-    /**
-     * Count the number of rows for the current where clause.
-     *
-     * @return integer The number of rows.
-     */
-    public function count();
-
-    /**
-     * Returns a variable number of rows based on the select query performed.
-     *
-     * @return array A list of rows.
-     */
-    public function all();
+    public function execute($params = array());
 }

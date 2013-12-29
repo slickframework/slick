@@ -116,7 +116,7 @@ class FolderTest extends \Codeception\TestCase\Test
     public function manipulateFiles()
     {
         $folder = new Folder(array('name' => $this->_path));
-        $file = $folder->file('example.txt');
+        $file = $folder->getFile('example.txt');
         $this->assertTrue($folder->hasFile('example.txt'));
         $this->assertFalse($folder->hasFile('other-example.txt'));
         $this->assertInstanceOf('Slick\FileSystem\File', $file);
@@ -130,7 +130,7 @@ class FolderTest extends \Codeception\TestCase\Test
     public function manipulateFolders()
     {
         $base = new Folder(array('name' => $this->_path));
-        $folder = $base->folder('example');
+        $folder = $base->getFolder('example');
 
         $this->assertTrue($base->hasFolder('example'));
         $this->assertFalse($base->hasFolder('other-example'));

@@ -148,7 +148,7 @@ class Folder extends Node
      *
      * @return \Slick\FileSystem\File The file object.
      */
-    public function file($name)
+    public function getFile($name)
     {
         return $this->addFile($name);
     }
@@ -162,7 +162,7 @@ class Folder extends Node
      *
      * @return \Slick\FileSystem\File The folder object.
      */
-    public function folder($name)
+    public function getFolder($name)
     {
         return $this->addFolder($name);
     }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Database Mysql connector
+ * Mysql
  * 
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,8 +12,9 @@
 
 namespace Slick\Database\Connector;
 
-use Slick\Database,
-    Slick\Database\Exception;
+use Slick\Database\Exception,
+    Slick\Database\Query\Query,
+    Slick\Database\Query\DDLQuery;
 
 /**
  * Mysql database connector
@@ -21,216 +22,141 @@ use Slick\Database,
  * @package   Slick\Database\Connector
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Mysql extends Database\Connector
+class Mysql extends AbstractConnector
 {
-    /**
-     * @readwrite
-     * @var \MySQLi Mysql resource connector
-     */
-    protected $_service;
 
     /**
      * @readwrite
-     * @var string The mysql server host name
-     */
-    protected $_host;
-
-    /**
-     * @readwrite
-     * @var string The mysql user name
+     * @var string The Mysql Server user name
      */
     protected $_username;
 
     /**
      * @readwrite
-     * @var string The mysql password
+     * @var string The Mysql Server user password
      */
     protected $_password;
 
     /**
      * @readwrite
-     * @var string The mysql schema name
+     * @var string The Mysql Server host name
      */
-    protected $_schema;
+    protected $_hostname;
 
     /**
      * @readwrite
-     * @var string The mysql port
+     * @var string The Mysql Server database
      */
-    protected $_port = '3306';
+    protected $_database;
 
     /**
      * @readwrite
-     * @var string The mysql charset to use
+     * @var integer The Mysql Server port
      */
-    protected $_charset = 'utf8';
+    protected $_port = 3306;
 
     /**
-     * @readwrite
-     * @var string  The mysql engine to use.
-     */
-    protected $_engine = 'InnoDB';
-
-    /**
-     * @readwrite
-     * @var boolean The mysql connection state.
-     */
-    protected $_connected = false;
-    
-    /**
-     * Connects to MySQL service.
+     * Returns the *Singleton* instance of this class.
      *
-     * @return \Slick\Database\Connector\Mysql A self instance for chain
-     *   method calls.
+     * @staticvar SingletonInterface $instance The *Singleton* instances
+     *  of this class.
+     *
+     * @param array $options The list of property values of this instance.
+     *
+     * @return \Slick\Database\Connector\Mysql The *Singleton* instance.
+     */
+    public static function getInstance($options = array())
+    {
+        static $instance;
+        if (
+            !is_a(
+                $instance,
+                'Slick\Database\Connector\ConnectorInterface'
+            )
+        ) {
+            $instance = new Mysql($options);
+        }
+        return $instance;
+    }
+
+    /**
+     * Sets the dsn to use with PDO initializarion
+     * 
+     * @return string The DSN string to initilize the PDO class.
+     */
+    public function getDsn()
+    {
+        $dsn = "mysql:host=%s;dbname=%s";
+        return sprintf(
+            $dsn,
+            $this->hostname,
+            $this->database
+        );
+    }
+
+    /**
+     * Connects to database service.
+     *
+     * @return \Slick\Database\Connector\Mysql
+     *   A self instance for chain method calls.
      */
     public function connect()
     {
-        if (!$this->_isValidService()) {
-
-            $this->_service =@ new \MySQLi(
-                $this->_host,
+        $className = $this->_dboClass;
+        try {
+            $this->dataObject = new $className(
+                $this->getDsn(),
                 $this->_username,
-                $this->_password,
-                $this->_schema,
-                $this->_port
+                $this->_password
             );
-
-            if ($this->_service->connect_errno) {
-                throw new Exception\ServiceException(
-                    "Unable to connect to database service. ".
-                    $this->_service->connect_error
-                );
-            }
-
+            $this->dataObject->setAttribute(
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_EXCEPTION
+            );
             $this->_connected = true;
+        } catch (\PDOException $e) {
+            $msg = $e->getMessage();
+            throw new Exception\ServiceException(
+                "Error connecting to database: {$msg}",
+                1,
+                $e
+            );
         }
+
         return $this;
     }
 
     /**
-     * Disconnects from MySQL service
+     * Returns a corresponding query instance.
+     *
+     * @param string $sql The sql string to perform
      * 
-     * @return \Slick\Database\Connector\Mysql A self instance for chain
-     *   method calls.
+     * @return \Slick\Database\Query\Query
      */
-    public function disconnect()
+    public function query($sql = null)
     {
-        if ($this->_isValidService()) {
-            $this->_service->close();
-        }
-        $this->_connected = false;
-        return $this;
-    }
-
-    /**
-     * Escapes the provided value to make it safe for queries.
-     *
-     * @param string $value The value to escape.
-     * 
-     * @return string A safe string for queries.
-     */
-    public function escape($value)
-    {
-        if (!$this->_isValidService()) {
-            throw new Exception\ServiceException(
-                "Not connected to a valid service."
-            );
-        }
-        return $this->_service->real_escape_string($value);
-    }
-
-    /**
-     * Executes the provided SQL statement.
-     *
-     * @param string $sql The SQL statment to execute.
-     * 
-     * @return mixed The \MySQLi::query() result.
-     * @see \MySQLi::query()
-     */
-    public function execute($sql)
-    {
-        if (!$this->_isValidService()) {
-            throw new Exception\ServiceException(
-                "Not connected to a valid service."
-            );
-        }
-        return $this->_service->query($sql);
-    }
-
-    /**
-     * Returns the number of rows affected by the last SQL query executed.
-     *
-     * @return integer The number of rows affected by last query.
-     */
-    public function getAffectedRows()
-    {
-        if (!$this->_isValidService()) {
-            throw new Exception\ServiceException(
-                "Not connected to a valid service."
-            );
-        }
-        return $this->_service->affected_rows;
-    }
-
-    /**
-     * Returns the last error of occur.
-     *
-     * @return string The last error of occur.
-     */
-    public function getLastError()
-    {
-        if (!$this->_isValidService()) {
-            throw new Exception\ServiceException(
-                "Not connected to a valid service."
-            );
-        }
-
-        return $this->_service->error;
-    }
-
-    /**
-     * Returns the ID of the last row to be inserted.
-     *
-     * @return integer The last insertd ID value.
-     */
-    public function getLastInsertId()
-    {
-        if (!$this->_isValidService()) {
-            throw new Exception\ServiceException(
-                "Not connected to a valid service."
-            );
-        }
-        return $this->_service->insert_id;
-    }
-
-    /**
-     * Returns a corresponding query instance
-     * 
-     * @return \Slick\Database\Query\Mysql
-     */
-    public function query()
-    {
-        return new Database\Query\Mysql(
+        return new Query(
             array(
-                'connector' => $this
+                'dialect' => 'Mysql',
+                'connector' => $this,
+                'sql' => $sql
             )
         );
     }
-    
+
     /**
-     * Checks if connected to a database server.
-     *
-     * @return boolean The connection state. True if connected, false otherwise.
+     * Returns a corresponding DDL query instance.
+     * 
+     * @return \Slick\Database\Query\DDLQuery
      */
-    protected function _isValidService()
+    public function ddlQuery($sql = null)
     {
-        $isEmpty = empty($this->_service);
-        $isInstance = $this->_service instanceof \MySQLi;
-
-        if ($this->isConnected() && $isInstance && !$isEmpty) {
-            return true;
-        }
-
-        return false;
+        return new DDLQuery(
+            array(
+                'dialect' => 'Mysql',
+                'connector' => $this,
+                'sql' => $sql
+            )
+        );
     }
 }

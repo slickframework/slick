@@ -134,12 +134,31 @@ class BaseTest extends \Codeception\TestCase\Test
      * Instanciating a class that doesn't call parent constructor
      * @test
      * @expectedException \Slick\Common\Exception\BadConstructorException
-     * @expectedExceptionMessage The constructor isn\'t correct for use Slick\Common\Base class. You need to call 'parent::__construct()' for the right object initializantion.
+     * @expectedExceptionMessage The constructor is not correct for use Slick\Common\Base class. You need to call 'parent::__construct()' for the right object initialization.
      */
     public function userABadConstructor()
     {
         $dog = new Examples\BadAnimal();
         $dog->name;
+    }
+
+    /**
+     * Using Base::equals() to compare objects
+     * @test
+     */
+    public function compareObjects()
+    {
+        $dog = new Examples\Animal(array('name' => 'Dog'));
+        $car = new Examples\Car();
+        $this->assertFalse($dog->equals(array()));
+        $this->assertFalse($dog->equals($car));
+        $bidDog = new Examples\Animal(array('name' => 'Dog'));
+        $this->assertTrue($dog->equals($bidDog));
+        $cat = new Examples\Animal(array('name' => 'Cat'));
+        $this->assertFalse($dog->equals($cat));
+        $bidDog->setPet(true);
+        $this->assertFalse($dog->equals($bidDog));
+
     }
 
 }

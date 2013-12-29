@@ -2,7 +2,7 @@
 
 /**
  * Database test case
- * 
+ *
  * @package   Test\Database
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
@@ -12,11 +12,12 @@
 
 namespace Database;
 
+use Codeception\Util\Stub;
 use Slick\Database\Database;
 
 /**
- * DatabaseTest test case
- * 
+ * Database test case
+ *
  * @package   Test\Database
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
@@ -24,30 +25,74 @@ class DatabaseTest extends \Codeception\TestCase\Test
 {
 
     /**
-     * Test for not implemented method exception
-     * @test
-     * @expectedException \Slick\Database\Exception\InvalidArgumentException
+     * @var \Slick\Database\Database
      */
-    public function initializeWithInvalidType()
+    protected $_database;
+
+    /**
+     * Sets the SUT object
+     */
+    protected function _before()
     {
-        $db = new Database();
-        $db->initialize();
+        parent::_before();
+        $this->_database = new Database();
     }
 
     /**
-     * Test connector initializarion
-     * @test
-     * @expectedException \Slick\Database\Exception\InvalidArgumentException
+     * Clean up for next test
      */
-    public function initializeDatabase()
+    protected function _after()
     {
-        $db = new Database(array('type' => 'mysql'));
-        $conn1 = $db->initialize();
-        $this->assertInstanceOf('\Slick\Database\Connector', $conn1);
-        $this->assertInstanceOf('\Slick\Database\Connector\Mysql', $conn1);
+        $this->_database = null;
+        parent::_after();
+    }
 
-        $db->type = 'unknown';
-        $db->initialize();
+    /**
+     * Initialize a Mysql connector
+     * @test
+     */
+    public function inititlizeMysqlConnector()
+    {
+        $this->_database->setType('mysql');
+        $db = $this->_database->initialize();
+        $this->assertInstanceOf('Slick\Database\Connector\Mysql', $db);
+    }
+
+    /**
+     * Initialize a SQLite connector
+     * @test
+     */
+    public function inititlizeSQLiteConnector()
+    {
+        $this->_database->setType('sqlite');
+        $db = $this->_database->initialize();
+        $this->assertInstanceOf('Slick\Database\Connector\SQLite', $db);
+    }
+
+    /**
+     * Initialize a invalid connector
+     * @test
+     * @expectedException Slick\Database\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Trying to initialize a database conncetor with an undefined connector type.
+     */
+    public function inititlizeInvalidConnector()
+    {
+        $this->_database->setType(null);
+        $db = $this->_database->initialize();
+
+    }
+
+    /**
+     * Initialize a unknown connector
+     * @test
+     * @expectedException Slick\Database\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Trying to initialize a database conncetor with an unknown connector type.
+     */
+    public function inititlizeUnknownConnector()
+    {
+        $this->_database->setType('MyOtherSql');
+        $db = $this->_database->initialize();
+
     }
 
 }

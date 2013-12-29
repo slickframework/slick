@@ -1,187 +1,184 @@
 <?php
-
-/**
- * Mysql connector test case
- * 
- * @package   Test\Database\Connector
- * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
- * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
- */
-
 namespace Database\Connector;
+use Codeception\Util\Stub;
+use Slick\Database\Database;
 
-use Slick\Database\Connector;
-
-/**
- * Mysql connector test case
- * 
- * @package   Test\Database\Connector
- * @author    Filipe Silva <silvam.filipe@gmail.com>
- */
 class MysqlTest extends \Codeception\TestCase\Test
 {
 
-    /**
-     * Mysql is a Mysql Connector object.
-     * @var \Slick\Database\Connector\Mysql
-     */
-    protected $mysql;
 
-    /**
-     * Creates a Mysql Connector object for tests.
-     */
+    protected $_connector = null;
+
     protected function _before()
     {
         parent::_before();
-        $this->mysql = new Connector\Mysql(
+        $db = new Database(
             array(
-                'host' => 'localhost',
-                'username' => 'slick_',
-                'schema' => 'dummy_test'
+                'type' => 'mysql',
+                'options' => array(
+                    'username' => 'test',
+                    'password' => '',
+                    'hostname' => 'localhost',
+                    'database' => 'test'
+                )
             )
         );
-
-        $service = $this->getMock('\MySQLi');
-
-        $this->mysql->service = $service;
-        $this->mysql->connected = true;
+        $this->_connector = $db->initialize();
+        unset($db);
     }
 
-    /**
-     * Clears all for next test.
-     */
     protected function _after()
     {
-        unset($this->mysql);
+        //$this->_connector->disconnect();
+        unset($this->_connector);
         parent::_after();
     }
-    
+
     /**
-     * Check the initializantion of driver
+     * Check the class construction
      * @test
      */
-    public function inititlizeDriver()
+    public function checkClassConstruciton()
     {
-        $this->assertInstanceOf(
-            '\Slick\Database\Connector',
-            $this->mysql->initialize()
-        );
-        $this->assertInstanceOf(
-            '\Slick\Database\Connector\Mysql',
-            $this->mysql->initialize()
-        );
+        $this->assertInstanceOf('Slick\Database\Connector\ConnectorInterface', $this->_connector);
     }
-    
+
     /**
-     * Test connection to Mysqli
+     * Try to connecto to database
      * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
+     * @expectedException Slick\Database\Exception\ServiceException
      */
-    public function connectToMysql()
+    public function connectoToDatabase()
     {
-        $cnn = new Connector\Mysql();
-        $this->assertInstanceOf(
-            '\Slick\Database\Connector',
-            $cnn->connect()
-        );
-        
-        $this->assertInstanceOf(
-            '\Slick\Database\Connector',
-            $this->mysql->connect()
-        );
-        $this->assertInstanceOf(
-            '\Slick\Database\Connector',
-            $this->mysql->disconnect()
-        );
-        $this->assertFalse($this->mysql->isConnected());
-        
-        $this->mysql->service = null;
-        $this->mysql->connect();
+        $this->_connector->dboClass = 'Database\Connector\FakePDO';
+        $mysql = $this->_connector->connect();
+        $this->assertInstanceOf('Slick\Database\Connector\Mysql', $mysql);
+        $mysql->disconnect();
+
+        $this->_connector->dboClass = 'Database\Connector\FakePDOFail';
+        $mysql->setPassword("wrong")->connect();
     }
-    
+
     /**
-     * Checking scape method.
+     * Get lest insert id
      * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
-     * @expectedExceptionMessage Not connected to a valid service.
+     * @expectedException Slick\Database\Exception\ServiceException
+     * @expectedExceptionMessage Not connected to a valid database service.
      */
-    public function excapeText()
+    public function getLastInsertId()
     {
-        $this->assertNull($this->mysql->escape(''));
-        $this->mysql->disconnect();
-        $this->mysql->escape('');
+        $pdo = new FakePDO('fake');
+        $this->_connector->dataObject = $pdo;
+        $this->_connector->connected = true;
+        $this->assertEquals(23, $this->_connector->getLastInsertId());
+        $this->_connector->connected = false;
+        $this->_connector->getLastInsertId();
     }
-    
+
     /**
-     * Tests the executing query
+     * Execute a sing call sql
      * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
-     * @expectedExceptionMessage Not connected to a valid service.
+     * @expectedException Slick\Database\Exception\ServiceException
+     * @expectedExceptionMessage Not connected to a valid database service.
      */
-    public function executingQuery()
+    public function executeSingleQuery()
     {
-        $this->assertNull($this->mysql->execute(''));
-        $this->mysql->disconnect();
-        $this->mysql->execute('');
+        $pdo = new FakePDO('fake');
+        $this->_connector->dataObject = $pdo;
+        $this->_connector->connected = true;
+        $this->assertEquals(34, $this->_connector->execute("Some query"));
+        $this->_connector->connected = false;
+        $this->_connector->execute('test');
     }
-    
+
     /**
-     * Checking affected rows method.
+     * get affected rows
      * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
-     * @expectedExceptionMessage Not connected to a valid service.
+     * @expectedException Slick\Database\Exception\ServiceException
+     * @expectedExceptionMessage Not connected to a valid database service.
      */
     public function getAffectedRows()
     {
-        $this->mysql = new Connector\Mysql();
-        $this->mysql->connect();
-        $this->assertEquals(0, $this->mysql->getAffectedRows(''));
-        $this->mysql->disconnect();
-        $this->mysql->getAffectedRows('');
+        $this->_connector->dataObject = new FakePDO('fake');
+        $this->_connector->connected = true;
+        $this->assertEquals(0, $this->_connector->getAffectedRows());
+        $this->_connector->lastStatement = new FakeStatement();
+        $this->assertEquals(10, $this->_connector->getAffectedRows());
+        $this->_connector->connected = false;
+        $this->_connector->getAffectedRows();
     }
-    
+
     /**
-     * Checking last error method.
+     * get affected rows
      * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
-     * @expectedExceptionMessage Not connected to a valid service.
+     * @expectedException Slick\Database\Exception\ServiceException
+     * @expectedExceptionMessage Not connected to a valid database service.
      */
     public function getLastError()
     {
-        $this->mysql = new Connector\Mysql();
-        $this->mysql->connect();
-        $this->assertEquals(null, $this->mysql->getLastError(''));
-        $this->mysql->disconnect();
-        $this->mysql->getLastError('');
-    }
-    
-    /**
-     * Checking last inserted id method.
-     * @test
-     * @expectedException \Slick\Database\Exception\ServiceException
-     * @expectedExceptionMessage Not connected to a valid service.
-     */
-    public function lastInsertedId()
-    {
-        $this->mysql = new Connector\Mysql();
-        $this->mysql->connect();
-        $this->assertEquals(0, $this->mysql->getLastInsertId(''));
-        $this->mysql->disconnect();
-        $this->mysql->getLastInsertId('');
+        $this->_connector->dataObject = new FakePDO('fake');
+        $this->_connector->connected = true;
+        $this->assertEquals("Error message", $this->_connector->getLastError());
+        $this->_connector->connected = false;
+        $this->_connector->getLastError();
     }
 
     /**
-     * Test query method
+     * Checks the connector query creator
      * @test
      */
-    public function query()
+    public function createAQuery()
     {
-        $this->assertInstanceOf(
-            '\Slick\Database\Query\Mysql',
-            $this->mysql->query()
+        $query = $this->_connector->query();
+        $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $query);
+        $this->assertEquals($query->connector, $this->_connector);
+    }
+
+}
+
+class FakePDO extends \PDO
+{
+    public function __construct($dsn, $user='', $pass='')
+    {
+
+    }
+
+    public function setAttribute($name, $value)
+    {
+        return true;
+    }
+
+    public function lastInsertId()
+    {
+        return 23;
+    }
+
+    public function errorInfo()
+    {
+        return array(
+            2 => "Error message"
         );
     }
 
+    public function exec($sql)
+    {
+        return 34;
+    }
+
+}
+
+class FakePDOFail extends FakePDO
+{
+    public function __construct($dsn, $user='', $pass='')
+    {
+        throw new \PDOException("Connection error");
+    }
+}
+
+class FakeStatement
+{
+    public function rowCount()
+    {
+        return 10;
+    }
 }
