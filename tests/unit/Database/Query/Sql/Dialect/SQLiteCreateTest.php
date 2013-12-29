@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `users` (
         ON UPDATE NO ACTION
 )
 EOS;
-        $expected[] = "CREATE UNIQUE INDEX `username_idx` ON users (`username` ASC)";
+        $expected = "CREATE UNIQUE INDEX `username_idx` ON users (`username` ASC)";
         $this->assertEquals($expected, $query->sql);
     }
 

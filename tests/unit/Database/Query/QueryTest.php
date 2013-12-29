@@ -78,4 +78,17 @@ class QueryTest extends \Codeception\TestCase\Test
         $this->_query->prepare("test");
     }
 
+    /**
+     * Check execute sql exception
+     * @test
+     * @expectedException Slick\Database\Exception\InvalidSqlException
+     */
+    public function callValidSqlWithException()
+    {
+        $pst = $this->_query->prepare("CREATE TABLE t(x INTEGER, y, z, PRIMARY KEY(x ASC))");
+        $this->_query->execute();
+        $stsm = $this->_query->prepare("ALTER TABLE `t` RENAME TO test");
+        $this->_query->execute(array('name' => 'users'));
+    }
+
 }

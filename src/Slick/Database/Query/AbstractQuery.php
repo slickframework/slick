@@ -139,11 +139,10 @@ abstract class AbstractQuery extends Base implements QueryInterface
         try {
             if ($this->_multiple) {
                 $this->_multiple = false;
-                foreach ($this->_sql as $sql) {
+                $queries = $this->_sql;
+                foreach ($queries as $sql) {
+                    $this->_sql = $sql;
                     $result = $this->_connector->exec($sql);
-                    if ($result === false) {
-                        return false;
-                    }
                 }
                 
                 return  true;
@@ -161,11 +160,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
         } catch (\PDOException $exp) {
             $error = "Error executing query: ";
             $error .= $exp->getMessage();
-            if (is_array($this->_sql)) {
-                $error .= ' SQL: '. implode("\n", $this->_sql);
-            } else {
-                $error .= ' SQL: '. $this->_sql;
-            }
+            $error .= ' SQL: '. $this->_sql;
             throw new Exception\InvalidSqlException(
     	        $error,
                 $this->_sql,
