@@ -31,11 +31,11 @@ interface EntityInterface
      *
      * @param QueryParamsInterface $params The query parameters to use on
      *  select statement.
-     *   
+     *
      * @return RecordList A list of records (entity instances).
      */
     public static function all(
-    	QueryParamsInterface $params = new NullQueryParams()
+    	QueryParamsInterface $params = null
     );
 
 

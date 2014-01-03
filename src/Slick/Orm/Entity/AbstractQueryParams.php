@@ -20,7 +20,7 @@ use Slick\Common\Base;
  * @package   Slick\Orm\Entity
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractQueryParams extends Base implements QueryParamsInterface
+abstract class AbstractQueryParams extends Base
 {
 
 	/**
