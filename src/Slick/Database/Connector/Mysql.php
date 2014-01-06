@@ -68,15 +68,23 @@ class Mysql extends AbstractConnector
     public static function getInstance($options = array())
     {
         static $instance;
+
+        if (is_null($instance)) {
+            $instance == array();
+        }
+
+        $key = md5(serialize($options));
+
         if (
+            !isset($instance[$key]) ||
             !is_a(
-                $instance,
+                $instance[$key],
                 'Slick\Database\Connector\ConnectorInterface'
             )
         ) {
-            $instance = new Mysql($options);
+            $instance[$key] = new Mysql($options);
         }
-        return $instance;
+        return $instance[$key];
     }
 
     /**

@@ -72,6 +72,18 @@ class Service extends Base implements ServiceInterface
     protected $_instance = null;
 
     /**
+     * @readwrite
+     * @var boolean
+     */
+    protected $_callable = false;
+
+    /**
+     * @readwrite
+     * @var boolean
+     */
+    protected $_closure = false;
+
+    /**
      * Returns the service’s name
      * 
      * @return string Service name
@@ -138,6 +150,108 @@ class Service extends Base implements ServiceInterface
     public function resolve(
         $options = array(), DiInterface $dependencyInjector = null)
     {
-        
+        Service\DefinitionParser::parse($this->_definition, $this);
+        if ($this->isCallable()) {
+            return call_user_func($this->_definition);
+        }
+
+        if ($this->isClosure()) {
+            $closure = $this->definition;
+            return $closure();
+        }
+
+        if ($this->isShared() && is_object($this->_instance)) {
+            return $this->_instance;
+        }
+
+        if (is_object($this->_definition)) {
+            $this->_instance = $this->_definition;
+            return $this->_instance;
+        }
+
+        return $this->_createObject($options, $dependencyInjector);
+    }
+
+    /**
+     * Creates service instance based on parsed definition
+     * @return object The service instance
+     */
+    protected function _createObject(
+        $options = array(), DiInterface $dependencyInjector = null)
+    {
+
+        $reflection = new \ReflectionClass($this->getClassName()); 
+        $instance = $reflection->newInstanceArgs(
+            $this->prepareArguments($this->getArguments())
+        );
+
+        if (is_a($instance, 'Slick\Di\DiAwareInterface')) {
+            $instance->setDi($dependencyInjector);
+        }
+
+        foreach ($this->_properties as $property => $value) {
+            $instance->$property = $value;
+        }
+
+        foreach ($this->_calls as $call) {
+            $method = $call['method'];
+            $args = isset($call['arguments']) ?
+                $this->prepareArguments($call['arguments']) : array();
+            call_user_func_array(
+                array($instance, $call['method']),
+                $args
+            );
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Parses the definition argumen array 
+     * 
+     * @param array       $args              
+     * @param DiInterface $dependencyInjector
+     * 
+     * @return array A list of parsed arguments to use.
+     */
+    public function prepareArguments(
+        $args, DiInterface $dependencyInjector = null)
+    {
+        $result = array();
+        foreach ($args as $arg) {
+            $result[] = $this->_resolveArgument($arg, $dependencyInjector);
+        }
+        return $result;
+    }
+
+    /**
+     * Resolves the argument data.
+     * 
+     * @param array       $data
+     * @param DiInterface $dependencyInjector
+     * 
+     * @return mixed The resolved value for the argumen
+     */
+    public function _resolveArgument(
+        $data, DiInterface $dependencyInjector = null)
+    {
+        $value = $data;
+        switch ($data['type']) {
+            case 'service':
+                $value = $dependencyInjector->get($data['name']);
+                break;
+
+            case 'parameter':
+                $value = $data['value'];
+                break;       
+            
+            case 'instance':
+                $reflection = new \ReflectionClass($data['className']); 
+                $value = $reflection->newInstanceArgs(
+                    $this->prepareArguments($data['arguments'])
+                );
+                break;
+        }
+        return $value;
     }
 }

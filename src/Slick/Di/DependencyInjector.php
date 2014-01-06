@@ -19,14 +19,7 @@ namespace Slick\Di;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class DependencyInjector extends AbstractDependencyInjector
-    implements DiInterface
 {
-
-    /**
-     * @readwrite
-     * @var array List of services in this container
-     */
-    protected $_services = array();
 
     /**
      * @read
@@ -41,28 +34,6 @@ class DependencyInjector extends AbstractDependencyInjector
     protected $_freshInstance = false;
 
     /**
-     * Registers a service in the services container
-     * 
-     * @param string  $name       The service name
-     * @param mixed   $definition The service definition
-     * @param boolean $shared     A flag to set this service as a shared service
-     *
-     * @return ServiceInterface
-     */
-    public function set($name, $definition, $shared = false)
-    {
-        $srv = new Service(
-            array(
-                'name' => $name,
-                'definition' => $definition,
-                'shared' => $shared
-            )
-        );
-        $this->_services[$name] = $srv;
-        return $srv;
-    }
-
-    /**
      * Registers a shared service in the services container
      * 
      * @param string  $name       The service name
@@ -73,18 +44,6 @@ class DependencyInjector extends AbstractDependencyInjector
     public function setShared($name, $definition)
     {
         return $this->set($name, $definition, true);
-    }
-
-    /**
-     * Removes a service in the services container
-     * 
-     * @param string $name The service name
-     */
-    public function remove($name)
-    {
-        if ($this->has($name)) {
-            unset($this->_services[$name]);
-        }
     }
 
     /**
@@ -106,26 +65,6 @@ class DependencyInjector extends AbstractDependencyInjector
             return $this->set($name, $definition, $shared);
         }
         return $this->getService($name);
-    }
-
-    /**
-     * Returns a service based on their configuration
-     * 
-     * @param string $name       The service name
-     * @param array  $parameters Parameters to set on resolved service instance
-     * 
-     * @return object The service instance
-     */
-    public function get($name, $parameters = array())
-    {
-        $instance = $this->getService($name)->resolve($parameters, $this);
-        if (!isset($this->_sharedInstances[$name])) {
-            $this->_freshInstance = true;
-            $this->_sharedInstances[$name] = $instance;
-        } else {
-            $this->_freshInstance = false;
-        }
-        return $instance;
     }
 
     /**
@@ -161,18 +100,6 @@ class DependencyInjector extends AbstractDependencyInjector
             "injector container."
         );
         
-    }
-
-    /**
-     * Check whether the DI contains a service by a name
-     * 
-     * @param string $name The service name
-     * 
-     * @return boolean True if service exists, false otherwise.
-     */
-    public function has($name)
-    {
-        return isset($this->_services[$name]);
     }
 
     /**
