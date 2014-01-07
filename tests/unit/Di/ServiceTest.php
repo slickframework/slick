@@ -13,7 +13,9 @@
 namespace Di;
 
 use Codeception\Util\Stub,
-    Slick\Di\Service;
+    Slick\Di\Service,
+    Slick\Di\DiAwareInterface,
+    Slick\Di\DiInterface;
 
 /**
  * Service use case
@@ -96,6 +98,7 @@ class ServiceTest extends \Codeception\TestCase\Test
      */
     public function resolveArray()
     {
+        $di = Stub::make('Slick\Di\DependencyInjector');
         $service = new Service(
             array(
                 'name' => 'test',
@@ -122,22 +125,63 @@ class ServiceTest extends \Codeception\TestCase\Test
 
             )
         );
-        $obj = $service->resolve();
+        $obj = $service->resolve(array(), $di);
         $this->assertInstanceOf('\Di\MyTestClass', $obj);
         $this->assertEquals("Dark Yellow", $obj->color);
         $this->assertEquals("Brown", $obj->back);
+        $this->assertSame($di, $obj->getDi());
     }
+
+    /**
+     * Check shared service resolition
+     * @test
+     */
+    public function resolveShared()
+    {
+        $di = Stub::make('Slick\Di\DependencyInjector');
+        $service = new Service(
+            array(
+                'name' => 'test',
+                'definition' => array(
+                    'className' => '\Di\MyTestClass'
+                )
+            )
+        );
+        $service->shared = true;
+        $this->assertTrue($service->isShared());
+
+        $obj1 = $service->resolve(array(), $di);
+        $obj2 = $service->resolve(array(), $di);
+
+        $this->assertSame($obj1, $obj2);
+
+    }
+
+
 
 }
 
 /**
  * Test class for resolve method.
  */
-class MyTestClass
+class MyTestClass implements DiAwareInterface
 {
     public $color = 'Red';
 
     public $back = 'Red';
+
+    protected $_di;
+
+    public function getDi()
+    {
+        return $this->_di;
+    }
+
+    public function setDi(DiInterface $dependencyInjector)
+    {
+        $this->_di = $dependencyInjector;
+        return $this;
+    }
 
     public function __construct($param = 'Green', $back = 'Red')
     {

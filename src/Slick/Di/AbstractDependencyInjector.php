@@ -12,6 +12,8 @@
 
 namespace Slick\Di;
 
+use Slick\Common\Base;
+
 /**
  * AbstractDependencyInjector
  *

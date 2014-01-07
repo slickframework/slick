@@ -33,7 +33,7 @@ class Service extends Base implements ServiceInterface
      * @readwrite
      * @var boolean
      */
-    protected $_shared;
+    protected $_shared = false;
 
     /**
      * @readwrite
@@ -113,7 +113,7 @@ class Service extends Base implements ServiceInterface
      */
     public function isShared()
     {
-        return (boolean) $this->_shared;
+        return $this->_shared;
     }
 
     /**
@@ -150,7 +150,13 @@ class Service extends Base implements ServiceInterface
     public function resolve(
         $options = array(), DiInterface $dependencyInjector = null)
     {
+
+        if ($this->isShared() && is_object($this->_instance)) {
+            return $this->_instance;
+        }
+
         Service\DefinitionParser::parse($this->_definition, $this);
+
         if ($this->isCallable()) {
             return call_user_func($this->_definition);
         }
@@ -158,10 +164,6 @@ class Service extends Base implements ServiceInterface
         if ($this->isClosure()) {
             $closure = $this->definition;
             return $closure();
-        }
-
-        if ($this->isShared() && is_object($this->_instance)) {
-            return $this->_instance;
         }
 
         if (is_object($this->_definition)) {
@@ -202,7 +204,7 @@ class Service extends Base implements ServiceInterface
                 $args
             );
         }
-
+        $this->_instance = $instance;
         return $instance;
     }
 
