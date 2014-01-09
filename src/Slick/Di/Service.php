@@ -184,7 +184,7 @@ class Service extends Base implements ServiceInterface
 
         $reflection = new \ReflectionClass($this->getClassName()); 
         $instance = $reflection->newInstanceArgs(
-            $this->prepareArguments($this->getArguments())
+            $this->prepareArguments($this->getArguments(), $dependencyInjector)
         );
 
         if (is_a($instance, 'Slick\Di\DiAwareInterface')) {
@@ -198,7 +198,7 @@ class Service extends Base implements ServiceInterface
         foreach ($this->_calls as $call) {
             $method = $call['method'];
             $args = isset($call['arguments']) ?
-                $this->prepareArguments($call['arguments']) : array();
+                $this->prepareArguments($call['arguments'], $dependencyInjector) : array();
             call_user_func_array(
                 array($instance, $call['method']),
                 $args

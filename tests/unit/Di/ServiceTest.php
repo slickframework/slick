@@ -157,7 +157,76 @@ class ServiceTest extends \Codeception\TestCase\Test
 
     }
 
+    /**
+     * Check service resolveing
+     * @test
+     */
+    public function resolveService()
+    {
+        $obj = new \StdClass();
+        $obj->test = 'service';
+        $di = Stub::make(
+            'Slick\Di\DependencyInjector',
+            array(
+                'get' => function ($name) use ($obj){
+                    return $obj;
+                }
+            )
+        );
+        $service = new Service(
+            array(
+                'name' => 'test',
+                'definition' => array(
+                    'className' => '\Di\MyTestClass',
+                    'arguments' => array(
+                        array('type' => 'parameter', 'value' => "Blue")
+                    ),
+                    'calls' => array(
+                        array(
+                            'method' => 'setObject',
+                            'arguments' => array(
+                                array('type' => 'service', 'name' => 'test')
+                            )
+                        ),
+                    )
+                )
 
+            )
+        );
+        $result = $service->resolve(array(), $di);
+        $this->assertSame($result->getObj(), $obj);
+    }
+
+    /**
+     * Check instance arguments
+     * @test
+     */
+    public function resolveInstabce()
+    {
+        $di = Stub::make('Slick\Di\DependencyInjector');
+        $service = new Service(
+            array(
+                'name' => 'test',
+                'definition' => array(
+                    'className' => '\Di\MyTestClass',
+                    'arguments' => array(
+                        array('type' => 'parameter', 'value' => "Blue")
+                    ),
+                    'calls' => array(
+                        array(
+                            'method' => 'setObject',
+                            'arguments' => array(
+                                array('type' => 'instance', 'className' => 'Di\MyInstanceClass', 'arguments' => array())
+                            )
+                        ),
+                    )
+                )
+
+            )
+        );
+        $this->assertInstanceOf('Di\MyInstanceClass', $service->resolve(array(), $di)->getObj());
+
+    }
 
 }
 
@@ -169,6 +238,8 @@ class MyTestClass implements DiAwareInterface
     public $color = 'Red';
 
     public $back = 'Red';
+
+    protected $_obj;
 
     protected $_di;
 
@@ -203,4 +274,19 @@ class MyTestClass implements DiAwareInterface
     {
         return "Test function";
     }
+
+    public function getObj()
+    {
+        return $this->_obj;
+    }
+
+    public function setObject($obj)
+    {
+        $this->_obj = $obj;
+    }
+}
+
+class MyInstanceClass
+{
+
 }
