@@ -31,6 +31,12 @@ abstract class AbstractDependencyInjector extends Base
     protected $_services = array();
 
     /**
+     * @readwrite
+     * @var boolean Flag for instance freshness
+     */
+    protected $_freshInstance = false;
+
+    /**
      * Registers a service in the services container
      * 
      * @param string  $name       The service name

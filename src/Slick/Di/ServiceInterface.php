@@ -18,7 +18,7 @@ namespace Slick\Di;
  * @package   Slick\Di
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface ServiceInterface 
+interface ServiceInterface
 {
 
     /**

@@ -21,8 +21,8 @@ use RuntimeException;
  * @package   Slick\Di\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ServiceNotFoundException extends DiException
-    implements RuntimeException
+class ServiceNotFoundException extends RuntimeException
+    implements DiException
 {
 
 }

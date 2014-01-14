@@ -50,8 +50,8 @@ class DependencyInjector extends AbstractDependencyInjector
      * Attempts to register a service in the servives container
      *
      * This method is similar to the DiInterface::set() except that it will
-     * only register the service if a service hasn’t been registered previously
-     * with the same name
+     * only register the service if a service hasn’t been registered
+     * previously with the same name
      * 
      * @param string  $name       The service name
      * @param mixed   $definition The service definition

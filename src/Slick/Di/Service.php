@@ -198,7 +198,10 @@ class Service extends Base implements ServiceInterface
         foreach ($this->_calls as $call) {
             $method = $call['method'];
             $args = isset($call['arguments']) ?
-                $this->prepareArguments($call['arguments'], $dependencyInjector) : array();
+                $this->prepareArguments(
+                    $call['arguments'],
+                    $dependencyInjector
+                ) : array();
             call_user_func_array(
                 array($instance, $call['method']),
                 $args
