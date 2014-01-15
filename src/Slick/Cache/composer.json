@@ -10,6 +10,7 @@
     },
     "target-dir": "Slick/Cache",
     "require": {
-        "slick/common": "self.version"
+        "slick/common": "self.version",
+        "slick/filesystem": "self.version"
     }
 }

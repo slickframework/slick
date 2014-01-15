@@ -41,7 +41,7 @@ interface DriverInterface
      * 
      * @return DriverInterface A sefl instance for chaining method calls.
      */
-    public function set($key, $value, $duration = 120);
+    public function set($key, $value, $duration = -1);
 
     /**
      * Erase the value stored wit a given key.

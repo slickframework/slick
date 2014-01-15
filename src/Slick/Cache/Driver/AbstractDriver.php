@@ -23,6 +23,18 @@ use Slick\Common\Base,
  */
 abstract class AbstractDriver extends Base implements DriverInterface
 {
+
+    /**
+     * @readwrite
+     * @var string The prefix for cacke key
+     */
+    protected $_prefix = '';
+
+    /**
+     * @readwrite
+     * @var integer The number of seconds for cache expiry
+     */
+    protected $_duration = 120;
     
     /**
      * Handle the initialization of an already initialized driver

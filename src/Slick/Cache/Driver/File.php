@@ -12,6 +12,9 @@
 
 namespace Slick\Cache\Driver;
 
+use Slick\FileSystem\Folder,
+    Slick\FileSystem\File as FsFile;
+
 /**
  * File cache driver
  *
@@ -20,6 +23,42 @@ namespace Slick\Cache\Driver;
  */
 class File extends AbstractDriver
 {
+
+    /**
+     * @readwrite
+     * @var string Default files path
+     */
+    protected $_path = './' ;
+
+    /**
+     * @readwrite
+     * @var string The directory name for cache files.
+     */
+    protected $_dirName = 'cache';
+
+    /**
+     * @readwrite
+     * @var Folder Folder to handle the cache files
+     */
+    protected $_folder = null;
+
+    /**
+     * Lazy loading of folder property
+     * 
+     * @return Folder 
+     */
+    public function getFolder()
+    {
+        if (is_null($this->_folder)) {
+            $this->_folder = new Folder(
+                array(
+                    'name' => "{$this->_path}/{$this->_dirName}",
+                    'autoCreate' => true
+                )
+            );
+        }
+        return $this->_folder;
+    }
     
     /**
      * Retrives a previously stored value.
@@ -44,9 +83,14 @@ class File extends AbstractDriver
      * 
      * @return File A sefl instance for chaining method calls.
      */
-    public function set($key, $value, $duration = 120)
+    public function set($key, $value, $duration = -999)
     {
-
+        $duration = ($duration < 0) ? $this->_duration : $duration;
+        $file = $this->getFolder()->addFile($key.".tmp");
+        $content = time() + $duration . "\n";
+        $content .= serialize($value);
+        $file->write($content);
+        return $this;
     }
 
     /**

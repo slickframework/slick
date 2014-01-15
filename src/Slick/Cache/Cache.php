@@ -41,8 +41,8 @@ class Cache extends Base
      * 
      * @return Driver A cache driver
      * 
-     * @throws Exception\DriverNotFounf If the driver type or class name
-     *  ins not a valid cache driver.
+     * @throws Exception\InvalidDriverException If the driver type or class 
+     *  name isn't a valid cache driver.
      */
     public function initialize()
     {
@@ -50,7 +50,14 @@ class Cache extends Base
 
         if (class_exists($this->_class)) {
             $class = $this->_class;
-            return new $class($this->_options);
+            $driver = new $class($this->_options);
+            if (!is_a($driver, 'Slick\Cache\DriverInterface')) {
+                throw new Exception\InvalidDriverException(
+                    "Class {$class} doesn't implement " .
+                    "Slick\Cache\DriverInterface interface."
+                );
+            }
+            return $driver;
         }
 
         switch (strtolower($this->_class)) {
@@ -60,6 +67,9 @@ class Cache extends Base
                 break;
 
             default:
+                throw new Exception\InvalidDriverException(
+                    "Type {$this->_class} cache driver doesn't exists."
+                );
 
         }
         return $driver;
