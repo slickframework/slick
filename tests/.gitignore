@@ -1,0 +1,4 @@
+/_log/coverage
+/_log/coverage.serialized
+/_log/*.html
+/_unit*

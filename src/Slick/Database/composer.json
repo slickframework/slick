@@ -1,0 +1,16 @@
+{
+    "name": "slick/database",
+    "description": "Database libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "database"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Database\\": ""
+        }
+    },
+    "target-dir": "Slick/Database",
+    "require": {
+        "slick/common": "self.version",
+        "slick/utility": "self.version"
+    }
+}

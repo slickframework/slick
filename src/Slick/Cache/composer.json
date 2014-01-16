@@ -1,0 +1,16 @@
+{
+    "name": "slick/cache",
+    "description": "Cache compoment for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "cache"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Cache\\": ""
+        }
+    },
+    "target-dir": "Slick/Cache",
+    "require": {
+        "slick/common": "self.version",
+        "slick/filesystem": "self.version"
+    }
+}

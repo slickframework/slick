@@ -1,0 +1,15 @@
+{
+    "name": "slick/Configuration",
+    "description": "Configuration component for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "configuration"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Configuration\\": ""
+        }
+    },
+    "target-dir": "Slick/Configuration",
+    "require": {
+        "slick/common": "self.version"
+    }
+}
