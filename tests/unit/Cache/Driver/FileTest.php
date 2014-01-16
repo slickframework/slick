@@ -90,7 +90,7 @@ class FileTest extends \Codeception\TestCase\Test
         $this->assertSame($cache, $result);
         $this->assertFalse($cache->get('foo', false));
         $file = $path . "/cache/foo.tmp";
-        $this->assertTrue(file_exists($file));
+        $this->assertFalse(file_exists($file));
 
     }
 

@@ -116,7 +116,13 @@ class File extends AbstractDriver
      */
     public function erase($key)
     {
+        if ($this->getFolder()->hasFile($this->_getFileName($key))) {
+            $this->getFolder()
+                ->getFile($this->_getFileName($key))
+                ->delete();
+        }
 
+        return $this;
     }
 
     /**
