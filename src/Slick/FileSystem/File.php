@@ -57,7 +57,7 @@ class File extends Node
      *  be opened.
      */
     public function __construct(
-        $name, $openMode = "w+", $useIncludePath = false)
+        $name, $openMode = "c+", $useIncludePath = false)
     {
         parent::__construct(array());
 

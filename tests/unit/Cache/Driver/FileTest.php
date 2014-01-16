@@ -52,4 +52,46 @@ class FileTest extends \Codeception\TestCase\Test
             unlink($file);
     }
 
+    /**
+     * Read values from cache
+     * @test
+     */
+    public function getValues()
+    {
+        $cache = new Driver();
+        $path = dirname(dirname(dirname(__DIR__))) . '/app/Temp';
+        $cache->path = $path;
+        $data = array('foo', 'bar');
+        $cache->set('foo', $data);
+        $this->assertEquals($data, $cache->get('foo', false));
+        $cache->set('foo', $data, 0);
+        $this->assertFalse($cache->get('foo', false));
+        $this->assertTrue($cache->get('bar', true));
+        $file = $path . "/cache/foo.tmp";
+        if (file_exists($file))
+            unlink($file);
+    }
+
+    /**
+     * Erase a cache value.
+     * @test
+     */
+    public function eraseValues()
+    {
+        $cache = new Driver();
+        $path = dirname(dirname(dirname(__DIR__))) . '/app/Temp';
+        $cache->path = $path;
+
+        $data = array('foo', 'bar');
+        $cache->set('foo', $data);
+        $this->assertEquals($data, $cache->get('foo', false));
+
+        $result = $cache->erase('foo');
+        $this->assertSame($cache, $result);
+        $this->assertFalse($cache->get('foo', false));
+        $file = $path . "/cache/foo.tmp";
+        $this->assertTrue(file_exists($file));
+
+    }
+
 }

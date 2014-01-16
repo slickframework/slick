@@ -30,7 +30,7 @@ interface DriverInterface
      * @return mixed The stored value or the default value if it was
      *  not found on service cache.
      */
-    public function get($key, $default = null);
+    public function get($key, $default = false);
 
     /**
      * Set/stores a value with a given key.

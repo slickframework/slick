@@ -19,7 +19,7 @@ use Slick\FileSystem\Folder,
  * File cache driver
  *
  * @package   Slick\Cache\Driver
- * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @author    Filcipe Silva <silvam.filipe@gmail.com>
  */
 class File extends AbstractDriver
 {
@@ -69,9 +69,23 @@ class File extends AbstractDriver
      * @return mixed The stored value or the default value if it was
      *  not found on service cache.
      */
-    public function get($key, $default = null)
+    public function get($key, $default = false)
     {
+        if (!$this->getFolder()->hasFile($this->_getFileName($key))) {
+            return $default;
+        }
 
+        $contents = $this->getFolder()
+            ->getFile($this->_getFileName($key))
+            ->read();
+            
+        list($time, $data) = explode("\n", $contents);
+
+        if ($time <= time()) {
+            return $default;
+        }
+
+        return unserialize(trim($data));
     }
 
     /**
@@ -86,7 +100,7 @@ class File extends AbstractDriver
     public function set($key, $value, $duration = -999)
     {
         $duration = ($duration < 0) ? $this->_duration : $duration;
-        $file = $this->getFolder()->addFile($key.".tmp");
+        $file = $this->getFolder()->addFile($this->_getFileName($key));
         $content = time() + $duration . "\n";
         $content .= serialize($value);
         $file->write($content);
@@ -103,5 +117,17 @@ class File extends AbstractDriver
     public function erase($key)
     {
 
+    }
+
+    /**
+     * Creates the name for a given key
+     * 
+     * @param string $key The cache key.
+     * 
+     * @return string
+     */
+    protected function _getFileName($key)
+    {
+        return $this->prefix . $key . '.tmp';
     }
 }
