@@ -13,6 +13,7 @@
 namespace Slick\Cache\Exception;
 
 use Slick\Cache\Exception as CacheException;
+use RuntimeException;
 
 /**
  * ServiceException
@@ -20,7 +21,7 @@ use Slick\Cache\Exception as CacheException;
  * @package   Slick\Cache\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ServiceException extends Runtimexception implements CacheException
+class ServiceException extends RuntimeException implements CacheException
 {
     
 }

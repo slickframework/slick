@@ -13,6 +13,7 @@
 namespace Slick\Cache\Driver;
 
 use Memcache;
+use Slick\Cache\Exception;
 
 /**
  * Memcached
@@ -117,12 +118,6 @@ class Memcached extends AbstractDriver
      */
     public function get($key, $default = null)
     {
-        if (!$this->_isValidService()) {
-            throw new Exception\Service(
-                "Not connected to a valid Memcached service"
-            );
-        }
-
         $value = $this->service->get($this->prefix.$key, MEMCACHE_COMPRESSED);
 
         if ($value) {
@@ -144,13 +139,9 @@ class Memcached extends AbstractDriver
      * @throws Exception\Service If you are trying to set a cache
      *   values without connecting to memcached service first.
      */
-    public function set($key, $value, $duration = 120)
+    public function set($key, $value, $duration = -999)
     {
-        if (!$this->_isValidService()) {
-            throw new Exception\Service(
-                "Not connected to a valid Memcached service"
-            );
-        }
+        $duration = ($duration < 0) ? $this->_duration : $duration;
         $this->service->set(
             $this->prefix.$key,
             $value,
@@ -173,11 +164,6 @@ class Memcached extends AbstractDriver
      */
     public function erase($key)
     {
-        if (!$this->_isValidService()) {
-            throw new Exception\Service(
-                "Not connected to a valid Memcached service"
-            );
-        }
         $this->service->delete($this->prefix.$key);
         return $this;
     }

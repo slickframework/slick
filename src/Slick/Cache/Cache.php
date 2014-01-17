@@ -37,6 +37,12 @@ class Cache extends Base
     protected $_options = array();
 
     /**
+     * @read
+     * @var array A list of supported types
+     */
+    protected $_supportedTypes = array('ini', 'memcached');
+
+    /**
      * Driver initialization
      * 
      * @return Driver A cache driver
@@ -48,7 +54,10 @@ class Cache extends Base
     {
         $driver = null;
 
-        if (class_exists($this->_class)) {
+        if (
+            !in_array(strtolower($this->_class), $this->_supportedTypes) &&
+            class_exists($this->_class)
+        ) {
             $class = $this->_class;
             $driver = new $class($this->_options);
             if (!is_a($driver, 'Slick\Cache\DriverInterface')) {
