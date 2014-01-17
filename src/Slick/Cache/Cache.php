@@ -66,6 +66,10 @@ class Cache extends Base
                 $driver = new Driver\File($this->_options);
                 break;
 
+            case 'memcached':            
+                $driver = new Driver\Memcached($this->_options);
+                break;
+
             default:
                 throw new Exception\InvalidDriverException(
                     "Type {$this->_class} cache driver doesn't exists."
