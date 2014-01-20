@@ -84,9 +84,26 @@ class ContainerTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf("Slick\Di\DependencyInjector", $obj1->getDi());
         $this->assertEquals($di, $obj1->getDi());
     }
+
+    /**
+     * Use an object instance
+     * @test
+     */
+    public function useObjectInstance()
+    {
+        $di = new DependencyInjector();
+        $obj = new OtherObject();
+        $di->set('foo', new OtherObject());
+        $this->assertInstanceOf('Di\OtherObject', $di->get('foo'));
+    }
 }
 
 class ObjectForDi extends base implements DiAwareInterface
+{
+
+}
+
+class OtherObject
 {
 
 }

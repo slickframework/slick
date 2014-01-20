@@ -63,7 +63,7 @@ class ServiceTest extends \Codeception\TestCase\Test
      */
     public function resolveObject()
     {
-        $obj = new \StdClass();
+        $obj = new MyInstanceClass();
         $obj->name = "Resolve Object";
 
         $service = new Service(
