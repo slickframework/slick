@@ -38,18 +38,18 @@ interface ElementInterface
     public function getName();
 
     /**
-     * Add an attribune to the element
+     * Add an attribute to the element
      *
      * HTML attribute added will use the $key param as name and will be set
      * to the $value value. Null values indicate that the attribute will
      * have its value equals to its name
      * 
-     * @param string $key   The atrtibute key (name)
+     * @param string $key   The attribute key (name)
      * @param string $value The attribute value
      * 
      * @return @return ElementInterface A self instance for method call chains
      */
-    public function addattribute($key, $value = null);
+    public function addAttribute($key, $value = null);
 
     /**
      * Returns the value of the attribute with the give key
@@ -69,4 +69,35 @@ interface ElementInterface
      *  defined, ot false otherwise.
      */
     public function hasAttribute($key);
+
+    /**
+     * Sets element's label
+     *
+     * @param string $label
+     *
+     * @return ElementInterface A self instance for method call chains
+     */
+    public function setLabel($label);
+
+    /**
+     * Returns current element label
+     *
+     * @return string
+     */
+    public function getLabel();
+
+    /**
+     * Sets elements value
+     *
+     * @param string $value
+     *
+     * @return ElementInterface A self instance for method call chains
+     */
+    public function setValue($value);
+
+    /**
+     * Returns current element value
+     * @return string
+     */
+    public function getValue();
 }
