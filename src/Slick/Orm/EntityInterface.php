@@ -12,8 +12,6 @@
 
 namespace Slick\Orm;
 
-use Slick\Orm\Entity\QueryParamsInterface;
-
 /**
  * EntityInterface
  *
@@ -25,18 +23,72 @@ use Slick\Orm\Entity\QueryParamsInterface;
  */
 interface EntityInterface
 {
-
-	/**
-     * Retrives the list of entity instances for a given query conditions.
+    /**
+     * Retrieves the record with the provided primary key
      *
-     * @param QueryParamsInterface $params The query parameters to use on
-     *  select statement.
+     * @param int $id The primary key id
      *
-     * @return RecordList A list of records (entity instances).
+     * @return EntityInterface An entity object
      */
-    public static function all(
-    	QueryParamsInterface $params = null
-    );
+    public static function get($id);
 
+    /**
+     * Queries the database to retrieves all records that satisfies the
+     * conditions and limitations provided by $options.
+     *
+     * The options are:
+     *
+     *  - conditions: an array of conditions to filter out records;
+     *  - files: an array with field names to retrieve;
+     *  - order: an array or string with order clauses;
+     *  - limit: the number of records to select;
+     *  - page: the starting page for selected records;
+     *
+     * @param array $options Options to filter out the records
+     *
+     * @return RecordListInterface A record list
+     */
+    public static function all(array $options = array());
 
+    /**
+     * Queries the database to retrieve the first record that satisfies the
+     * conditions and limitations provided by $options.
+     *
+     * The options are:
+     *
+     *  - conditions: an array of conditions to filter out records;
+     *  - files: an array with field names to retrieve;
+     *  - order: an array or string with order clauses;
+     *
+     * @param array $options Options to filter out the records
+     *
+     * @return EntityInterface An entity object
+     */
+    public static function first(array $options = array());
+
+    /**
+     * Saves current record data
+     *
+     * This method will figure out if the save operation is an insert
+     * or an update based on the value of the primary key field. If
+     * the primary key field is null it will insert and create a new
+     * record, if the field isn't null an update will be performed
+     * in the record that have that primary key value.
+     * If $data param is provided only the keys in that array that
+     * match the fields of this table will be updated. If no primary
+     * key is used it will figure out from object primary key value
+     * if the save operations is an insert or an update.
+     *
+     * @param array $data A key/value pair of values to be save.
+     *
+     * @return boolean True if record was successfully saved, false otherwise
+     */
+    public function save(array $data = array());
+
+    /**
+     * Deletes current record from database
+     * 
+     * @return boolean True if record was successfully deleted, false otherwise
+     */
+    public function delete();
 }
