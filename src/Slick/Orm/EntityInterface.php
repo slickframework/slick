@@ -12,11 +12,15 @@
 
 namespace Slick\Orm;
 
+use Slick\Database\Query\QueryInterface,
+    Slick\Database\RecordList,
+    Slick\Database\Connector\ConnectorInterface;
+
 /**
  * EntityInterface
  *
  * This interface defines the behavior for a database entity with methods to
- * retrive, edit and remove records from a database table.
+ * retrieve, edit and remove records from a database table.
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -46,7 +50,7 @@ interface EntityInterface
      *
      * @param array $options Options to filter out the records
      *
-     * @return RecordListInterface A record list
+     * @return RecordList A record list
      */
     public static function all(array $options = array());
 
@@ -91,4 +95,25 @@ interface EntityInterface
      * @return boolean True if record was successfully deleted, false otherwise
      */
     public function delete();
+
+    /**
+     * Loads the data from database for current object pk value
+     *
+     * @return EntityInterface A self instance for method chain calls
+     */
+    public function load();
+
+    /**
+     * Returns a query object for custom queries
+     *
+     * @return QueryInterface A query interface for custom queries
+     */
+    public function query();
+
+    /**
+     * Returns the database connector (adapter)
+     *
+     * @return ConnectorInterface
+     */
+    public function connector();
 }
