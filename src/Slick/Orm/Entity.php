@@ -1,7 +1,6 @@
 <?php
-
 /**
- * EntityInterface
+ * Entity
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,29 +11,37 @@
 
 namespace Slick\Orm;
 
-use Slick\Database\Query\QueryInterface,
-    Slick\Database\RecordList,
-    Slick\Database\Connector\ConnectorInterface;
+use Slick\Database\Connector\ConnectorInterface;
+use Slick\Database\Query\Query;
+use Slick\Database\RecordList;
 
 /**
- * EntityInterface
- *
- * This interface defines the behavior for a database entity with methods to
- * retrieve, edit and remove records from a database table.
+ * Entity
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface EntityInterface
+class Entity extends AbstractEntity implements EntityInterface
 {
+
+
+
     /**
      * Retrieves the record with the provided primary key
      *
      * @param int $id The primary key id
      *
-     * @return EntityInterface An entity object
+     * @return Entity An entity object
      */
-    public static function get($id);
+    public static function get($id)
+    {
+        $entity = new self();
+        $field = "{$entity->name}.{$entity->primaryKey}";
+        return $entity->query()
+            ->select($entity->tableName)
+            ->where(["{$field} = ?" => $id])
+            ->first();
+    }
 
     /**
      * Queries the database to retrieves all records that satisfies the
@@ -52,7 +59,10 @@ interface EntityInterface
      *
      * @return RecordList A record list
      */
-    public static function all(array $options = array());
+    public static function all(array $options = array())
+    {
+        // TODO: Implement all() method.
+    }
 
     /**
      * Queries the database to retrieve the first record that satisfies the
@@ -66,9 +76,12 @@ interface EntityInterface
      *
      * @param array $options Options to filter out the records
      *
-     * @return EntityInterface An entity object
+     * @return Entity An entity object
      */
-    public static function first(array $options = array());
+    public static function first(array $options = array())
+    {
+        // TODO: Implement first() method.
+    }
 
     /**
      * Saves current record data
@@ -87,35 +100,50 @@ interface EntityInterface
      *
      * @return boolean True if record was successfully saved, false otherwise
      */
-    public function save(array $data = array());
+    public function save(array $data = array())
+    {
+        // TODO: Implement save() method.
+    }
 
     /**
      * Deletes current record from database
-     * 
+     *
      * @return boolean True if record was successfully deleted, false otherwise
      */
-    public function delete();
+    public function delete()
+    {
+        // TODO: Implement delete() method.
+    }
 
     /**
      * Loads the data from database for current object pk value
      *
-     * @return EntityInterface A self instance for method chain calls
+     * @return Entity A self instance for method chain calls
      */
-    public function load();
+    public function load()
+    {
+        // TODO: Implement load() method.
+    }
 
     /**
      * Returns a query object for custom queries
      *
-     * @param null $sql A custom sql
+     * @param null $sql A custom SQL query
      *
-     * @return QueryInterface A query interface for custom queries
+     * @return Query A query interface for custom queries
      */
-    public function query($sql = null);
+    public function query($sql = null)
+    {
+        return $this->connector()->query();
+    }
 
     /**
      * Returns the database connector (adapter)
      *
      * @return ConnectorInterface
      */
-    public function connector();
+    public function connector()
+    {
+        return $this->_connector;
+    }
 }

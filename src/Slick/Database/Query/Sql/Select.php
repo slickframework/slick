@@ -219,4 +219,28 @@ class Select extends AbstractSql implements SelectInterface
         $this->_offset = $offset;
         return $this;
     }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Select A self instance for method chain calls.
+     */
+    public function where($conditions)
+    {
+        return parent::where($conditions);
+    }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Select A self instance for method chain calls.
+     */
+    public function andWhere($conditions)
+    {
+        return parent::where($conditions);
+    }
 }
