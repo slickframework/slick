@@ -29,12 +29,12 @@ class Tag
     public $name;
 
     /**
-     * @var boolean|string The tag value
+     * @var TagValues The tag value
      */
     public $value;
 
     /**
-     * @var string the raw value as it appears in docblock
+     * @var string the raw value as it appears in doc block
      */
     protected $_raw;
 
@@ -106,7 +106,7 @@ class Tag
         $elements = count($value);
 
         if ($elements > 1) {
-            $this->value = new \ArrayIterator($this->_parseValue($value));
+            $this->value = new TagValues($this->_parseValue($value));
         } else if ($elements == 1) {
             $this->value = reset($value);
         }
@@ -115,10 +115,10 @@ class Tag
     /**
      * Helper method to retrieve named values
      * 
-     * @param string $value The raw value part to parse
+     * @param array $value The raw value part to parse
      * 
-     * @return array An array containing name/value pairs of values enterer
-     *  in the docblock tag value.
+     * @return array An array containing name/value pairs of values entered
+     *  in the doc block tag value.
      */
     protected function _parseValue($value)
     {

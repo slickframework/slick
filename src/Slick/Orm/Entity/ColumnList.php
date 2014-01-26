@@ -66,13 +66,20 @@ class ColumnList extends ArrayObject
     {
         /** @var $column Column */
         foreach ($this as $column) {
-            if ($column->isPrimaryKey) {
+            if ($column->primaryKey) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Check if a column with provided name exists in the list
+     *
+     * @param string $name Column name to search
+     *
+     * @return bool True if there is a column with given name, false otherwise
+     */
     public function hasColumn($name)
     {
         /** @var $column Column */
@@ -82,5 +89,22 @@ class ColumnList extends ArrayObject
             }
         }
         return false;
+    }
+
+    /**
+     * Gets the column with the given name from the list
+     *
+     * If column does not exists null will be returned
+     *
+     * @param string $name Name of the column to retrieve
+     *
+     * @return Column|null The column object or null in not found
+     */
+    public function get($name)
+    {
+        if ($this->hasColumn($name)) {
+            return $this[$name];
+        }
+        return null;
     }
 } 

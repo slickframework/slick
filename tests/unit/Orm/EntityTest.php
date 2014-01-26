@@ -12,6 +12,7 @@
 
 namespace Orm;
 
+use Codeception\TestCase\Test;
 use Codeception\Util\Stub;
 use Slick\Database\Connector\SQLite;
 use Slick\Orm\Entity;
@@ -22,7 +23,7 @@ use Slick\Orm\Entity;
  * @package   Test\Session
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class EntityTest extends \Codeception\TestCase\Test
+class EntityTest extends Test
 {
 
     /**
@@ -73,6 +74,17 @@ class EntityTest extends \Codeception\TestCase\Test
         $columns = $this->_user->getColumns();
         $this->assertTrue($columns->hasColumn('id'));
         $this->assertTrue($columns->hasColumn('name'));
+        $this->assertTrue($columns['id']->primaryKey);
+        $this->assertEquals('int', $columns['id']->type);
+        $this->assertEquals('big', $columns['id']->size);
+        $this->assertTrue($columns['id']->unsigned);
+        $this->assertEquals('_id', $columns['id']->raw);
+        $this->assertFalse($columns['id']->index);
+
+        $this->assertEquals('required' ,$columns['name']->validate->value);
+        $this->assertEquals('text' ,$columns['name']->type);
+
+
     }
 
     /**

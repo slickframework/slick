@@ -28,6 +28,40 @@ class TextTest extends \Codeception\TestCase\Test
      */
     protected $codeGuy;
 
+    protected $terms = array(
+        'person' => 'people',
+        'man' => 'men',
+        'user' => 'users',
+        'knife' => 'knives',
+        'life' => 'lives',
+        'ox' => 'oxen',
+        'child' => 'children',
+        'woman' => 'women',
+        'crisis' => 'crises',
+    );
+
+    /**
+     * Singular conversion tests
+     * @test
+     */
+    public function singular()
+    {
+        foreach ($this->terms as $singular => $plural) {
+            $this->assertEquals($singular, Text::singular($plural));
+        }
+    }
+
+    /**
+     * Singular conversion tests
+     * @test
+     */
+    public function plural()
+    {
+        foreach ($this->terms as $singular => $plural) {
+            $this->assertEquals($plural, Text::plural($singular));
+        }
+    }
+
     /**
      * Test match operation on strings.
      * 

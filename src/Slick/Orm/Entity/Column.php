@@ -90,6 +90,12 @@ class Column extends Base
     protected $_label;
 
     /**
+     * @readwrite
+     * @var boolean
+     */
+    protected $_unsigned;
+
+    /**
      * Parses metadata to create a column
      *
      * @param TagList $metaData Property meta data
@@ -106,10 +112,13 @@ class Column extends Base
 
         return new Column(
             [
+                'raw' => $property,
                 'name' => preg_replace('#^_#', '', $property),
-                'primaryKey' => $metaData->hasTag("@primary"),
-                'type' => $metaData->getTag("@type"),
-                'length' => $metaData->getTag("@length"),
+                'primaryKey' => $metaData->getTag("@column")->value->check('primary'),
+                'unsigned' => $metaData->getTag("@column")->value->check('unsigned'),
+                'type' => $metaData->getTag("@column")->value['type'],
+                'length' => $metaData->getTag("@column")->value['length'],
+                'size' => $metaData->getTag("@column")->value['size'],
                 'index' => $metaData->hasTag("@index"),
                 'write' =>
                     $metaData->hasTag("@readwrite") ||
@@ -117,7 +126,6 @@ class Column extends Base
                 'read' =>
                     $metaData->hasTag("@readwrite") ||
                     $metaData->hasTag("@read"),
-                'size' => $metaData->getTag("@size"),
                 'validate' => $metaData->getTag("@validate"),
                 'label' => $metaData->getTag("@label")
             ]

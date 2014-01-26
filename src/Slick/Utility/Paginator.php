@@ -59,25 +59,6 @@ class Paginator extends Base
 	protected $_offset = 0;
 
 	/**
-	 * Paginator constructor
-	 *
-	 * Overrides the constructor to calculate the properties for current
-	 * paginator state.
-	 * 
-	 * @param array $options A key/value pair for default values.
-	 * 
-	 * @see \Slick\Common\Base
-	 */
-	public function __construct($options = array())
-	{
-		parent::__construct($options);
-
-		if ($this->request->param('page')) {
-			$this->currentPage = $this->request->param('page');
-		}
-	}
-
-	/**
 	 * Sets current page and calculates offest
 	 * 
 	 * @param integer $value The number of the current page.
@@ -129,27 +110,6 @@ class Paginator extends Base
 		$this->_rowsPerPage = $value;
 		$this->_pages = ceil($this->_totalRows / $this->_rowsPerPage);
 		return $this;
-	}
-
-	/**
-	 * Creates a request query for the provided page.
-	 *
-	 * This method check the current request query in order to mantain the
-	 * other parameters unchanged and sets the 'page' parameter to the
-	 * provided page number.
-	 * 
-	 * @param integer $page The page number to build the query on.
-	 * 
-	 * @return string The query string to use in the paginator links.
-	 */
-	public function pageUrl($page)
-	{
-		$params = $this->request->params;
-
-		unset($params['url']);
-		unset($params['extension']);
-		$params['page'] = $page;
-		return '?' . http_build_query($params);
 	}
 
 }
