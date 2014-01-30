@@ -11,9 +11,8 @@
 
 namespace Slick\Orm;
 
-use Slick\Database\Connector\ConnectorInterface;
-use Slick\Database\Query\Query;
 use Slick\Database\RecordList;
+use Slick\Di\DiAwareInterface;
 
 /**
  * Entity
@@ -21,10 +20,9 @@ use Slick\Database\RecordList;
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Entity extends AbstractEntity implements EntityInterface
+class Entity extends AbstractEntity
+    implements EntityInterface, DiAwareInterface
 {
-
-
 
     /**
      * Retrieves the record with the provided primary key
@@ -35,12 +33,16 @@ class Entity extends AbstractEntity implements EntityInterface
      */
     public static function get($id)
     {
-        $entity = new self();
-        $field = "{$entity->name}.{$entity->primaryKey}";
-        return $entity->query()
-            ->select($entity->tableName)
-            ->where(["{$field} = ?" => $id])
+        /** @var Entity $entity */
+        $entity = new static();
+        $className = get_called_class();
+        $row = $entity->query()
+            ->select($entity->table)
+            ->where(["{$entity->primaryKey} = ?" => $id])
             ->first();
+        if ($row)
+            return new $className($row);
+        return null;
     }
 
     /**
@@ -125,25 +127,5 @@ class Entity extends AbstractEntity implements EntityInterface
         // TODO: Implement load() method.
     }
 
-    /**
-     * Returns a query object for custom queries
-     *
-     * @param null $sql A custom SQL query
-     *
-     * @return Query A query interface for custom queries
-     */
-    public function query($sql = null)
-    {
-        return $this->connector()->query();
-    }
 
-    /**
-     * Returns the database connector (adapter)
-     *
-     * @return ConnectorInterface
-     */
-    public function connector()
-    {
-        return $this->_connector;
-    }
 }

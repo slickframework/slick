@@ -40,7 +40,7 @@ class Cache extends Base
      * @read
      * @var array A list of supported types
      */
-    protected $_supportedTypes = array('ini', 'memcached');
+    protected $_supportedTypes = array('file', 'memcached');
 
     /**
      * Driver initialization

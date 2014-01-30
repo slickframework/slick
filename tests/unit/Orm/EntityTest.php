@@ -14,7 +14,10 @@ namespace Orm;
 
 use Codeception\TestCase\Test;
 use Codeception\Util\Stub;
+use Slick\Configuration\Configuration;
 use Slick\Database\Connector\SQLite;
+use Slick\Database\Query\Query;
+use Slick\Di\DependencyInjector;
 use Slick\Orm\Entity;
 
 /**
@@ -37,10 +40,12 @@ class EntityTest extends Test
     protected function _before()
     {
         parent::_before();
-        $connector = SQLite::getInstance();
-        $connector->file = ":memory:";
-
-        $this->_user = new User(['connector' => $connector]);
+        Configuration::addPath(__DIR__);
+        $connector = MyTestConnector::getInstance();
+        $di = new DependencyInjector();
+        $di->set('db_default', $connector);
+        $this->_user = new User();
+        $this->_user->setDi($di);
     }
 
     /**
@@ -55,14 +60,16 @@ class EntityTest extends Test
     /**
      * Crate an entity and check default values
      * @test
+     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
      */
     public function crateEntity()
     {
         $this->assertEquals('User', $this->_user->getAlias());
         $this->assertEquals('users', $this->_user->getTable());
         $this->assertEquals('id', $this->_user->primaryKey);
-        $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector());
+        $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector);
         $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $this->_user->query());
+        $post = new Post();
     }
 
     /**
@@ -93,7 +100,7 @@ class EntityTest extends Test
      */
     public function getEntityById()
     {
-
+        print_r(User::get(1)); die();
     }
 
 }
@@ -119,6 +126,65 @@ class User extends Entity
      * @var string
      */
     protected $_name;
+
+
+}
+
+class Post extends Entity
+{
+    /**
+     * @readwrite
+     * @column type=text, length=255
+     * @validate required
+     * @var string
+     */
+    protected $_name;
+}
+
+/**
+ * Mock connector for entity test
+ */
+class MyTestConnector extends SQLite
+{
+    public function query($sql = null)
+    {
+        return new Query(
+            array(
+                'dialect' => 'SQLite',
+                'connector' => $this,
+                'sql' => $sql
+            )
+        );
+    }
+
+    public static $result = 'all';
+
+    public static $resultSet = [
+        [
+            'id' => '1',
+            'name' => 'Jon Doe',
+            'ver' => '2'
+        ],
+        [
+            'id' => '2',
+            'name' => 'Ane Doe',
+            'ver' => '2'
+        ]
+    ];
+
+    public function execute($sql)
+    {
+        return self::$result;
+    }
+
+}
+
+/**
+ * Mock query for entity test
+ */
+class MyTestQuery extends Query
+{
+
 
 
 }

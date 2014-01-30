@@ -11,6 +11,7 @@
     "target-dir": "Slick/Orm",
     "require": {
         "slick/Common": "self.version",
-        "slick/Database": "self.version"
+        "slick/Database": "self.version",
+        "slick/Configuration": "self.version"
     }
 }

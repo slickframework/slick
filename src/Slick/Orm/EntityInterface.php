@@ -117,5 +117,5 @@ interface EntityInterface
      *
      * @return ConnectorInterface
      */
-    public function connector();
+    public function getConnector();
 }

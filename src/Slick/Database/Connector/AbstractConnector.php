@@ -56,6 +56,16 @@ abstract class AbstractConnector extends BaseSingleton
      */
     protected $_lastStatement = null;
 
+    /**
+     * Prevents a second call to initialize
+     *
+     * @return $this
+     */
+    public function initialize()
+    {
+        return $this;
+    }
+
 
     /**
      * Connects to database service.

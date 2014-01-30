@@ -13,10 +13,15 @@ namespace Slick\Orm;
 
 use Slick\Common\Base;
 use Slick\Common\Inspector;
-use Slick\Database\Connector\AbstractConnector;
-use Slick\Orm\Entity\Column;
+use Slick\Database\Database;
 use Slick\Utility\Text;
-use Slick\Orm\Entity\ColumnList;
+use Slick\Orm\Entity\Column,
+    Slick\Orm\Entity\ColumnList,
+    Slick\Orm\Exception;
+use Slick\Database\Connector\AbstractConnector,
+    Slick\Database\Connector\ConnectorInterface,
+    Slick\Database\Query\Query;
+use Slick\Configuration\Configuration;
 
 /**
  * AbstractEntity
@@ -52,9 +57,43 @@ class AbstractEntity extends Base
 
     /**
      * The list of table columns defined by this entity.
-     * @var ColumnList
+     * @var ColumnList[]
      */
-    protected $_columns;
+    protected static $_columns = [];
+
+    /**
+     * @readwrite
+     * @var string Data source configuration name
+     */
+    protected $_dataSourceName = 'default';
+
+    /**
+     * Overrides Base constructor to handle property populating process
+     * from throwing undefined property exceptions.
+     *
+     * @param array|Object $options
+     * @throws Exception\PrimaryKeyException
+     */
+    public function __construct($options = array())
+    {
+        parent::__construct();
+        $columns = $this->getColumns();
+        if (!$columns->hasPrimaryKey()) {
+            throw new Exception\PrimaryKeyException(
+                "Entity {$this->alias} does not have a column as primary key."
+            );
+        }
+
+        if (is_array($options) || is_object($options)) {
+            foreach ($options as $key => $value) {
+                $key = ucfirst($key);
+                $method = "set{$key}";
+                if ($columns->hasColumn($key)) {
+                    $this->$method($value);
+                }
+            }
+        }
+    }
 
     /**
      * Returns the model alias use in select queries.
@@ -96,19 +135,55 @@ class AbstractEntity extends Base
      */
     public function getColumns()
     {
-        if (is_null($this->_columns)) {
+        $name = $this->getAlias();
+        if (!isset(self::$_columns[$name])) {
             $inspector = new Inspector($this);
             $properties = $inspector->getClassProperties();
-            $this->_columns = new ColumnList();
+            self::$_columns[$name] = new ColumnList();
 
             foreach ($properties as $property)  {
                 $propertyMeta = $inspector->getPropertyMeta($property);
                 $column = Column::parse($propertyMeta, $property);
                 if ($column) {
-                    $this->_columns->append($column);
+                    self::$_columns[$name]->append($column);
                 }
             }
         }
-        return $this->_columns;
+        return self::$_columns[$name];
+    }
+
+    /**
+     * Returns a query object for custom queries
+     *
+     * @param null $sql A custom SQL query
+     *
+     * @return Query A query interface for custom queries
+     */
+    public function query($sql = null)
+    {
+        return $this->getConnector()->query($sql);
+    }
+
+    /**
+     * Returns the database connector (adapter)
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnector()
+    {
+        if (is_null($this->_connector)) {
+            $cfg = Configuration::get('database')
+                ->get($this->_dataSourceName, ['type' => 'SQLite']);
+            $type = $cfg['type'];
+            unset($cfg['type']);
+            $connector = new Database(
+                [
+                    'type' => $type,
+                    'options' => $cfg
+                ]
+            );
+            $this->_connector = $connector->initialize()->connect();
+        }
+        return $this->_connector;
     }
 } 
