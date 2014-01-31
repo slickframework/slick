@@ -12,7 +12,7 @@
 namespace Slick\Orm\Exception;
 
 use LogicException;
-use Slick\Orm\Exception;
+use Slick\Orm\Exception as OrmException;
 
 /**
  * PrimaryKeyException
@@ -20,7 +20,7 @@ use Slick\Orm\Exception;
  * @package   Slick\Orm\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class PrimaryKeyException extends LogicException implements Exception
+class PrimaryKeyException extends LogicException implements OrmException
 {
 
 } 

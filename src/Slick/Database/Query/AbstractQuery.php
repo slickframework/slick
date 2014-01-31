@@ -16,7 +16,9 @@ use Slick\Common\Base,
     Slick\Database\RecordList,
     Slick\Database\Exception,
     Slick\Database\Query\Sql\Transformer,
-    Slick\Utility\ArrayMethods;
+    Slick\Utility\ArrayMethods,
+    Slick\Database\Query\Sql\SqlInterface;
+use PDO;
 
 /**
  * AbstractQuery
@@ -31,11 +33,11 @@ abstract class AbstractQuery extends Base implements QueryInterface
      * @readwrite
      * @var string The SQL dialect for this query
      */
-    protected $_dialect = 'SQLtandard';
+    protected $_dialect = 'SQLStandard';
 
     /**
      * @read
-     * @var Slick\Database\Query\Sql\Transformer
+     * @var \Slick\Database\Query\Sql\Transformer
      */
     protected $_transformer = null;
 
@@ -47,7 +49,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
 
     /**
      * @readwrite
-     * @var \Slick\Database\Query\SqlInterface
+     * @var SqlInterface
      */
     protected $_sqlStatement = null;
 
@@ -73,7 +75,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
      * @see http://www.php.net/manual/en/pdostatement.fetch.php
      * @var integer The data fetch mode for queries
      */
-    protected $_fetchMode = \PDO::FETCH_OBJ;
+    protected $_fetchMode = PDO::FETCH_OBJ;
 
     /**
      * Overrides base constructor to check sql presence.
@@ -100,13 +102,14 @@ abstract class AbstractQuery extends Base implements QueryInterface
      *
      * @param string $sql The SQL statement to prepare
      *
-     * @return /PDOStatement A prepared PDOStatement object
+     * @throws \Slick\Database\Exception\InvalidSqlException
+     * @return $this /PDOStatement A prepared PDOStatement object
      * @see  http://www.php.net/manual/en/class.pdostatement.php
      */
     public function prepare($sql)
     {
         $this->_sql = $sql;
-        $this->_multiple = $this->_isMultimple($sql);
+        $this->_multiple = $this->_isMultiple($sql);
         if ($this->_multiple) {
             return $this;
         }
@@ -131,6 +134,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
      *
      * @param array $params List of parameters to set before execute que query
      *
+     * @throws \Slick\Database\Exception\InvalidSqlException
      * @return \Slick\Database\RecordList A record list with the query results
      */
     public function execute($params = array())
@@ -142,7 +146,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
                 $queries = $this->_sql;
                 foreach ($queries as $sql) {
                     $this->_sql = $sql;
-                    $result = $this->_connector->exec($sql);
+                    $this->_connector->exec($sql);
                 }
                 
                 return  true;
@@ -173,7 +177,7 @@ abstract class AbstractQuery extends Base implements QueryInterface
     /**
      * Returns current SQL transformer
      *
-     * @return Slick\Database\Query\Sql\Transformer
+     * @return Transformer
      */
     public function getTransformer()
     {
@@ -186,12 +190,11 @@ abstract class AbstractQuery extends Base implements QueryInterface
     /**
      * Prepares a PDOStatement based on a provided SQL Statement object.
      *
-     * @param  \Slick\Database\Query\Sql\SqlInterface $sql
+     * @param  SqlInterface $sql
      *
-     * @return \Slick\Database\Query\Query A self instance for method
-     * call chains
+     * @return AbstractQuery A self instance for method call chains
      */
-    public function prepareSql(\Slick\Database\Query\Sql\SqlInterface $sql)
+    public function prepareSql(SqlInterface $sql)
     {
         $sql = $this->getTransformer()->transform($sql);
         $this->prepare($sql);
@@ -203,9 +206,9 @@ abstract class AbstractQuery extends Base implements QueryInterface
      *
      * @param string $sql The query string
      *
-     * @return boolean True if has multimple statemetns
+     * @return boolean True if has multiple statements
      */
-    protected function _isMultimple($sql)
+    protected function _isMultiple($sql)
     {
         $sql = trim(trim($sql, ';'));
         $statements = explode(';', $sql);

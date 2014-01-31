@@ -12,10 +12,6 @@
 
 namespace Slick\Orm;
 
-use Slick\Database\Query\QueryInterface,
-    Slick\Database\RecordList,
-    Slick\Database\Connector\ConnectorInterface;
-
 /**
  * EntityInterface
  *
@@ -50,7 +46,7 @@ interface EntityInterface
      *
      * @param array $options Options to filter out the records
      *
-     * @return RecordList A record list
+     * @return \Slick\Database\RecordList A record list
      */
     public static function all(array $options = array());
 
@@ -108,14 +104,15 @@ interface EntityInterface
      *
      * @param null $sql A custom sql
      *
-     * @return QueryInterface A query interface for custom queries
+     * @return \Slick\Database\Query\QueryInterface A query interface for
+     *  custom queries
      */
     public function query($sql = null);
 
     /**
      * Returns the database connector (adapter)
      *
-     * @return ConnectorInterface
+     * @return Slick\Database\Connector\ConnectorInterface
      */
     public function getConnector();
 }

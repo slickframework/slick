@@ -84,15 +84,8 @@ class AbstractEntity extends Base
             );
         }
 
-        if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
-                $key = ucfirst($key);
-                $method = "set{$key}";
-                if ($columns->hasColumn($key)) {
-                    $this->$method($value);
-                }
-            }
-        }
+        $this->_hydratate($options);
+
     }
 
     /**
@@ -185,5 +178,19 @@ class AbstractEntity extends Base
             $this->_connector = $connector->initialize()->connect();
         }
         return $this->_connector;
+    }
+
+    protected function _hydratate($options)
+    {
+        $columns = $this->getColumns();
+        if (is_array($options) || is_object($options)) {
+            foreach ($options as $key => $value) {
+                if ($columns->hasColumn($key)) {
+                    $key = ucfirst($key);
+                    $method = "set{$key}";
+                    $this->$method($value);
+                }
+            }
+        }
     }
 } 

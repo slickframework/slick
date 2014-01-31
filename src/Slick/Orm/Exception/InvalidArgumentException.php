@@ -12,7 +12,7 @@
 namespace Slick\Orm\Exception;
 
 use RuntimeException;
-use Slick\Orm\Exception;
+use Slick\Orm\Exception as OrmException;
 
 /**
  * InvalidArgumentException
@@ -20,7 +20,7 @@ use Slick\Orm\Exception;
  * @package   Slick\Orm\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class InvalidArgumentException extends RuntimeException implements Exception
+class InvalidArgumentException extends RuntimeException implements OrmException
 {
 
 } 

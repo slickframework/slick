@@ -72,10 +72,10 @@ class DatabaseTest extends \Codeception\TestCase\Test
     /**
      * Initialize a invalid connector
      * @test
-     * @expectedException Slick\Database\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Trying to initialize a database conncetor with an undefined connector type.
+     * @expectedException \Slick\Database\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Trying to initialize a database connector with an undefined connector type.
      */
-    public function inititlizeInvalidConnector()
+    public function initializeInvalidConnector()
     {
         $this->_database->setType(null);
         $db = $this->_database->initialize();
@@ -85,10 +85,10 @@ class DatabaseTest extends \Codeception\TestCase\Test
     /**
      * Initialize a unknown connector
      * @test
-     * @expectedException Slick\Database\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Trying to initialize a database conncetor with an unknown connector type.
+     * @expectedException \Slick\Database\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Trying to initialize a database connector with an unknown connector type.
      */
-    public function inititlizeUnknownConnector()
+    public function initializeUnknownConnector()
     {
         $this->_database->setType('MyOtherSql');
         $db = $this->_database->initialize();

@@ -12,7 +12,8 @@
 namespace Slick\Orm;
 
 use Slick\Database\RecordList;
-use Slick\Di\DiAwareInterface;
+use Slick\Orm\Entity\Column;
+use Slick\Orm\Exception;
 
 /**
  * Entity
@@ -21,8 +22,20 @@ use Slick\Di\DiAwareInterface;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Entity extends AbstractEntity
-    implements EntityInterface, DiAwareInterface
+    implements EntityInterface
 {
+
+    /**
+     * @readwrite
+     * @var array Default query options
+     */
+    protected $_options = [
+        'conditions' => [],
+        'fields' => ['*'],
+        'order' => null,
+        'limit' => null,
+        'page' => 0
+    ];
 
     /**
      * Retrieves the record with the provided primary key
@@ -40,6 +53,7 @@ class Entity extends AbstractEntity
             ->select($entity->table)
             ->where(["{$entity->primaryKey} = ?" => $id])
             ->first();
+
         if ($row)
             return new $className($row);
         return null;
@@ -52,7 +66,7 @@ class Entity extends AbstractEntity
      * The options are:
      *
      *  - conditions: an array of conditions to filter out records;
-     *  - files: an array with field names to retrieve;
+     *  - fields: an array with field names to retrieve;
      *  - order: an array or string with order clauses;
      *  - limit: the number of records to select;
      *  - page: the starting page for selected records;
@@ -63,7 +77,33 @@ class Entity extends AbstractEntity
      */
     public static function all(array $options = array())
     {
-        // TODO: Implement all() method.
+        /** @var Entity $entity */
+        $entity = new static();
+        $className = get_called_class();
+        $options = array_merge($entity->_options, $options);
+
+        $rows = $entity->query()
+            ->select($entity->table, $options['fields'])
+            ->where($options['conditions']);
+
+        if (!is_null($options['order'])) {
+            $rows->orderBy($options['order']);
+        }
+
+        if (!is_null($options['limit'])) {
+            $rows->limit($options['limit'], $options['page']);
+        }
+
+        $rows = $rows->all();
+        $result = new RecordList();
+
+        if ($rows && is_a($rows, '\ArrayObject')) {
+            foreach ($rows as $row) {
+                $result->append(new $className($row));
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -82,7 +122,25 @@ class Entity extends AbstractEntity
      */
     public static function first(array $options = array())
     {
-        // TODO: Implement first() method.
+        /** @var Entity $entity */
+        $entity = new static();
+        $className = get_called_class();
+        $options = array_merge($entity->_options, $options);
+
+        $row = $entity->query()
+            ->select($entity->table, $options['fields'])
+            ->where($options['conditions']);
+
+        if (!is_null($options['order'])) {
+            $row->orderBy($options['order']);
+        }
+
+        $row = $row->first();
+
+        if ($row) {
+            return new $className($row);
+        }
+        return null;
     }
 
     /**
@@ -104,28 +162,130 @@ class Entity extends AbstractEntity
      */
     public function save(array $data = array())
     {
-        // TODO: Implement save() method.
+        $pmKey = $this->primaryKey;
+
+        if ($this->$pmKey || isset($data[$pmKey])) {
+            $result = $this->_update($data);
+        } else {
+            $result = $this->_insert($data);
+        }
+
+        return $result;
     }
 
     /**
      * Deletes current record from database
      *
+     * @throws Exception\PrimaryKeyException if primary key is unset or invalid
+     *
      * @return boolean True if record was successfully deleted, false otherwise
      */
     public function delete()
     {
-        // TODO: Implement delete() method.
+        $pmKey = $this->primaryKey;
+        $hasPk = $this->getColumns()->hasPrimaryKey();
+
+        if (!($hasPk && $this->$pmKey)) {
+            throw new Exception\PrimaryKeyException(
+                "{$this->alias} entity does not have a primary key defined. " .
+                "Primary key is null or unset."
+            );
+        }
+
+        return $this->query()
+            ->delete($this->table)
+            ->where(["{$pmKey} = ?" => $this->$pmKey])
+            ->execute();
     }
 
     /**
      * Loads the data from database for current object pk value
      *
+     * @throws Exception\PrimaryKeyException if primary key is unset or invalid
+     *
      * @return Entity A self instance for method chain calls
      */
     public function load()
     {
-        // TODO: Implement load() method.
+        $pmKey = $this->primaryKey;
+        $hasPk = $this->getColumns()->hasPrimaryKey();
+
+        if (!($hasPk && $this->$pmKey)) {
+            throw new Exception\PrimaryKeyException(
+                "{$this->alias} entity does not have a primary key defined. " .
+                "Primary key is null or unset."
+            );
+        }
+
+        $row = $this->query()
+            ->select($this->table)
+            ->where(["{$pmKey} = ?" => $this->$pmKey])
+            ->first();
+
+        if ($row) {
+            $this->_hydratate($row);
+        }
+
+        return $this;
     }
 
+    /**
+     * Insert current or provided data to this entity
+     * @param array $data
+     * @return bool
+     */
+    protected function _insert(array $data = [])
+    {
+        $query = $this->query()
+            ->insert($this->getTable());
 
+        if (empty($data)) {
+            $columns = $this->getColumns();
+            $data = [];
+            /** @var Column $col */
+            foreach ($columns as $col) {
+                $prop = $col->raw;
+                $data[$col->name] = $this->$prop;
+            }
+        }
+
+        $query->set($data);
+        return $query->save();
+    }
+
+    /**
+     * Updated current or provided data on this entity
+     * @param array $data
+     * @return bool
+     */
+    protected function _update(array $data = [])
+    {
+        $pmKey = $this->primaryKey;
+        $pmkValue = $this->$pmKey;
+
+        if (isset($data[$pmKey])) {
+            $pmkValue = $data[$pmKey];
+            unset($data[$pmKey]);
+        }
+
+        $query = $this->query()
+            ->update($this->getTable())
+            ->where(["{$pmKey} = :id" => [':id' => $pmkValue]]);
+
+        if (empty($data)) {
+            $columns = $this->getColumns();
+            $data = [];
+            /** @var Column $col */
+            foreach ($columns as $col) {
+                if ($col->name == $pmKey) {
+                    continue;
+                }
+                $prop = $col->raw;
+                $data[$col->name] = $this->$prop;
+            }
+        }
+
+        $query->set($data);
+        return $query->save();
+    }
 }

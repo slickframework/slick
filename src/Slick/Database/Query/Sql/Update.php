@@ -32,11 +32,10 @@ class Update extends AbstractSql implements UpdateInterface
     /**
      * Creates a new SQL statement
      *
-     * @param string                               $tableName The database
-     *  table for this statment
+     * @param string         $tableName The database table for this statement
      *
-     * @param \Slick\Database\Query\QueryInterface $query     The query object
-     *  that gives this statement a context
+     * @param QueryInterface $query     The query object that gives this
+     *  statement a context
      */
     public function __construct($tableName, QueryInterface $query)
     {
@@ -48,13 +47,12 @@ class Update extends AbstractSql implements UpdateInterface
      *
      * @param array $data A list of fieldName/value pairs
      *
-     * @return \Slick\Database\Query\Sql\Update A self instance for
-     *  method call chains
+     * @return Update A self instance for method call chains
      */
     public function set(array $data)
     {
         $fieldNames = array();
-        $params = $this->getParams();
+        $params = $this->params;
         foreach ($data as $column => $value) {
             $fieldNames["{$column}"] = ":{$column}";
             $params[":{$column}"] = $value;
@@ -65,7 +63,7 @@ class Update extends AbstractSql implements UpdateInterface
     }
 
     /**
-     * Inserts the data in the tatble
+     * Inserts the data in the table
      *
      * @return boolean True if data was successfully saved
      */
@@ -74,5 +72,41 @@ class Update extends AbstractSql implements UpdateInterface
         return $this->getQuery()
             ->prepareSql($this)
             ->execute($this->params);
+    }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Update A self instance for method chain calls.
+     */
+    public function where($conditions)
+    {
+        return parent::where($conditions);
+    }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Update A self instance for method chain calls.
+     */
+    public function andWhere($conditions)
+    {
+        return parent::andWhere($conditions);
+    }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Update A self instance for method chain calls.
+     */
+    public function orWhere($conditions)
+    {
+        return parent::orWhere($conditions);
     }
 }

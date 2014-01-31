@@ -69,7 +69,7 @@ class EntityTest extends Test
         $this->assertEquals('id', $this->_user->primaryKey);
         $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector);
         $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $this->_user->query());
-        $post = new Post();
+        new Post();
     }
 
     /**
@@ -100,10 +100,164 @@ class EntityTest extends Test
      */
     public function getEntityById()
     {
-        print_r(User::get(1)); die();
+        MyStatement::$isEmpty = false;
+        $user = User::get(1);
+        $this->assertInstanceOf('\Orm\User', $user);
+        $this->assertEquals('Jon Doe', $user->name);
+        MyStatement::$isEmpty = true;
+        $nullUser = User::get(9);
+        $this->assertNull($nullUser);
+    }
+
+    /**
+     * Retrieve the first element of a query
+     * @test
+     */
+    public function getFirstEntity()
+    {
+        $sqlGetFirst = <<<sql
+SELECT name, ver FROM users
+WHERE name LIKE ?
+ORDER BY name DESC
+LIMIT 1
+sql;
+        MyStatement::$isEmpty = false;
+        $user = User::first(
+            [
+                'conditions' => ['name LIKE ?' => '%on%'],
+                'fields' => ['name', 'ver'],
+                'order' => 'name DESC'
+            ]
+        );
+        $this->assertInstanceOf('\Orm\User', $user);
+        $this->assertEquals('Jon Doe', $user->name);
+        $this->assertEquals($sqlGetFirst, MyTestConnector::$lastSql);
+
+        MyStatement::$isEmpty = true;
+        $nullUser = User::first();
+        $this->assertNull($nullUser);
+
+    }
+
+    /**
+     * Retrieves all data from an entity
+     * @test
+     */
+    public function retrieveAllRows()
+    {
+        MyStatement::$isEmpty = false;
+        /** @var User[] $users */
+        $users = User::all(
+            [
+                'conditions' => ['name LIKE ?' => '%on%'],
+                'fields' => ['name', 'ver'],
+                'order' => 'name DESC',
+                'limit' => 10
+            ]
+        );
+
+        $this->assertInstanceOf('Slick\Database\RecordList', $users);
+        $this->assertTrue(count($users) > 0);
+        $this->assertInstanceOf('Orm\User', $users[0]);
+        $this->assertEquals('Ane Doe', $users[1]->name);
+
+        MyStatement::$isEmpty = true;
+        $emptyList = User::all();
+        $this->assertInstanceOf('Slick\Database\RecordList', $emptyList);
+        $this->assertFalse(count($emptyList) > 0);
+    }
+
+    /**
+     * Use load method of entity
+     * @test
+     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
+     */
+    public function loadRow()
+    {
+        MyStatement::$isEmpty = false;
+        $user = new User();
+        $user->setId(1)->load();
+        $this->assertInstanceOf('\Orm\User', $user);
+        $this->assertEquals('Jon Doe', $user->name);
+
+        $invalid = new User();
+        $invalid->load();
+
+    }
+
+    /**
+     * Delete a single row
+     * @test
+     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
+     */
+    public function deleteRow()
+    {
+        MyStatement::$isEmpty = false;
+        $user = User::get(1);
+        MyStatement::$isEmpty = true;
+        $this->assertTrue($user->delete());
+        $sql = <<<SQL
+DELETE FROM users
+WHERE id = ?
+SQL;
+        $this->assertEquals($sql, MyTestConnector::$lastSql);
+        $emptyUser = new User();
+        $emptyUser->delete();
+    }
+
+    /**
+     * Save data (insert)
+     * @test
+     */
+    public function saveDataInsert()
+    {
+        $user = new User(['name' => 'test user']);
+        $user->save();
+        $insertUser = <<<SQL
+INSERT INTO users (`id`, `name`)
+VALUES (:id, :name)
+SQL;
+        $this->assertEquals($insertUser, MyTestConnector::$lastSql);
+
+        $this->assertTrue($user->save(['name' => 'other user', 'ver' => 1]));
+
+        $insertUser = <<<SQL
+INSERT INTO users (`name`, `ver`)
+VALUES (:name, :ver)
+SQL;
+        $this->assertEquals($insertUser, MyTestConnector::$lastSql);
+    }
+
+    /**
+     * Save data (update)
+     * @test
+     */
+    public function saveDataUpdate()
+    {
+        MyStatement::$isEmpty = false;
+        $user = User::get(1);
+        MyStatement::$isEmpty = true;
+        $user->name = 'other';
+        $this->assertTrue($user->save());
+        $updated = <<<SQL
+UPDATE users SET `name`=:name
+WHERE id = :id
+SQL;
+        $this->assertEquals($updated, MyTestConnector::$lastSql);
+
+        $this->assertTrue($user->save(['id' => 1, 'var' => 'Updated name']));
+
+        $updated = <<<SQL
+UPDATE users SET `var`=:var
+WHERE id = :id
+SQL;
+        $this->assertEquals($updated, MyTestConnector::$lastSql);
     }
 
 }
+
+
+
 
 /**
  * Class User
@@ -146,9 +300,44 @@ class Post extends Entity
  */
 class MyTestConnector extends SQLite
 {
+
+    public static $lastSql = null;
+
+    /**
+     * Returns the *Singleton* instance of this class.
+     *
+     * @staticvar SingletonInterface $instance The *Singleton* instances
+     *  of this class.
+     *
+     * @param array $options The list of property values of this instance.
+     *
+     * @return \Slick\Database\Connector\SQLite The *Singleton* instance.
+     */
+    public static function getInstance($options = array())
+    {
+        static $instance;
+
+        if (is_null($instance)) {
+            $instance = array();
+        }
+
+        $key = md5(serialize($options));
+
+        if (
+            !isset($instance[$key]) ||
+            !is_a(
+                $instance[$key],
+                'Slick\Database\Connector\ConnectorInterface'
+            )
+        ) {
+            $instance[$key] = new MyTestConnector($options);
+        }
+        return $instance[$key];
+    }
+
     public function query($sql = null)
     {
-        return new Query(
+        return new MyTestQuery(
             array(
                 'dialect' => 'SQLite',
                 'connector' => $this,
@@ -177,6 +366,12 @@ class MyTestConnector extends SQLite
         return self::$result;
     }
 
+    public function prepare($sql)
+    {
+        self::$lastSql = $sql;
+        return new MyStatement();
+    }
+
 }
 
 /**
@@ -185,6 +380,35 @@ class MyTestConnector extends SQLite
 class MyTestQuery extends Query
 {
 
+}
 
+class MyStatement
+{
+    public static $isEmpty = false;
 
+    public function execute($param = [])
+    {
+        return true;
+    }
+
+    public function count()
+    {
+        if (self::$isEmpty)
+            return 0;
+        return 2;
+    }
+
+    public function columnCount()
+    {
+        if (self::$isEmpty)
+            return 0;
+        return 2;
+    }
+
+    public function fetchAll($mode = 0)
+    {
+        if (self::$isEmpty)
+            return [];
+        return MyTestConnector::$resultSet;
+    }
 }

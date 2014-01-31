@@ -40,7 +40,7 @@ class Database extends Base
      * @read
      * @var array A list of supported types
      */
-    protected $_supportedTypes = array('ini', 'memcached');
+    protected $_supportedTypes = array('mysql', 'sqlite');
 
     /**
      * Initializes an database connector.

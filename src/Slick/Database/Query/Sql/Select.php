@@ -99,7 +99,7 @@ class Select extends AbstractSql implements SelectInterface
 
         $this->_limit  = $limit;
         $this->_offset = $offset;
-        return reset($result);
+        return is_bool($result) ? [] : reset($result);
     }
 
     /**
@@ -205,7 +205,7 @@ class Select extends AbstractSql implements SelectInterface
     }
 
     /**
-     * Sets the limit and the offet for this query
+     * Sets the limit and the offset for this query
      * 
      * @param integer $total  The total rows to retrieve
      * @param integer $offset The starting point where to count rows
@@ -241,6 +241,18 @@ class Select extends AbstractSql implements SelectInterface
      */
     public function andWhere($conditions)
     {
-        return parent::where($conditions);
+        return parent::andWhere($conditions);
+    }
+
+    /**
+     * Adds conditions to this statement
+     *
+     * @param array $conditions
+     *
+     * @return Select A self instance for method chain calls.
+     */
+    public function orWhere($conditions)
+    {
+        return parent::orWhere($conditions);
     }
 }

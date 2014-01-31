@@ -29,7 +29,7 @@ class SQLiteSelectTest extends \Codeception\TestCase\Test
     /**
      * Settin a select query an check all return
      * @test
-     * @expectedException Slick\Database\Exception\UnsupportedSyntaxException
+     * @expectedException \Slick\Database\Exception\UnsupportedSyntaxException
      */
     public function gelAllQuery()
     {
