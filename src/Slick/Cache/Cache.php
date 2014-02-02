@@ -45,7 +45,7 @@ class Cache extends Base
     /**
      * Driver initialization
      * 
-     * @return Driver A cache driver
+     * @return \Slick\Cache\DriverInterface A cache driver
      * 
      * @throws Exception\InvalidDriverException If the driver type or class 
      *  name isn't a valid cache driver.

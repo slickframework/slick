@@ -86,27 +86,4 @@ class Update extends AbstractSql implements UpdateInterface
         return parent::where($conditions);
     }
 
-    /**
-     * Adds conditions to this statement
-     *
-     * @param array $conditions
-     *
-     * @return Update A self instance for method chain calls.
-     */
-    public function andWhere($conditions)
-    {
-        return parent::andWhere($conditions);
-    }
-
-    /**
-     * Adds conditions to this statement
-     *
-     * @param array $conditions
-     *
-     * @return Update A self instance for method chain calls.
-     */
-    public function orWhere($conditions)
-    {
-        return parent::orWhere($conditions);
-    }
 }

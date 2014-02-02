@@ -32,8 +32,8 @@ class TagValues extends ArrayIterator
      */
     public function check($tagValue)
     {
-        foreach ($this as $value) {
-            if ($value == $tagValue) {
+        foreach ($this as $key => $value) {
+            if ($value == $tagValue || $key == $value) {
                 return true;
             }
         }

@@ -20,6 +20,8 @@ use Slick\Orm\Exception;
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string primaryKey
  */
 class Entity extends AbstractEntity
     implements EntityInterface

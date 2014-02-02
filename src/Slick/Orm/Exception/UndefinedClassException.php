@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PrimaryKeyException
+ * UndefinedClassException
  *
  * @package   Slick\Orm\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -16,12 +16,12 @@ use LogicException;
 use Slick\Orm\Exception as OrmException;
 
 /**
- * PrimaryKeyException
+ * UndefinedClassException
  *
  * @package   Slick\Orm\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class PrimaryKeyException extends LogicException implements OrmException
+class UndefinedClassException extends LogicException implements OrmException
 {
 
 } 

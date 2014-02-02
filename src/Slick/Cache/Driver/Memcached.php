@@ -13,7 +13,7 @@
 namespace Slick\Cache\Driver;
 
 use Memcache;
-use Slick\Cache\Exception;
+use Slick\Cache\Exception\ServiceException;
 
 /**
  * Memcached
@@ -51,25 +51,37 @@ class Memcached extends AbstractDriver
      * @readwrite
      * @var boolean Service connection state
      */
-    protected $_isConnected = false;
+    protected $_connected = false;
+
+    /**
+     * Overrides the default constructor to connect to the memcached service
+     *
+     * @param array $options
+     */
+    public function __construct($options = [])
+    {
+        parent::__construct($options);
+        $this->connect();
+    }
 
     /**
      * Connects to Memcached service.
      *
-     * @return Memcached A sefl instance for chaining method calls.
+     * @throws ServiceException If any error occurs during
+     *  Memcache initialization
      *
-     * @throws Exception\Service If an error occours when trying
-     *   to connect to memcached service.
+     * @return Memcached A self instance for chaining method calls.
+     *
      */
     public function connect()
     {
         try {
             $this->_service = new Memcache();
-            $this->_service->connect($this->host, $this->port);
-            $this->isConnected = true;
+            $this->_service->connect($this->_host, $this->_port);
+            $this->_connected = true;
         } catch (\Exception $e) {
-            throw new Exception\ServiceException(
-                "Unable to connecto to Memcached service"
+            throw new ServiceException(
+                "Unable to connect to Memcached service"
             );
         }
 
@@ -77,48 +89,54 @@ class Memcached extends AbstractDriver
     }
 
     /**
-     * Lazy loading of Memcached service. 
-     * @return memcached
+     * Lazy loading of Memcache service.
+     *
+     * @return Memcache
      */
     public function getService()
     {
-        if (empty($this->_service)) {
-            $this->connect();
-        }
         return $this->_service;
     }
 
     /**
      * Disconnects the Memcached service.
      *
-     * @return Slick\Cache\Driver\Memcached A sefl instance for chaining
+     * @return Memcache A self instance for chaining
      *   method calls.
      */
     public function disconnect()
     {
         if ($this->_isValidService()) {
-            $this->service->close();
-            $this->isConnected = false;
+            $this->getService()->close();
+            $this->_connected = false;
         }
 
         return $this;
     }
 
     /**
-     * Retrives a previously stored value.
+     * Retrieves a previously stored value.
      *
-     * @param String $key     The key under witch value was stored.
-     * @param mixed  $default The default value, if no value was stored before.
-     * 
+     * @param String $key The key under witch value was stored.
+     * @param mixed $default The default value, if no value was stored before.
+     *
+     * @throws ServiceException If you are trying to set a cache
+     *   value without connecting to memcached service first.
+     *
      * @return mixed The stored value or the default value if it was
      *  not found on service cache.
      *
-     * @throws Exception\Service If you are trying to set a cache
-     *   values without connecting to memcached service first.
      */
     public function get($key, $default = null)
     {
-        $value = $this->service->get($this->prefix.$key, MEMCACHE_COMPRESSED);
+        if (!$this->_isValidService()) {
+            throw new ServiceException(
+                "Not connected to a valid memcached service."
+            );
+        }
+
+        $value = $this->getService()
+            ->get($this->_prefix.$key);
 
         if ($value) {
             return $value;
@@ -132,18 +150,24 @@ class Memcached extends AbstractDriver
      *
      * @param String  $key      The key where value will be stored.
      * @param mixed   $value    The value to store.
-     * @param integer $duration The live time of cache in secondes.
+     * @param integer $duration The live time of cache in seconds.
      * 
-     * @return Memcached A sefl instance for chaining method calls.
+     * @return Memcached A self instance for chaining method calls.
      *
-     * @throws Exception\Service If you are trying to set a cache
-     *   values without connecting to memcached service first.
+     * @throws ServiceException If you are trying to set a cache
+     *   value without connecting to memcached service first.
      */
     public function set($key, $value, $duration = -999)
     {
+        if (!$this->_isValidService()) {
+            throw new ServiceException(
+                "Not connected to a valid memcached service."
+            );
+        }
+
         $duration = ($duration < 0) ? $this->_duration : $duration;
-        $this->service->set(
-            $this->prefix.$key,
+        $this->getService()->set(
+            $this->_prefix.$key,
             $value,
             MEMCACHE_COMPRESSED, 
             $duration
@@ -156,15 +180,20 @@ class Memcached extends AbstractDriver
      *
      * @param String $key The key under witch value was stored.
      * 
-     * @return Slick\Cache\Driver\Memcached A sefl instance for chaining
-     *   method calls.
+     * @return Memcached A self instance for chaining method calls.
      *
-     * @throws Slick\Cache\Exception\Service If you are trying to erase a cache
-     *   values without connecting to memcached service first.
+     * @throws ServiceException If you are trying to set a cache
+     *   value without connecting to memcached service first.
      */
     public function erase($key)
     {
-        $this->service->delete($this->prefix.$key);
+        if (!$this->_isValidService()) {
+            throw new ServiceException(
+                "Not connected to a valid memcached service."
+            );
+        }
+
+        $this->getService()->delete($this->_prefix.$key);
         return $this;
     }
 
@@ -178,7 +207,7 @@ class Memcached extends AbstractDriver
         $isEmpty = empty($this->_service);
         $isInstance = $this->_service instanceof Memcache;
 
-        if ($this->isConnected && $isInstance && !$isEmpty) {
+        if ($this->_connected && $isInstance && !$isEmpty) {
             return true;
         }
 
@@ -187,6 +216,8 @@ class Memcached extends AbstractDriver
 
     /**
      * Disconnects from service when done
+     *
+     * @codeCoverageIgnore
      */
     public function __destruct()
     {

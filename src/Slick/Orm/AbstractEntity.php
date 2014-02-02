@@ -14,6 +14,7 @@ namespace Slick\Orm;
 use Slick\Common\Base;
 use Slick\Common\Inspector;
 use Slick\Database\Database;
+use Slick\Orm\Relation\RelationManager;
 use Slick\Utility\Text;
 use Slick\Orm\Entity\Column,
     Slick\Orm\Entity\ColumnList,
@@ -28,6 +29,8 @@ use Slick\Configuration\Configuration;
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property RelationManager relationsManager
  */
 class AbstractEntity extends Base
 {
@@ -66,6 +69,12 @@ class AbstractEntity extends Base
      * @var string Data source configuration name
      */
     protected $_dataSourceName = 'default';
+
+    /**
+     * @readwrite
+     * @var RelationManager
+     */
+    protected $_relationsManager;
 
     /**
      * Overrides Base constructor to handle property populating process
@@ -140,6 +149,8 @@ class AbstractEntity extends Base
                 if ($column) {
                     self::$_columns[$name]->append($column);
                 }
+
+                $this->getRelationsManager()->check($propertyMeta, $property);
             }
         }
         return self::$_columns[$name];
@@ -178,6 +189,21 @@ class AbstractEntity extends Base
             $this->_connector = $connector->initialize()->connect();
         }
         return $this->_connector;
+    }
+
+    /**
+     * Returns entity relations manager
+     *
+     * @return RelationManager
+     */
+    public function getRelationsManager()
+    {
+        if (is_null($this->_relationsManager)) {
+            $this->_relationsManager = new RelationManager(
+                ["entity" => $this]
+            );
+        }
+        return $this->_relationsManager;
     }
 
     protected function _hydratate($options)

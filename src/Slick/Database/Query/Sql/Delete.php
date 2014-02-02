@@ -60,15 +60,4 @@ class Delete extends AbstractSql implements DeleteInterface
         return parent::where($conditions);
     }
 
-    /**
-     * Adds conditions to this statement
-     *
-     * @param array $conditions
-     *
-     * @return Delete A self instance for method chain calls.
-     */
-    public function andWhere($conditions)
-    {
-        return parent::where($conditions);
-    }
 }
