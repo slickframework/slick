@@ -13,6 +13,7 @@
 namespace Orm\Relation;
 
 use Codeception\Util\Stub;
+use Slick\Configuration\Configuration;
 use Slick\Orm\Entity;
 use Slick\Orm\Relation\HasOne;
 
@@ -53,6 +54,8 @@ class HasOneTest extends \Codeception\TestCase\Test
         $this->assertEquals('INNER', $relation->getType());
         $this->assertFalse($relation->isDependent());
         $this->assertEquals("fooId", $relation->getForeignKey());
+        Configuration::addPath(dirname(__DIR__));
+        Foo::get(1);
     }
 
     /**

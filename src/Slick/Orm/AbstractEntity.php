@@ -14,6 +14,8 @@ namespace Slick\Orm;
 use Slick\Common\Base;
 use Slick\Common\Inspector;
 use Slick\Database\Database;
+use Slick\Di\DependencyInjector;
+use Slick\Di\DiAwareInterface;
 use Slick\Orm\Relation\RelationManager;
 use Slick\Utility\Text;
 use Slick\Orm\Entity\Column,
@@ -32,7 +34,7 @@ use Slick\Configuration\Configuration;
  *
  * @property RelationManager relationsManager
  */
-class AbstractEntity extends Base
+class AbstractEntity extends Base implements DiAwareInterface
 {
     /**
      * @readwrite
@@ -204,6 +206,19 @@ class AbstractEntity extends Base
             );
         }
         return $this->_relationsManager;
+    }
+
+    /**
+     * Returns dependency injector container
+     *
+     * @return DependencyInjector
+     */
+    public function getDi()
+    {
+        if (is_null($this->_dependencyInjector)) {
+            $this->_dependencyInjector = DependencyInjector::getDefault();
+        }
+        return $this->_dependencyInjector;
     }
 
     protected function _hydratate($options)

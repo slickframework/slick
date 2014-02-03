@@ -12,8 +12,12 @@
 namespace Slick\Orm;
 
 use Slick\Database\RecordList;
+use Slick\Di\DependencyInjector;
 use Slick\Orm\Entity\Column;
 use Slick\Orm\Exception;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Entity
@@ -24,8 +28,13 @@ use Slick\Orm\Exception;
  * @property string primaryKey
  */
 class Entity extends AbstractEntity
-    implements EntityInterface
+    implements EntityInterface, EventManagerAwareInterface
 {
+
+    /**
+     * @var EventManagerInterface
+     */
+    private $_events;
 
     /**
      * @readwrite
@@ -53,11 +62,30 @@ class Entity extends AbstractEntity
         $className = get_called_class();
         $row = $entity->query()
             ->select($entity->table)
-            ->where(["{$entity->primaryKey} = ?" => $id])
-            ->first();
+            ->where(["{$entity->primaryKey} = ?" => $id]);
 
-        if ($row)
-            return new $className($row);
+        $entity->getEventManager()->trigger(
+            'beforeSelect',
+            $entity
+        );
+
+        print_r($row->joins); die(" Die on Entity! ");
+
+        $row = $row->first();
+
+        if ($row) {
+            $object = new $className($row);
+            $entity->getEventManager()->trigger(
+                'afterSelect',
+                $entity,
+                [
+                    'action' => 'get',
+                    'id' => $id,
+                    'entity' => &$object
+                ]
+            );
+            return $object;
+        }
         return null;
     }
 
@@ -289,5 +317,41 @@ class Entity extends AbstractEntity
 
         $query->set($data);
         return $query->save();
+    }
+
+    /**
+     * Inject an EventManager instance
+     *
+     * @param  EventManagerInterface $eventManager
+     * @return Entity
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $eventManager->setIdentifiers(
+            array(
+                __CLASS__,
+                get_called_class(),
+            )
+        );
+        $this->_events = $eventManager;
+        return $this;
+    }
+
+    /**
+     * Retrieve the event manager
+     *
+     * Lazy-loads an EventManager instance if none registered.
+     *
+     * @return EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (is_null($this->_events)) {
+            $di = DependencyInjector::getDefault();
+            $sharedEvent = $di->get('DefaultEventManager');
+            $this->_events = new EventManager();
+            $this->_events->setSharedManager($sharedEvent);
+        }
+        return $this->_events;
     }
 }

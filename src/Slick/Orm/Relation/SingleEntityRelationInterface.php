@@ -41,7 +41,9 @@ interface SingleEntityRelationInterface extends RelationInterface
     /**
      * Updated provided query with relation joins
      *
+     * @param $action
      * @param Select $query
+     * @param array $context
      */
-    public function updateQuery(Select &$query);
+    public function updateQuery($action, Select &$query, array $context = []);
 } 

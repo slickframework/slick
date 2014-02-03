@@ -16,7 +16,8 @@
 		"phpmd/phpmd" : "1.4.*",
 		"zendframework/zend-uri" : ">=2.2.4",
 		"monolog/monolog" : "~1.4",
-		"twig/twig": "1.15.*@dev"
+		"twig/twig": "1.15.*@dev",
+		"zendframework/zend-eventmanager": "2.2.5"
 	},
 	"replace" : {
 		"slick/common" : "self.version",

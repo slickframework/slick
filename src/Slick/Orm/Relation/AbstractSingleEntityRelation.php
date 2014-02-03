@@ -11,6 +11,8 @@
  */
 
 namespace Slick\Orm\Relation;
+use Slick\Common\Inspector\Tag;
+use Slick\Orm\Entity;
 
 /**
  * AbstractSingleEntityRelation
@@ -65,5 +67,49 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
     public function getType()
     {
         return $this->_type;
+    }
+
+    /**
+     * Creates a relation from notation tag
+     *
+     * @param Tag $tag
+     * @param Entity $entity
+     *
+     * @return AbstractSingleEntityRelation
+     */
+    public static function create(Tag $tag, Entity $entity)
+    {
+        $options = ['entity' => $entity];
+        $className = null;
+        $elfName = get_called_class();
+
+        if (is_string($tag->value)) {
+            $className = $tag->value;
+        }
+
+        if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
+            $className = $tag->value[0];
+            $options['foreignKey'] = $tag->value['foreignkey'];
+            if ($tag->value->check('dependent')) {
+                $options['dependent'] = (boolean) $tag->value['dependent'];
+            }
+            if ($tag->value->check('type')) {
+                $options['type'] = strtoupper($tag->value['type']);
+            }
+        }
+
+        $options['related'] = self::_createEntity($className);
+
+        /** @var AbstractSingleEntityRelation $relation */
+        $relation = new $elfName($options);
+        $events = $entity->getEventManager();
+        print_r($events->getIdentifiers());
+        $events->attach(
+            'beforeSelect',
+            function ($action, &$query, $context) use ($relation) {
+                $relation->updateQuery($action, $query, $context);
+            }
+        );
+        return $relation;
     }
 }

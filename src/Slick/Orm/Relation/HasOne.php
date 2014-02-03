@@ -11,7 +11,6 @@
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Tag;
 use Slick\Database\Query\Sql\Select;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
@@ -34,10 +33,13 @@ class HasOne extends AbstractSingleEntityRelation
     /**
      * Updated provided query with relation joins
      *
+     * @param $action
      * @param Select $query
+     * @param array $context
      */
-    public function updateQuery(Select &$query)
+    public function updateQuery($action, Select &$query, array $context = [])
     {
+        print_r($action); die ("I am in!!");
         $parentTbl = $this->getEntity()->getTable();
         $relatedTbl = $this->getRelated()->getTable();
         $relPmk = $this->getForeignKey();
@@ -49,40 +51,6 @@ class HasOne extends AbstractSingleEntityRelation
             [],
             $this->getType()
         );
-    }
-
-    /**
-     * Creates a relation from notation tag
-     *
-     * @param Tag    $tag
-     * @param Entity $entity
-     *
-     * @return HasOne
-     */
-    public static function create(Tag $tag, Entity $entity)
-    {
-        $options = ['entity' => $entity];
-        $className = null;
-
-        if (is_string($tag->value)) {
-            $className = $tag->value;
-        }
-
-        if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-            $className = $tag->value[0];
-            $options['foreignKey'] = $tag->value['foreignkey'];
-            if ($tag->value->check('dependent')) {
-                $options['dependent'] = (boolean) $tag->value['dependent'];
-            }
-            if ($tag->value->check('type')) {
-                $options['type'] = strtoupper($tag->value['type']);
-            }
-        }
-
-        $options['related'] = self::_createEntity($className);
-
-        $hasOne = new HasOne($options);
-        return $hasOne;
     }
 
     /**

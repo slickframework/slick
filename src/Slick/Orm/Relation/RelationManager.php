@@ -45,16 +45,31 @@ class RelationManager extends Base
     protected $_index = array();
 
     /**
+     * @var array A list of available relations to build
+     */
+    protected $_classes = array(
+        '@HasOne' => '\Slick\Orm\Relation\HasOne',
+        '@BelongsTo' => '\Slick\Orm\Relation\BelongsTo',
+        '@HasMany' => '\Slick\Orm\Relation\HasMany',
+    );
+
+    /**
      * Checks if a property is a relation, creating the relation if it is
      */
     public function check(TagList $propertyMeta, $property)
     {
-        if ($propertyMeta->hasTag('@hasone')) {
-            $this->_relations[$property] = HasOne::create(
-                $propertyMeta->getTag('@hasone'),
-                $this->getEntity()
-            );
-            $this->_index[$property] = count($this->_index) + 1;
+        foreach ($this->_classes as $tag => $class) {
+            $tag = strtolower($tag);
+            if ($propertyMeta->hasTag($tag)) {
+                $this->_relations[$property] = call_user_func_array(
+                    [$class, 'create'],
+                    [
+                        $propertyMeta->getTag($tag),
+                        $this->getEntity()
+                    ]
+                );
+                $this->_index[$property] = count($this->_index) + 1;
+            }
         }
     }
 
