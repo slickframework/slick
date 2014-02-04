@@ -15,6 +15,7 @@ namespace Slick\Orm\Relation;
 use Slick\Orm\Entity;
 use Slick\Common\Inspector\Tag;
 use Slick\Database\Query\Sql\Select;
+use Zend\EventManager\Event;
 
 /**
  * BelongsTo
@@ -49,11 +50,9 @@ class BelongsTo extends AbstractSingleEntityRelation
     /**
      * Updated provided query with relation joins
      *
-     * @param $action
-     * @param Select $query
-     * @param array $context
+     * @param Event $event
      */
-    public function updateQuery($action, Select &$query, array $context = [])
+    public function updateQuery(Event $event)
     {
         // TODO: Implement updateQuery() method.
     }

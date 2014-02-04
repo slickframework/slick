@@ -34,7 +34,7 @@ class Entity extends AbstractEntity
     /**
      * @var EventManagerInterface
      */
-    private $_events;
+    protected $_events;
 
     /**
      * @readwrite
@@ -62,28 +62,22 @@ class Entity extends AbstractEntity
         $className = get_called_class();
         $row = $entity->query()
             ->select($entity->table)
-            ->where(["{$entity->primaryKey} = ?" => $id]);
+            ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $id]);
 
         $entity->getEventManager()->trigger(
             'beforeSelect',
-            $entity
+            $entity,
+            [
+                'query' => &$row,
+                'id' => $id
+            ]
         );
-
-        print_r($row->joins); die(" Die on Entity! ");
 
         $row = $row->first();
 
         if ($row) {
             $object = new $className($row);
-            $entity->getEventManager()->trigger(
-                'afterSelect',
-                $entity,
-                [
-                    'action' => 'get',
-                    'id' => $id,
-                    'entity' => &$object
-                ]
-            );
+
             return $object;
         }
         return null;
@@ -349,8 +343,9 @@ class Entity extends AbstractEntity
         if (is_null($this->_events)) {
             $di = DependencyInjector::getDefault();
             $sharedEvent = $di->get('DefaultEventManager');
-            $this->_events = new EventManager();
-            $this->_events->setSharedManager($sharedEvent);
+            $events = new EventManager();
+            $events->setSharedManager($sharedEvent);
+            $this->setEventManager($events);
         }
         return $this->_events;
     }

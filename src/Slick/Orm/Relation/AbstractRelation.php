@@ -110,11 +110,11 @@ abstract class AbstractRelation extends Base implements RelationInterface
     /**
      * Sets the related entity
      *
-     * @param Entity $related
+     * @param string|Entity $related
      *
      * @return AbstractRelation
      */
-    public function setRelated(Entity $related)
+    public function setRelated($related)
     {
         $this->_related = $related;
         return $this;
@@ -127,6 +127,9 @@ abstract class AbstractRelation extends Base implements RelationInterface
      */
     public function getRelated()
     {
+        if (!is_a($this->_related, 'Slick\Orm\Entity')) {
+            $this->_related = self::_createEntity($this->_related);
+        }
         return $this->_related;
     }
 

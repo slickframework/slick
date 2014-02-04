@@ -14,6 +14,7 @@ namespace Slick\Orm\Relation;
 use Slick\Database\Query\Sql\Select;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
+use Zend\EventManager\Event;
 
 /**
  * HasOne
@@ -33,19 +34,17 @@ class HasOne extends AbstractSingleEntityRelation
     /**
      * Updated provided query with relation joins
      *
-     * @param $action
-     * @param Select $query
-     * @param array $context
+     * @param Event $event
      */
-    public function updateQuery($action, Select &$query, array $context = [])
+    public function updateQuery(Event $event)
     {
-        print_r($action); die ("I am in!!");
+        //var_dump($event); die ("I am in!!");
         $parentTbl = $this->getEntity()->getTable();
         $relatedTbl = $this->getRelated()->getTable();
         $relPmk = $this->getForeignKey();
         $parentPmk = $this->getEntity()->primaryKey;
 
-        $query->join(
+        $event->getParam('query')->join(
             $this->getRelated()->getTable(),
             "{$relatedTbl}.{$relPmk} = {$parentTbl}.{$parentPmk}",
             [],

@@ -11,7 +11,7 @@
  */
 
 namespace Slick\Orm\Relation;
-use Slick\Database\Query\Sql\Select;
+use Zend\EventManager\Event;
 
 /**
  * SingleEntityRelationInterface
@@ -41,9 +41,7 @@ interface SingleEntityRelationInterface extends RelationInterface
     /**
      * Updated provided query with relation joins
      *
-     * @param $action
-     * @param Select $query
-     * @param array $context
+     * @param \Zend\EventManager\Event $event
      */
-    public function updateQuery($action, Select &$query, array $context = []);
+    public function updateQuery(Event $event);
 } 

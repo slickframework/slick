@@ -77,7 +77,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      *
      * @return AbstractSingleEntityRelation
      */
-    public static function create(Tag $tag, Entity $entity)
+    public static function create(Tag $tag, Entity &$entity)
     {
         $options = ['entity' => $entity];
         $className = null;
@@ -98,16 +98,15 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             }
         }
 
-        $options['related'] = self::_createEntity($className);
+        $options['related'] = $className;
 
         /** @var AbstractSingleEntityRelation $relation */
         $relation = new $elfName($options);
         $events = $entity->getEventManager();
-        print_r($events->getIdentifiers());
         $events->attach(
             'beforeSelect',
-            function ($action, &$query, $context) use ($relation) {
-                $relation->updateQuery($action, $query, $context);
+            function ($event) use ($relation) {
+                $relation->updateQuery($event);
             }
         );
         return $relation;

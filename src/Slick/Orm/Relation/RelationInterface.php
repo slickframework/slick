@@ -73,11 +73,11 @@ interface RelationInterface
     /**
      * Sets the related entity
      *
-     * @param Entity $related
+     * @param string|Entity $related
      *
      * @return RelationInterface
      */
-    public function setRelated(Entity $related);
+    public function setRelated($related);
 
     /**
      * Returns related entity
@@ -94,6 +94,6 @@ interface RelationInterface
      *
      * @return RelationInterface
      */
-    public static function create(Tag $tag, Entity $entity);
+    public static function create(Tag $tag, Entity &$entity);
 
 }

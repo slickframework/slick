@@ -163,8 +163,11 @@ class Select extends AbstractSql implements SelectInterface
      *  call chains
      */
     public function join(
-        $table, $clause, $fields = array(), $type = self::JOIN_LEFT)
+        $table, $clause, array $fields = [], $type = self::JOIN_LEFT)
     {
+        if (empty($fields)) {
+            $fields = array("*");
+        }
         $this->getJoins()->append(
             array(
                 'table' => $table,

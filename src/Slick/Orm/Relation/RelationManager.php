@@ -34,12 +34,6 @@ class RelationManager extends Base
 
     /**
      * @readwrite
-     * @var Entity
-     */
-    protected $_entity;
-
-    /**
-     * @readwrite
      * @var string[]
      */
     protected $_index = array();
@@ -56,7 +50,7 @@ class RelationManager extends Base
     /**
      * Checks if a property is a relation, creating the relation if it is
      */
-    public function check(TagList $propertyMeta, $property)
+    public function check(TagList $propertyMeta, $property,Entity &$entity)
     {
         foreach ($this->_classes as $tag => $class) {
             $tag = strtolower($tag);
@@ -65,7 +59,7 @@ class RelationManager extends Base
                     [$class, 'create'],
                     [
                         $propertyMeta->getTag($tag),
-                        $this->getEntity()
+                        $entity
                     ]
                 );
                 $this->_index[$property] = count($this->_index) + 1;
@@ -73,15 +67,6 @@ class RelationManager extends Base
         }
     }
 
-    /**
-     * Return this manager entity
-     *
-     * @return Entity
-     */
-    public function getEntity()
-    {
-        return $this->_entity;
-    }
 
     /**
      * Retrieves the relation define on the given property name

@@ -64,7 +64,7 @@ class AbstractEntity extends Base implements DiAwareInterface
      * The list of table columns defined by this entity.
      * @var ColumnList[]
      */
-    protected static $_columns = [];
+    protected $_columns = [];
 
     /**
      * @readwrite
@@ -140,22 +140,22 @@ class AbstractEntity extends Base implements DiAwareInterface
     public function getColumns()
     {
         $name = $this->getAlias();
-        if (!isset(self::$_columns[$name])) {
+        if (!isset($this->_columns[$name])) {
             $inspector = new Inspector($this);
             $properties = $inspector->getClassProperties();
-            self::$_columns[$name] = new ColumnList();
+            self::$this->_columns[$name] = new ColumnList();
 
             foreach ($properties as $property)  {
                 $propertyMeta = $inspector->getPropertyMeta($property);
                 $column = Column::parse($propertyMeta, $property);
                 if ($column) {
-                    self::$_columns[$name]->append($column);
+                    $this->_columns[$name]->append($column);
                 }
 
-                $this->getRelationsManager()->check($propertyMeta, $property);
+                $this->getRelationsManager()->check($propertyMeta, $property, $this);
             }
         }
-        return self::$_columns[$name];
+        return $this->_columns[$name];
     }
 
     /**
@@ -201,9 +201,7 @@ class AbstractEntity extends Base implements DiAwareInterface
     public function getRelationsManager()
     {
         if (is_null($this->_relationsManager)) {
-            $this->_relationsManager = new RelationManager(
-                ["entity" => $this]
-            );
+            $this->_relationsManager = new RelationManager();
         }
         return $this->_relationsManager;
     }
