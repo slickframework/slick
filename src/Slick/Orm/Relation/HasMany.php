@@ -50,10 +50,11 @@ class HasMany extends AbstractMultipleEntityRelation
      *
      * @param Tag $tag
      * @param Entity $entity
+     * @param string $property
      *
      * @return HasMany
      */
-    public static function create(Tag $tag, Entity &$entity)
+    public static function create(Tag $tag, Entity &$entity, $property)
     {
         $options = ['entity' => $entity];
         $className = null;

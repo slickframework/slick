@@ -13,6 +13,7 @@
 namespace Slick\Orm\Relation;
 use Slick\Common\Inspector\Tag;
 use Slick\Orm\Entity;
+use Slick\Orm\Exception;
 
 /**
  * AbstractSingleEntityRelation
@@ -74,10 +75,16 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      *
      * @param Tag $tag
      * @param Entity $entity
+     * @param string $property Property name
+     *
+     * @throws \Slick\Orm\Exception\UndefinedClassException if the class does
+     *  not exists
+     * @throws \Slick\Orm\Exception\InvalidArgumentException if the class
+     *  does not implement Slick\Orm\EntityInterface interface
      *
      * @return AbstractSingleEntityRelation
      */
-    public static function create(Tag $tag, Entity &$entity)
+    public static function create(Tag $tag, Entity &$entity, $property)
     {
         $options = ['entity' => $entity];
         $className = null;
@@ -98,7 +105,21 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             }
         }
 
+        if (!class_exists($className)) {
+            throw new Exception\UndefinedClassException(
+                "The class {$className} is not defined"
+            );
+        }
+
+        if (!is_subclass_of($className, 'Slick\Orm\EntityInterface')) {
+            throw new Exception\InvalidArgumentException(
+                "The class {$className} does not implement " .
+                "Slick\\Orm\\EntityInterface"
+            );
+        }
+
         $options['related'] = $className;
+        $options['propertyName'] = $property;
 
         /** @var AbstractSingleEntityRelation $relation */
         $relation = new $elfName($options);
@@ -107,6 +128,13 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             'beforeSelect',
             function ($event) use ($relation) {
                 $relation->updateQuery($event);
+            }
+        );
+
+        $events->attach(
+            'afterSelect',
+            function ($event) use ($relation) {
+                $relation->hydratate($event);
             }
         );
         return $relation;

@@ -154,7 +154,8 @@ class Mysql extends AbstractConnector
 
     /**
      * Returns a corresponding DDL query instance.
-     * 
+     *
+     * @param string $sql
      * @return \Slick\Database\Query\DDLQuery
      */
     public function ddlQuery($sql = null)

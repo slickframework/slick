@@ -56,4 +56,9 @@ class BelongsTo extends AbstractSingleEntityRelation
     {
         // TODO: Implement updateQuery() method.
     }
+
+    public function hydratate(Event $event)
+    {
+        // TODO: Implement hydratate() method.
+    }
 }

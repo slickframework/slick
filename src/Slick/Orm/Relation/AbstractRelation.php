@@ -12,6 +12,7 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Common\Base;
+use Slick\Common\Inspector\Tag;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
 
@@ -47,6 +48,18 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @var Entity
      */
     protected $_related;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_propertyName;
+
+    /**
+     * @readwrite
+     * @var int The result index
+     */
+    protected $_index = -1;
 
     /**
      * Returns parent entity for this relation
@@ -139,29 +152,32 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @param string $className Entity class name
      *
      * @return Entity
-     *
-     * @throws \Slick\Orm\Exception\UndefinedClassException if the class does
-     *  not exists
-     * @throws \Slick\Orm\Exception\InvalidArgumentException if the class
-     *  does not implement Slick\Orm\EntityInterface interface
      */
     protected static function _createEntity($className)
     {
-        if (!class_exists($className)) {
-            throw new Exception\UndefinedClassException(
-                "The class {$className} is not defined"
-            );
-        }
-
         $related = new $className();
-
-        if (!is_a($related, 'Slick\Orm\EntityInterface')) {
-            throw new Exception\InvalidArgumentException(
-                "The class {$className} does not implement " .
-                "Slick\\Orm\\EntityInterface"
-            );
-        }
-
         return $related;
+    }
+
+    /**
+     * Returns the property name that holds this relation
+     *
+     * @return string The parent property name for this relation
+     */
+    public function getPropertyName()
+    {
+        return $this->_propertyName;
+    }
+
+    /**
+     * Sets the property name that holds this relation
+     *
+     * @param string $name Property name to set
+     * @return AbstractRelation
+     */
+    public function setPropertyName($name)
+    {
+        $this->_propertyName = $name;
+        return $this;
     }
 }

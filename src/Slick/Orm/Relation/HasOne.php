@@ -11,7 +11,7 @@
 
 namespace Slick\Orm\Relation;
 
-use Slick\Database\Query\Sql\Select;
+use \PDO;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
 use Zend\EventManager\Event;
@@ -38,7 +38,6 @@ class HasOne extends AbstractSingleEntityRelation
      */
     public function updateQuery(Event $event)
     {
-        //var_dump($event); die ("I am in!!");
         $parentTbl = $this->getEntity()->getTable();
         $relatedTbl = $this->getRelated()->getTable();
         $relPmk = $this->getForeignKey();
@@ -50,6 +49,35 @@ class HasOne extends AbstractSingleEntityRelation
             [],
             $this->getType()
         );
+    }
+
+    /**
+     * Updated provided query with relation joins
+     *
+     * @param Event $event
+     */
+    public function hydratate(Event $event)
+    {
+        $data = $event->getParam('data');
+        $columns = $event->getParam('entity')->getColumns();
+        $className = get_class($this->getRelated());
+        $options = array();
+        /** @var $column Entity\Column */
+        foreach ($columns as $column) {
+            $prop = $column->name;
+            if (isset($data[$prop])) {
+                if (is_array($data[$prop])) {
+                    if (isset($data[$prop][$this->index])) {
+                        $options[$prop] = $data[$prop][$this->index];
+                    }
+                } else {
+                    $options[$prop] = $data[$prop];
+                }
+            }
+        }
+
+        $property = $this->getPropertyName();
+        $event->getParam('entity')->$property = new $className($options);
     }
 
     /**

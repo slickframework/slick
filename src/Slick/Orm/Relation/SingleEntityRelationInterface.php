@@ -44,4 +44,6 @@ interface SingleEntityRelationInterface extends RelationInterface
      * @param \Zend\EventManager\Event $event
      */
     public function updateQuery(Event $event);
+
+    public function hydratate(Event $event);
 } 

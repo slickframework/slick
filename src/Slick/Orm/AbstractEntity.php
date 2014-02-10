@@ -143,7 +143,7 @@ class AbstractEntity extends Base implements DiAwareInterface
         if (!isset($this->_columns[$name])) {
             $inspector = new Inspector($this);
             $properties = $inspector->getClassProperties();
-            self::$this->_columns[$name] = new ColumnList();
+            $this->_columns[$name] = new ColumnList();
 
             foreach ($properties as $property)  {
                 $propertyMeta = $inspector->getPropertyMeta($property);
@@ -225,9 +225,10 @@ class AbstractEntity extends Base implements DiAwareInterface
         if (is_array($options) || is_object($options)) {
             foreach ($options as $key => $value) {
                 if ($columns->hasColumn($key)) {
+                    $prop = is_array($value) ? reset($value) : $value;
                     $key = ucfirst($key);
                     $method = "set{$key}";
-                    $this->$method($value);
+                    $this->$method($prop);
                 }
             }
         }

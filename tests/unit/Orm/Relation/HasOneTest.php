@@ -14,6 +14,8 @@ namespace Orm\Relation;
 
 use Codeception\Util\Stub;
 use Slick\Configuration\Configuration;
+use Slick\Database\Connector\SQLite;
+use Slick\Database\Query\Query;
 use Slick\Orm\Entity;
 use Slick\Orm\Relation\HasOne;
 
@@ -54,8 +56,7 @@ class HasOneTest extends \Codeception\TestCase\Test
         $this->assertEquals('INNER', $relation->getType());
         $this->assertFalse($relation->isDependent());
         $this->assertEquals("fooId", $relation->getForeignKey());
-        Configuration::addPath(dirname(__DIR__));
-        Foo::get(1);
+
     }
 
     /**
@@ -76,6 +77,28 @@ class HasOneTest extends \Codeception\TestCase\Test
     public function createNotAnEntityRelation()
     {
         new BarNotEntity();
+    }
+
+    /**
+     * Check that the event before find and the join sql is in place
+     * @test
+     */
+    public function addJoinInfo()
+    {
+        Configuration::addPath(dirname(__DIR__));
+        $foo = Foo::get(1);
+        $sql = <<<SQL
+SELECT foos.*, bars.*, bazs.* FROM foos
+LEFT JOIN bars ON bars.foo_id = foos.id
+INNER JOIN bazs ON bazs.fooId = foos.id
+WHERE foos.id = ?
+LIMIT 1
+SQL;
+        $this->assertEquals($sql, MyTestConnector::$lastSql);
+        $this->assertEquals('Foo name', $foo->name);
+        $this->assertEquals('1', $foo->id);
+        $this->assertEquals('1', $foo->bar->id);
+
     }
 
 }
@@ -101,16 +124,24 @@ class Foo extends Entity
     protected $_name;
 
     /**
+     * @readwrite
      * @HasOne \Orm\Relation\Bar
      * @var Bar
      */
     protected $_bar;
 
     /**
+     * @readwrite
      * @HasOne \Orm\Relation\Baz, dependent=0, type=inner, foreignKey=fooId
      * @var Baz
      */
     protected $_baz;
+
+    /**
+     * @read
+     * @var string The data source to use
+     */
+    protected $_dataSourceName = "relation";
 }
 
 /**
@@ -132,6 +163,12 @@ class Bar extends Entity
      * @var string
      */
     protected $_name;
+
+    /**
+     * @read
+     * @var string The data source to use
+     */
+    protected $_dataSourceName = "relation";
 }
 
 /**
@@ -152,6 +189,12 @@ class Baz extends Entity
      * @var string
      */
     protected $_name;
+
+    /**
+     * @read
+     * @var string The data source to use
+     */
+    protected $_dataSourceName = "relation";
 }
 
 /**
@@ -171,6 +214,8 @@ class FooUndefined extends Entity
      * @var mixed
      */
     protected $_foo;
+
+
 }
 
 /**
@@ -190,4 +235,127 @@ class BarNotEntity extends Entity
      * @var mixed
      */
     protected $_foo;
+
+}
+
+/**
+ * Mock connector for entity test
+ */
+class MyTestConnector extends SQLite
+{
+
+    public static $lastSql = null;
+
+    /**
+     * Returns the *Singleton* instance of this class.
+     *
+     * @staticvar SingletonInterface $instance The *Singleton* instances
+     *  of this class.
+     *
+     * @param array $options The list of property values of this instance.
+     *
+     * @return \Slick\Database\Connector\SQLite The *Singleton* instance.
+     */
+    public static function getInstance($options = array())
+    {
+        static $instance;
+
+        if (is_null($instance)) {
+            $instance = array();
+        }
+
+        $key = md5(serialize($options));
+
+        if (
+            !isset($instance[$key]) ||
+            !is_a(
+                $instance[$key],
+                'Slick\Database\Connector\ConnectorInterface'
+            )
+        ) {
+            $instance[$key] = new MyTestConnector($options);
+        }
+        return $instance[$key];
+    }
+
+    public function query($sql = null)
+    {
+        return new MyTestQuery(
+            array(
+                'dialect' => 'SQLite',
+                'connector' => $this,
+                'sql' => $sql
+            )
+        );
+    }
+
+    public static $result = 'all';
+
+    public static $resultSet = array(
+        array(
+            'id' => array(
+                '0' => 1,
+                '1' => 1,
+                '2' => 1
+            ),
+            'name' => array(
+                '0' => 'Foo name',
+                '1' => 'Bar name',
+                '2' => 'Baz name'
+            ),
+            'foo_id' => 1,
+            'fooId' => 1
+        )
+    );
+
+    public function execute($sql)
+    {
+        return self::$result;
+    }
+
+    public function prepare($sql)
+    {
+        self::$lastSql = $sql;
+        return new MyStatement();
+    }
+
+}
+
+/**
+ * Mock query for entity test
+ */
+class MyTestQuery extends Query
+{
+
+}
+
+class MyStatement
+{
+    public static $isEmpty = false;
+
+    public function execute($param = [])
+    {
+        return true;
+    }
+
+    public function count()
+    {
+        if (self::$isEmpty)
+            return 0;
+        return 2;
+    }
+
+    public function columnCount()
+    {
+        if (self::$isEmpty)
+            return 0;
+        return 2;
+    }
+
+    public function fetchAll($mode = 0)
+    {
+        if (self::$isEmpty)
+            return [];
+        return MyTestConnector::$resultSet;
+    }
 }

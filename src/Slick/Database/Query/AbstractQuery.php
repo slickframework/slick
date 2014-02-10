@@ -72,10 +72,11 @@ abstract class AbstractQuery extends Base implements QueryInterface
     protected $_preparedStatement = null;
 
     /**
+     * @readwrite
      * @see http://www.php.net/manual/en/pdostatement.fetch.php
      * @var integer The data fetch mode for queries
      */
-    protected $_fetchMode = PDO::FETCH_OBJ;
+    protected $_fetchMode = PDO::FETCH_NAMED;
 
     /**
      * Overrides base constructor to check sql presence.

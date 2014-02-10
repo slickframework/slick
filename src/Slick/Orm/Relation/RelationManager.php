@@ -50,7 +50,7 @@ class RelationManager extends Base
     /**
      * Checks if a property is a relation, creating the relation if it is
      */
-    public function check(TagList $propertyMeta, $property,Entity &$entity)
+    public function check(TagList $propertyMeta, $property, Entity &$entity)
     {
         foreach ($this->_classes as $tag => $class) {
             $tag = strtolower($tag);
@@ -59,10 +59,12 @@ class RelationManager extends Base
                     [$class, 'create'],
                     [
                         $propertyMeta->getTag($tag),
-                        $entity
+                        $entity,
+                        trim($property, '_')
                     ]
                 );
                 $this->_index[$property] = count($this->_index) + 1;
+                $this->_relations[$property]->index = $this->_index[$property];
             }
         }
     }

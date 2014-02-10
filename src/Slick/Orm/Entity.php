@@ -69,7 +69,8 @@ class Entity extends AbstractEntity
             $entity,
             [
                 'query' => &$row,
-                'id' => $id
+                'id' => $id,
+                'action' => 'get'
             ]
         );
 
@@ -77,7 +78,15 @@ class Entity extends AbstractEntity
 
         if ($row) {
             $object = new $className($row);
-
+            $entity->getEventManager()->trigger(
+                'afterSelect',
+                $object,
+                [
+                    'data' => &$row,
+                    'entity' => &$object,
+                    'action' => 'get'
+                ]
+            );
             return $object;
         }
         return null;

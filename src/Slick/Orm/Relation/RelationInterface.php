@@ -89,11 +89,27 @@ interface RelationInterface
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag    $tag
+     * @param Tag $tag
      * @param Entity $entity
+     * @param $property
      *
      * @return RelationInterface
      */
-    public static function create(Tag $tag, Entity &$entity);
+    public static function create(Tag $tag, Entity &$entity, $property);
+
+    /**
+     * Returns the property name that holds this relation
+     *
+     * @return string The parent property name for this relation
+     */
+    public function getPropertyName();
+
+    /**
+     * Sets the property name that holds this relation
+     *
+     * @param string $name Property name to set
+     * @return RelationInterface
+     */
+    public function setPropertyName($name);
 
 }
