@@ -13,8 +13,6 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Orm\Entity;
-use Slick\Common\Inspector\Tag;
-use Slick\Database\Query\Sql\Select;
 use Zend\EventManager\Event;
 
 /**
@@ -54,11 +52,21 @@ class BelongsTo extends AbstractSingleEntityRelation
      */
     public function updateQuery(Event $event)
     {
-        // TODO: Implement updateQuery() method.
+        $parentTbl = $this->getEntity()->getTable();
+        $relatedTbl = $this->getRelated()->getTable();
+        $relPrimary = $this->getRelated()->primaryKey;
+        $frKey = $this->getForeignKey();
+
+        $event->getParam('query')->join(
+            $relatedTbl,
+            "{$parentTbl}.{$frKey} = {$relatedTbl}.{$relPrimary}",
+            [],
+            $this->getType()
+        );
+
     }
 
-    public function hydratate(Event $event)
-    {
-        // TODO: Implement hydratate() method.
-    }
+
+
+
 }

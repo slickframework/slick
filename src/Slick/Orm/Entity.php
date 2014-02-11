@@ -127,6 +127,16 @@ class Entity extends AbstractEntity
             $rows->limit($options['limit'], $options['page']);
         }
 
+
+        $entity->getEventManager()->trigger(
+            'beforeSelect',
+            $entity,
+            [
+                'query' => &$rows,
+                'action' => 'all'
+            ]
+        );
+
         $rows = $rows->all();
         $result = new RecordList();
 
@@ -135,6 +145,16 @@ class Entity extends AbstractEntity
                 $result->append(new $className($row));
             }
         }
+
+        $entity->getEventManager()->trigger(
+            'afterSelect',
+            $entity,
+            [
+                'data' => &$rows,
+                'entity' => &$result,
+                'action' => 'all'
+            ]
+        );
 
         return $result;
     }
@@ -168,10 +188,29 @@ class Entity extends AbstractEntity
             $row->orderBy($options['order']);
         }
 
+        $entity->getEventManager()->trigger(
+            'beforeSelect',
+            $entity,
+            [
+                'query' => &$row,
+                'action' => 'first'
+            ]
+        );
+
         $row = $row->first();
 
         if ($row) {
-            return new $className($row);
+            $object = new $className($row);
+            $entity->getEventManager()->trigger(
+                'afterSelect',
+                $object,
+                [
+                    'data' => &$row,
+                    'entity' => &$object,
+                    'action' => 'first'
+                ]
+            );
+            return $object;
         }
         return null;
     }

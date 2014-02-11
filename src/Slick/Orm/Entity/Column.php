@@ -114,11 +114,21 @@ class Column extends Base
             [
                 'raw' => $property,
                 'name' => preg_replace('#^_#', '', $property),
-                'primaryKey' => $metaData->getTag("@column")->value->check('primary'),
-                'unsigned' => $metaData->getTag("@column")->value->check('unsigned'),
-                'type' => $metaData->getTag("@column")->value['type'],
-                'length' => $metaData->getTag("@column")->value['length'],
-                'size' => $metaData->getTag("@column")->value['size'],
+                'primaryKey' => (is_object($metaData->getTag("@column")->value)) ?
+                    $metaData->getTag("@column")->value->check('primary') :
+                    false,
+                'unsigned' => (is_object($metaData->getTag("@column")->value)) ?
+                    $metaData->getTag("@column")->value->check('unsigned') :
+                    false,
+                'type' => (isset($metaData->getTag("@column")->value['type'])) ?
+                    $metaData->getTag("@column")->value['type'] :
+                    null,
+                'length' => (isset($metaData->getTag("@column")->value['length'])) ?
+                    $metaData->getTag("@column")->value['length'] :
+                    null,
+                'size' => (isset($metaData->getTag("@column")->value['size'])) ?
+                    $metaData->getTag("@column")->value['size'] :
+                    null,
                 'index' => $metaData->hasTag("@index"),
                 'write' =>
                     $metaData->hasTag("@readwrite") ||

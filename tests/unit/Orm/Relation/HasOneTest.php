@@ -98,7 +98,13 @@ SQL;
         $this->assertEquals('Foo name', $foo->name);
         $this->assertEquals('1', $foo->id);
         $this->assertEquals('1', $foo->bar->id);
+        $this->assertEquals('2014-02-01 12:50:00', $foo->bar->created);
+        $this->assertInstanceOf('Slick\Orm\Entity', $foo->bar);
 
+        $fooList = Foo::all();
+        $this->assertEquals(2, count($fooList));
+        $this->assertInstanceOf('Orm\Relation\Foo', $fooList[0]);
+        $this->assertInstanceOf('Orm\Relation\Bar', $fooList[1]->bar);
     }
 
 }
@@ -163,6 +169,13 @@ class Bar extends Entity
      * @var string
      */
     protected $_name;
+
+    /**
+     * @readwrite
+     * @column type=datetime
+     * @var string
+     */
+    protected $_created;
 
     /**
      * @read
@@ -304,7 +317,23 @@ class MyTestConnector extends SQLite
                 '2' => 'Baz name'
             ),
             'foo_id' => 1,
-            'fooId' => 1
+            'fooId' => 1,
+            'created' => '2014-02-01 12:50:00'
+        ),
+        array(
+            'id' => array(
+                '0' => 2,
+                '1' => 2,
+                '2' => 2
+            ),
+            'name' => array(
+                '0' => 'Other Foo name',
+                '1' => 'Other Bar name',
+                '2' => 'Other Baz name'
+            ),
+            'foo_id' => 2,
+            'fooId' => 2,
+            'created' => '2014-02-01 12:50:00'
         )
     );
 

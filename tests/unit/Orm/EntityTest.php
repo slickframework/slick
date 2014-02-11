@@ -69,6 +69,9 @@ class EntityTest extends Test
         $this->assertEquals('id', $this->_user->primaryKey);
         $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector);
         $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $this->_user->query());
+        $myUser = new User();
+        $di = DependencyInjector::getDefault();
+        $this->assertSame($di, $myUser->getDi());
         new Post();
     }
 

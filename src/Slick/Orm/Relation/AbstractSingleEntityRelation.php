@@ -14,6 +14,7 @@ namespace Slick\Orm\Relation;
 use Slick\Common\Inspector\Tag;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
+use Zend\EventManager\Event;
 
 /**
  * AbstractSingleEntityRelation
@@ -138,5 +139,51 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             }
         );
         return $relation;
+    }
+
+    public function hydratate(Event $event)
+    {
+        $data = $event->getParam('data');
+
+        if ($event->getParam('action') == 'all') {
+            foreach ($data as $key => $row) {
+                $this->_hydratate($row, $event->getParam('entity')[$key]);
+            }
+        } else {
+            $this->_hydratate($data, $event->getParam('entity'));
+        }
+    }
+
+    /**
+     * @param $data
+     * @param $object
+     */
+    protected function _hydratate($data, &$object)
+    {
+        static $columns, $className;
+
+        if (!$columns) {
+            $columns = $this->getRelated()->getColumns();
+            $className = get_class($this->getRelated());
+        }
+
+        $options = array();
+
+        /** @var $column Entity\Column */
+        foreach ($columns as $column) {
+            $prop = $column->name;
+            if (isset($data[$prop])) {
+                if (is_array($data[$prop])) {
+                    if (isset($data[$prop][$this->index])) {
+                        $options[$prop] = $data[$prop][$this->index];
+                    }
+                } else {
+                    $options[$prop] = $data[$prop];
+                }
+            }
+        }
+
+        $property = $this->getPropertyName();
+        $object->$property = new $className($options);
     }
 }
