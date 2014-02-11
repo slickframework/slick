@@ -77,15 +77,15 @@ class SQLite extends AbstractParser
     {
         $indexes = new ElementList();
         foreach ($this->_data as $row) {
-            if ($row->type == 'index') {
-                $index = new Index(array('name' => $row->name));
+            if ($row['type'] == 'index') {
+                $index = new Index(array('name' => $row['name']));
                 $indexes->append($index);
 
-                if (strpos($row->sql, 'UNIQUE') !== false) {
+                if (strpos($row['sql'], 'UNIQUE') !== false) {
                     $index->setType(Index::UNIQUE);
                 }
 
-                if (preg_match('/\((?P<names>.*)\)/i', $row->sql, $matches)) {
+                if (preg_match('/\((?P<names>.*)\)/i', $row['sql'], $matches)) {
                     $fields = str_replace(
                         array(' ASC', ' DESC'),
                         '',
@@ -132,8 +132,8 @@ class SQLite extends AbstractParser
             $regExp = '/(?P<l>.*),?\n/i';
             $this->_lines = array();
             foreach ($this->_data as $row) {
-                if ($row->type == 'table') {
-                    $query = $row->sql;
+                if ($row['type'] == 'table') {
+                    $query = $row['sql'];
                     break;
                 }
             }
@@ -147,7 +147,7 @@ class SQLite extends AbstractParser
                 }
             }
 
-            if (preg_match_all($this->_regFk, $row->sql, $lines)) {
+            if (preg_match_all($this->_regFk, $query, $lines)) {
                 $this->_frks = $lines[0];
             }
         }

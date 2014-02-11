@@ -31,10 +31,9 @@ class MysqlTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        $data = new \StdClass();
-        $data->Table = 'users';
-        $prop = 'Create Table';
-        $data->$prop = <<<EOS
+        $data = array();
+        $data['Table'] = 'users';
+        $data['Create Table'] = <<<EOS
 CREATE TABLE `users` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `name` varchar(255) NOT NULL COMMENT 'Test',
