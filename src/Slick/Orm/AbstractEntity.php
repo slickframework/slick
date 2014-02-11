@@ -79,6 +79,12 @@ class AbstractEntity extends Base implements DiAwareInterface
     protected $_relationsManager;
 
     /**
+     * @readwrite
+     * @var mixed
+     */
+    protected $_raw;
+
+    /**
      * Overrides Base constructor to handle property populating process
      * from throwing undefined property exceptions.
      *
@@ -219,6 +225,39 @@ class AbstractEntity extends Base implements DiAwareInterface
         return $this->_dependencyInjector;
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    // @codingStandardsIgnoreStart
+    public function __get($name)
+    {
+        // @codingStandardsIgnoreEnd
+
+        //Check if its a relation
+        $prop = "_{$name}";
+        $rlMan = $this->getRelationsManager();
+        if ($rlMan->isARelation($prop)) {
+            if (is_null($this->$prop)) {
+                $this->$prop = $rlMan->getRelation($prop)->load($this);
+            }
+            return $this->$prop;
+        }
+
+        // Not a relation, back to normal behavior
+        return parent::__get($name);
+    }
+
+    /**
+     * Checks property existence before assigning values to it.
+     *
+     * This method changes the behavior of Base::_setter() that throws an
+     * exception if the property does not exists by checking if there is
+     * a defined property with @column notation with the same name as
+     * the data key you are trying to assign.
+     *
+     * @param $options
+     */
     protected function _hydratate($options)
     {
         $columns = $this->getColumns();
@@ -231,6 +270,7 @@ class AbstractEntity extends Base implements DiAwareInterface
                     $this->$method($prop);
                 }
             }
+            $this->_raw = $options;
         }
     }
 } 

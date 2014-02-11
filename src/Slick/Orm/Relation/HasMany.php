@@ -13,7 +13,9 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Common\Inspector\Tag;
+use Slick\Database\RecordList;
 use Slick\Orm\Entity;
+use Slick\Orm\EntityInterface;
 
 /**
  * HasMany
@@ -80,5 +82,33 @@ class HasMany extends AbstractMultipleEntityRelation
 
         $relation = new HasMany($options);
         return $relation;
+    }
+
+    /**
+     * Lazy loading of relations callback method
+     *
+     * @param EntityInterface $entity
+     *
+     * @return Entity|RecordList
+     */
+    public function load(EntityInterface $entity)
+    {
+        $this->setEntity($entity);
+        /** @noinspection PhpUndefinedFieldInspection */
+        $prmKey = $entity->primaryKey;
+        $related = get_class($this->getRelated());
+        $relTable = $this->getRelated()->getTable();
+        $frKey = $this->getForeignKey();
+
+        return call_user_func_array(
+            array($related, 'all'),
+            array(
+                [
+                    'conditions' => [
+                        "{$relTable}.{$frKey} = ?" => $entity->$prmKey
+                    ]
+                ]
+            )
+        );
     }
 }

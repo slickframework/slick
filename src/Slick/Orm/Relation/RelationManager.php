@@ -48,6 +48,17 @@ class RelationManager extends Base
     );
 
     /**
+     * Overrides default constructor to set the relations list object
+     *
+     * @param array $options
+     */
+    public function __construct($options = array())
+    {
+        $this->_relations = new ArrayObject();
+        parent::__construct($options);
+    }
+
+    /**
      * Checks if a property is a relation, creating the relation if it is
      */
     public function check(TagList $propertyMeta, $property, Entity &$entity)
@@ -84,6 +95,18 @@ class RelationManager extends Base
             $relation =  $this->_relations[$propertyName];
         }
         return $relation;
+    }
+
+    /**
+     * Check if the property with provided name is a relation
+     *
+     * @param string $propertyName Property name
+     *
+     * @return bool True if property is in relations list, false otherwise
+     */
+    public function isARelation($propertyName)
+    {
+        return array_key_exists($propertyName, $this->_relations);
     }
 
 } 

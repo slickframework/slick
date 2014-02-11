@@ -12,7 +12,9 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Database\RecordList;
 use Slick\Orm\Entity;
+use Slick\Orm\EntityInterface;
 use Zend\EventManager\Event;
 
 /**
@@ -66,7 +68,25 @@ class BelongsTo extends AbstractSingleEntityRelation
 
     }
 
+    /**
+     * Lazy loading of relations callback method
+     *
+     * @param EntityInterface $entity
+     *
+     * @return Entity|RecordList
+     */
+    public function load(EntityInterface $entity)
+    {
+        /** @var Entity $entity */
+        $this->setEntity($entity);
+        $related = get_class($this->getRelated());
+        $frKey = $this->getForeignKey();
 
-
-
+        return call_user_func_array(
+            array($related, 'get'),
+            array(
+                $entity->raw[$frKey]
+            )
+        );
+    }
 }

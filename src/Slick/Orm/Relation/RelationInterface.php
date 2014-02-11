@@ -11,7 +11,9 @@
 
 namespace Slick\Orm\Relation;
 use Slick\Common\Inspector\Tag;
+use Slick\Database\RecordList;
 use Slick\Orm\Entity;
+use Slick\Orm\EntityInterface;
 
 /**
  * RelationInterface
@@ -111,5 +113,14 @@ interface RelationInterface
      * @return RelationInterface
      */
     public function setPropertyName($name);
+
+    /**
+     * Lazy loading of relations callback method
+     *
+     * @param EntityInterface $entity
+     *
+     * @return Entity|RecordList
+     */
+    public function load(EntityInterface $entity);
 
 }

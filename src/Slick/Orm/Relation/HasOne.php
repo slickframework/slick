@@ -11,7 +11,9 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Database\RecordList;
 use Slick\Orm\Entity;
+use Slick\Orm\EntityInterface;
 use Slick\Orm\Exception;
 use Zend\EventManager\Event;
 
@@ -62,5 +64,33 @@ class HasOne extends AbstractSingleEntityRelation
                 "_id";
         }
         return $this->_foreignKey;
+    }
+
+    /**
+     * Lazy loading of relations callback method
+     *
+     * @param EntityInterface $entity
+     *
+     * @return Entity|RecordList
+     */
+    public function load(EntityInterface $entity)
+    {
+        $this->setEntity($entity);
+        /** @noinspection PhpUndefinedFieldInspection */
+        $prmKey = $entity->primaryKey;
+        $related = get_class($this->getRelated());
+        $relTable = $this->getRelated()->getTable();
+        $frKey = $this->getForeignKey();
+
+        return call_user_func_array(
+            array($related, 'first'),
+            array(
+                [
+                    'conditions' => [
+                        "{$relTable}.{$frKey} = ?" => $entity->$prmKey
+                    ]
+                ]
+            )
+        );
     }
 }
