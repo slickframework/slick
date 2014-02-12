@@ -74,6 +74,12 @@ class AbstractEntity extends Base implements DiAwareInterface
 
     /**
      * @readwrite
+     * @var string The configuration file name
+     */
+    protected $_configFile = 'database';
+
+    /**
+     * @readwrite
      * @var RelationManager
      */
     protected $_relationsManager;
@@ -91,7 +97,7 @@ class AbstractEntity extends Base implements DiAwareInterface
      * @param array|Object $options
      * @throws Exception\PrimaryKeyException
      */
-    public function __construct($options = array())
+    public function __construct(&$options = array())
     {
         parent::__construct();
         $columns = $this->getColumns();
@@ -101,6 +107,7 @@ class AbstractEntity extends Base implements DiAwareInterface
             );
         }
 
+        $this->_raw = $options;
         $this->_hydratate($options);
 
     }
@@ -184,7 +191,7 @@ class AbstractEntity extends Base implements DiAwareInterface
     public function getConnector()
     {
         if (is_null($this->_connector)) {
-            $cfg = Configuration::get('database')
+            $cfg = Configuration::get($this->_configFile)
                 ->get($this->_dataSourceName, ['type' => 'SQLite']);
             $type = $cfg['type'];
             unset($cfg['type']);
@@ -258,19 +265,23 @@ class AbstractEntity extends Base implements DiAwareInterface
      *
      * @param $options
      */
-    protected function _hydratate($options)
+    protected function _hydratate(&$options)
     {
         $columns = $this->getColumns();
         if (is_array($options) || is_object($options)) {
             foreach ($options as $key => $value) {
                 if ($columns->hasColumn($key)) {
-                    $prop = is_array($value) ? reset($value) : $value;
+                    $prop = $value;
+                    if (is_array($value)) {
+                        $val = array_shift($options[$key]);
+                        $prop = $val;
+                    }
+
                     $key = ucfirst($key);
                     $method = "set{$key}";
                     $this->$method($prop);
                 }
             }
-            $this->_raw = $options;
         }
     }
 } 

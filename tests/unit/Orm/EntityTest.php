@@ -214,7 +214,8 @@ SQL;
      */
     public function saveDataInsert()
     {
-        $user = new User(['name' => 'test user']);
+        $data = ['name' => 'test user'];
+        $user = new User();
         $user->save();
         $insertUser = <<<SQL
 INSERT INTO users (`id`, `name`)

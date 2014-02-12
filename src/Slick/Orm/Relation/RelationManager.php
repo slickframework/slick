@@ -66,6 +66,7 @@ class RelationManager extends Base
         foreach ($this->_classes as $tag => $class) {
             $tag = strtolower($tag);
             if ($propertyMeta->hasTag($tag)) {
+
                 $this->_relations[$property] = call_user_func_array(
                     [$class, 'create'],
                     [

@@ -147,7 +147,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
 
         if ($event->getParam('action') == 'all') {
             foreach ($data as $key => $row) {
-                $this->_hydratate($row, $event->getParam('entity')[$key]);
+                $this->_hydratate($data[$key], $event->getParam('entity')[$key]);
             }
         } else {
             $this->_hydratate($data, $event->getParam('entity'));
@@ -158,15 +158,11 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      * @param $data
      * @param $object
      */
-    protected function _hydratate($data, &$object)
+    protected function _hydratate(&$data, &$object)
     {
-        static $columns, $className;
 
-        if (!$columns) {
-            $columns = $this->getRelated()->getColumns();
-            $className = get_class($this->getRelated());
-        }
-
+        $columns = $this->getRelated()->getColumns();
+        $className = get_class($this->getRelated());
         $options = array();
 
         /** @var $column Entity\Column */
@@ -174,9 +170,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             $prop = $column->name;
             if (isset($data[$prop])) {
                 if (is_array($data[$prop])) {
-                    if (isset($data[$prop][$this->index])) {
-                        $options[$prop] = $data[$prop][$this->index];
-                    }
+                    $options[$prop] = array_shift($data[$prop]);
                 } else {
                     $options[$prop] = $data[$prop];
                 }
@@ -185,5 +179,6 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
 
         $property = $this->getPropertyName();
         $object->$property = new $className($options);
+        $object->$property->raw = $data;
     }
 }

@@ -38,7 +38,7 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (1,'This blog is greit',2,1),(2,'Thanks!',1,1);
+INSERT INTO `comments` VALUES (1,'This blog is great',2,1),(2,'Thanks!',1,1);
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,7 +86,7 @@ CREATE TABLE `posts` (
 
 LOCK TABLES `posts` WRITE;
 /*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-INSERT INTO `posts` VALUES (1,'My blog post','This is the boby for my blog post.');
+INSERT INTO `posts` VALUES (1,'My blog post','This is the body for my blog post.');
 /*!40000 ALTER TABLE `posts` ENABLE KEYS */;
 UNLOCK TABLES;
 
