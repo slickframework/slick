@@ -114,7 +114,9 @@ class Column extends Base
             [
                 'raw' => $property,
                 'name' => preg_replace('#^_#', '', $property),
-                'primaryKey' => (is_object($metaData->getTag("@column")->value)) ?
+                'primaryKey' => (
+                        is_object($metaData->getTag("@column")->value)
+                    ) ?
                     $metaData->getTag("@column")->value->check('primary') :
                     false,
                 'unsigned' => (is_object($metaData->getTag("@column")->value)) ?
@@ -123,7 +125,9 @@ class Column extends Base
                 'type' => (isset($metaData->getTag("@column")->value['type'])) ?
                     $metaData->getTag("@column")->value['type'] :
                     null,
-                'length' => (isset($metaData->getTag("@column")->value['length'])) ?
+                'length' => (
+                        isset($metaData->getTag("@column")->value['length'])
+                    ) ?
                     $metaData->getTag("@column")->value['length'] :
                     null,
                 'size' => (isset($metaData->getTag("@column")->value['size'])) ?

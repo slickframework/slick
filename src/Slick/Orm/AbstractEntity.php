@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AbstractEntity
  *
@@ -31,8 +32,6 @@ use Slick\Configuration\Configuration;
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- *
- * @property RelationManager relationsManager
  */
 class AbstractEntity extends Base implements DiAwareInterface
 {
@@ -109,7 +108,6 @@ class AbstractEntity extends Base implements DiAwareInterface
 
         $this->_raw = $options;
         $this->_hydratate($options);
-
     }
 
     /**
@@ -284,4 +282,4 @@ class AbstractEntity extends Base implements DiAwareInterface
             }
         }
     }
-} 
+}

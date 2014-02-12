@@ -64,8 +64,16 @@ class Database extends Base
             class_exists($this->_type)
         ) {
             $class = $this->_type;
-            $connector = call_user_func_array([$class, 'getInstance'], [$this->_options]);
-            if (!is_a($connector, 'Slick\Database\Connector\ConnectorInterface')) {
+            $connector = call_user_func_array(
+                [$class, 'getInstance'],
+                [$this->_options]
+            );
+            if (
+                !is_a(
+                    $connector,
+                    'Slick\Database\Connector\ConnectorInterface'
+                )
+            ) {
                 throw new Exception\InvalidArgumentException(
                     "Class {$class} doesn't implement " .
                     "Slick\Database\Connector\ConnectorInterface interface."
