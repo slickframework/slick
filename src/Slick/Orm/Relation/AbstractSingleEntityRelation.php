@@ -146,8 +146,8 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
         $data = $event->getParam('data');
 
         if ($event->getParam('action') == 'all') {
-            foreach ($data as $key => $row) {
-                $this->_hydratate($data[$key], $event->getParam('entity')[$key]);
+            foreach ($data as $key => &$row) {
+                $this->_hydratate($row, $event->getParam('entity')[$key]);
             }
         } else {
             $this->_hydratate($data, $event->getParam('entity'));

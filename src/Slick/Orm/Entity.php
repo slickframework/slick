@@ -51,25 +51,25 @@ class Entity extends AbstractEntity
     /**
      * Retrieves the record with the provided primary key
      *
-     * @param int $id The primary key id
+     * @param int $key The primary key id
      *
      * @return Entity An entity object
      */
-    public static function get($id)
+    public static function get($key)
     {
         /** @var Entity $entity */
         $entity = new static();
         $className = get_called_class();
         $row = $entity->query()
             ->select($entity->table)
-            ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $id]);
+            ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $key]);
 
         $entity->getEventManager()->trigger(
             'beforeSelect',
             $entity,
             [
                 'query' => &$row,
-                'id' => $id,
+                'id' => $key,
                 'action' => 'get'
             ]
         );
@@ -389,8 +389,8 @@ class Entity extends AbstractEntity
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $di = DependencyInjector::getDefault();
-            $sharedEvent = $di->get('DefaultEventManager');
+            $injector = DependencyInjector::getDefault();
+            $sharedEvent = $injector->get('DefaultEventManager');
             $events = new EventManager();
             $events->setSharedManager($sharedEvent);
             $this->setEventManager($events);

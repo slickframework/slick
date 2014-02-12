@@ -53,7 +53,8 @@ class ColumnList extends ArrayObject
                 "Column list accepts only Column objects."
             );
         }
-        parent::offsetSet($value->name, $value);
+        $offset = $value->name;
+        parent::offsetSet($offset, $value);
     }
 
     /**

@@ -163,6 +163,7 @@ class Service extends Base implements ServiceInterface
 
         if ($this->isClosure()) {
             $closure = $this->definition;
+            /** @var $closure string */
             return $closure();
         }
 
@@ -171,18 +172,20 @@ class Service extends Base implements ServiceInterface
             return $this->_instance;
         }
 
-        return $this->_createObject($options, $dependencyInjector);
+        return $this->_createObject($dependencyInjector);
     }
 
     /**
      * Creates service instance based on parsed definition
+     *
+     * @param DiInterface $dependencyInjector
+     *
      * @return object The service instance
      */
-    protected function _createObject(
-        $options = array(), DiInterface $dependencyInjector = null)
+    protected function _createObject(DiInterface $dependencyInjector = null)
     {
 
-        $reflection = new \ReflectionClass($this->getClassName()); 
+        $reflection = new \ReflectionClass($this->getClassName());
         $instance = $reflection->newInstanceArgs(
             $this->prepareArguments($this->getArguments(), $dependencyInjector)
         );
@@ -196,7 +199,6 @@ class Service extends Base implements ServiceInterface
         }
 
         foreach ($this->_calls as $call) {
-            $method = $call['method'];
             $args = isset($call['arguments']) ?
                 $this->prepareArguments(
                     $call['arguments'],
@@ -212,7 +214,7 @@ class Service extends Base implements ServiceInterface
     }
 
     /**
-     * Parses the definition argumen array 
+     * Parses the definition argument array
      * 
      * @param array       $args              
      * @param DiInterface $dependencyInjector
@@ -235,7 +237,7 @@ class Service extends Base implements ServiceInterface
      * @param array       $data
      * @param DiInterface $dependencyInjector
      * 
-     * @return mixed The resolved value for the argumen
+     * @return mixed The resolved value for the argument
      */
     public function _resolveArgument(
         $data, DiInterface $dependencyInjector = null)

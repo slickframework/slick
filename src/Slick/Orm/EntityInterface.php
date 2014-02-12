@@ -26,11 +26,11 @@ interface EntityInterface
     /**
      * Retrieves the record with the provided primary key
      *
-     * @param int $id The primary key id
+     * @param int $key The primary key id
      *
      * @return EntityInterface An entity object
      */
-    public static function get($id);
+    public static function get($key);
 
     /**
      * Queries the database to retrieves all records that satisfies the
