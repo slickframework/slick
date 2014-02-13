@@ -1,0 +1,17 @@
+{
+    "name": "slick/orm",
+    "description": "Orm libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "orm"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Orm\\": ""
+        }
+    },
+    "target-dir": "Slick/Orm",
+    "require": {
+        "slick/Common": "self.version",
+        "slick/Database": "self.version",
+        "slick/Configuration": "self.version"
+    }
+}

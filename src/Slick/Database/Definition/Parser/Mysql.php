@@ -123,7 +123,7 @@ class Mysql extends AbstractParser
             $prop = 'Create Table';
             preg_match_all(
                 '/(?P<l>.*),?\n/i',
-                $this->_data[0]->$prop,
+                $this->_data[0][$prop],
                 $matches
             );
 

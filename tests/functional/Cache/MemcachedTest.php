@@ -14,6 +14,7 @@ namespace Cache;
 
 use Codeception\Util\Stub;
 use Slick\Cache\Cache;
+use Slick\Cache\Driver\Memcached;
 
 /**
  * Memcached Functional test case
@@ -27,7 +28,7 @@ class MemcachedTest extends \Codeception\TestCase\Test
     /**
      * Initialize driver
      * @test
-     * @expectedException Slick\Cache\Exception\ServiceException
+     * @expectedException \Slick\Cache\Exception\ServiceException
      */
     public function initializeDriver()
     {
@@ -43,12 +44,13 @@ class MemcachedTest extends \Codeception\TestCase\Test
                 )
             )
         );
-        $falseCache->initialize()->connect();
+        $falseCache->initialize();
     }
 
     /**
      * Getting and setting cache values
      * @test
+     * @expectedException \Slick\Cache\Exception\ServiceException
      */
     public function getAndSetValues()
     {
@@ -64,11 +66,14 @@ class MemcachedTest extends \Codeception\TestCase\Test
         sleep(2);
         $this->assertFalse($cache->get('zed', false));
         $cache->erase('foo');
+        $cache->disconnect();
+        $cache->set('foo', 'bar');
     }
 
     /**
-     * Erase cahche values
+     * Erase cache values
      * @test
+     * @expectedException \Slick\Cache\Exception\ServiceException
      */
     public function eraseValues()
     {
@@ -77,5 +82,21 @@ class MemcachedTest extends \Codeception\TestCase\Test
         $cache->set("foo", array('foo'));
         $this->assertSame($cache, $cache->erase('foo'));
         $this->assertFalse($cache->get('foo', false));
+        $cache->disconnect();
+        $cache->erase('foo');
+    }
+
+    /**
+     * disconnect from server
+     * @test
+     * @expectedException \Slick\Cache\Exception\ServiceException
+     */
+    public function disconnect()
+    {
+        /** @var Memcached $cache*/
+        $cache = new Cache(array('class' => 'memcached'));
+        $result = $cache->initialize()->disconnect();
+        $this->assertInstanceOf('Slick\Cache\Driver\Memcached', $result);
+        $result->get('foo', 'bar');
     }
 }

@@ -13,8 +13,8 @@
 namespace Slick\Template\Engine;
 
 use Twig_Environment,
-	Twig_Loader_Filesystem,
-	Twig_Error;
+    Twig_Loader_Filesystem,
+    Twig_Error;
 use Slick\Template\Exception;
 
 /**
@@ -25,7 +25,7 @@ use Slick\Template\Exception;
  */
 class Twig extends AbstractEngine
 {
-    
+
     /**
      * @read
      * @var string The template source file.
@@ -34,8 +34,8 @@ class Twig extends AbstractEngine
 
     /**
      * @readwrite
-     * @var array The list of paths where to find template fiels
-     * order mathers.
+     * @var array The list of paths where to find template fields
+     * order maters.
      */
     protected $_paths = array();
 
@@ -49,45 +49,47 @@ class Twig extends AbstractEngine
      * Parses the source template code.
      *
      * @param string $source The template to parse
-     * 
+     *
      * @return EngineInterface Returns this instance for chainnig methods calls
      */
     public function parse($source)
     {
-    	$this->_source = $source;
+        $this->_source = $source;
     }
 
     /**
      * Processes the template with data to produce the final output.
      *
      * @param mixed $data The data that will be used to process the view.
-     * 
+     *
+     * @throws \Slick\Template\Exception\ParserException
+     *
      * @return string Returns processed output string.
      */
     public function process($data = array())
     {
-    	try {
-    		return $this->twig->render($this->_source, $data);
-    	} catch (Twig_Error $exp) {
-    		throw new Exception\ParserException(
-    			"Error Processing Request: " . $exp->getMessage()
-    		);
-    		
-    	}
+        try {
+            return $this->twig->render($this->_source, $data);
+        } catch (Twig_Error $exp) {
+            throw new Exception\ParserException(
+                "Error Processing Request: " . $exp->getMessage()
+            );
+
+        }
     }
 
     /**
      * Lazy loading of twig library
-     * 
+     *
      * @return Twig_Loader_Filesystem
      */
     public function getTwig()
     {
-    	if (is_null($this->_twig)) {
-    		$this->_twig = new Twig_Environment(
-	            new Twig_Loader_Filesystem($this->_paths)
-	        );
-    	}
-    	return $this->_twig;
+        if (is_null($this->_twig)) {
+            $this->_twig = new Twig_Environment(
+                new Twig_Loader_Filesystem($this->_paths)
+            );
+        }
+        return $this->_twig;
     }
 }

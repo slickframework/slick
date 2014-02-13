@@ -40,7 +40,7 @@ class SQLiteTest extends \Codeception\TestCase\Test
     {
         parent::_before();
         $rows = array(
-            (object) array(
+            array(
                 'type' => 'table',
                 'name' => 'users',
                 'tbl_name' => 'users',
@@ -66,14 +66,14 @@ class SQLiteTest extends \Codeception\TestCase\Test
         ON UPDATE RESTRICT 
 )'
             ),
-            (object) array(
+            array(
                 'type' => 'index',
                 'name' => 'name_idx',
                 'tbl_name' => 'users',
                 'rootpage' => '2',
                 'sql' => 'CREATE UNIQUE INDEX "name_idx" on users (name ASC)'
             ),
-            (object) array(
+            array(
                 'type' => 'index',
                 'name' => 'avg_idx',
                 'tbl_name' => 'users',
@@ -103,7 +103,7 @@ class SQLiteTest extends \Codeception\TestCase\Test
     {
         $this->assertInstanceOf('Slick\Database\Definition\Parser\SQLite', $this->_sqlite);
         $data = $this->_sqlite->getData();
-        $this->assertEquals('users', $data[0]->name);
+        $this->assertEquals('users', $data[0]['name']);
     }
 
     /**

@@ -54,7 +54,7 @@ interface ConnectorInterface
     /**
      * Executes the provided SQL statement.
      *
-     * @param string $sql The SQL statment to execute.
+     * @param string $sql The SQL statement to execute.
      * 
      * @return \PDOStatement The connector response from server.
      */
@@ -63,7 +63,7 @@ interface ConnectorInterface
     /**
      * Returns the ID of the last row to be inserted.
      *
-     * @return integer The last insertd ID value.
+     * @return integer The last inserted ID value.
      */
     public function getLastInsertId();
 
