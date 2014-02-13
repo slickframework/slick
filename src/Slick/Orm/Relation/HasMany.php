@@ -67,7 +67,10 @@ class HasMany extends AbstractMultipleEntityRelation
 
         if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
             $className = $tag->value[0];
-            $options['foreignKey'] = $tag->value['foreignkey'];
+
+            $options['foreignKey'] = ($tag->value->check('foreignkey')) ?
+                $tag->value['foreignkey'] : null;
+
             if ($tag->value->check('dependent')) {
                 $options['dependent'] = (boolean) $tag->value['dependent'];
             }
@@ -78,7 +81,7 @@ class HasMany extends AbstractMultipleEntityRelation
         }
 
 
-        $options['related'] = self::_createEntity($className);
+        $options['related'] = $className;
 
         $relation = new HasMany($options);
         return $relation;

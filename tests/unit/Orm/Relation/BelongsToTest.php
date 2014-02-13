@@ -3,7 +3,7 @@
 /**
  * Belongs To relation test case
  *
- * @package   Test\Session
+ * @package   Test\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
@@ -22,7 +22,7 @@ use Slick\Configuration\Configuration;
 /**
  * Belongs To relation test case
  *
- * @package   Test\Session
+ * @package   Test\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class BelongsToTest extends \Codeception\TestCase\Test

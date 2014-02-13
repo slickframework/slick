@@ -45,6 +45,7 @@ class RelationManager extends Base
         '@HasOne' => '\Slick\Orm\Relation\HasOne',
         '@BelongsTo' => '\Slick\Orm\Relation\BelongsTo',
         '@HasMany' => '\Slick\Orm\Relation\HasMany',
+        '@HasAndBelongsToMAny' => '\Slick\Orm\Relation\HasAndBelongsToMany'
     );
 
     /**

@@ -67,6 +67,18 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertEquals(2, $comment->user->id);
     }
 
+    /**
+     * HABTM test
+     * @test
+     */
+    public function checkHasAndBelongsToMany()
+    {
+        $post = Post::get(1);
+        $this->assertInstanceOf('Slick\Database\RecordList', $post->tags);
+        $tag = $post->tags[0];
+        $this->assertEquals('PHP', $tag->name);
+    }
+
 }
 
 class User extends Entity
@@ -194,6 +206,13 @@ class Post extends Entity
      * @var string The configuration file name
      */
     protected $_configFile = 'config';
+
+    /**
+     * @readwrite
+     * @HasAndBelongsToMany Orm\Relations\Tag, joinTable=post_tags
+     * @var Tag[]
+     */
+    protected $_tags;
 }
 
 class Profile extends Entity
@@ -219,6 +238,37 @@ class Profile extends Entity
      * @var User
      */
     protected $_user;
+
+    /**
+     * @read
+     * @var string The configuration file name
+     */
+    protected $_configFile = 'config';
+}
+
+class Tag extends Entity
+{
+
+    /**
+     * @readwrite
+     * @column type=int, size=big, unsigned, primary
+     * @var int
+     */
+    protected $_id;
+
+    /**
+     * @readwrite
+     * @column type=text, size=tiny
+     * @var string
+     */
+    protected $_name;
+
+    /**
+     * @readwrite
+     * @HasAndBelongsToMany Orm\Relations\Post, joinTable=post_tags
+     * @var Post[]
+     */
+    protected $_posts;
 
     /**
      * @read
