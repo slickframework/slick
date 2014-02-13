@@ -20,3 +20,4 @@ modules:
             cleanup: false
 coverage:
     enabled: false
+    remote: false

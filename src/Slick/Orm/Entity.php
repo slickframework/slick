@@ -235,11 +235,38 @@ class Entity extends AbstractEntity
     public function save(array $data = array())
     {
         $pmKey = $this->primaryKey;
-
-        if ($this->$pmKey || isset($data[$pmKey])) {
-            $result = $this->_update($data);
-        } else {
-            $result = $this->_insert($data);
+        $abort = false;
+        $result = false;
+        $this->getEventManager()->trigger(
+            'beforeSave',
+            $this,
+            array(
+                'data' => &$data,
+                'abort' => &$abort
+            )
+        );
+        if (!$abort) {
+            if ($this->$pmKey || isset($data[$pmKey])) {
+                $result = $this->_update($data);
+                $this->getEventManager()->trigger(
+                    'afterSave',
+                    $this,
+                    array(
+                        'data' => &$data,
+                        'action' => 'update'
+                    )
+                );
+            } else {
+                $result = $this->_insert($data);
+                $this->getEventManager()->trigger(
+                    'afterSave',
+                    $this,
+                    array(
+                        'data' => &$data,
+                        'action' => 'insert'
+                    )
+                );
+            }
         }
 
         return $result;
@@ -264,10 +291,29 @@ class Entity extends AbstractEntity
             );
         }
 
-        return $this->query()
-            ->delete($this->table)
-            ->where(["{$pmKey} = ?" => $this->$pmKey])
-            ->execute();
+        $abort = false;
+        $result = false;
+        $this->getEventManager()->trigger(
+            'beforeDelete',
+            $this,
+            array(
+                'abort' => &$abort
+            )
+        );
+
+        if (!$abort) {
+            $result =  $this->query()
+                ->delete($this->table)
+                ->where(["{$pmKey} = ?" => $this->$pmKey])
+                ->execute();
+
+            $this->getEventManager()->trigger(
+                'afterDelete',
+                $this,
+                array()
+            );
+        }
+        return $result;
     }
 
     /**
@@ -294,8 +340,26 @@ class Entity extends AbstractEntity
             ->where(["{$pmKey} = ?" => $this->$pmKey])
             ->first();
 
+        $this->getEventManager()->trigger(
+            'beforeSelect',
+            $this,
+            [
+                'query' => &$row,
+                'action' => 'load'
+            ]
+        );
+
         if ($row) {
             $this->_hydratate($row);
+            $this->getEventManager()->trigger(
+                'afterSelect',
+                $this,
+                [
+                    'data' => &$row,
+                    'entity' => &$this,
+                    'action' => 'load'
+                ]
+            );
         }
 
         return $this;
