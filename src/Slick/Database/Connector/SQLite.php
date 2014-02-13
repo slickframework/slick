@@ -46,7 +46,7 @@ class SQLite extends AbstractConnector implements ConnectorInterface
         static $instance;
 
         if (is_null($instance)) {
-            $instance == array();
+            $instance = array();
         }
 
         $key = md5(serialize($options));

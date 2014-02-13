@@ -23,6 +23,6 @@ use RuntimeException;
  */
 class InvalidArgumentException extends RuntimeException
     implements TemplateException
-{	
+{
     
 }

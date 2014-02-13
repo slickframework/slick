@@ -70,7 +70,7 @@ class Mysql extends AbstractConnector
         static $instance;
 
         if (is_null($instance)) {
-            $instance == array();
+            $instance = array();
         }
 
         $key = md5(serialize($options));
@@ -154,7 +154,8 @@ class Mysql extends AbstractConnector
 
     /**
      * Returns a corresponding DDL query instance.
-     * 
+     *
+     * @param string $sql
      * @return \Slick\Database\Query\DDLQuery
      */
     public function ddlQuery($sql = null)

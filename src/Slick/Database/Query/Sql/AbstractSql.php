@@ -13,8 +13,8 @@
 namespace Slick\Database\Query\Sql;
 
 use Slick\Common\Base,
-    Slick\Database\Query\Sql\Conditions,
-    Slick\Database\Query\QueryInterface;
+    Slick\Database\Query\QueryInterface,
+    Slick\Database\Query\AbstractQuery;
 
 /**
  * AbstractSql is a base implementation for SqlInterface
@@ -26,7 +26,7 @@ abstract class AbstractSql extends Base implements SqlInterface
 {
     /**
      * @readwrite
-     * @var \Slick\Database\Query\Query
+     * @var QueryInterface
      */
     protected $_query = null;
 
@@ -61,7 +61,7 @@ abstract class AbstractSql extends Base implements SqlInterface
      *  table for this statment
      * @param array                                $fields    The list of
      *  fields to use in query
-     * @param \Slick\Database\Query\QueryInterface $query     The query object
+     * @param QueryInterface $query     The query object
      *  that gives this statement a context
      */
     public function __construct(
@@ -112,6 +112,16 @@ abstract class AbstractSql extends Base implements SqlInterface
     public function orWhere($conditions)
     {
         return $this->_where($conditions, 'OR');
+    }
+
+    /**
+     * Returns the current query
+     *
+     * @return AbstractQuery
+     */
+    public function getQuery()
+    {
+        return $this->_query;
     }
 
     protected function _where($conditions, $operation = 'AND')

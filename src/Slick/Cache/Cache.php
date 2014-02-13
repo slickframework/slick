@@ -40,12 +40,12 @@ class Cache extends Base
      * @read
      * @var array A list of supported types
      */
-    protected $_supportedTypes = array('ini', 'memcached');
+    protected $_supportedTypes = array('file', 'memcached');
 
     /**
      * Driver initialization
      * 
-     * @return Driver A cache driver
+     * @return \Slick\Cache\DriverInterface A cache driver
      * 
      * @throws Exception\InvalidDriverException If the driver type or class 
      *  name isn't a valid cache driver.

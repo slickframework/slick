@@ -28,7 +28,7 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     /**
      * Create a configuration object
      * @test
-     * @expectedException Slick\Configuration\Exception\InvalidArgumentException
+     * @expectedException \Slick\Configuration\Exception\InvalidArgumentException
      */
     public function createAConfiguration()
     {
@@ -39,9 +39,9 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Creates an invalid configuratin driver
+     * Creates an invalid configuration driver
      * @test
-     * @expectedException Slick\Configuration\Exception\InvalidArgumentException
+     * @expectedException \Slick\Configuration\Exception\InvalidArgumentException
      */
     public function createAnInvalidDriver()
     {
@@ -50,7 +50,7 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Craete an INI configuration type driver
+     * Create an INI configuration type driver
      * @test
      */
     public function createAnIniDriver()
@@ -72,7 +72,7 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     /**
      * Load a ini file with errors
      * @test
-     * @expectedException Slick\Configuration\Exception\ParserErrorException
+     * @expectedException \Slick\Configuration\Exception\ParserErrorException
      */
     public function createIniWithErrors()
     {
@@ -114,7 +114,7 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     /**
      * Create a custom driver
      * @test
-     * @expectedException Slick\Configuration\Exception\InvalidArgumentException
+     * @expectedException \Slick\Configuration\Exception\InvalidArgumentException
      */
     public function createCustomDriver()
     {
@@ -125,6 +125,19 @@ class ConfigurationTest extends \Codeception\TestCase\Test
         $class = 'Configuration\OtherDriver';
         $config = new Configuration(array('class' => $class));
         $driver = $config->initialize();
+    }
+
+    /**
+     * Test factory static method
+     * @test
+     * @expectedException \Slick\Configuration\Exception\FileNotFoundException
+     */
+    public function getFromFactory()
+    {
+        Configuration::addPath(__DIR__);
+        $cfg = Configuration::get('test');
+        $this->assertInstanceOf('Slick\Configuration\Driver\Ini', $cfg);
+        $cfg = Configuration::get('unknown');
     }
 
 }
