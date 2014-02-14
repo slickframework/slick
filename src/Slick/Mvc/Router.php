@@ -13,12 +13,14 @@
 namespace Slick\Mvc;
 
 use Slick\Common\Base;
+use Slick\Common\Inspector;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\Driver\DriverInterface;
 use Slick\Mvc\Router\AbstractRoute;
 use Slick\Mvc\Router\RouteInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
+use Slick\Mvc\Router\Exception;
 
 /**
  * Router
@@ -178,11 +180,79 @@ class Router extends Base
      *
      * @param Application $app The context application
      *
+     * @throws Router\Exception\ControllerNotFoundException
+     * @throws Router\Exception\ActionNotFoundException
+     *
      * @returns Response The response object for this request
      */
     public function dispatch(Application $app)
     {
+        $name = $this->_namespace .'\\'. ucfirst($this->_controller);
 
+        if (!class_exists($name)) {
+            throw new Exception\ControllerNotFoundException(
+                "Controller {$this->_controller} not found"
+            );
+        }
+
+        $instance = new $name(
+            array(
+                'parameters' => $this->_params,
+                'extension' => $this->getExtension()
+            )
+        );
+
+        if (!method_exists($instance, $this->_action)) {
+            throw new Exception\ActionNotFoundException(
+                "Action {$this->_action} not found"
+            );
+        }
+
+        $inspector = new Inspector($instance);
+        $methodMeta = $inspector->getMethodMeta($this->_action);
+
+        if (
+            !empty($methodMeta['@protected']) ||
+            !empty($methodMeta['@private'])
+        ) {
+            throw new Exception\ActionNotFoundException(
+                "Action {$this->_action} not found"
+            );
+        }
+
+        $hooks = function ($meta, $type) use ($inspector, $instance) {
+            static $run;
+            if (is_null($run)) {
+                $run = array();
+            }
+            if (isset($meta[$type])) {
+
+                foreach ($meta[$type] as $method) {
+                    $hookMeta = $inspector->getMethodMeta($method);
+                    if (
+                        in_array($method, $run) &&
+                        !empty($hookMeta['@once'])
+                    ) {
+                        continue;
+                    }
+                    $run[] = $method;
+                    $instance->$method();
+                }
+
+            }
+        };
+
+        $hooks($methodMeta, "@before");
+
+        call_user_func_array(
+            array(
+                $instance,
+                $this->_action
+            ),
+            is_array($this->_params) ? $this->_params : array()
+        );
+
+        $hooks($methodMeta, "@after");
     }
 
     /**
@@ -209,6 +279,19 @@ class Router extends Base
             $this->_configuration = Configuration::get('config');
         }
         return $this->_configuration;
+    }
+
+    /**
+     * Returns current extension
+     * @return string
+     */
+    public function getExtension()
+    {
+        if (is_null($this->_extension)) {
+            $ext = $this->getConfiguration()->get('extension', 'html');
+            $this->_extension = $this->_request->getQuery('extension', $ext);
+        }
+        return $this->_extension;
     }
 
 
