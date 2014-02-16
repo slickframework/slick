@@ -3,7 +3,7 @@
 /**
  * Entity test case
  *
- * @package   Test\Session
+ * @package   Test\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License

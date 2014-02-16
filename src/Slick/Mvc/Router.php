@@ -102,7 +102,7 @@ class Router extends Base
     public function removeRoute(RouteInterface $route)
     {
         foreach ($this->_routes as $i => $stored) {
-            if ($stored == $route) {
+            if ($stored->getPattern() == $route->getPattern()) {
                 unset($this->_routes[$i]);
             }
         }
@@ -129,16 +129,16 @@ class Router extends Base
      * If there are no routes it will assume the controller/action/param/param
      * format to inferred the controller, action and parameter to run.
      *
-     * @return RouteInterface the matched route for this request
+     * @return Router
      */
     public function filter()
     {
         $url = $this->_request->getQuery('url');
         $parameters = array();
-        $controller = $this->getConfiguration()->get('controller', "pages");
-        $action = $this->getConfiguration()->get('action', "index");
+        $controller = $this->getConfiguration()->get('router.controller', "pages");
+        $action = $this->getConfiguration()->get('router.action', "index");
         $namespace = $this->getConfiguration()
-            ->get('namespace', 'Controllers');
+            ->get('router.namespace', 'Controllers');
         $matched = false;
 
         /** @var AbstractRoute $route */
@@ -147,16 +147,16 @@ class Router extends Base
             if ($matches) {
                 $controller = $route->getController();
                 $action = $route->getAction();
-                $parameters = $route->getParams();
+                $parameters = $route->getParameters();
                 $namespace = $route->getNamespace();
                 $matched = true;
                 break;
             }
         }
 
-        if (!$matched) {
-            $parts = explode("/", trim($url, "/"));
 
+        if (!$matched && !is_null($url)) {
+            $parts = explode("/", trim($url, "/"));
             if (sizeof($parts) > 0 ) {
                 $controller = $parts[0];
 
@@ -189,9 +189,10 @@ class Router extends Base
     {
         $name = $this->_namespace .'\\'. ucfirst($this->_controller);
 
+
         if (!class_exists($name)) {
             throw new Exception\ControllerNotFoundException(
-                "Controller {$this->_controller} not found"
+                "Controller {$name} not found"
             );
         }
 
@@ -220,18 +221,23 @@ class Router extends Base
             );
         }
 
+        /**
+         * @param Inspector\TagList $meta
+         * @param string $type
+         */
         $hooks = function ($meta, $type) use ($inspector, $instance) {
             static $run;
             if (is_null($run)) {
                 $run = array();
             }
-            if (isset($meta[$type])) {
 
-                foreach ($meta[$type] as $method) {
+            if ($meta->hasTag($type)) {
+
+                foreach ($meta->getTag($type)->value as $method) {
                     $hookMeta = $inspector->getMethodMeta($method);
                     if (
                         in_array($method, $run) &&
-                        !empty($hookMeta['@once'])
+                        $hookMeta->hasTag('@once')
                     ) {
                         continue;
                     }
@@ -288,7 +294,7 @@ class Router extends Base
     public function getExtension()
     {
         if (is_null($this->_extension)) {
-            $ext = $this->getConfiguration()->get('extension', 'html');
+            $ext = $this->getConfiguration()->get('router.extension', 'html');
             $this->_extension = $this->_request->getQuery('extension', $ext);
         }
         return $this->_extension;

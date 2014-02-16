@@ -82,6 +82,16 @@ abstract class AbstractRoute extends Base implements RouteInterface
     public function setParams(array $params)
     {
         $this->_parameters = $params;
+
+        if (isset($params['controller'])) {
+            $this->_controller = $params['controller'];
+            unset($this->_parameters['controller']);
+        }
+
+        if (isset($params['action'])) {
+            $this->_action = $params['action'];
+            unset($this->_parameters['action']);
+        }
         return $this;
     }
 
