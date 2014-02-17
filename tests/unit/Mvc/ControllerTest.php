@@ -78,6 +78,29 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     }
 
+    /**
+     * Testing the render method on controller
+     * @test
+     * @expectedException \Slick\Mvc\View\Exception\RenderingErrorException
+     */
+    public function controllerRendering()
+    {
+        $controller = new MyController();
+        $layout = $controller->getLayout();
+        $this->assertInstanceOf('Slick\Mvc\View', $layout);
+        $this->assertEquals('Layouts/default.html.twig', $layout->file);
+        $controller->setLayout('testLayout');
+        $this->assertEquals('testLayout.html.twig', $controller->getLayout()->file);
+        $controller->setView('test');
+        $controller->set('foo', 'bar');
+        $result = $controller->render();
+        $this->assertEquals('<text>bar</text>', $result);
+        $controller->renderLayout = true;
+        $controller->renderView = true;
+        $controller->setView('error');
+        $controller->render();
+    }
+
 }
 
 class MyController extends Controller

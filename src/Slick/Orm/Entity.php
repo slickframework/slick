@@ -93,6 +93,29 @@ class Entity extends AbstractEntity
     }
 
     /**
+     * Queries the database to retrieve the total rows for provided conditions
+     *
+     * The options are:
+     *
+     *  - conditions: an array of conditions to filter out records;
+     *
+     * @param array $options Options to filter out the records
+     *
+     * @return integer The total rows for current conditions
+     */
+    public static function count(array $options = array())
+    {
+        /** @var Entity $entity */
+        $entity = new static();
+        $options = array_merge($entity->_options, $options);
+
+        return $entity->query()
+            ->select($entity->table)
+            ->where($options['conditions'])
+            ->count();
+    }
+
+    /**
      * Queries the database to retrieves all records that satisfies the
      * conditions and limitations provided by $options.
      *

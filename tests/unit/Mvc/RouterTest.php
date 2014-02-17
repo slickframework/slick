@@ -9,6 +9,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
+
 namespace Mvc;
 use Codeception\Util\Stub;
 use Slick\Configuration\Configuration;
@@ -255,6 +256,7 @@ class MyPages extends Controller
 
     public function start($id = -1)
     {
+        $this->disableRendering();
         self::$call = $id;
     }
 
@@ -285,6 +287,7 @@ class MyPages extends Controller
 
     public function bar()
     {
+        $this->disableRendering();
         self::$bar += 1;
     }
 }

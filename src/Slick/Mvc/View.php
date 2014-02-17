@@ -57,7 +57,8 @@ class View extends Base
     public function __construct($options = array())
     {
         parent::__construct($options);
-        $this->_template = new Template(['type' => 'twig']);
+        $template = new Template(['engine' => 'twig']);
+        $this->_template = $template->initialize();
     }
 
     /**
@@ -132,7 +133,7 @@ class View extends Base
      */
     protected function _set($key, $value)
     {
-        if (!is_numeric($key) && !is_string($key)) {
+        if (!is_string($key)) {
             throw new Exception\InvalidDataKeyException(
                 "Key must be a string or a number"
             );

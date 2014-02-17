@@ -14,6 +14,7 @@ namespace Orm;
 
 use Codeception\TestCase\Test;
 use Codeception\Util\Stub;
+use Database\MyOwnConnector;
 use Slick\Configuration\Configuration;
 use Slick\Database\Connector\SQLite;
 use Slick\Database\Query\Query;
@@ -110,6 +111,23 @@ class EntityTest extends Test
         MyStatement::$isEmpty = true;
         $nullUser = User::get(9);
         $this->assertNull($nullUser);
+    }
+
+    /**
+     * Run count on table
+     * @test
+     */
+    public function getEntityCount()
+    {
+        MyStatement::$isEmpty = false;
+        MyTestConnector::$isCount = true;
+        $rows = User::count();
+        MyTestConnector::$isCount = false;
+        $this->assertEquals(
+            'SELECT COUNT(*) AS totalRows FROM users',
+            MyTestConnector::$lastSql
+        );
+        $this->assertEquals(5, $rows);
     }
 
     /**
@@ -307,6 +325,8 @@ class MyTestConnector extends SQLite
 
     public static $lastSql = null;
 
+    public static $isCount = false;
+
     /**
      * Returns the *Singleton* instance of this class.
      *
@@ -367,6 +387,7 @@ class MyTestConnector extends SQLite
 
     public function execute($sql)
     {
+
         return self::$result;
     }
 
@@ -413,6 +434,9 @@ class MyStatement
     {
         if (self::$isEmpty)
             return [];
+        if (MyTestConnector::$isCount) {
+            return [['totalRows' => 5]];
+        }
         return MyTestConnector::$resultSet;
     }
 }

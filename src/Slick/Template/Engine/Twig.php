@@ -12,6 +12,7 @@
 
 namespace Slick\Template\Engine;
 
+use Slick\Template\EngineInterface;
 use Twig_Environment,
     Twig_Loader_Filesystem,
     Twig_Error;
@@ -50,7 +51,7 @@ class Twig extends AbstractEngine
      *
      * @param string $source The template to parse
      *
-     * @return EngineInterface Returns this instance for chainnig methods calls
+     * @return EngineInterface Returns this instance for chaining methods calls
      */
     public function parse($source)
     {

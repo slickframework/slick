@@ -55,10 +55,13 @@ class MvcEvent extends Event
 
     /**
      * @param \Zend\Http\PhpEnvironment\Request $request
+     *
+     * @return MvcEvent
      */
     public function setRequest($request)
     {
         $this->_request = $request;
+        return $this;
     }
 
     /**
@@ -71,10 +74,13 @@ class MvcEvent extends Event
 
     /**
      * @param \Zend\Http\PhpEnvironment\Response $response
+     *
+     * @return MvcEvent
      */
     public function setResponse($response)
     {
         $this->_response = $response;
+        return $this;
     }
 
     /**
@@ -87,10 +93,13 @@ class MvcEvent extends Event
 
     /**
      * @param \Slick\Mvc\Router $router
+     *
+     * @return MvcEvent
      */
     public function setRouter($router)
     {
         $this->_router = $router;
+        return $this;
     }
 
     /**

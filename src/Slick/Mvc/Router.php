@@ -139,6 +139,7 @@ class Router extends Base
         $action = $this->getConfiguration()->get('router.action', "index");
         $namespace = $this->getConfiguration()
             ->get('router.namespace', 'Controllers');
+
         $matched = false;
 
         /** @var AbstractRoute $route */
@@ -188,28 +189,19 @@ class Router extends Base
     public function dispatch(Application $app)
     {
         $name = $this->_namespace .'\\'. ucfirst($this->_controller);
+        $this->_checkController($name);
 
-
-        if (!class_exists($name)) {
-            throw new Exception\ControllerNotFoundException(
-                "Controller {$name} not found"
-            );
-        }
-
+        /** @var Controller $instance */
         $instance = new $name(
             array(
                 'parameters' => $this->_params,
                 'extension' => $this->getExtension(),
                 'request' => $app->getRequest(),
-                'response' => $app->getResponse()
+                'response' => $app->getResponse(),
+                'actionName' => $this->_action,
+                'controllerName' => $this->_controller
             )
         );
-
-        if (!method_exists($instance, $this->_action)) {
-            throw new Exception\ActionNotFoundException(
-                "Action {$this->_action} not found"
-            );
-        }
 
         $inspector = new Inspector($instance);
         $methodMeta = $inspector->getMethodMeta($this->_action);
@@ -261,6 +253,9 @@ class Router extends Base
         );
 
         $hooks($methodMeta, "@after");
+        $response = $app->getResponse();
+        $response->setContent($instance->render());
+        return $response;
     }
 
     /**
@@ -300,6 +295,21 @@ class Router extends Base
             $this->_extension = $this->_request->getQuery('extension', $ext);
         }
         return $this->_extension;
+    }
+
+    protected function _checkController($className)
+    {
+        if (!class_exists($className)) {
+            throw new Exception\ControllerNotFoundException(
+                "Controller {$className} not found"
+            );
+        }
+
+        if (!method_exists($className, $this->_action)) {
+            throw new Exception\ActionNotFoundException(
+                "Action {$this->_action} not found"
+            );
+        }
     }
 
 

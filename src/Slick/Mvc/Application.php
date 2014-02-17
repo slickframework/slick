@@ -16,6 +16,7 @@ use Slick\Common\Base;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\Driver\DriverInterface;
 use Slick\Di\DependencyInjector;
+use Slick\Template\Template;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -78,27 +79,30 @@ class Application extends Base implements EventManagerAwareInterface
         $router = $this->getRouter();
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
-        $event = new MvcEvent(
-            [
-                'router' => $router,
-                'request' => $this->getRequest(),
-                'response' => $this->getResponse()
-            ]
-        );
-        $event->setTarget($this);
+        $event = new MvcEvent('MvcEvent');
+        $event->setRouter($router)
+            ->setRequest($this->getRequest())
+            ->setResponse($this->getResponse())
+            ->setTarget($this);
         $this->_event = $event;
+
+        Template::addPath(
+            '/'. $this->getConfiguration()->get('paths.views', 'Views')
+        );
 
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);
 
-        if (is_file($bootstrap)) {
-            include($bootstrap);
-        }
 
-        if (is_file($routesFile)) {
-            include($routesFile);
-        }
+        foreach (Configuration::getPathList() as $path) {
+            if (is_file("{$path}/{$bootstrap}")) {
+                include("{$path}/{$bootstrap}");
+            }
 
+            if (is_file("{$path}/{$routesFile}")) {
+                include("{$path}/{$routesFile}");
+            }
+        }
     }
 
     /**
@@ -117,7 +121,7 @@ class Application extends Base implements EventManagerAwareInterface
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_DISPATCH, $this->_event);
 
-        return $this->_router->dispatch($this);
+        $this->_response = $this->_router->dispatch($this);
     }
 
     /**

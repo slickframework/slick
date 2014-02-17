@@ -13,6 +13,7 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Common\Inspector\Tag;
+use Slick\Common\Inspector\TagValues;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
@@ -93,8 +94,9 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      */
     public static function create(Tag $tag, Entity &$entity, $property)
     {
-        $options = ['entity' => $entity];
+
         $className = null;
+        $options = array();
 
         if (is_string($tag->value)) {
             $className = $tag->value;
@@ -102,27 +104,10 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
 
         if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
             $className = $tag->value[0];
-
-            $options['foreignKey'] = ($tag->value->check('foreignkey')) ?
-                $tag->value['foreignkey'] : null;
-
-            $key = strtolower("associationForeignKey");
-            $options['associationForeignKey'] = ($tag->value->check($key)) ?
-                $tag->value[$key] : null;
-
-            $options['joinTable'] = ($tag->value->check('jointable')) ?
-                $tag->value['jointable'] : null;
-
-            if ($tag->value->check('dependent')) {
-                $options['dependent'] = (boolean) $tag->value['dependent'];
-            }
-
-            if ($tag->value->check('limit')) {
-                $options['limit'] = $tag->value['limit'];
-            }
+            $options = self::_assign($tag->value);
         }
 
-
+        $options['entity'] = $entity;
         $options['related'] = $className;
 
         $relation = new HasAndBelongsToMany($options);
@@ -167,5 +152,34 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
         }
 
         return $result;
+    }
+
+    /**
+     * @param TagValues $values
+     *
+     * @return array
+     */
+    protected static function _assign(TagValues $values)
+    {
+        $options = array();
+
+        $options['foreignKey'] = ($values->check('foreignkey')) ?
+            $values['foreignkey'] : null;
+
+        $key = strtolower("associationForeignKey");
+        $options['associationForeignKey'] = ($values->check($key)) ?
+            $values[$key] : null;
+
+        $options['joinTable'] = ($values->check('jointable')) ?
+            $values['jointable'] : null;
+
+        if ($values->check('dependent')) {
+            $options['dependent'] = (boolean) $values['dependent'];
+        }
+
+        if ($values->check('limit')) {
+            $options['limit'] = $values['limit'];
+        }
+        return $options;
     }
 }

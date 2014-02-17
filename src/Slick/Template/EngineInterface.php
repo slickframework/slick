@@ -26,7 +26,7 @@ interface EngineInterface
      *
      * @param string $source The template to parse
      * 
-     * @return EngineInterface Returns this instance for chainnig methods calls
+     * @return EngineInterface Returns this instance for chaining methods calls
      */
     public function parse($source);
 
