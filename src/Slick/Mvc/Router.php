@@ -199,7 +199,9 @@ class Router extends Base
         $instance = new $name(
             array(
                 'parameters' => $this->_params,
-                'extension' => $this->getExtension()
+                'extension' => $this->getExtension(),
+                'request' => $app->getRequest(),
+                'response' => $app->getResponse()
             )
         );
 

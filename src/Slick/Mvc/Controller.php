@@ -12,13 +12,14 @@
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base;
-use Slick\Di\DependencyInjector;
-use Zend\EventManager\EventManager;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\PhpEnvironment\Response;
+use Slick\Common\Base,
+    Slick\Di\DependencyInjector;
+use Zend\EventManager\EventManager,
+    Zend\EventManager\EventManagerAwareInterface,
+    Zend\EventManager\EventManagerInterface,
+    Zend\Http\Header\GenericHeader,
+    Zend\Http\PhpEnvironment\Request,
+    Zend\Http\PhpEnvironment\Response;
 
 /**
  * MVC Controller
@@ -28,6 +29,12 @@ use Zend\Http\PhpEnvironment\Response;
  *
  * @property bool $renderLayout
  * @property bool $renderView
+ * @property Response $response
+ * @property Request $request
+ * @property string $extension
+ * @property EventManager $events
+ * @property string $controllerName
+ * @property string $actionName
  */
 abstract class Controller extends Base implements EventManagerAwareInterface
 {
@@ -74,6 +81,36 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     protected $_extension = 'html';
 
     /**
+     * @readwrite
+     * @var EventManager
+     */
+    protected $_events;
+
+    /**
+     * @readwrite
+     * @var View
+     */
+    protected $_layout;
+
+    /**
+     * @readwrite
+     * @var View
+     */
+    protected $_view;
+
+    /**
+     * @readwrite
+     * @var string The controller name from the router
+     */
+    protected $_controllerName;
+
+    /**
+     * @readwrite
+     * @var string The action name from the router
+     */
+    protected $_actionName;
+
+    /**
      * Sets the values to be used in the views.
      *
      * @param string $key The variable name for the view.
@@ -102,8 +139,10 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function redirect($url)
     {
         $location = $this->_request->getBasePath();
+        $location = str_replace('//', '/', "{$location}/{$url}");
         $this->_response->setStatusCode(302);
-        $this->_response->getHeaders()->addHeader('Location', $location);
+        $header = new GenericHeader('Location', $location);
+        $this->_response->getHeaders()->addHeader($header);
         $this->disableRendering();
     }
 
@@ -170,4 +209,96 @@ abstract class Controller extends Base implements EventManagerAwareInterface
         }
         return $this->_events;
     }
+
+    /**
+     * Renders the action and/or template view(s).
+     *
+     * @throws View\Exception\RenderingErrorException
+     * @return null|string
+     */
+    public function render()
+    {
+        $results = null;
+
+        $doLayout = $this->renderLayout && $this->getLayout();
+        $doView = $this->renderView && $this->getView();
+
+        try {
+            if ($doView) {
+                $results = $this->getView()
+                    ->set($this->_viewVars)
+                    ->render();
+
+            }
+
+            if ($doLayout) {
+                $results = $this->getLayout()
+                    ->set('layoutData', $results)
+                    ->set($this->_viewVars)
+                    ->render();
+            }
+
+            $this->disableRendering();
+        } catch (\Exception $exp) {
+
+            throw new View\Exception\RenderingErrorException(
+                "Error while rendering view: " . $exp->getMessage()
+            );
+        }
+        return $results;
+    }
+
+    /**
+     * Set specific view for this request
+     *
+     * @param string $view
+     *
+     * @return Controller
+     */
+    public function setView($view)
+    {
+        $name = "{$view}.{$this->extension}.twig";
+        $this->_view = new View();
+        $this->_view->file = $name;
+        return $this;
+    }
+
+    /**
+     * @return \Slick\Mvc\View
+     */
+    public function getView()
+    {
+        if (is_null($this->_view)) {
+            $name = "{$this->controllerName}/{$this->actionName}";
+            $this->setView($name);
+        }
+        return $this->_view;
+    }
+
+    /**
+     * Sets the response layout to use
+     *
+     * @param string $layout
+     * @return Controller
+     */
+    public function setLayout($layout)
+    {
+        $name = "{$layout}.{$this->extension}.twig";
+        $this->_layout = new View();
+        $this->_layout->file = $name;
+        return $this;
+    }
+
+    /**
+     * @return \Slick\Mvc\View
+     */
+    public function getLayout()
+    {
+        if (is_null($this->_layout)) {
+            $this->setLayout('Layouts/default');
+        }
+        return $this->_layout;
+    }
+
+
 }
