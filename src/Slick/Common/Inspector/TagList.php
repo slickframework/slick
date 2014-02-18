@@ -25,15 +25,15 @@ class TagList extends \ArrayIterator
 
     /**
      * Appends a new Tag to the end to the list
-     * 
-     * @param  \Slick\Common\Inspector\Tag $tag The tag to appen
-     * 
+     *
+     * @param \Slick\Common\Inspector\Tag $value The tag to append
+     *
      * @return \Slick\Common\Inspector\TagList A self instance for method
      *  call chains
      */
-    public function append(\Slick\Common\Inspector\Tag $tag)
+    public function append($value)
     {
-        $this[$tag->name] = $tag;
+        $this[$value->name] = $value;
         return $this;
     }
 
