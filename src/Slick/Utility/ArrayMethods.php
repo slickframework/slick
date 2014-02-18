@@ -37,6 +37,26 @@ class ArrayMethods
     {
         // do nothing
     }
+
+    /**
+     * Converts a multidimensional array into a uni-dimensional array.
+     *
+     * @param array $array  The source array to iterate.
+     * @param array $return The return values, for recursive proposes.
+     *
+     * @return array A unidirectional array from source array.
+     */
+    public static function flatten($array, $return = array())
+    {
+        foreach ($array as $value) {
+            if (is_array($value) || is_object($value)) {
+                $return = self::flatten($value, $return);
+            } else {
+                $return[] = $value;
+            }
+        }
+        return $return;
+    }
     
     /**
      * Returns a copy of the given array without empty items.

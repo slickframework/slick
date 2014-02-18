@@ -1,0 +1,23 @@
+{
+    "name": "slick/mvc",
+    "description": "MVC WebApp libraries for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "mvc"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Mvc\\": ""
+        }
+    },
+    "target-dir": "Slick/Mvc",
+    "require": {
+        "slick/Common": "self.version",
+        "slick/Orm": "self.version",
+        "slick/Configuration": "self.version",
+        "slick/Cache": "self.version",
+        "slick/Log": "self.version",
+        "slick/Session": "self.version",
+        "slick/Template": "self.version",
+        "slick/Utility": "self.version"
+
+    }
+}

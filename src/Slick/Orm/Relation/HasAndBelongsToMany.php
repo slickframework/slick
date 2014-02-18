@@ -13,6 +13,7 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Common\Inspector\Tag;
+use Slick\Common\Inspector\TagValues;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
@@ -30,7 +31,7 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      * @readwrite
      * @var string The related foreign key name
      */
-    protected $_associationForeignKey;
+    protected $_associationFk;
 
     /**
      * @readwrite
@@ -56,13 +57,13 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      * Returns the associations foreign key name
      * @return string
      */
-    public function getAssociationForeignKey()
+    public function getAssociationFk()
     {
-        if (is_null($this->_associationForeignKey)) {
-            $this->_associationForeignKey =
+        if (is_null($this->_associationFk)) {
+            $this->_associationFk =
                 strtolower($this->getRelated()->getAlias()) . "_id";
         }
-        return $this->_associationForeignKey;
+        return $this->_associationFk;
     }
 
     /**
@@ -93,8 +94,9 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      */
     public static function create(Tag $tag, Entity &$entity, $property)
     {
-        $options = ['entity' => $entity];
+
         $className = null;
+        $options = array();
 
         if (is_string($tag->value)) {
             $className = $tag->value;
@@ -102,27 +104,25 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
 
         if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
             $className = $tag->value[0];
-
-            $options['foreignKey'] = ($tag->value->check('foreignkey')) ?
-                $tag->value['foreignkey'] : null;
-
-            $key = strtolower("associationForeignKey");
-            $options['associationForeignKey'] = ($tag->value->check($key)) ?
-                $tag->value[$key] : null;
-
-            $options['joinTable'] = ($tag->value->check('jointable')) ?
-                $tag->value['jointable'] : null;
-
-            if ($tag->value->check('dependent')) {
-                $options['dependent'] = (boolean) $tag->value['dependent'];
-            }
-
-            if ($tag->value->check('limit')) {
-                $options['limit'] = $tag->value['limit'];
-            }
+            $options['foreignKey'] = self::_getTagValue(
+                $tag->value,
+                'foreignKey'
+            );
+            $options['associationFk'] =
+                self::_getTagValue($tag->value, 'associationForeignKey');
+            $options['joinTable'] = self::_getTagValue(
+                $tag->value,
+                'joinTable'
+            );
+            $options['dependent'] = self::_getTagValue(
+                $tag->value,
+                'dependent',
+                true
+            );
+            $options['limit'] = self::_getTagValue($tag->value, 'limit');
         }
 
-
+        $options['entity'] = $entity;
         $options['related'] = $className;
 
         $relation = new HasAndBelongsToMany($options);
@@ -143,11 +143,12 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
         $className = get_class($this->getRelated());
         $relTable = $related->getTable();
         $joiTable = $this->getJoinTable();
-        $assFrKey = $this->getAssociationForeignKey();
+        $assFrKey = $this->getAssociationFk();
         $frKey = $this->getForeignKey();
         /** @var Entity $entity */
         $primaryKey = $entity->primaryKey;
-        $joinClause = "{$joiTable}.{$assFrKey} = {$relTable}.{$related->primaryKey}";
+        $joinClause = "{$joiTable}.{$assFrKey} = " .
+            "{$relTable}.{$related->primaryKey}";
         $rows = $related->query()
             ->select($related->getTable())
             ->join($this->getJoinTable(), $joinClause)
@@ -167,5 +168,31 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
         }
 
         return $result;
+    }
+
+    /**
+     * Gets the tag value
+     *
+     * @param TagValues $values
+     * @param $tag
+     * @param bool $bool
+     * @param null $default
+     * @return bool|null|string
+     */
+    protected static function _getTagValue(
+        TagValues $values, $tag, $bool = false, $default = null)
+    {
+        $return = $default;
+        $tag = strtolower($tag);
+
+        if ($values->check($tag)) {
+            if ($bool) {
+                $return = (boolean) $values[$tag];
+            } else {
+                $return = $values[$tag];
+            }
+        }
+
+        return $return;
     }
 }

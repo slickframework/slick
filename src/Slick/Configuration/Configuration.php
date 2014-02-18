@@ -90,6 +90,11 @@ class Configuration extends Base
         }
     }
 
+    public static function getPathList()
+    {
+        return self::$_paths;
+    }
+
     /**
      * [initialize description]
      * @return [type] [description]

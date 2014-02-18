@@ -3,7 +3,7 @@
 /**
  * Entity test case
  *
- * @package   Test\Session
+ * @package   Test\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
@@ -14,6 +14,7 @@ namespace Orm;
 
 use Codeception\TestCase\Test;
 use Codeception\Util\Stub;
+use Database\MyOwnConnector;
 use Slick\Configuration\Configuration;
 use Slick\Database\Connector\SQLite;
 use Slick\Database\Query\Query;
@@ -113,6 +114,23 @@ class EntityTest extends Test
     }
 
     /**
+     * Run count on table
+     * @test
+     */
+    public function getEntityCount()
+    {
+        MyStatement::$isEmpty = false;
+        MyTestConnector::$isCount = true;
+        $rows = User::count();
+        MyTestConnector::$isCount = false;
+        $this->assertEquals(
+            'SELECT COUNT(*) AS totalRows FROM users',
+            MyTestConnector::$lastSql
+        );
+        $this->assertEquals(5, $rows);
+    }
+
+    /**
      * Retrieve the first element of a query
      * @test
      */
@@ -150,7 +168,7 @@ sql;
     {
         MyStatement::$isEmpty = false;
         /** @var User[] $users */
-        $users = User::all(
+       $users = User::all(
             [
                 'conditions' => ['name LIKE ?' => '%on%'],
                 'fields' => ['name', 'ver'],
@@ -163,7 +181,14 @@ sql;
         $this->assertTrue(count($users) > 0);
         $this->assertInstanceOf('Orm\User', $users[0]);
         $this->assertEquals('Ane Doe', $users[1]->name);
+    }
 
+    /**
+     * Retrieve an empty record list
+     * @test
+     */
+    public function getEmptyRecordList()
+    {
         MyStatement::$isEmpty = true;
         $emptyList = User::all();
         $this->assertInstanceOf('Slick\Database\RecordList', $emptyList);
@@ -307,6 +332,8 @@ class MyTestConnector extends SQLite
 
     public static $lastSql = null;
 
+    public static $isCount = false;
+
     /**
      * Returns the *Singleton* instance of this class.
      *
@@ -367,6 +394,7 @@ class MyTestConnector extends SQLite
 
     public function execute($sql)
     {
+
         return self::$result;
     }
 
@@ -413,6 +441,9 @@ class MyStatement
     {
         if (self::$isEmpty)
             return [];
+        if (MyTestConnector::$isCount) {
+            return [['totalRows' => 5]];
+        }
         return MyTestConnector::$resultSet;
     }
 }

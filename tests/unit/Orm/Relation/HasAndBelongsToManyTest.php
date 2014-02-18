@@ -41,19 +41,19 @@ class HasAndBelongsToManyTest extends \Codeception\TestCase\Test
             ->setRelated('\Orm\Relation\Tag');
         $this->assertEquals("posts_tags", $rel->getJoinTable());
         $this->assertEquals("post_id", $rel->getForeignKey());
-        $this->assertEquals("tag_id", $rel->getAssociationForeignKey());
+        $this->assertEquals("tag_id", $rel->getAssociationFk());
 
         /** @var HasAndBelongsToMany $tags */
         $tags = $post->getRelationsManager()->getRelation('_tags');
         $this->assertInstanceOf('\Slick\Orm\Relation\HasAndBelongsToMany', $tags);
         $this->assertEquals("posts_tags", $tags->getJoinTable());
         $this->assertEquals("post_id", $tags->getForeignKey());
-        $this->assertEquals("tag_id", $tags->getAssociationForeignKey());
+        $this->assertEquals("tag_id", $tags->getAssociationFk());
 
         $tag = new Tag();
         /** @var HasAndBelongsToMany $posts */
         $posts = $tag->getRelationsManager()->getRelation('_posts');
-        $this->assertEquals('PostId', $posts->getAssociationForeignKey());
+        $this->assertEquals('PostId', $posts->getAssociationFk());
         $this->assertEquals('postsTags', $posts->getJoinTable());
 
     }
