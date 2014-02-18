@@ -135,8 +135,10 @@ class Router extends Base
     {
         $url = $this->_request->getQuery('url');
         $parameters = array();
-        $controller = $this->getConfiguration()->get('router.controller', "pages");
-        $action = $this->getConfiguration()->get('router.action', "index");
+        $controller = $this->getConfiguration()
+            ->get('router.controller', "pages");
+        $action = $this->getConfiguration()
+            ->get('router.action', "index");
         $namespace = $this->getConfiguration()
             ->get('router.namespace', 'Controllers');
 

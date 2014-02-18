@@ -31,7 +31,7 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      * @readwrite
      * @var string The related foreign key name
      */
-    protected $_associationForeignKey;
+    protected $_associationFk;
 
     /**
      * @readwrite
@@ -57,13 +57,13 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
      * Returns the associations foreign key name
      * @return string
      */
-    public function getAssociationForeignKey()
+    public function getAssociationFk()
     {
-        if (is_null($this->_associationForeignKey)) {
-            $this->_associationForeignKey =
+        if (is_null($this->_associationFk)) {
+            $this->_associationFk =
                 strtolower($this->getRelated()->getAlias()) . "_id";
         }
-        return $this->_associationForeignKey;
+        return $this->_associationFk;
     }
 
     /**
@@ -104,7 +104,22 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
 
         if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
             $className = $tag->value[0];
-            $options = self::_assign($tag->value);
+            $options['foreignKey'] = self::_getTagValue(
+                $tag->value,
+                'foreignKey'
+            );
+            $options['associationFk'] =
+                self::_getTagValue($tag->value, 'associationForeignKey');
+            $options['joinTable'] = self::_getTagValue(
+                $tag->value,
+                'joinTable'
+            );
+            $options['dependent'] = self::_getTagValue(
+                $tag->value,
+                'dependent',
+                true
+            );
+            $options['limit'] = self::_getTagValue($tag->value, 'limit');
         }
 
         $options['entity'] = $entity;
@@ -128,11 +143,12 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
         $className = get_class($this->getRelated());
         $relTable = $related->getTable();
         $joiTable = $this->getJoinTable();
-        $assFrKey = $this->getAssociationForeignKey();
+        $assFrKey = $this->getAssociationFk();
         $frKey = $this->getForeignKey();
         /** @var Entity $entity */
         $primaryKey = $entity->primaryKey;
-        $joinClause = "{$joiTable}.{$assFrKey} = {$relTable}.{$related->primaryKey}";
+        $joinClause = "{$joiTable}.{$assFrKey} = " .
+            "{$relTable}.{$related->primaryKey}";
         $rows = $related->query()
             ->select($related->getTable())
             ->join($this->getJoinTable(), $joinClause)
@@ -155,31 +171,28 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
     }
 
     /**
-     * @param TagValues $values
+     * Gets the tag value
      *
-     * @return array
+     * @param TagValues $values
+     * @param $tag
+     * @param bool $bool
+     * @param null $default
+     * @return bool|null|string
      */
-    protected static function _assign(TagValues $values)
+    protected static function _getTagValue(
+        TagValues $values, $tag, $bool = false, $default = null)
     {
-        $options = array();
+        $return = $default;
+        $tag = strtolower($tag);
 
-        $options['foreignKey'] = ($values->check('foreignkey')) ?
-            $values['foreignkey'] : null;
-
-        $key = strtolower("associationForeignKey");
-        $options['associationForeignKey'] = ($values->check($key)) ?
-            $values[$key] : null;
-
-        $options['joinTable'] = ($values->check('jointable')) ?
-            $values['jointable'] : null;
-
-        if ($values->check('dependent')) {
-            $options['dependent'] = (boolean) $values['dependent'];
+        if ($values->check($tag)) {
+            if ($bool) {
+                $return = (boolean) $values[$tag];
+            } else {
+                $return = $values[$tag];
+            }
         }
 
-        if ($values->check('limit')) {
-            $options['limit'] = $values['limit'];
-        }
-        return $options;
+        return $return;
     }
 }

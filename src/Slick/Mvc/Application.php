@@ -133,10 +133,12 @@ class Application extends Base implements EventManagerAwareInterface
      */
     public function setEventManager(EventManagerInterface $eventManager)
     {
-        $eventManager->setIdentifiers(array(
-            __CLASS__,
-            get_class($this),
-        ));
+        $eventManager->setIdentifiers(
+            array(
+                __CLASS__,
+                get_class($this),
+            )
+        );
         $this->_events = $eventManager;
         return $this;
     }

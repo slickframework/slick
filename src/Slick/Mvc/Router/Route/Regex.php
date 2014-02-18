@@ -50,7 +50,10 @@ class Regex extends AbstractRoute implements RouteInterface
         if (sizeof($values) && sizeof($values[0]) && sizeof($values[1])) {
             //values found, modify parameters and return
             unset($values[0]);
-            $derived = array_combine($this->_keys, ArrayMethods::flatten($values));
+            $derived = array_combine(
+                $this->_keys,
+                ArrayMethods::flatten($values)
+            );
             $this->setParams(array_merge($this->getParams(), $derived));
             return true;
         }

@@ -168,7 +168,7 @@ sql;
     {
         MyStatement::$isEmpty = false;
         /** @var User[] $users */
-        $users = User::all(
+       $users = User::all(
             [
                 'conditions' => ['name LIKE ?' => '%on%'],
                 'fields' => ['name', 'ver'],
@@ -181,7 +181,14 @@ sql;
         $this->assertTrue(count($users) > 0);
         $this->assertInstanceOf('Orm\User', $users[0]);
         $this->assertEquals('Ane Doe', $users[1]->name);
+    }
 
+    /**
+     * Retrieve an empty record list
+     * @test
+     */
+    public function getEmptyRecordList()
+    {
         MyStatement::$isEmpty = true;
         $emptyList = User::all();
         $this->assertInstanceOf('Slick\Database\RecordList', $emptyList);
