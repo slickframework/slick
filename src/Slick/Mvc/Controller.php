@@ -42,7 +42,7 @@ abstract class Controller extends Base implements EventManagerAwareInterface
      * @readwrite
      * @var array
      */
-    protected $_viewVars;
+    protected $_viewVars = array();
 
     /**
      * @readwrite
@@ -297,7 +297,7 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function getLayout()
     {
         if (is_null($this->_layout)) {
-            $this->setLayout('Layouts/default');
+            $this->setLayout('layouts/default');
         }
         return $this->_layout;
     }

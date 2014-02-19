@@ -31,7 +31,7 @@ class ColumnList extends ArrayObject
      *
      * @return ColumnList
      */
-    public function append(Column $value)
+    public function append($value)
     {
         $this[$value->name] = $value;
         return $this;

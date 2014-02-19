@@ -149,9 +149,11 @@ class Router extends Base
             $matches = $route->matches($url);
             if ($matches) {
                 $controller = $route->getController();
-                $action = $route->getAction();
+                $action = ($route->getAction()) ?
+                    $route->getAction() : $action;
                 $parameters = $route->getParameters();
-                $namespace = $route->getNamespace();
+                $namespace = ($route->getNamespace()) ?
+                    $route->getNamespace() : $namespace;
                 $matched = true;
                 break;
             }
@@ -293,8 +295,11 @@ class Router extends Base
     public function getExtension()
     {
         if (is_null($this->_extension)) {
-            $ext = $this->getConfiguration()->get('router.extension', 'html');
-            $this->_extension = $this->_request->getQuery('extension', $ext);
+            $this->_extension = $this->getConfiguration()->get('router.extension', 'html');
+            $query = $this->_request->getQuery('extension', $this->_extension);
+            if (strlen($query) > 1) {
+                $this->_extension = $query;
+            }
         }
         return $this->_extension;
     }

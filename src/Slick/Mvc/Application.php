@@ -87,7 +87,7 @@ class Application extends Base implements EventManagerAwareInterface
         $this->_event = $event;
 
         Template::addPath(
-            '/'. $this->getConfiguration()->get('paths.views', 'Views')
+            getcwd() .'/'. $this->getConfiguration()->get('paths.views', 'Views')
         );
 
         $this->getEventManager()

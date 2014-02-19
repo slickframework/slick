@@ -12,6 +12,7 @@
 
 namespace Slick\Template\Engine;
 
+use Slick\Template\Engine\Twig\SlickTwigExtension;
 use Slick\Template\EngineInterface;
 use Twig_Environment,
     Twig_Loader_Filesystem,
@@ -90,6 +91,7 @@ class Twig extends AbstractEngine
             $this->_twig = new Twig_Environment(
                 new Twig_Loader_Filesystem($this->_paths)
             );
+            $this->_twig->addExtension(new SlickTwigExtension());
         }
         return $this->_twig;
     }

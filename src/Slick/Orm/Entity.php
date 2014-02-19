@@ -260,23 +260,29 @@ class Entity extends AbstractEntity
         $pmKey = $this->primaryKey;
         $abort = false;
         $result = false;
+        $action = 'insert';
+        if ($this->$pmKey || isset($data[$pmKey])) {
+            $action = 'update';
+        }
         $this->getEventManager()->trigger(
             'beforeSave',
             $this,
             array(
                 'data' => &$data,
-                'abort' => &$abort
+                'abort' => &$abort,
+                'action' => $action
             )
         );
+
         if (!$abort) {
-            if ($this->$pmKey || isset($data[$pmKey])) {
+            if ($action == 'update') {
                 $result = $this->_update($data);
                 $this->getEventManager()->trigger(
                     'afterSave',
                     $this,
                     array(
                         'data' => &$data,
-                        'action' => 'update'
+                        'action' => $action
                     )
                 );
             } else {
@@ -286,7 +292,7 @@ class Entity extends AbstractEntity
                     $this,
                     array(
                         'data' => &$data,
-                        'action' => 'insert'
+                        'action' => $action
                     )
                 );
             }
