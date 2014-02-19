@@ -24,7 +24,7 @@ final class Version
      * Slick Framework version identification
      * @see Version::compare
      */
-    const VERSION = '1.0.0dev';
+    const VERSION = '1.0.0-alpha';
 
     /**
      * The latest stable version available
@@ -59,13 +59,21 @@ final class Version
         if (is_null(static::$_latestVersion)) {
             static::$_latestVersion = 'not available';
             $url = "https://api.github.com/repos/slickframework/slick/git/refs/tags/v";
-            $data = @file_get_contents($url);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_URL => $url,
+                CURLOPT_USERAGENT => 'Slick Version Request'
+            ));
+            $data = curl_exec($curl);
+
             if ($data) {
                 $apiResponse = json_decode($data, true);
 
                 // Simplify the API response into a simple array of version numbers
                 $tags = array_map(function ($tag) {
-                    return substr($tag['ref'], 10); // Reliable because we're filtering on 'refs/tags/release-'
+                    return substr($tag['ref'], 11);
                 }, $apiResponse);
 
                 // Fetch the latest version number from the array
@@ -78,7 +86,7 @@ final class Version
     }
 
     /**
-     * Returns true if the running version of Zend Framework is
+     * Returns true if the running version of Slick Framework is
      * the latest (or newer??) than the latest tag on GitHub,
      * which is returned by static::getLatest().
      *
