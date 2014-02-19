@@ -111,6 +111,12 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     protected $_actionName;
 
     /**
+     * @read
+     * @var bool
+     */
+    protected $_scaffold = false;
+
+    /**
      * Sets the values to be used in the views.
      *
      * @param string $key The variable name for the view.
@@ -203,7 +209,7 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $sharedEvents =  DependencyInjector::getDefault()
+            $sharedEvents = DependencyInjector::getDefault()
                 ->get('DefaultEventManager');
             $events = new EventManager();
             $events->setSharedManager($sharedEvents);

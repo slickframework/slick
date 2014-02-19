@@ -193,19 +193,9 @@ class Router extends Base
     public function dispatch(Application $app)
     {
         $name = $this->_namespace .'\\'. ucfirst($this->_controller);
-        $this->_checkController($name);
+        $instance = $this->_getController($name, $app);
 
-        /** @var Controller $instance */
-        $instance = new $name(
-            array(
-                'parameters' => $this->_params,
-                'extension' => $this->getExtension(),
-                'request' => $app->getRequest(),
-                'response' => $app->getResponse(),
-                'actionName' => $this->_action,
-                'controllerName' => $this->_controller
-            )
-        );
+
 
         $inspector = new Inspector($instance);
         $methodMeta = $inspector->getMethodMeta($this->_action);
@@ -304,7 +294,18 @@ class Router extends Base
         return $this->_extension;
     }
 
-    protected function _checkController($className)
+    /**
+     * Creates controller instance
+     *
+     * @param $className
+     * @param Application $app
+     *
+     * @return Controller
+     *
+     * @throws Router\Exception\ControllerNotFoundException
+     * @throws Router\Exception\ActionNotFoundException
+     */
+    protected function _getController($className, Application $app)
     {
         if (!class_exists($className)) {
             throw new Exception\ControllerNotFoundException(
@@ -312,11 +313,28 @@ class Router extends Base
             );
         }
 
-        if (!method_exists($className, $this->_action)) {
-            throw new Exception\ActionNotFoundException(
-                "Action {$this->_action} not found"
-            );
+        $options = array(
+            'parameters' => $this->_params,
+            'extension' => $this->getExtension(),
+            'request' => $app->getRequest(),
+            'response' => $app->getResponse(),
+            'actionName' => $this->_action,
+            'controllerName' => $this->_controller
+        );
+
+        /** @var Controller $instance */
+        $instance = new $className($options);
+
+        if (!method_exists($instance, $this->_action)) {
+            if (!$instance->scaffold) {
+                throw new Exception\ActionNotFoundException(
+                    "Action {$this->_action} not found"
+                );
+            }
+            $instance = Scaffold::getController($instance, $options);
         }
+
+        return $instance;
     }
 
 
