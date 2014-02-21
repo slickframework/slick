@@ -25,4 +25,14 @@ use Slick\Orm\EntityInterface;
 abstract class Model extends Entity implements EntityInterface
 {
 
+    public function getValue($name)
+    {
+        return $this->$name;
+    }
+
+    public function getKey()
+    {
+        $prmKey = $this->primaryKey;
+        return $this->$prmKey;
+    }
 } 

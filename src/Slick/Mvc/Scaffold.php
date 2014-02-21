@@ -52,7 +52,8 @@ class Scaffold extends Controller
         parent::__construct($options);
         $nameParts = explode("\\", get_class($this->_controller));
         $this->_modelName = 'Models\\' . Text::singular(end($nameParts));
-        $this->set('modelPlural', end($nameParts));
+        $this->set('modelPlural', strtolower(end($nameParts)));
+        $this->set('modelSingular', strtolower(Text::singular(end($nameParts))));
         $this->_controllerName = 'scaffold';
         Template::appendPath(__DIR__ . '/Scaffold/Views');
     }
@@ -75,7 +76,6 @@ class Scaffold extends Controller
     public function index()
     {
         $records = call_user_func_array([$this->_modelName, 'all'], array());
-        var_dump($records);
         $this->set(compact('records'));
     }
 

@@ -12,6 +12,7 @@
 
 namespace Slick\Template\Engine\Twig;
 
+use Slick\Version\Version;
 use Zend\Http\PhpEnvironment\Request;
 
 /**
@@ -80,7 +81,8 @@ class SlickTwigExtension extends \Twig_Extension
     public function getGlobals()
     {
         return [
-            'basePath' => $this->getRequest()->getBasePath()
+            'basePath' => $this->getRequest()->getBasePath(),
+            'slickVersion' => Version::VERSION
         ];
     }
 

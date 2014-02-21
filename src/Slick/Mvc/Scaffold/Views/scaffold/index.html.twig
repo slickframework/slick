@@ -1,4 +1,101 @@
-<h1>{{ modelPlural }}</h1>
-{% for record in records %}
-    {{ record.getName() }}
-{% endfor %}
+<div class="entity-index">
+    <h1>{{ modelPlural|capitalize }}</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="pull-right col-xs-5 table-actions">
+                    <a href="{{ url('users/add') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Add {{ modelSingular }}
+                    </a>
+                </div>
+
+                <div class="table-search col-xs-7">
+                    <form class="form-inline" role="form">
+                        <div class="form-group has-feedback">
+                            <label class="sr-only" for="search-pattern">Search {{ modelPlural }}</label>
+                            <input type="text" class="form-control " id="search-pattern"
+                                   placeholder="Search {{ modelPlural }}">
+                            <span class="hidden-xs glyphicon glyphicon-search form-control-feedback"></span>
+                        </div>
+                    </form>
+                </div>
+                <span class="clearfix"></span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-over table-condensed">
+                <thead>
+                    <tr>
+                    {% for column in records[0].getColumns() %}
+                        {% if loop.first  %}
+                        <th>{{ column.getName()|capitalize }}</th>
+                        {% else %}
+                        <th class="hidden-xs">{{ column.getName()|capitalize }}</th>
+                        {% endif %}
+                    {% endfor %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        {% for column in records[0].getColumns() %}
+                            {% if loop.first  %}
+                                <td>
+                                    <a href="{{ url('user/show/' ~ record.getKey()) }}">
+                                        {{ record.getValue(column.getName()) }}
+                                        <span class="glyphicon glyphicon-share"></span>
+                                    </a>
+                                </td>
+                            {% else %}
+                                <td class="hidden-xs">{{ record.getValue(column.getName()) }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td>
+                            <div class="data-table-actions">
+                                <div class="btn-group">
+                                    <a href="{{ url('user/edit/' ~ record.getKey()) }}" class="btn btn-xs btn-default">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                        Edit
+                                    </a>
+                                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a href="{{ url('user/show/' ~ record.getKey()) }}">
+                                                <span class="glyphicon glyphicon-eye-open"></span>
+                                                View {{ modelSingular }}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('user/delete/' ~ record.getKey()) }}">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                                Delete {{ modelSingular }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        <div class="panel-footer">
+            <ul class="pagination">
+                <li class="disabled"><a href="#">&laquo;</a></li>
+                <li class="active"><span>1 <span class="sr-only">(current)</span></span></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
