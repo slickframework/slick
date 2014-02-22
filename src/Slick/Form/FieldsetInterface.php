@@ -22,25 +22,24 @@ interface FieldsetInterface extends ElementInterface
 {
 
     /**
-     * Add an element to the fielset element
-     * 
-     * @param ElementInterface $element The element object to add
+     * Adds an element to the list
      *
-     * @return FieldsetInterface A self instance for method call chains
+     * @param array|ElementInterface $object
+     * @param int $weight
+     *
+     * @return FieldsetInterface
      */
-    public function addElement(ElementInterface $element);
+    public function add($object, $weight = 0);
 
-    /**
-     * Sets the list of the element for this field set
-     * 
-     * @param ElementListInterface $elements Elements list for this fieldset
-     */
-    public function setElements(ElementListInterface $elements);
+    public function remove($name);
 
-    /**
-     * Returns the list of elements from this fieldset
-     * 
-     * @return ElementListInterface List of ElementInterface objects
-     */
-    public function getelements();
-}
+    public function get($name);
+
+    public function has($name);
+
+    public function setObject($object);
+
+    public function getObject($object);
+
+    public function populateValues($data);
+} 

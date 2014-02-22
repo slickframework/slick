@@ -20,84 +20,118 @@ namespace Slick\Form;
  */
 interface ElementInterface
 {
-    
-    /**
-     * Sets element name
-     * 
-     * @param string $name The name to set
-     * 
-     * @return ElementInterface A self instance for method call chains
-     */
-    public function setName($name);
 
     /**
-     * Returns current element's name
-     * 
-     * @return string Element's name
+     * Returns the elements name
+     *
+     * @return string
      */
     public function getName();
 
     /**
-     * Add an attribute to the element
+     * Set elements's name
      *
-     * HTML attribute added will use the $key param as name and will be set
-     * to the $value value. Null values indicate that the attribute will
-     * have its value equals to its name
-     * 
-     * @param string $key   The attribute key (name)
-     * @param string $value The attribute value
-     * 
-     * @return @return ElementInterface A self instance for method call chains
+     * @param string $name
+     *
+     * @return ElementInterface
      */
-    public function addAttribute($key, $value = null);
+    public function setName($name);
 
     /**
-     * Returns the value of the attribute with the give key
-     * 
-     * @param string $key The attribute to search for
-     * 
-     * @return string|null The attributes value of null if not exists
+     * Set an attribute for this element
+     *
+     * @param string $key Attributes name
+     * @param string $value Attribute value
+     *
+     * @return ElementInterface
      */
-    public function getAttribute($key);
+    public function setAttribute($key, $value);
 
     /**
-     * Checks if the given attribute is set to this element
-     * 
-     * @param  string $key The attribute to search for
-     * 
-     * @return boolean True if element has the attribute with the given name
-     *  defined, ot false otherwise.
+     * Sets all attributes of this element
+     *
+     * @param array $attributes
+     *
+     * @return ElementInterface
      */
-    public function hasAttribute($key);
+    public function setAttributes(array $attributes);
 
     /**
-     * Sets element's label
+     * Check if this element has an attribute with the provided name
+     *
+     * @param string $name
+     *
+     * @return boolean True of elements has an attribute with the provided name
+     *  false otherwise
+     */
+    public function hasAttribute($name);
+
+    /**
+     * Gets the value of an attribute with the provided name.
+     *
+     * If there is no attribute with the given name the default value
+     * is returned instead.
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string|mixed
+     */
+    public function getAttribute($key, $default = null);
+
+    /**
+     * Returns the element's list of attributes
+     *
+     * @return array The list of attributes
+     */
+    public function getAttributes();
+
+    /**
+     * Returns the element value
+     *
+     * @return string
+     */
+    public function getValue();
+
+    /**
+     * Sets element default value
+     *
+     * @param string $value
+     *
+     * @return ElementInterface
+     */
+    public function setValue($value);
+
+    /**
+     * Set element label
      *
      * @param string $label
      *
-     * @return ElementInterface A self instance for method call chains
+     * @return ElementInterface
      */
     public function setLabel($label);
 
     /**
-     * Returns current element label
+     * Returns current label
      *
      * @return string
      */
     public function getLabel();
 
     /**
-     * Sets elements value
+     * Returns current error messages
      *
-     * @param string $value
-     *
-     * @return ElementInterface A self instance for method call chains
+     * @return array
      */
-    public function setValue($value);
+    public function getMessages();
 
     /**
-     * Returns current element value
-     * @return string
+     * Sets an error message for a given validation key
+     *
+     * @param string $key
+     * @param string $message
+     *
+     * @return ElementInterface
      */
-    public function getValue();
-}
+    public function setMessage($key, $message);
+} 
