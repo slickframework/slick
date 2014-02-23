@@ -11,6 +11,7 @@
  */
 
 namespace Slick\Form;
+use Zend\Stdlib\Hydrator\HydratorInterface;
 
 /**
  * FieldsetInterface
@@ -25,21 +26,77 @@ interface FieldsetInterface extends ElementInterface
      * Adds an element to the list
      *
      * @param array|ElementInterface $object
-     * @param int $weight
+     * @param int $priority
      *
      * @return FieldsetInterface
      */
-    public function add($object, $weight = 0);
+    public function add($object, $priority = 0);
 
+    /**
+     * Removes the element with the provided name
+     *
+     * @param $name Element name to search
+     *
+     * @return boolean True if the element was found and removed
+     *  and false if not found
+     */
     public function remove($name);
 
+    /**
+     * Returns the element with the provided name
+     *
+     * @param $name Element name to search
+     *
+     * @return ElementInterface
+     */
     public function get($name);
 
+    /**
+     * Check if an element with a given name exists
+     *
+     * @param $name Element name to search
+     *
+     * @return boolean True if element exists or false if not
+     */
     public function has($name);
 
+    /**
+     * Set the object used by the hydrator
+     *
+     * @param $object
+     *
+     * @return FieldsetInterface
+     */
     public function setObject($object);
 
+    /**
+     * Returns the object used by hydrator
+     *
+     * @param $object
+     *
+     * @return mixed
+     */
     public function getObject($object);
 
+    /**
+     * Recursively populate value attributes of elements
+     *
+     * @param $data
+     */
     public function populateValues($data);
+
+    /**
+     * Set the hydrator to use when binding an object to the element
+     *
+     * @param  HydratorInterface $hydrator
+     * @return FieldsetInterface
+     */
+    public function setHydrator(HydratorInterface $hydrator);
+
+    /**
+     * Get the hydrator used when binding an object to the element
+     *
+     * @return null|HydratorInterface
+     */
+    public function getHydrator();
 } 

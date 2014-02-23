@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Elemetn test case
+ * Element test case
  *
  * @package   Test\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,11 +12,10 @@
 
 namespace Form;
 
-use Codeception\Util\Stub;
 use Slick\Form\Element;
 
 /**
- * Elemetn test case
+ * Element test case
  *
  * @package   Test\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -25,12 +24,41 @@ class ElementTest extends \Codeception\TestCase\Test
 {
 
     /**
-     * Test elemetn creation
+     * Test element creation
      * @test
      */
     public function createElement()
     {
-        $element = new Element('username');
+        $element = new Element(['name' => 'username']);
         $this->assertInstanceOf('Slick\Form\ElementInterface', $element);
+        $this->assertEquals('username', $element->getName());
+        $this->assertInstanceOf(
+            'Slick\Form\Element',
+            $element->setLabel("user name")
+        );
+        $this->assertEquals('user name', $element->getLabel());
+        $this->assertInstanceOf(
+            'Slick\Form\Element',
+            $element->setName("username")
+        );
+        $this->assertInstanceOf(
+            'Slick\Form\Element',
+            $element->setValue("test")
+        );
+        $this->assertEquals('test', $element->getValue());
+        $this->assertFalse($element->hasAttribute('id'));
+        $this->assertInstanceOf(
+            'Slick\Form\Element',
+            $element->setAttribute('id', 'username')
+        );
+        $this->assertEquals('username', $element->getAttribute('id'));
+        $attributes = ['type' => 'text', 'id' => 'username'];
+        $this->assertEquals($attributes, $element->getAttributes());
+        $attributes['placeholder'] = 'username';
+        $this->assertInstanceOf('Slick\FOrm\Element', $element->setAttributes($attributes));
+        $this->assertTrue($element->hasAttribute('placeholder'));
+
+        $this->assertInstanceOf('Slick\Form\Element', $element->setMessage('test', 'Hello'));
+        $this->assertEquals(['test' => 'Hello'], $element->getMessages());
     }
 }
