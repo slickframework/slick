@@ -79,7 +79,7 @@ abstract class AbstractFieldset extends AbstractElement
     /**
      * Returns the element with the provided name
      *
-     * @param $name Element name to search
+     * @param string $name Element name to search
      *
      * @return ElementInterface
      */
@@ -126,7 +126,7 @@ abstract class AbstractFieldset extends AbstractElement
     {
         /** @var FieldsetInterface|ElementInterface $element*/
         foreach ($this->elements as $element) {
-            if (is_a($element, 'Slick\Form\FieldsetInterface')) {
+            if (is_a($element, '\Slick\Form\FieldsetInterface')) {
                 $element->populateValues($data);
             } else {
                 foreach ($data as $name => $value) {
