@@ -10,10 +10,8 @@
  */
 
 namespace Slick\Form;
-use Slick\Form\Fieldset\ElementsList;
+
 use Slick\Utility\WeightList;
-use Zend\Stdlib\Hydrator\HydratorInterface;
-use SplPriorityQueue;
 
 /**
  * AbstractFieldset
@@ -22,6 +20,7 @@ use SplPriorityQueue;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property WeightList $elements
+ * @property object $object
  */
 abstract class AbstractFieldset extends AbstractElement
     implements FieldsetInterface
@@ -86,7 +85,14 @@ abstract class AbstractFieldset extends AbstractElement
      */
     public function get($name)
     {
-        // TODO: Implement get() method.
+        $found = null;
+        /** @var ElementInterface $element */
+        foreach ($this->elements as $element) {
+            if ($element->getName() == $name) {
+                $found = $element;
+            }
+        }
+        return $found;
     }
 
     /**
@@ -112,58 +118,25 @@ abstract class AbstractFieldset extends AbstractElement
     }
 
     /**
-     * Set the object used by the hydrator
-     *
-     * @param $object
-     *
-     * @return FieldsetInterface
-     */
-    public function setObject($object)
-    {
-        // TODO: Implement setObject() method.
-    }
-
-    /**
-     * Returns the object used by hydrator
-     *
-     * @param $object
-     *
-     * @return mixed
-     */
-    public function getObject($object)
-    {
-        // TODO: Implement getObject() method.
-    }
-
-    /**
      * Recursively populate value attributes of elements
      *
      * @param $data
      */
     public function populateValues($data)
     {
-        // TODO: Implement populateValues() method.
-    }
+        /** @var FieldsetInterface|ElementInterface $element*/
+        foreach ($this->elements as $element) {
+            if (is_a($element, 'Slick\Form\FieldsetInterface')) {
+                $element->populateValues($data);
+            } else {
+                foreach ($data as $name => $value) {
+                    if ($element->getName() == $name) {
+                        $element->setValue($value);
+                    }
+                }
 
-    /**
-     * Set the hydrator to use when binding an object to the element
-     *
-     * @param  HydratorInterface $hydrator
-     * @return FieldsetInterface
-     */
-    public function setHydrator(HydratorInterface $hydrator)
-    {
-        // TODO: Implement setHydrator() method.
-    }
-
-    /**
-     * Get the hydrator used when binding an object to the element
-     *
-     * @return null|HydratorInterface
-     */
-    public function getHydrator()
-    {
-        // TODO: Implement getHydrator() method.
+            }
+        }
     }
 
     /**

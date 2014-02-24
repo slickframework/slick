@@ -42,11 +42,31 @@ class FieldsetTest extends \Codeception\TestCase\Test
         $data = $fieldset->elements->current();
         $this->assertEquals($fullName, $data);
         $this->assertEquals(10, $fieldset->elements->weight());
-
+        $elements = $fieldset->getElements();
         $this->assertFalse($fieldset->has('name'));
         $this->assertTrue($fieldset->has('password'));
         $this->assertTrue($fieldset->remove('password'));
+
         $this->assertEquals(2, count($fieldset->elements));
+        $this->assertInstanceOf('Slick\Form\Fieldset', $fieldset->setElements($elements));
+        $this->assertEquals($elements, $fieldset->getElements());
+
+        $group = new Fieldset();
+        $group->add(new Element(['name' => 'age']));
+        $fieldset->add($group);
+
+        $data = [
+            'username' => 'fsilva',
+            'password' => 'test',
+            'fullName' => 'Filipe',
+            'id' => '1',
+            'age' => '20'
+        ];
+
+        $fieldset->populateValues($data);
+        $field = $fieldset->get('username');
+        $this->assertInstanceOf('Slick\Form\ElementInterface', $field);
+        $this->assertEquals('fsilva', $field->getValue());
 
     }
 }

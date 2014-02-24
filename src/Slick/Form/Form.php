@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FieldsetInterface
+ * Form
  *
  * @package   Slick\Form
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,13 +13,19 @@
 namespace Slick\Form;
 
 /**
- * FormInterface
+ * Form
  *
  * @package   Slick\Form
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface FormInterface extends FieldsetInterface
+class Form extends AbstractFieldset implements FormInterface
 {
+
+    /**
+     * @readwrite
+     * @var array
+     */
+    protected $_data;
 
     /**
      * Set data to validate and/or populate elements
@@ -28,5 +34,10 @@ interface FormInterface extends FieldsetInterface
      *
      * @return FormInterface
      */
-    public function setData($data);
-} 
+    public function setData($data)
+    {
+        $this->_data = $data;
+        $this->populateValues($data);
+        return $this;
+    }
+}

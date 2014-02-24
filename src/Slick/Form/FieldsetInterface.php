@@ -61,42 +61,9 @@ interface FieldsetInterface extends ElementInterface
     public function has($name);
 
     /**
-     * Set the object used by the hydrator
-     *
-     * @param $object
-     *
-     * @return FieldsetInterface
-     */
-    public function setObject($object);
-
-    /**
-     * Returns the object used by hydrator
-     *
-     * @param $object
-     *
-     * @return mixed
-     */
-    public function getObject($object);
-
-    /**
      * Recursively populate value attributes of elements
      *
      * @param $data
      */
     public function populateValues($data);
-
-    /**
-     * Set the hydrator to use when binding an object to the element
-     *
-     * @param  HydratorInterface $hydrator
-     * @return FieldsetInterface
-     */
-    public function setHydrator(HydratorInterface $hydrator);
-
-    /**
-     * Get the hydrator used when binding an object to the element
-     *
-     * @return null|HydratorInterface
-     */
-    public function getHydrator();
 } 
