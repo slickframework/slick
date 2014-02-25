@@ -3,7 +3,7 @@
 /**
  * NotEmpty validator test case
  *
- * @package    Test\Utility
+ * @package    Test\Validator
  * @author     Filipe Silva <silvam.filipe@gmail.com>
  * @copyright  2014 Filipe Silva
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
@@ -14,6 +14,7 @@ namespace Validator;
 use Slick\Validator\AbstractValidator;
 use Slick\Validator\NotEmpty;
 use Slick\Validator\StaticValidator;
+use Slick\Validator\ValidatorChain;
 use Slick\Validator\ValidatorInterface;
 
 /**
@@ -63,6 +64,22 @@ class NotEmptyTest extends \Codeception\TestCase\Test
 
         $this->assertTrue(StaticValidator::isValid('Validator\MyValidator', true));
         StaticValidator::isValid('foo', 'bar');
+    }
+
+    /**
+     * Check validation chain
+     * @test
+     */
+    public function validatorChain()
+    {
+        $chain = new ValidatorChain();
+        $chain->add(new NotEmpty());
+        $value = null;
+        $this->assertFalse($chain->isValid($value));
+        $this->assertEquals(
+            ['notEmpty' => 'The value cannot be empty.'],
+            $chain->getMessages()
+        );
     }
 
 }

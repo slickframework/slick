@@ -51,6 +51,7 @@ class ValidatorChain extends Base implements ValidatorInterface
                 $messages = array_merge($messages, $validator->getMessages());
             }
         }
+        $this->_messages = $messages;
         return $valid;
     }
 

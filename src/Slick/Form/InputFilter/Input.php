@@ -1,17 +1,27 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 2/24/14
- * Time: 6:56 PM
+ * Input
+ *
+ * @package   Slick\Form\InputFilter
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.0.0
  */
 
 namespace Slick\Form\InputFilter;
 
-
 use Slick\Common\Base;
+use Slick\Filter\FilterChain;
 use Slick\Validator\ValidatorChain;
 
+/**
+ * Input
+ *
+ * @package   Slick\Form\InputFilter
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
 class Input extends Base implements InputInterface
 {
 
@@ -96,5 +106,37 @@ class Input extends Base implements InputInterface
     public function allowEmpty()
     {
         // TODO: Implement allowEmpty() method.
+    }
+
+    /**
+     * Sets the filter chain
+     *
+     * @param FilterChain $filters
+     *
+     * @return InputInterface
+     */
+    public function setFilterChain(FilterChain $filters)
+    {
+        // TODO: Implement setFilterChain() method.
+    }
+
+    /**
+     * Returns the filter chain
+     *
+     * @return FilterChain
+     */
+    public function getFilterChain()
+    {
+        // TODO: Implement getFilterChain() method.
+    }
+
+    /**
+     * Returns the value without passing it thru the filter chain
+     *
+     * @return mixed
+     */
+    public function getRawValue()
+    {
+        // TODO: Implement getRawValue() method.
     }
 }

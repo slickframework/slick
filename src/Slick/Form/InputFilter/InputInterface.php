@@ -12,6 +12,7 @@
 
 namespace Slick\Form\InputFilter;
 
+use Slick\Filter\FilterChain;
 use Slick\Validator\ValidatorChain;
 
 /**
@@ -26,11 +27,11 @@ interface InputInterface
     /**
      * Sets the validation chain
      *
-     * @param ValidatorChain $validator
+     * @param ValidatorChain $validators
      *
      * @return InputInterface
      */
-    public function setValidatorChain(ValidatorChain $validator);
+    public function setValidatorChain(ValidatorChain $validators);
 
     /**
      * Returns the validation chain
@@ -38,6 +39,22 @@ interface InputInterface
      * @return ValidatorChain
      */
     public function getValidatorChain();
+
+    /**
+     * Sets the filter chain
+     *
+     * @param FilterChain $filters
+     *
+     * @return InputInterface
+     */
+    public function setFilterChain(FilterChain $filters);
+
+    /**
+     * Returns the filter chain
+     *
+     * @return FilterChain
+     */
+    public function getFilterChain();
 
     /**
      * Returns true if and only if the values passes all chain validation
@@ -81,4 +98,11 @@ interface InputInterface
      * @return boolean
      */
     public function allowEmpty();
+
+    /**
+     * Returns the value without passing it thru the filter chain
+     *
+     * @return mixed
+     */
+    public function getRawValue();
 } 

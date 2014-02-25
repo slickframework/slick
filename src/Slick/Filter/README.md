@@ -1,7 +1,7 @@
-Validation for Slick Framework
+Filter for Slick Framework
 =======================================
 
-Validation component for Slick Framework.
+Filter component for Slick Framework.
 
 
 LICENSE
