@@ -25,6 +25,14 @@ interface InputInterface
 {
 
     /**
+     * An input cannot be created without a name
+     *
+     * @param string $name Input name
+     * @param array  $options
+     */
+    public function __construct($name, $options = array());
+
+    /**
      * Sets the validation chain
      *
      * @param ValidatorChain $validators

@@ -21,9 +21,73 @@ use Slick\Validator\ValidatorChain;
  *
  * @package   Slick\Form\InputFilter
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string  $name
+ * @property boolean $required
+ * @property boolean $allowEmpty
  */
 class Input extends Base implements InputInterface
 {
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_name;
+
+    /**
+     * @readwrite
+     * @var ValidatorChain
+     */
+    protected $_validatorChain;
+
+    /**
+     * @readwrite
+     * @var FilterChain
+     */
+    protected $_filterChain;
+
+    /**
+     * @readwrite
+     * @var mixed Value to filtered and validated
+     */
+    protected $_value;
+
+    /**
+     * @read
+     * @var mixed Filtered value
+     */
+    protected $_filtered;
+
+    /**
+     * @read
+     * @var array Validation errors
+     */
+    protected $_messages = [];
+
+    /**
+     * @readwrite
+     * @var bool Required input flag
+     */
+    protected $_required = false;
+
+    /**
+     * @readwrite
+     * @var bool Allow empty value flag
+     */
+    protected $_allowEmpty = true;
+
+    /**
+     * An input cannot be created without a name
+     *
+     * @param string $name Input name
+     * @param array  $options
+     */
+    public function __construct($name, $options = array())
+    {
+        parent::__construct($options);
+        $this->_name = $name;
+    }
 
     /**
      * Sets the validation chain
@@ -34,7 +98,8 @@ class Input extends Base implements InputInterface
      */
     public function setValidatorChain(ValidatorChain $validator)
     {
-        // TODO: Implement setValidatorChain() method.
+        $this->_validatorChain = $validator;
+        return $this;
     }
 
     /**
@@ -44,7 +109,10 @@ class Input extends Base implements InputInterface
      */
     public function getValidatorChain()
     {
-        // TODO: Implement getValidatorChain() method.
+        if (is_null($this->_validatorChain)) {
+            $this->_validatorChain = new ValidatorChain();
+        }
+        return $this->_validatorChain;
     }
 
     /**
@@ -54,7 +122,10 @@ class Input extends Base implements InputInterface
      */
     public function isValid()
     {
-        // TODO: Implement isValid() method.
+        $filtered = $this->getValue();
+        $valid = $this->getValidatorChain()->isValid($filtered);
+        $this->_messages = $this->getValidatorChain()->getMessages();
+        return $valid;
     }
 
     /**
@@ -66,7 +137,9 @@ class Input extends Base implements InputInterface
      */
     public function setValue($value)
     {
-        // TODO: Implement setValue() method.
+        $this->_value = $value;
+        $this->_filtered = null;
+        return $this;
     }
 
     /**
@@ -76,7 +149,10 @@ class Input extends Base implements InputInterface
      */
     public function getValue()
     {
-        // TODO: Implement getValue() method.
+        if (is_null($this->_filtered)) {
+            $this->_filtered = $this->getFilterChain()->filter($this->_value);
+        }
+        return $this->_filtered;
     }
 
     /**
@@ -86,7 +162,7 @@ class Input extends Base implements InputInterface
      */
     public function getMessages()
     {
-        // TODO: Implement getMessages() method.
+        return $this->_messages;
     }
 
     /**
@@ -95,7 +171,7 @@ class Input extends Base implements InputInterface
      */
     public function isRequired()
     {
-        // TODO: Implement isRequired() method.
+        return $this->_required;
     }
 
     /**
@@ -105,7 +181,7 @@ class Input extends Base implements InputInterface
      */
     public function allowEmpty()
     {
-        // TODO: Implement allowEmpty() method.
+        return $this->_allowEmpty;
     }
 
     /**
@@ -117,7 +193,8 @@ class Input extends Base implements InputInterface
      */
     public function setFilterChain(FilterChain $filters)
     {
-        // TODO: Implement setFilterChain() method.
+        $this->_filterChain = $filters;
+        return $this;
     }
 
     /**
@@ -127,7 +204,10 @@ class Input extends Base implements InputInterface
      */
     public function getFilterChain()
     {
-        // TODO: Implement getFilterChain() method.
+        if (is_null($this->_filterChain)) {
+            $this->_filterChain = new FilterChain();
+        }
+        return $this->_filterChain;
     }
 
     /**
@@ -137,6 +217,6 @@ class Input extends Base implements InputInterface
      */
     public function getRawValue()
     {
-        // TODO: Implement getRawValue() method.
+        return $this->_value;
     }
 }

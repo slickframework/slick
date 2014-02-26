@@ -13,6 +13,7 @@
 namespace Form;
 
 use Slick\Form\Element;
+use Slick\Form\InputFilter\Input;
 
 /**
  * Element test case
@@ -60,5 +61,28 @@ class ElementTest extends \Codeception\TestCase\Test
 
         $this->assertInstanceOf('Slick\Form\Element', $element->setMessage('test', 'Hello'));
         $this->assertEquals(['test' => 'Hello'], $element->getMessages());
+    }
+
+    /**
+     * Checks the associated input in an element
+     * @test
+     */
+    public function checkInputInAnElement()
+    {
+        $username = new Element(['name' => 'username']);
+        $testInput = new Input(['name' => 'test']);
+        $this->assertInstanceOf(
+            'Slick\Form\InputFilter\Input',
+            $username->getInput()
+        );
+        $this->assertEquals(
+            $username->getName(),
+            $username->getInput()->name
+        );
+        $this->assertInstanceOf(
+            'Slick\Form\Element',
+            $username->setInput($testInput)
+        );
+        $this->assertSame($testInput, $username->getInput());
     }
 }

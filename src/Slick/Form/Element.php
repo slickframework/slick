@@ -59,9 +59,7 @@ class Element extends AbstractElement implements ElementInterface, InputAwareInt
     public function getInput()
     {
         if (is_null($this->_input)) {
-            $this->_input = new Input([
-                'name' => $this->getName()
-            ]);
+            $this->_input = new Input($this->getName());
         }
         return $this->_input;
     }
