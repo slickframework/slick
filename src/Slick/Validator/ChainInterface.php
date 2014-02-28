@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ValidatorInterface
+ * ChainInterface
  *
  * @package   Slick\Validator
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,14 +12,13 @@
 
 namespace Slick\Validator;
 
-
 /**
- * ValidatorInterface
+ * ChainInterface
  *
  * @package   Slick\Validator
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface ValidatorInterface
+interface ChainInterface
 {
 
     /**
@@ -39,14 +38,4 @@ interface ValidatorInterface
      * @return array
      */
     public function getMessages();
-
-    /**
-     * Sets a custom message for a given identifier
-     *
-     * @param string $identifier
-     * @param string $message
-     *
-     * @return ValidatorInterface
-     */
-    public function setMessage($identifier, $message);
 } 

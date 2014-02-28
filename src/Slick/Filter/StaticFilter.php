@@ -34,7 +34,6 @@ class StaticFilter
      * @param string $filter Filter class name or alias
      * @param mixed $value
      *
-     * @throws Exception\UnknownFilterClassException
      * @throws Exception\CannotFilterValueException If filtering $value
      * is impossible
      *
@@ -43,6 +42,21 @@ class StaticFilter
      * @see Slick\Filter\StaticFilter::$filters
      */
     public static function filter($filter, $value)
+    {
+        /** @var FilterInterface $filter */
+        $filter = static::create($filter);
+        return $filter->filter($value);
+    }
+
+    /**
+     * Creates a filter
+     *
+     * @param $filter
+     * @throws Exception\UnknownFilterClassException
+     *
+     * @return FilterInterface
+     */
+    public static function create($filter)
     {
         if (array_key_exists($filter, static::$filters)) {
             $class = static::$filters[$filter];
@@ -57,8 +71,6 @@ class StaticFilter
             );
         }
 
-        /** @var FilterInterface $filter */
-        $filter = new $class();
-        return $filter->filter($value);
+        return new $class();
     }
 } 

@@ -24,7 +24,8 @@ class StaticValidator
      * @var array List of available validators
      */
     public static $validators = [
-        'notEmpty' => 'Slick\Validator\NotEmpty'
+        'notEmpty' => 'Slick\Validator\NotEmpty',
+        'email' => 'Slick\Validator\Email'
     ];
 
     /**
@@ -45,13 +46,34 @@ class StaticValidator
      */
     public static function isValid($validator, $value)
     {
+        /** @var ValidatorInterface $validator */
+        $validator = static::create($validator);
+        $result = $validator->isValid($value);
+        static::$_messages = $validator->getMessages();
+        return $result;
+    }
 
+    /**
+     * Creates a validator object
+     *
+     * @param string $validator The validator class name or alias
+     *
+     * @param null $message
+     * @throws Exception\UnknownValidatorClassException
+     *
+     * @return ValidatorInterface
+     *
+     */
+    public static function create($validator, $message = null)
+    {
         if (array_key_exists($validator, static::$validators)) {
             $class = static::$validators[$validator];
+            $id = $validator;
         } else if (
-            is_subclass_of($validator, 'Slick\Validator\ValidatorInterface')
+        is_subclass_of($validator, 'Slick\Validator\ValidatorInterface')
         ) {
             $class = $validator;
+            $id = ucfirst(str_replace("\\", "", $validator));
         } else {
             throw new Exception\UnknownValidatorClassException(
                 "The validator '{$validator}' is not defined or does not " .
@@ -59,11 +81,13 @@ class StaticValidator
             );
         }
 
-        /** @var ValidatorInterface $validator */
-        $validator = new $class();
-        $result = $validator->isValid($value);
-        static::$_messages = $validator->getMessages();
-        return $result;
+        /** @var ValidatorInterface $object */
+        $object = new $class;
+        if (!is_null($message)) {
+            $object->setMessage($id, $message);
+        }
+
+        return $object;
     }
 
     /**

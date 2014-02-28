@@ -20,7 +20,7 @@ use Slick\Common\Base;
  * @package   Slick\Validator
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ValidatorChain extends Base implements ValidatorInterface
+class ValidatorChain extends Base implements ChainInterface
 {
 
     /**
