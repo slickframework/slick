@@ -73,5 +73,6 @@ class FieldsetTest extends \Codeception\TestCase\Test
             'Slick\Form\Fieldset',
             $fieldset->setValue($expected)
         );
+        $this->assertEquals($expected, $fieldset->getValue());
     }
 }
