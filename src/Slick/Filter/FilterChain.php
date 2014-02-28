@@ -46,7 +46,7 @@ class FilterChain extends Base implements FilterInterface
      */
     public function filter($value)
     {
-        $result = null;
+        $result = $value;
         foreach ($this->_filters as $filter) {
             $result = $filter->filter($value);
             $value = $result;

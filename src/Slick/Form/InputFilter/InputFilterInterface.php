@@ -103,7 +103,18 @@ interface InputFilterInterface
      */
     public function getRawValue($name);
 
+    /**
+     * Get all the values from data set without filtering
+     *
+     * @return array An associative array with input names as keys and
+     * corespondent raw values
+     */
     public function getRawValues();
 
+    /**
+     * Returns all error messages from last isValid call
+     *
+     * @return array
+     */
     public function getMessages();
 } 
