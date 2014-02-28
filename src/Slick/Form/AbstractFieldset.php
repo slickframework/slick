@@ -34,17 +34,17 @@ abstract class AbstractFieldset extends AbstractElement
     /**
      * Adds an element to the list
      *
-     * @param array|ElementInterface $object
+     * @param ElementInterface $object
      * @param int $weight
      *
      * @return FieldsetInterface
      */
-    public function add($object, $weight = 0)
+    public function add(ElementInterface $object, $weight = 0)
     {
         if (!$this->elements->isEmpty() && $weight == 0) {
             $weight = $this->elements->last()->weight() + 10;
         }
-        // TODO: Add factory for array definition
+
 
         $this->elements->insert($object, $weight);
         return $this;

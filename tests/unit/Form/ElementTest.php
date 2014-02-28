@@ -58,9 +58,6 @@ class ElementTest extends \Codeception\TestCase\Test
         $attributes['placeholder'] = 'username';
         $this->assertInstanceOf('Slick\FOrm\Element', $element->setAttributes($attributes));
         $this->assertTrue($element->hasAttribute('placeholder'));
-
-        $this->assertInstanceOf('Slick\Form\Element', $element->setMessage('test', 'Hello'));
-        $this->assertEquals(['test' => 'Hello'], $element->getMessages());
     }
 
     /**

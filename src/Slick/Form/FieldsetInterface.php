@@ -30,7 +30,7 @@ interface FieldsetInterface extends ElementInterface
      *
      * @return FieldsetInterface
      */
-    public function add($object, $priority = 0);
+    public function add(ElementInterface $object, $priority = 0);
 
     /**
      * Removes the element with the provided name

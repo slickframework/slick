@@ -68,5 +68,10 @@ class FieldsetTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Slick\Form\ElementInterface', $field);
         $this->assertEquals('fsilva', $field->getValue());
 
+        $expected = "This is a test";
+        $this->assertInstanceOf(
+            'Slick\Form\Fieldset',
+            $fieldset->setValue($expected)
+        );
     }
 }

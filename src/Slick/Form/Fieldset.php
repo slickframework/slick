@@ -20,4 +20,18 @@ namespace Slick\Form;
 class Fieldset extends AbstractFieldset implements FieldsetInterface
 {
 
-} 
+    /**
+     * Returns current error messages
+     *
+     * @return array
+     */
+    public function getMessages()
+    {
+        $messages = [];
+        /** @var Element $element */
+        foreach ($this->_elements as $element) {
+            $messages[$element->getName()] = $element->getMessages();
+        }
+        return $messages;
+    }
+}

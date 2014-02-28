@@ -76,30 +76,6 @@ abstract class AbstractElement extends Base
     }
 
     /**
-     * Returns current error messages
-     *
-     * @return array
-     */
-    public function getMessages()
-    {
-        return $this->_messages;
-    }
-
-    /**
-     * Sets an error message for a given validation key
-     *
-     * @param string $key
-     * @param string $message
-     *
-     * @return AbstractElement
-     */
-    public function setMessage($key, $message)
-    {
-        $this->_messages[$key] = $message;
-        return $this;
-    }
-
-    /**
      * Returns the elements name
      *
      * @return string

@@ -124,14 +124,4 @@ interface ElementInterface
      * @return array
      */
     public function getMessages();
-
-    /**
-     * Sets an error message for a given validation key
-     *
-     * @param string $key
-     * @param string $message
-     *
-     * @return ElementInterface
-     */
-    public function setMessage($key, $message);
 } 

@@ -63,4 +63,39 @@ class Element extends AbstractElement implements ElementInterface, InputAwareInt
         }
         return $this->_input;
     }
+
+    /**
+     * Sets element default value
+     *
+     * @param string $value
+     *
+     * @return Element
+     */
+    public function setValue($value)
+    {
+        $this->_value = $value;
+        $this->getInput()->setValue($value);
+        return $this;
+    }
+
+    /**
+     * Returns current error messages
+     *
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->getInput()->getMessages();
+    }
+
+    /**
+     * Returns the element value
+     *
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->getInput()->getValue();
+    }
+
 }
