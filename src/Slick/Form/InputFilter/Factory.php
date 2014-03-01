@@ -88,12 +88,40 @@ class Factory extends Base
     }
 
     /**
+     * Creates an input
+     *
+     * @param array $data
+     * @param null $name
+     *
+     * @return Input
+     */
+    public static function createInput(array $data, $name = null)
+    {
+        /** @var Factory $factory */
+        $factory = new static();
+        return $factory->_newInput($data, $name);
+    }
+
+    /**
      * Adds an input to the input filter
      *
      * @param array $data
      * @param null $name
      */
     protected function _addInput(array $data, $name = null)
+    {
+        $this->_inputFilter->add($this->_newInput($data, $name));
+    }
+
+    /**
+     * Creates a new input
+     *
+     * @param array $data
+     * @param null $name
+     *
+     * @return Input
+     */
+    protected function _newInput(array $data, $name = null)
     {
         $options = array();
         foreach (array_keys($this->_inputProperties) as $key) {
@@ -110,7 +138,7 @@ class Factory extends Base
         if (isset($data['validation'])) {
             $this->_addValidators($input, $data['validation']);
         }
-        $this->_inputFilter->add($input);
+        return $input;
     }
 
     /**
