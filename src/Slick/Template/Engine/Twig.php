@@ -57,6 +57,7 @@ class Twig extends AbstractEngine
     public function parse($source)
     {
         $this->_source = $source;
+        return $this;
     }
 
     /**

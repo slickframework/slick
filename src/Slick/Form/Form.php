@@ -13,7 +13,9 @@
 namespace Slick\Form;
 
 use Slick\Di\DependencyInjector,
-    Slick\Form\InputFilter\InputFilter;
+    Slick\Form\InputFilter\InputFilter,
+    Slick\Form\Template\AbstractTemplate,
+    Slick\Form\Template\BasicForm;
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
     Zend\EventManager\SharedEventManager,
@@ -205,5 +207,18 @@ class Form extends AbstractFieldset
     public function getValues()
     {
         return $this->getInputFilter()->getValues();
+    }
+
+    /**
+     * lazy loads a default template for this element
+     *
+     * @return AbstractTemplate
+     */
+    public function getTemplate()
+    {
+        if (is_null($this->_template)) {
+            $this->setTemplate(new BasicForm());
+        }
+        return $this->_template;
     }
 }

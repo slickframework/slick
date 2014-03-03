@@ -1,0 +1,5 @@
+<form role="form">
+{% for elm in element.getElements() %}
+    {{ elm.render()|raw }}
+{% endfor %}
+</form>

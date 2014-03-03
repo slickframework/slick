@@ -308,5 +308,20 @@ abstract class Controller extends Base implements EventManagerAwareInterface
         return $this->_layout;
     }
 
-
+    /**
+     * Returns a value previously assigned with set() method
+     *
+     * @see Controller::set()
+     * @param string $varName
+     *
+     * @return null|mixed
+     */
+    public function get($varName)
+    {
+        $value = null;
+        if ($this->_viewVars[$varName]) {
+            $value = $this->_viewVars[$varName];
+        }
+        return $value;
+    }
 }

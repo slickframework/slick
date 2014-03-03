@@ -11,8 +11,10 @@
  */
 
 namespace Slick\Mvc;
-use Slick\Template\Template;
-use Slick\Utility\Text;
+
+use Slick\Mvc\Scaffold\Form,
+    Slick\Template\Template,
+    Slick\Utility\Text;
 
 /**
  * Scaffold controller
@@ -77,6 +79,17 @@ class Scaffold extends Controller
     {
         $records = call_user_func_array([$this->_modelName, 'all'], array());
         $this->set(compact('records'));
+    }
+
+    public function add()
+    {
+        $name = "add-". $this->get('modelSingular');
+        $form = new Form($name, ['model' => $this->_modelName]);
+
+        if ($this->request->isPost()) {
+
+        }
+        $this->set(compact('form'));
     }
 
 } 
