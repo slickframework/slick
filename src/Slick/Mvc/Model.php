@@ -15,6 +15,7 @@ namespace Slick\Mvc;
 use Slick\Common\Inspector;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
+use Slick\Orm\Relation\BelongsTo;
 
 /**
  * MVC Model
@@ -26,6 +27,12 @@ use Slick\Orm\EntityInterface;
  */
 abstract class Model extends Entity implements EntityInterface
 {
+
+    /**
+     * @read
+     * @var Inspector
+     */
+    protected $_inspector;
 
     /**
      * @read
@@ -57,6 +64,29 @@ abstract class Model extends Entity implements EntityInterface
     }
 
     /**
+     * Returns editable data from this model
+     * @return array
+     */
+    public function getData()
+    {
+        $data = [];
+        $properties = $this->getPropertyList();
+        foreach ($properties as $property => $meta) {
+            $name = trim($property, '_');
+            if ($meta->hasTag('@belongsto')) {
+                /** @var BelongsTo $field */
+                $fk = $this->getRelationsManager()
+                    ->getRelation($property)
+                    ->getRelated()->primaryKey;
+                $data[$name] =  $this->$property->fk;
+            } else if ($meta->hasTag('@column')) {
+                $data[$name] = $this->$property;
+            }
+        }
+        return $data;
+    }
+
+    /**
      * Returns the list of editable properties of this model
      *
      * This list all the properties that have @column, @hasone
@@ -67,7 +97,7 @@ abstract class Model extends Entity implements EntityInterface
     public function getPropertyList()
     {
         if (empty($this->_propertyList)) {
-            $inspector = new Inspector($this);
+            $inspector = $this->_getInspector();
 
             foreach($inspector->getClassProperties() as $property) {
                 $propertyData = $inspector->getPropertyMeta($property);
@@ -81,5 +111,18 @@ abstract class Model extends Entity implements EntityInterface
             }
         }
         return $this->_propertyList;
+    }
+
+    /**
+     * Lazy load of model inspector
+     *
+     * @return Inspector
+     */
+    protected function _getInspector()
+    {
+        if (is_null($this->_inspector)) {
+            $this->_inspector = new Inspector($this);
+        }
+        return $this->_inspector;
     }
 } 

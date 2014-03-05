@@ -52,6 +52,15 @@ class Form extends AbstractFieldset
     protected $_inputFilter;
 
     /**
+     * @readwrite
+     * @var array
+     */
+    protected $_attributes =[
+        'action' => '',
+        'method' => 'post'
+    ];
+
+    /**
      * Overrides the parent constructor to set name as mandatory param.
      *
      * @param string       $name
@@ -220,5 +229,11 @@ class Form extends AbstractFieldset
             $this->setTemplate(new BasicForm());
         }
         return $this->_template;
+    }
+
+    public function getHtmlAttributes()
+    {
+        $result = parent::getHtmlAttributes();
+        return trim(str_replace('form-control', '', $result));
     }
 }

@@ -43,7 +43,7 @@
                         {% for column in records[0].getColumns() %}
                             {% if loop.first  %}
                                 <td>
-                                    <a href="{{ url('user/show/' ~ record.getKey()) }}">
+                                    <a href="{{ url('users/show/' ~ record.getKey()) }}">
                                         {{ record.getValue(column.getName()) }}
                                         <span class="glyphicon glyphicon-share"></span>
                                     </a>
@@ -55,7 +55,7 @@
                         <td>
                             <div class="data-table-actions">
                                 <div class="btn-group">
-                                    <a href="{{ url('user/edit/' ~ record.getKey()) }}" class="btn btn-xs btn-default">
+                                    <a href="{{ url('users/edit/' ~ record.getKey()) }}" class="btn btn-xs btn-default">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                         Edit
                                     </a>
@@ -65,13 +65,13 @@
                                     </button>
                                     <ul class="dropdown-menu" role="menu">
                                         <li>
-                                            <a href="{{ url('user/show/' ~ record.getKey()) }}">
+                                            <a href="{{ url('users/show/' ~ record.getKey()) }}">
                                                 <span class="glyphicon glyphicon-eye-open"></span>
                                                 View {{ modelSingular }}
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('user/delete/' ~ record.getKey()) }}">
+                                            <a href="{{ url('users/delete/' ~ record.getKey()) }}">
                                                 <span class="glyphicon glyphicon-trash"></span>
                                                 Delete {{ modelSingular }}
                                             </a>

@@ -1,4 +1,4 @@
-<form role="form">
+<form role="form" {{ element.getHtmlAttributes|raw }} >
 {% for elm in element.getElements() %}
     {{ elm.render()|raw }}
 {% endfor %}

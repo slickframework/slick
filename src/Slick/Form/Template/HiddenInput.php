@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BasicForm
+ * HiddenInput
  *
  * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,17 +13,17 @@
 namespace Slick\Form\Template;
 
 /**
- * BasicForm
+ * HiddenInput
  *
  * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class BasicForm extends AbstractTemplate
+class HiddenInput extends AbstractTemplate
 {
 
     /**
      * @readwrite
      * @var string
      */
-    protected $_templateFile = 'default-form.html.twig';
+    protected $_templateFile = 'hidden-input.html.twig';
 } 

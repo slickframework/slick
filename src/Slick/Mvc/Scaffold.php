@@ -87,9 +87,43 @@ class Scaffold extends Controller
         $form = new Form($name, ['model' => $this->_modelName]);
 
         if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
 
+            if ($form->isValid()) {
+                $class = $this->_modelName;
+                /** @var Model $object */
+                $object = new $class($form->getValues());
+                if ($object->save()) {
+                    $this->redirect($this->get('modelPlural') .'/index');
+                }
+            }
         }
         $this->set(compact('form'));
+    }
+
+    public function edit($id=0)
+    {
+        $name = "edit-". $this->get('modelSingular');
+        $form = new Form($name, ['model' => $this->_modelName]);
+
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+
+            if ($form->isValid()) {
+                $class = $this->_modelName;
+                /** @var Model $object */
+                $object = new $class($form->getValues());
+                if ($object->save()) {
+                    $this->redirect($this->get('modelPlural') .'/index');
+                }
+            }
+        } else {
+            /** @var Model $record */
+            $record = call_user_func_array([$this->_modelName, 'get'], array($id));
+            $form->setData($record->getData());
+        }
+
+        $this->set(compact('record', 'form'));
     }
 
 } 

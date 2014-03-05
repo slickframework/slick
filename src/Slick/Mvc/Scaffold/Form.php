@@ -12,9 +12,13 @@
 
 namespace Slick\Mvc\Scaffold;
 
-use Slick\Form\Element;
-use Slick\Form\Form as SlickFrom,
-    Slick\Mvc\Model;
+use Slick\Common\Inspector\TagList,
+    Slick\Form\Form as SlickFrom,
+    Slick\Form\Element,
+    Slick\Orm\Entity\Column,
+    Slick\Mvc\Model,
+    Slick\Validator\StaticValidator,
+    Slick\Filter\StaticFilter;
 
 /**
  * Form
@@ -31,6 +35,10 @@ class Form extends SlickFrom
      */
     protected $_model;
 
+    protected $_validations = [
+        'notEmpty', 'email'
+    ];
+
     /**
      * Add elements to the form based on the model notations
      *
@@ -40,10 +48,17 @@ class Form extends SlickFrom
     public function __construct($name, $options = array())
     {
         parent::__construct($name, $options);
-        foreach($this->getModel()->getPropertyList() as $name => $property) {
-            $name = trim($name, '_');
-            $this->add(new Element\Text(['name' => $name]));
+        foreach($this->getModel()->getPropertyList() as $propertyName => $property) {
+            $element = $this->_createElement($propertyName, $property);
+            if ($element) {
+                $this->add($element);
+            }
         }
+        $this->add(
+            new Element\Submit(
+                ['value' => 'Save']
+            )
+        );
     }
 
     /**
@@ -58,6 +73,104 @@ class Form extends SlickFrom
             $this->_model = new $class;
         }
         return $this->_model;
+    }
+
+    /**
+     * Creates an element based on the notations of a property
+     *
+     * @param string $name
+     * @param TagList $property
+     *
+     * @return false|Element
+     */
+    protected function _createElement($name, TagList $property)
+    {
+        $column = Column::parse($property, $name);
+        $type = 'text';
+        if ($column->primaryKey) {
+            $type = 'hidden';
+        }
+
+
+        if ($column->type == "datetime") {
+            $type = 'datetime';
+        }
+
+        $element = $this->_element($type, $column->name);
+
+        if ($property->hasTag('@validate')) {
+            $validations = [];
+            $tag = $property->getTag('@validate');
+            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
+                $validations = $tag->value->getArrayCopy();
+            } else {
+                $validations[] = $tag->value;
+            }
+
+            foreach ($validations as $validation)
+            {
+                if (in_array($validation, $this->_validations)) {
+                    $element->getInput()->getValidatorChain()
+                        ->add(StaticValidator::create($validation));
+                }
+
+                if ($validation == 'notEmpty') {
+                    $element->getInput()->required = true;
+                    $element->getInput()->allowEmpty = false;
+                }
+            }
+        }
+
+        if ($property->hasTag('@filter')) {
+            $filters = [];
+            $tag = $property->getTag('@filter');
+            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
+                $filters = $tag->value->getArrayCopy();
+            } else {
+                $filters[] = $tag->value;
+            }
+
+            foreach ($filters as $filter){
+                $element->getInput()->getFilterChain()
+                    ->add(StaticFilter::create($filter));
+            }
+        }
+
+
+        return $element;
+    }
+
+    /**
+     * Factory method for elements
+     *
+     * @param string $type
+     * @param string $name
+     *
+     * @return Element
+     */
+    protected function _element($type, $name)
+    {
+        switch ($type) {
+            case 'hidden':
+                $class = 'Slick\Form\Element\Hidden';
+                break;
+
+            case 'datetime':
+                $class = 'Slick\Form\Element\DateTime';
+                break;
+
+            case 'text':
+            default:
+                $class = 'Slick\Form\Element\Text';
+                break;
+        }
+
+        return new $class(
+            [
+                'name' => $name,
+                'label' => ucfirst($name)
+            ]
+        );
     }
 
 } 

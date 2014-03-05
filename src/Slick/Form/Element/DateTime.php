@@ -1,29 +1,31 @@
 <?php
 
 /**
- * BasicForm
+ * DateTime
  *
- * @package   Slick\Form\Template
+ * @package   Slick\Form\Element
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
-namespace Slick\Form\Template;
+namespace Slick\Form\Element;
 
 /**
- * BasicForm
+ * DateTime
  *
- * @package   Slick\Form\Template
+ * @package   Slick\Form\Element
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class BasicForm extends AbstractTemplate
+class DateTime extends Text
 {
 
     /**
      * @readwrite
-     * @var string
+     * @var array HTML attributes
      */
-    protected $_templateFile = 'default-form.html.twig';
+    protected $_attributes = [
+        'type' => 'text'
+    ];
 } 
