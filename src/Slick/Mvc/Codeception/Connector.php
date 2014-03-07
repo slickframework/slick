@@ -14,10 +14,15 @@ namespace Codeception\Util\Connector;
 
 use Slick\Configuration\Configuration;
 use Slick\Mvc\Application;
+use Slick\Template\Template;
 use Symfony\Component\BrowserKit\Client;
 use Composer\Autoload\ClassLoader;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\BrowserKit\Request;
+
+use Zend\Http\Request as HttpRequest;
+use Zend\Stdlib\Parameters;
+use Zend\Uri\Http as HttpUri;
 
 /**
  * Connector
@@ -47,36 +52,57 @@ class SlickConnector extends Client
 
         // Create application
         Configuration::addPath($path . '/Configuration');
+        Template::addPath($path . '/View');
 
         $uri = str_replace('http://localhost/', '', $request->getUri());
-        preg_match('/^([a-zA-Z0-9\/\-_]+)\.?([a-zA-Z]+)?(\?.*)/i', $uri, $matches);
+        preg_match('/^([a-zA-Z0-9\/\-_]+).?([a-zA-Z0-9\-_]*)\??([a-zA-Z0-9\-_\=]*)/i', $uri, $matches);
 
-        if (isset($matches[3])) {
+        if (isset($matches[3]) && $matches[3] != '') {
             $params = parse_url($request->getUri());
             parse_str($params['query'], $_GET);
         }
 
-        if (isset($matches[1])) {
+        if (isset($matches[1]) && $matches[1] != '') {
             $_GET['url'] = $matches[1];
         }
 
-        if (isset($matches[2])) {
+        if (isset($matches[2]) && $matches[2] != '') {
             $_GET['extension'] = $matches[2];
         }
 
         $app = new Application();
+
+        $zendRequest = $app->getRequest();
+        $zendResponse = $app->getResponse();
+
+        $uri = new HttpUri($request->getUri());
+        $queryString = $uri->getQuery();
+        $method = strtoupper($request->getMethod());
+
+        if ($queryString) {
+            parse_str($queryString, $query);
+        }
+
+        if ($method == HttpRequest::METHOD_POST) {
+            $zendRequest->setPost(new Parameters($request->getParameters()));
+        }
+        /* elseif ($method == HttpRequest::METHOD_PUT) {
+            $zendRequest->setContent($request->getContent());
+        }*/
+
+        $zendRequest->setMethod($method);
+        $zendRequest->setUri($uri);
 
         // Application bootstrap
         $app->bootstrap();
 
         $app->run();
 
-        $response = $app->getResponse();
 
         return new Response(
-            $response->getContent(),
-            $response->getStatusCode(),
-            $response->getHeaders()->toArray()
+            $zendResponse->getContent(),
+            $zendResponse->getStatusCode(),
+            $zendResponse->getHeaders()->toArray()
         );
 
     }

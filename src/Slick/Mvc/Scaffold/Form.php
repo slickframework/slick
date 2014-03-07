@@ -101,10 +101,10 @@ class Form extends SlickFrom
         if ($property->hasTag('@validate')) {
             $validations = [];
             $tag = $property->getTag('@validate');
+            $validations[] = $tag->value;
+
             if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
                 $validations = $tag->value->getArrayCopy();
-            } else {
-                $validations[] = $tag->value;
             }
 
             foreach ($validations as $validation)
@@ -124,10 +124,10 @@ class Form extends SlickFrom
         if ($property->hasTag('@filter')) {
             $filters = [];
             $tag = $property->getTag('@filter');
+            $filters[] = $tag->value;
+
             if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
                 $filters = $tag->value->getArrayCopy();
-            } else {
-                $filters[] = $tag->value;
             }
 
             foreach ($filters as $filter){
@@ -162,7 +162,6 @@ class Form extends SlickFrom
             case 'text':
             default:
                 $class = 'Slick\Form\Element\Text';
-                break;
         }
 
         return new $class(

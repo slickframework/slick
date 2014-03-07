@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Text filter
+ * HtmlEntities filter
  *
  * @package   Slick\Filter
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,12 +13,12 @@
 namespace Slick\Filter;
 
 /**
- * Text
+ * HtmlEntities filter
  *
  * @package   Slick\Filter
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Text extends AbstractFilter implements FilterInterface
+class HtmlEntities extends AbstractFilter implements FilterInterface
 {
 
     /**
@@ -33,10 +33,6 @@ class Text extends AbstractFilter implements FilterInterface
      */
     public function filter($value)
     {
-        return filter_var(
-            $value,
-            FILTER_SANITIZE_STRING,
-            FILTER_FLAG_NO_ENCODE_QUOTES
-        );
+        return filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     }
 }

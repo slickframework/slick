@@ -25,7 +25,8 @@ class StaticFilter
      * @var array List of available filter
      */
     public static $filters = [
-        'text' => 'Slick\Filter\Text'
+        'text' => 'Slick\Filter\Text',
+        'htmlEntities' => 'Slick\Filter\HtmlEntities'
     ];
 
     /**

@@ -87,15 +87,6 @@ class SlickTwigExtension extends \Twig_Extension
     }
 
     /**
-     * Set response object
-     * @param Request $request
-     */
-    public function setRequest($request)
-    {
-        $this->_request = $request;
-    }
-
-    /**
      * Lazy load of the HTTP response object
      *
      * @return Request

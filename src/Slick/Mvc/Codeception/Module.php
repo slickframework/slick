@@ -28,14 +28,6 @@ class Slick extends Framework
 {
 
     /**
-     * Runs on text case initialization
-     */
-    public function _initialize()
-    {
-
-    }
-
-    /**
      * Runs before each test
      *
      * @param TestCase $test

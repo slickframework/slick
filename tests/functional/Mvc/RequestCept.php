@@ -5,4 +5,6 @@ $I = new TestGuy($scenario);
 
 $I->wantTo('get default page');
 $I->amOnPage('/');
-$I->see('Bootstrap');
+$I->see('Home page');
+$I->see('app.css');
+$I->see('jquery.min.js');
