@@ -81,6 +81,20 @@ class Scaffold extends Controller
         $this->set(compact('records'));
     }
 
+    public function show($id=0)
+    {
+        $record = call_user_func_array([$this->_modelName, 'get'], array($id));
+        if (!$record) {
+            $this->redirect($this->get('modelPlural') .'/index');
+        }
+        $this->set(compact('record'));
+    }
+
+    public function view($id=0)
+    {
+
+    }
+
     public function add()
     {
         $name = "add-". $this->get('modelSingular');

@@ -1,0 +1,28 @@
+{% set columns = record.getColumns() %}
+{% set first = columns|first %}
+<div class="entity-show">
+    <h1>View "{{ record.getValue(first.getName()) }}"</h1>
+    <div class="entity-data">
+        <dl class="dl-horizontal">
+            {% for column in columns %}
+            <dt>{{ column.getName()|capitalize }}:</dt>
+            <dd>{{ record.getValue(column.getName()) }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+    <div class="show-actions">
+        <a href="{{ url(modelPlural ~ '/edit/' ~ record.getKey()) }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-pencil"></span>
+            &nbsp;Edit {{ modelSingular }}
+        </a>
+        &nbsp;
+        <a href="{{ url(modelPlural ~ '/delete/' ~ record.getKey()) }}" class="btn btn-warning">
+            <span class="glyphicon glyphicon-trash"></span>
+            &nbsp;Delete {{ modelSingular }}
+        </a>
+    </div>
+
+    <div class="entity-related-data">
+
+    </div>
+</div>
