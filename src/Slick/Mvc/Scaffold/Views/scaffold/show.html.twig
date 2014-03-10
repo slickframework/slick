@@ -1,3 +1,4 @@
+{% import "scaffold/delete.html.twig" as modal %}
 {% set columns = record.getColumns() %}
 {% set first = columns|first %}
 <div class="entity-show">
@@ -13,13 +14,19 @@
     <div class="show-actions">
         <a href="{{ url(modelPlural ~ '/edit/' ~ record.getKey()) }}" class="btn btn-primary">
             <span class="glyphicon glyphicon-pencil"></span>
-            &nbsp;Edit {{ modelSingular }}
-        </a>
+            &nbsp;Edit {{ modelSingular }}</a>
+
         &nbsp;
-        <a href="{{ url(modelPlural ~ '/delete/' ~ record.getKey()) }}" class="btn btn-warning">
+        <a href=".delete{{ record.getKey() }}" class="btn btn-warning" data-toggle="modal">
             <span class="glyphicon glyphicon-trash"></span>
             &nbsp;Delete {{ modelSingular }}
         </a>
+        {{ modal.deleteMacro(
+            url(modelPlural ~ '/delete/' ~ record.getKey()),
+            record.getKey(),
+            "delete" ~ record.getKey(),
+            modelSingular
+        ) }}
     </div>
 
     <div class="entity-related-data">

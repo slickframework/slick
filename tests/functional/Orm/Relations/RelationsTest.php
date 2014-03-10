@@ -123,7 +123,7 @@ class User extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 
     /**
      * @readwrite
@@ -167,7 +167,7 @@ class Comment extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }
 
 class Post extends Entity
@@ -205,7 +205,7 @@ class Post extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 
     /**
      * @readwrite
@@ -243,7 +243,7 @@ class Profile extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }
 
 class Tag extends Entity
@@ -274,5 +274,5 @@ class Tag extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }

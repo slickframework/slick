@@ -1,3 +1,4 @@
+{% import "scaffold/delete.html.twig" as modal %}
 <div class="entity-index">
     <h1>{{ modelPlural|capitalize }}</h1>
     <div class="panel panel-default">
@@ -24,6 +25,7 @@
             </div>
         </div>
         <div class="panel-body">
+            {% if records|length > 0 %}
             <table class="table table-bordered table-over table-condensed">
                 <thead>
                     <tr>
@@ -71,10 +73,11 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url(modelPlural ~ '/delete/' ~ record.getKey()) }}">
+                                            <button class="btn btn-link" type="button" data-target=".delete{{ record.getKey() }}" data-toggle="modal">
                                                 <span class="glyphicon glyphicon-trash"></span>
                                                 Delete {{ modelSingular }}
-                                            </a>
+                                            </button>
+
                                         </li>
                                     </ul>
                                 </div>
@@ -84,6 +87,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+                There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(modelPlural ~ '/add') }}">"Add {{ modelSingular }}"</a> button to add a new {{ modelSingular }}.
+            {% endif %}
 
         </div>
         <div class="panel-footer">
@@ -99,3 +105,11 @@
         </div>
     </div>
 </div>
+{% for record in records %}
+    {{ modal.deleteMacro(
+    url(modelPlural ~ '/delete/' ~ record.getKey()),
+    record.getKey(),
+    "delete" ~ record.getKey(),
+    modelSingular
+    ) }}
+{% endfor %}

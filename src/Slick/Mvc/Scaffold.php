@@ -12,6 +12,7 @@
 
 namespace Slick\Mvc;
 
+use Slick\Filter\StaticFilter;
 use Slick\Mvc\Scaffold\Form,
     Slick\Template\Template,
     Slick\Utility\Text;
@@ -90,11 +91,6 @@ class Scaffold extends Controller
         $this->set(compact('record'));
     }
 
-    public function view($id=0)
-    {
-
-    }
-
     public function add()
     {
         $name = "add-". $this->get('modelSingular');
@@ -138,6 +134,27 @@ class Scaffold extends Controller
         }
 
         $this->set(compact('record', 'form'));
+    }
+
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            $id = StaticFilter::filter('text', $this->request->getPost('id'));
+            $record = call_user_func_array([$this->_modelName, 'get'], array($id));
+            if (!$record) {
+
+            } else {
+                if ($record->delete()) {
+
+                } else {
+
+                }
+            }
+
+        } else {
+
+        }
+        $this->redirect($this->get('modelPlural') .'/index');
     }
 
 } 
