@@ -26,7 +26,7 @@ $I->fillField('#body-input', 'This is a functional test post');
 $I->click('Save');
 
 $I->seeInDatabase('posts', array('title' => 'Functional test post'));
-$I->seeInCurrentUrl('posts/index');
+$I->seeInCurrentUrl('posts/show');
 $I->see('Functional test post');
 
 /** Trying validation */

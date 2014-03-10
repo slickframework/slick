@@ -26,7 +26,8 @@ class StaticFilter
      */
     public static $filters = [
         'text' => 'Slick\Filter\Text',
-        'htmlEntities' => 'Slick\Filter\HtmlEntities'
+        'htmlEntities' => 'Slick\Filter\HtmlEntities',
+        'number' => 'Slick\Filter\Number'
     ];
 
     /**

@@ -13,6 +13,8 @@
 namespace Slick\Mvc;
 
 use Slick\Filter\StaticFilter;
+use Slick\Mvc\Libs\Session\FlashMessages;
+use Slick\Mvc\Libs\Utils\Pagination;
 use Slick\Mvc\Scaffold\Form,
     Slick\Template\Template,
     Slick\Utility\Text;
@@ -76,21 +78,42 @@ class Scaffold extends Controller
         return new static($options);
     }
 
+    /**
+     * Handles the call to index page
+     */
     public function index()
     {
-        $records = call_user_func_array([$this->_modelName, 'all'], array());
-        $this->set(compact('records'));
+        $pagination = new Pagination();
+        $options = array();
+        $pagination->setTotal(call_user_func_array([$this->_modelName, 'count'], array($options)));
+        $options['limit'] = $pagination->rowsPerPage;
+        $options['page'] = $pagination->offset;
+        $records = call_user_func_array([$this->_modelName, 'all'], array($options));
+        $this->set(compact('records', 'pagination'));
     }
 
+    /**
+     * Handles the request to show a record
+     *
+     * @param int $id
+     */
     public function show($id=0)
     {
         $record = call_user_func_array([$this->_modelName, 'get'], array($id));
         if (!$record) {
+            $this->setMessage(
+                FlashMessages::TYPE_WARNING,
+                "The specified ".
+                $this->get('modelSingular') ." does not exists."
+            );
             $this->redirect($this->get('modelPlural') .'/index');
         }
         $this->set(compact('record'));
     }
 
+    /**
+     * Handles the request to add a new record
+     */
     public function add()
     {
         $name = "add-". $this->get('modelSingular');
@@ -104,13 +127,32 @@ class Scaffold extends Controller
                 /** @var Model $object */
                 $object = new $class($form->getValues());
                 if ($object->save()) {
-                    $this->redirect($this->get('modelPlural') .'/index');
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        ucfirst($this->get('modelSingular')) .
+                        " successfully created."
+                    );
+                    $this->redirect(
+                        $this->get('modelPlural') .'/show/'.
+                        $object->getConnector()->getLastInsertId()
+                    );
                 }
+            } else {
+                $this->setMessage(
+                    FlashMessages::TYPE_ERROR,
+                    ucfirst($this->get('modelSingular')) .
+                    " cannot be created. Please check the errors below."
+                );
             }
         }
         $this->set(compact('form'));
     }
 
+    /**
+     * Handles the request to edit a record
+     *
+     * @param int $id
+     */
     public function edit($id=0)
     {
         $name = "edit-". $this->get('modelSingular');
@@ -124,8 +166,19 @@ class Scaffold extends Controller
                 /** @var Model $object */
                 $object = new $class($form->getValues());
                 if ($object->save()) {
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        ucfirst($this->get('modelSingular')) .
+                        " successfully updated."
+                    );
                     $this->redirect($this->get('modelPlural') .'/index');
                 }
+            } else {
+                $this->setMessage(
+                    FlashMessages::TYPE_ERROR,
+                    ucfirst($this->get('modelSingular')) .
+                    " cannot be updated. Please check the errors below."
+                );
             }
         } else {
             /** @var Model $record */
@@ -136,22 +189,29 @@ class Scaffold extends Controller
         $this->set(compact('record', 'form'));
     }
 
+    /**
+     * Handles the request to delete a record
+     */
     public function delete()
     {
         if ($this->request->isPost()) {
             $id = StaticFilter::filter('text', $this->request->getPost('id'));
             $record = call_user_func_array([$this->_modelName, 'get'], array($id));
             if (!$record) {
-
+                $this->setMessage(
+                    FlashMessages::TYPE_WARNING,
+                    "The specified ".
+                    $this->get('modelSingular') ." does not exists."
+                );
             } else {
                 if ($record->delete()) {
-
-                } else {
-
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        ucfirst($this->get('modelSingular')) .
+                        " successfully deleted."
+                    );
                 }
             }
-
-        } else {
 
         }
         $this->redirect($this->get('modelPlural') .'/index');

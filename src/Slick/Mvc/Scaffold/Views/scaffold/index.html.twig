@@ -26,7 +26,7 @@
         </div>
         <div class="panel-body">
             {% if records|length > 0 %}
-            <table class="table table-bordered table-over table-condensed">
+            <table class="table table-bordered table-condensed table-hover">
                 <thead>
                     <tr>
                     {% for column in records[0].getColumns() %}
@@ -93,15 +93,7 @@
 
         </div>
         <div class="panel-footer">
-            <ul class="pagination">
-                <li class="disabled"><a href="#">&laquo;</a></li>
-                <li class="active"><span>1 <span class="sr-only">(current)</span></span></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><a href="#">5</a></li>
-                <li><a href="#">&raquo;</a></li>
-            </ul>
+            {% include 'pagination/pagination.html.twig' %}
         </div>
     </div>
 </div>

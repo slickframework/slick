@@ -26,7 +26,8 @@ class StaticValidator
     public static $validators = [
         'notEmpty' => 'Slick\Validator\NotEmpty',
         'email' => 'Slick\Validator\Email',
-        'alphaNumeric' => 'Slick\Validator\AlphaNumeric'
+        'alphaNumeric' => 'Slick\Validator\AlphaNumeric',
+        'number' => 'Slick\Validator\Number'
     ];
 
     /**

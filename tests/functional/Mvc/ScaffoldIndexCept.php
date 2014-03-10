@@ -15,7 +15,7 @@ $I = new TestGuy($scenario);
 $I->wantTo('use controller scaffolding');
 $I->lookForwardTo('can accelerate model development');
 
-$I->amOnPage('/posts/index.html?page=2');
+$I->amOnPage('/posts/index.html?page=0');
 $I->see('My blog post');
 $I->seeLink('Add');
 $I->see('Posts');

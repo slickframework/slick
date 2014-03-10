@@ -89,6 +89,7 @@ class Application extends Base implements EventManagerAwareInterface
         Template::addPath(
             getcwd() .'/'. $this->getConfiguration()->get('paths.views', 'Views')
         );
+        Template::appendPath(__DIR__ . '/Views');
 
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);

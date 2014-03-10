@@ -13,7 +13,8 @@
 namespace Slick\Mvc;
 
 use Slick\Common\Base,
-    Slick\Di\DependencyInjector;
+    Slick\Di\DependencyInjector,
+    Slick\Mvc\Libs\Session\FlashMessages;
 use Zend\EventManager\EventManager,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
@@ -35,6 +36,7 @@ use Zend\EventManager\EventManager,
  * @property EventManager $events
  * @property string $controllerName
  * @property string $actionName
+ * @property FlashMessages $flashMessages
  */
 abstract class Controller extends Base implements EventManagerAwareInterface
 {
@@ -115,6 +117,12 @@ abstract class Controller extends Base implements EventManagerAwareInterface
      * @var bool
      */
     protected $_scaffold = false;
+
+    /**
+     * @readwrite
+     * @var FlashMessages
+     */
+    protected $_flashMessages;
 
     /**
      * Sets the values to be used in the views.
@@ -228,6 +236,9 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     {
         $results = null;
 
+        // set flash messages
+        $this->set('flashMessages', $this->flashMessages);
+
         $doLayout = $this->renderLayout && $this->getLayout();
         $doView = $this->renderView && $this->getView();
 
@@ -323,5 +334,29 @@ abstract class Controller extends Base implements EventManagerAwareInterface
             $value = $this->_viewVars[$varName];
         }
         return $value;
+    }
+
+    /**
+     * Lazy load of flash messages
+     *
+     * @return FlashMessages
+     */
+    public function getFlashMessages()
+    {
+        if (is_null($this->_flashMessages)) {
+            $this->_flashMessages = new FlashMessages();
+        }
+        return $this->_flashMessages;
+    }
+
+    /**
+     * Sets a flash message to be displayed
+     *
+     * @param int $type
+     * @param string $message
+     */
+    public function setMessage($type, $message)
+    {
+        $this->flashMessages->set($type, $message);
     }
 }
