@@ -15,6 +15,7 @@ namespace Slick\Mvc\Libs\Session;
 use Slick\Common\Base,
     Slick\Session\Session,
     Slick\Session\Driver\Driver;
+use Slick\Filter\StaticFilter;
 
 /**
  * Application flash messages
@@ -62,17 +63,6 @@ class FlashMessages extends Base
     protected static $_instance;
 
     /**
-     * Load messages upon creation
-     *
-     * @param array $options
-     */
-    public function __construct($options = array())
-    {
-        parent::__construct($options);
-        $this->_messages = $this->getSession()->get('_messages_', []);
-    }
-
-    /**
      * Lazy loads session component
      *
      * @return Driver|\Slick\Session\Driver\DriverInterface
@@ -95,6 +85,7 @@ class FlashMessages extends Base
      */
     public function set($type, $message)
     {
+        $type = StaticFilter::filter('number', $type);
         if ($type < 0 || $type > 3) {
             $type = static::TYPE_INFO;
         }
@@ -110,6 +101,7 @@ class FlashMessages extends Base
      */
     public function get()
     {
+        $this->_messages = $this->getSession()->get('_messages_', []);
         $messages = $this->_messages;
         $this->flush();
         return $messages;

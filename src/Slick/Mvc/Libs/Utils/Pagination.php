@@ -114,7 +114,7 @@ class Pagination extends Base
         }
 
         $this->_current = StaticFilter::filter('number',$value);
-        $this->_offset = ($this->_rowsPerPage * $this->_current) - 1;
+        $this->_offset = $this->_rowsPerPage * ($this->_current - 1);
         return $this;
     }
 
