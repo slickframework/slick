@@ -56,6 +56,21 @@ class PaginationTest extends \Codeception\TestCase\Test
             'extension' => 'html'
         ];
         $pag = new Pagination(['total' => 36]);
-        //$this->assertEquals()
+
+        $this->assertInstanceOf(
+            'Slick\Mvc\Libs\Utils\Pagination',
+            $pag->setTotal('not a number')
+        );
+        $this->assertEquals(36, $pag->total);
+        $this->assertInstanceOf(
+            'Slick\Mvc\Libs\Utils\Pagination',
+            $pag->setRowsPerPage('not a number')
+        );
+        $this->assertEquals(6, $pag->rowsPerPage);
+        $this->assertEquals(6, $pag->pages);
+        $this->assertEquals(2, $pag->current);
+        $this->assertEquals(6, $pag->offset);
+
+        $this->assertEquals('?rows=6&page=4', $pag->pageUrl(4));
     }
 }

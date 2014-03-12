@@ -13,9 +13,8 @@
 namespace Slick\Session;
 
 use Slick\Common\Base,
-    Slick\Session\Driver;
-use Slick\Configuration\Configuration;
-use Slick\Configuration\Driver\DriverInterface;
+    Slick\Session\Driver,
+    Slick\Configuration\Configuration;
 
 /**
  * Session factory class
@@ -52,9 +51,9 @@ class Session extends Base
         if (is_null($config)) {
             $config = Configuration::get('config');
         }
-        $class = $config->get('cache.type', 'server');
-        $options = $config->get('cache', array());
-        if ($config->get('cache.type', false)) {
+        $class = $config->get('session.type', 'server');
+        $options = $config->get('session', array());
+        if ($config->get('session.type', false)) {
             unset ($options['type']);
         }
 
