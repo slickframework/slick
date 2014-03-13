@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Number  validator
+ * Url validator
  *
  * @package   Slick\Validator
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,12 +13,12 @@
 namespace Slick\Validator;
 
 /**
- * Number  validator
+ * Url validator
  *
  * @package   Slick\Validator
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Number extends AbstractValidator implements ValidatorInterface
+class Url extends AbstractValidator implements ValidatorInterface
 {
 
     /**
@@ -26,7 +26,7 @@ class Number extends AbstractValidator implements ValidatorInterface
      * @var array Message templates
      */
     protected $_messageTemplates = [
-        'number' => 'The value is not a number.'
+        'url' => 'The value is not a valid URL.'
     ];
 
     /**
@@ -37,10 +37,10 @@ class Number extends AbstractValidator implements ValidatorInterface
      */
     public function isValid($value)
     {
-        $result = filter_var($value, FILTER_VALIDATE_INT);
+        $result = (boolean) filter_var($value, FILTER_VALIDATE_URL);
         if (!$result) {
-            $this->addMessage('number');
+            $this->addMessage('url');
         }
-        return filter_var($value, FILTER_VALIDATE_INT);
+        return $result;
     }
 }

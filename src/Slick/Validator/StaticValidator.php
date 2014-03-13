@@ -27,7 +27,8 @@ class StaticValidator
         'notEmpty' => 'Slick\Validator\NotEmpty',
         'email' => 'Slick\Validator\Email',
         'alphaNumeric' => 'Slick\Validator\AlphaNumeric',
-        'number' => 'Slick\Validator\Number'
+        'number' => 'Slick\Validator\Number',
+        'url' => 'Slick\Validator\Url'
     ];
 
     /**

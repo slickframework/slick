@@ -36,7 +36,7 @@ class Form extends SlickFrom
     protected $_model;
 
     protected $_validations = [
-        'notEmpty', 'email'
+        'notEmpty', 'email', 'url', 'number', 'alphaNumeric'
     ];
 
     /**
