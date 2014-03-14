@@ -29,11 +29,11 @@
             <table class="table table-bordered table-condensed table-hover">
                 <thead>
                     <tr>
-                    {% for column in records[0].getColumns() %}
+                    {% for column in records[0].getPropertyList(true) %}
                         {% if loop.first  %}
-                        <th>{{ column.getName()|capitalize }}</th>
+                        <th>{{ column|capitalize }}</th>
                         {% else %}
-                        <th class="hidden-xs">{{ column.getName()|capitalize }}</th>
+                        <th class="hidden-xs">{{ column|capitalize }}</th>
                         {% endif %}
                     {% endfor %}
                         <th>Actions</th>
@@ -42,16 +42,16 @@
                 <tbody>
                     {% for record in records %}
                     <tr>
-                        {% for column in records[0].getColumns() %}
+                        {% for column in records[0].getPropertyList(true) %}
                             {% if loop.first  %}
                                 <td>
                                     <a href="{{ url(modelPlural ~ '/show/' ~ record.getKey()) }}">
-                                        {{ record.getValue(column.getName()) }}
+                                        {{ record.getValue(column) }}
                                         <span class="glyphicon glyphicon-share"></span>
                                     </a>
                                 </td>
                             {% else %}
-                                <td class="hidden-xs">{{ record.getValue(column.getName()) }}</td>
+                                <td class="hidden-xs">{{ record.getValue(column) }}</td>
                             {% endif %}
                         {% endfor %}
                         <td>

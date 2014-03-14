@@ -85,18 +85,11 @@ class Form extends SlickFrom
      */
     protected function _createElement($name, TagList $property)
     {
-        $column = Column::parse($property, $name);
-        $type = 'text';
-        if ($column->primaryKey) {
-            $type = 'hidden';
+        if ($property->hasTag('@belongsto')) {
+            $element = $this->_createFromRelation($name);
+        } else {
+            $element = $this->_createFromColumn($name, $property);
         }
-
-
-        if ($column->type == "datetime") {
-            $type = 'datetime';
-        }
-
-        $element = $this->_element($type, $column->name);
 
         if ($property->hasTag('@validate')) {
             $validations = [];
@@ -141,6 +134,30 @@ class Form extends SlickFrom
     }
 
     /**
+     * Creates a form element from column object
+     * @param string  $name
+     * @param TagList $property
+     *
+     * @return Element
+     */
+    protected function _createFromColumn($name, TagList $property)
+    {
+        $column = Column::parse($property, $name);
+
+        // Define types
+        $type = 'text';
+        if ($column->primaryKey) {
+            $type = 'hidden';
+        }
+
+        if ($column->type == "datetime") {
+            $type = 'datetime';
+        }
+
+        return $this->_element($type, $column->name);
+    }
+
+    /**
      * Factory method for elements
      *
      * @param string $type
@@ -159,6 +176,10 @@ class Form extends SlickFrom
                 $class = 'Slick\Form\Element\DateTime';
                 break;
 
+            case 'select':
+                $class = 'Slick\Form\Element\Select';
+                break;
+
             case 'text':
             default:
                 $class = 'Slick\Form\Element\Text';
@@ -170,6 +191,26 @@ class Form extends SlickFrom
                 'label' => ucfirst($name)
             ]
         );
+    }
+
+    /**
+     * Create form element from relation
+     *
+     * @param string $name
+     *
+     * @return Element
+     */
+    protected function _createFromRelation($name)
+    {
+        $relation = $this->getModel()->getRelationsManager()
+            ->getRelation($name);
+
+        /** @var Element\Select $element */
+        $element = $this->_element('select', trim($name, '_'));
+        $modelClass = get_class($relation->getRelated());
+        $element->options = call_user_func([$modelClass, 'getList']);
+        return $element;
+
     }
 
 } 

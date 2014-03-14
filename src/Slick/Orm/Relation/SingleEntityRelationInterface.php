@@ -45,5 +45,5 @@ interface SingleEntityRelationInterface extends RelationInterface
      */
     public function updateQuery(Event $event);
 
-    public function hydratate(Event $event);
+    public function hydrate(Event $event);
 } 

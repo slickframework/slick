@@ -12,7 +12,9 @@
             <span class="required-indicator">*</span>
         {% endif %}
     </label>
+    {% block inputElement %}
     <input value="{{ element.getValue() }}" name="{{ element.getName }}" id="{{ element.getName() }}-input" {{ element.getHtmlAttributes|raw }} />
+    {% endblock %}
     {% for message in element.getInput().getMessages() %}
     <p class="help-block"><small>{{ message }}</small></p>
     {% endfor %}

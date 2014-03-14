@@ -46,7 +46,7 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('\Orm\Relations\User', $comments[0]->user);
         $user = $comments[0]->user;
         $this->assertEquals('some.name@example.com', $user->email);
-        $this->assertEquals('Filipe Silva', $user->profile->fullName);
+        $this->assertEquals('Guest User', $user->profile->fullName);
         $this->assertInstanceOf('\Orm\Relations\Post', $comments[0]->post);
         $this->assertInstanceOf('\Orm\Relations\User', $comments[0]->user->profile->user);
 

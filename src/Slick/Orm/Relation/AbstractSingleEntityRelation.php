@@ -135,22 +135,24 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
         $events->attach(
             'afterSelect',
             function ($event) use ($relation) {
-                $relation->hydratate($event);
+                $relation->hydrate($event);
             }
         );
         return $relation;
     }
 
-    public function hydratate(Event $event)
+    public function hydrate(Event $event)
     {
         $data = $event->getParam('data');
 
         if ($event->getParam('action') == 'all') {
             foreach ($data as $key => &$row) {
-                $this->_hydratate($row, $event->getParam('entity')[$key]);
+                $entity = $event->getParam('entity')[$key];
+                $this->_hydrate($row, $entity);
             }
         } else {
-            $this->_hydratate($data, $event->getParam('entity'));
+            $entity = $event->getParam('entity');
+            $this->_hydrate($data, $entity);
         }
     }
 
@@ -158,7 +160,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      * @param $data
      * @param $object
      */
-    protected function _hydratate(&$data, &$object)
+    protected function _hydrate(&$data, &$object)
     {
 
         $columns = $this->getRelated()->getColumns();

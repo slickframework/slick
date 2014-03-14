@@ -15,6 +15,7 @@ use Slick\Database\RecordList;
 use Slick\Di\DependencyInjector;
 use Slick\Orm\Entity\Column;
 use Slick\Orm\Exception;
+use Slick\Orm\Relation\BelongsTo;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -78,6 +79,7 @@ class Entity extends AbstractEntity
 
         if ($row) {
             $object = new $className($row);
+            $row = $object->remainingData;
             $entity->getEventManager()->trigger(
                 'afterSelect',
                 $object,
@@ -164,8 +166,10 @@ class Entity extends AbstractEntity
         $result = new RecordList();
 
         if ($rows && is_a($rows, '\ArrayObject')) {
-            foreach ($rows as $row) {
-                $result->append(new $className($row));
+            foreach ($rows as &$row) {
+                $object = new $className($row);
+                $row = $object->remainingData;
+                $result->append($object);
             }
         }
 
@@ -224,6 +228,7 @@ class Entity extends AbstractEntity
 
         if ($row) {
             $object = new $className($row);
+            $row = $object->remainingData;
             $entity->getEventManager()->trigger(
                 'afterSelect',
                 $object,
@@ -379,7 +384,8 @@ class Entity extends AbstractEntity
         );
 
         if ($row) {
-            $this->_hydratate($row);
+            $this->_hydrate($row);
+            $row = $this->remainingData;
             $this->getEventManager()->trigger(
                 'afterSelect',
                 $this,
@@ -412,10 +418,35 @@ class Entity extends AbstractEntity
                 $prop = $col->raw;
                 $data[$col->name] = $this->$prop;
             }
+
+            $this->_saveRelations($data);
         }
 
         $query->set($data);
         return $query->save();
+    }
+
+    protected function _saveRelations(&$data)
+    {
+        /** @var BelongsTo $relation */
+        foreach ($this->getRelationsManager()->relations as $property => $relation) {
+            $property = trim($property, '_');
+            if (is_a($this->$property, '\Slick\Orm\EntityInterface')) {
+                if (is_a($relation, '\Slick\Orm\Relation\BelongsTo')) {
+                    $pmk = $this->$property->primaryKey;
+                    $data[$relation->getForeignKey()] =
+                        $this->$property->$pmk;
+                    continue;
+                }
+            } else {
+                if (is_a($relation, '\Slick\Orm\Relation\BelongsTo')) {
+                    if (isset($this->_raw[$property])) {
+                        $data[$relation->getForeignKey()] =
+                            $this->_raw[$property];
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -448,6 +479,8 @@ class Entity extends AbstractEntity
                 $prop = $col->raw;
                 $data[$col->name] = $this->$prop;
             }
+
+            $this->_saveRelations($data);
         }
 
         $query->set($data);

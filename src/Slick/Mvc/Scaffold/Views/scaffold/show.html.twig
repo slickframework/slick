@@ -1,13 +1,12 @@
 {% import "scaffold/delete.html.twig" as modal %}
-{% set columns = record.getColumns() %}
-{% set first = columns|first %}
+{% set columns = record.getPropertyList(true) %}
 <div class="entity-show">
-    <h1>View "{{ record.getValue(first.getName()) }}"</h1>
+    <h1>View "{{ record }}"</h1>
     <div class="entity-data">
         <dl class="dl-horizontal">
             {% for column in columns %}
-            <dt>{{ column.getName()|capitalize }}:</dt>
-            <dd>{{ record.getValue(column.getName()) }}</dd>
+            <dt>{{ column|capitalize }}:</dt>
+            <dd>{{ record.getValue(column) }}</dd>
             {% endfor %}
         </dl>
     </div>

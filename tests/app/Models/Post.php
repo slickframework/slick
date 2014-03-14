@@ -24,7 +24,7 @@ class Post extends Model
     /**
      * @readwrite
      * @column type=text, size=tiny
-     * @validate notEmpty, alphaNumeric
+     * @validate notEmpty
      * @var string
      */
     protected $_title;

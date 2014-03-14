@@ -41,6 +41,12 @@ abstract class Model extends Entity implements EntityInterface
     protected $_propertyList = [];
 
     /**
+     * @readwrite
+     * @var string Name of the display field
+     */
+    protected $_displayField;
+
+    /**
      * Returns the value of the provided column name
      *
      * @param string $name Column name
@@ -78,7 +84,7 @@ abstract class Model extends Entity implements EntityInterface
                 $fk = $this->getRelationsManager()
                     ->getRelation($property)
                     ->getRelated()->primaryKey;
-                $data[$name] =  $this->$property->fk;
+                $data[$name] =  $this->$property->$fk;
             } else if ($meta->hasTag('@column')) {
                 $data[$name] = $this->$property;
             }
@@ -89,12 +95,15 @@ abstract class Model extends Entity implements EntityInterface
     /**
      * Returns the list of editable properties of this model
      *
-     * This list all the properties that have @column, @hasone
-     * or @belongsto notations.
+     * This list all the properties that have @column, @hasOne
+     * or @belongsTo notations.
+     *
+     * @param boolean $external If its set to true it will return the
+     * column names only
      *
      * @return Inspector\TagList[]
      */
-    public function getPropertyList()
+    public function getPropertyList($external = false)
     {
         if (empty($this->_propertyList)) {
             $inspector = $this->_getInspector();
@@ -110,7 +119,80 @@ abstract class Model extends Entity implements EntityInterface
                 }
             }
         }
+        if ($external) {
+            $values = array_keys($this->_propertyList);
+            return array_map(function($value){ return trim($value, '_');}, $values);
+        }
         return $this->_propertyList;
+    }
+
+    /**
+     * Returns the display field name
+     *
+     * The display field is used to print out the model instance name
+     * when you request to print a model.
+     *
+     * For example:
+     * model as the id, name, address fields, if you print out model with
+     * echo $model, it will use the name field to print it or other field
+     * if you define $_displayField property.
+     *
+     * @return string
+     */
+    public function getDisplayField()
+    {
+        if (is_null($this->_displayField)) {
+            /** @var Inspector\TagList[] $properties */
+            $properties = array_reverse($this->getPropertyList(), true);
+            foreach ($properties as $name => $prop) {
+                $name = trim($name, '_');
+                if ($name == $this->primaryKey) {
+                    continue;
+                }
+
+                if ($prop->hasTag('@display')) {
+                    $this->_displayField = $name;
+                    break;
+                }
+                $this->_displayField = $name;
+            }
+        }
+        return $this->_displayField;
+
+    }
+
+    /**
+     * Prints out this module text representation
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $displayField = $this->getDisplayField();
+        return $this->$displayField;
+    }
+
+    /**
+     * Retrieves an array with primary keys and display fields
+     *
+     * This is used mainly for selected options
+     *
+     * @return array
+     */
+    public static function getList()
+    {
+        /** @var Model $model */
+        $model = new static();
+        $key = $model->primaryKey;
+        $value = $model->getDisplayField();
+        $list = static::all([
+            'fields' => [$key, $value]
+        ]);
+        $result = [];
+        foreach ($list as $inst) {
+            $result[$inst->$key] = $inst->$value;
+        }
+        return $result;
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SubmitInput
+ * SelectInput
  *
  * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,18 +13,17 @@
 namespace Slick\Form\Template;
 
 /**
- * SubmitInput
+ * SelectInput
  *
  * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class SubmitInput extends AbstractTemplate
+class SelectInput extends AbstractTemplate
 {
 
     /**
      * @readwrite
      * @var string
      */
-    protected $_templateFile = 'button-input.html.twig';
-
+    protected $_templateFile = 'select-input.html.twig';
 } 
