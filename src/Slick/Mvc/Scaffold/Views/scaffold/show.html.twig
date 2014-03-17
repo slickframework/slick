@@ -30,9 +30,9 @@
 
     {% set relations = record.getMultipleEntityRelations() %}
     &nbsp;<br />
+    {% if relations|length > 0 %}
     <div class="entity-related-data panel panel-default">
         <div class="panel-body">
-            {% if relations|length > 0 %}
             <!-- Nav tabs -->
             <ul class="nav nav-tabs">
                 {% for prop, rel in relations %}
@@ -49,8 +49,7 @@
                 {% for prop, rel in relations %}
                     {% if loop.first %}
                         <div class="tab-pane active" id="tab{{ loop.index }}">
-                            {{ prop }}
-                            {% include 'scaffold/related.html.twig' with {'recorlds': record.getValue(prop)} %}
+                            {% include 'scaffold/related.html.twig' with {'records': record.getValue(prop)} %}
                         </div>
                     {% else %}
                         <div class="tab-pane" id="tab{{ loop.index }}">
@@ -59,7 +58,7 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            {% endif %}
         </div>
     </div>
+    {% endif %}
 </div>

@@ -27,6 +27,7 @@ class Comment extends Model
      * @validate notEmpty
      * @filter text
      * @var string
+     * @display
      */
     protected $_body;
 

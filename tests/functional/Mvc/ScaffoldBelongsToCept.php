@@ -22,3 +22,6 @@ $I->fillField('#body-input', 'A simple comment');
 $I->click('Save');
 $I->seeInCurrentUrl('show');
 $I->see('A simple comment');
+
+$I->submitForm('.modal-content form', ['id' => 3]);
+$I->seeInCurrentUrl('index');
