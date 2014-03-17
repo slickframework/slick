@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+include_once dirname(__DIR__) . '/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+
+$application = new Application("Slick Framework", Slick\Version\Version::VERSION);
+$application->run();
