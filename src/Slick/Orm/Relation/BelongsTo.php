@@ -81,7 +81,9 @@ class BelongsTo extends AbstractSingleEntityRelation
         $this->setEntity($entity);
         $related = get_class($this->getRelated());
         $frKey = $this->getForeignKey();
-
+        if (!isset($entity->raw[$frKey])) {
+            return null;
+        }
         return call_user_func_array(
             array($related, 'get'),
             array(

@@ -125,7 +125,8 @@ class Scaffold extends Controller
             if ($form->isValid()) {
                 $class = $this->_modelName;
                 /** @var Model $object */
-                $object = new $class($form->getValues());
+                $values = $form->getValues();
+                $object = new $class($values);
                 if ($object->save()) {
                     $this->setMessage(
                         FlashMessages::TYPE_SUCCESS,

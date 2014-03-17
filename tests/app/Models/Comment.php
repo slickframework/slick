@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Post model
+ * Comment model
  */
 
 namespace Models;
@@ -9,10 +9,10 @@ namespace Models;
 use Slick\Mvc\Model;
 
 /**
- * Class Post
+ * Class Comment
  * @package Models
  */
-class Post extends Model
+class Comment extends Model
 {
     /**
      * @readwrite
@@ -23,31 +23,19 @@ class Post extends Model
 
     /**
      * @readwrite
-     * @column type=text, size=tiny
-     * @validate notEmpty
-     * @var string
-     */
-    protected $_title;
-
-    /**
-     * @readwrite
      * @column type=text, size=big
-     * @filter text, htmlEntities
+     * @validate notEmpty
+     * @filter text
      * @var string
      */
     protected $_body;
 
     /**
      * @readwrite
-     * @column type=datetime
-     * @var string
+     * @belongsTo Models\Post
+     * @var Post
      */
-    protected $_published;
-
-    /**
-     * @var Comment[]
-     */
-    protected $_comments;
+    protected $_post;
 
     /**
      * @readwrite

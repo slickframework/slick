@@ -195,6 +195,22 @@ abstract class Model extends Entity implements EntityInterface
         return $result;
     }
 
+    public function getMultipleEntityRelations()
+    {
+        $result = [];
+        foreach ($this->getRelationsManager()->relations as $key => $rel) {
+            if (
+                is_a(
+                    $rel,
+                    '\Slick\Orm\Relation\MultipleEntityRelationInterface'
+                )
+            ) {
+                $result[trim($key, '_')] = $rel;
+            }
+        }
+        return $result;
+    }
+
     /**
      * Lazy load of model inspector
      *
