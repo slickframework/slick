@@ -4,7 +4,7 @@
     <table class="table table-bordered table-condensed table-hover">
         <thead>
         <tr>
-            {% for column in records[0].getPropertyList(true) %}
+            {% for column in records[0].modelData.getPropertyList(true) %}
                 {% if loop.first  %}
                     <th>{{ column|capitalize }}</th>
                 {% else %}
@@ -16,7 +16,7 @@
         <tbody>
         {% for record in records %}
             <tr>
-                {% for column in records[0].getPropertyList(true) %}
+                {% for column in records[0].modelData.getPropertyList(true) %}
                     {% if loop.first  %}
                         <td>
                             <a href="{{ url(prop ~ '/show/' ~ record.getKey()) }}">

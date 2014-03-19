@@ -1,9 +1,21 @@
 #!/usr/bin/env php
 <?php
 
-include_once dirname(__DIR__) . '/vendor/autoload.php';
+// autoload on framework development
+if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
+    include_once dirname(__DIR__) . '/vendor/autoload.php';
+} else {
+    // autoload from inside vendors folder
+    include_once dirname(__FILE__) . '/autoload.php';
+}
 
 use Symfony\Component\Console\Application;
 
 $application = new Application("Slick Framework", Slick\Version\Version::VERSION);
+
+// Adding MVC commands to cli application
+if (class_exists('Slick\Mvc\Command\GenerateController')) {
+    $application->add(new \Slick\Mvc\Command\GenerateController);
+}
+
 $application->run();

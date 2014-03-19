@@ -13,6 +13,7 @@
 namespace Slick\Mvc;
 
 use Slick\Common\Inspector;
+use Slick\Mvc\Libs\Utils\ModelData;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
 use Slick\Orm\Relation\BelongsTo;
@@ -23,28 +24,22 @@ use Slick\Orm\Relation\BelongsTo;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property Inspector\TagList[] $propertyList
+ * @property ModelData $modelData
  */
 abstract class Model extends Entity implements EntityInterface
 {
-
-    /**
-     * @read
-     * @var Inspector
-     */
-    protected $_inspector;
-
-    /**
-     * @read
-     * @var Inspector\TagList[]
-     */
-    protected $_propertyList = [];
 
     /**
      * @readwrite
      * @var string Name of the display field
      */
     protected $_displayField;
+
+    /**
+     * @read
+     * @var ModelData
+     */
+    protected $_modelData;
 
     /**
      * Returns the value of the provided column name
@@ -76,10 +71,10 @@ abstract class Model extends Entity implements EntityInterface
     public function getData()
     {
         $data = [];
-        $properties = $this->getPropertyList();
+        $properties = $this->modelData->getPropertyList();
         foreach ($properties as $property => $meta) {
             $name = trim($property, '_');
-            if ($meta->hasTag('@belongsto')) {
+            if ($meta->hasTag('@belongsTo')) {
                 /** @var BelongsTo $field */
                 $fk = $this->getRelationsManager()
                     ->getRelation($property)
@@ -93,37 +88,16 @@ abstract class Model extends Entity implements EntityInterface
     }
 
     /**
-     * Returns the list of editable properties of this model
+     * Return metadata about this model
      *
-     * This list all the properties that have @column, @hasOne
-     * or @belongsTo notations.
-     *
-     * @param boolean $external If its set to true it will return the
-     * column names only
-     *
-     * @return Inspector\TagList[]
+     * @return ModelData
      */
-    public function getPropertyList($external = false)
+    public function getModelData()
     {
-        if (empty($this->_propertyList)) {
-            $inspector = $this->_getInspector();
-
-            foreach($inspector->getClassProperties() as $property) {
-                $propertyData = $inspector->getPropertyMeta($property);
-                if (
-                    $propertyData->hasTag('@column') ||
-                    $propertyData->hasTag('@hasone') ||
-                    $propertyData->hasTag('@belongsto')
-                ) {
-                    $this->_propertyList[$property] = $propertyData;
-                }
-            }
+        if (is_null($this->_modelData)) {
+            $this->_modelData = new ModelData($this);
         }
-        if ($external) {
-            $values = array_keys($this->_propertyList);
-            return array_map(function($value){ return trim($value, '_');}, $values);
-        }
-        return $this->_propertyList;
+        return $this->_modelData;
     }
 
     /**
@@ -141,24 +115,7 @@ abstract class Model extends Entity implements EntityInterface
      */
     public function getDisplayField()
     {
-        if (is_null($this->_displayField)) {
-            /** @var Inspector\TagList[] $properties */
-            $properties = array_reverse($this->getPropertyList(), true);
-            foreach ($properties as $name => $prop) {
-                $name = trim($name, '_');
-                if ($name == $this->primaryKey) {
-                    continue;
-                }
-
-                if ($prop->hasTag('@display')) {
-                    $this->_displayField = $name;
-                    break;
-                }
-                $this->_displayField = $name;
-            }
-        }
-        return $this->_displayField;
-
+        return $this->modelData->getDisplayField();
     }
 
     /**
@@ -195,32 +152,4 @@ abstract class Model extends Entity implements EntityInterface
         return $result;
     }
 
-    public function getMultipleEntityRelations()
-    {
-        $result = [];
-        foreach ($this->getRelationsManager()->relations as $key => $rel) {
-            if (
-                is_a(
-                    $rel,
-                    '\Slick\Orm\Relation\MultipleEntityRelationInterface'
-                )
-            ) {
-                $result[trim($key, '_')] = $rel;
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Lazy load of model inspector
-     *
-     * @return Inspector
-     */
-    protected function _getInspector()
-    {
-        if (is_null($this->_inspector)) {
-            $this->_inspector = new Inspector($this);
-        }
-        return $this->_inspector;
-    }
 } 

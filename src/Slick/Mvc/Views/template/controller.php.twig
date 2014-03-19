@@ -1,0 +1,62 @@
+{{ '<?php'|raw }}
+
+/**
+ * {{ command.getControllerSimpleName }}
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace {{ command.getNamespace }};
+
+use {{ command.getModelName|raw }};
+use Slick\Mvc\Controller,
+    Slick\Mvc\Libs\Utils\Pagination,
+    Slick\Mvc\Libs\Session\FlashMessages;
+
+/**
+ * {{ command.getControllerSimpleName }} controller
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ */
+class {{ command.getControllerSimpleName  }} extends Controller
+{
+
+{% block body %}
+    /**
+     * Handles the request to display index page
+     */
+    public function index()
+    {
+        $pagination = new Pagination();
+        $options = array();
+        $pagination->setTotal({{ command.getModelSimpleName }}::count($options));
+        $options['limit'] = $pagination->rowsPerPage;
+        $options['page'] = $pagination->offset;
+        ${{ command.getModelPlural }} = {{ command.getModelSimpleName }}::all($options));
+        $this->set(compact('{{ command.getModelPlural }}', 'pagination'));
+    }
+
+    /**
+     * Handles the request to display the show page
+     *
+     * @param int $id The model primary key value
+     */
+    public function show($id = 0)
+    {
+        ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get($id);
+        if (!${{ command.getModelSingular }}) {
+            $this->setMessage(
+                FlashMessages::TYPE_WARNING,
+                "The specified {{ command.getModelSingular }} does not exists."
+            );
+            $this->redirect('{{ command.getModelPlural }}/index');
+        }
+        $this->set(compact('{{ command.getModelSingular }}'));
+    }
+
+
+{% endblock %}
+}

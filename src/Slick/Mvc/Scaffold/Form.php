@@ -48,7 +48,8 @@ class Form extends SlickFrom
     public function __construct($name, $options = array())
     {
         parent::__construct($name, $options);
-        foreach($this->getModel()->getPropertyList() as $propertyName => $property) {
+        $propertyList = $this->getModel()->modelData->getPropertyList();
+        foreach($propertyList as $propertyName => $property) {
             $element = $this->_createElement($propertyName, $property);
             if ($element) {
                 $this->add($element);
