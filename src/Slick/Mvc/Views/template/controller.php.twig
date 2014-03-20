@@ -57,6 +57,42 @@ class {{ command.getControllerSimpleName  }} extends Controller
         $this->set(compact('{{ command.getModelSingular }}'));
     }
 
+    /**
+     * Handles the request to add a new {{ command.getModelSingular }}
+     */
+    public function add()
+    {
+
+        $form = new Form\{{ command.getFormName }}('add-{{ command.getModelSingular }}');
+
+        if ($this->request->isPost()) {
+            if ($form->isValid()) {
+                ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getData());
+                try {
+                    ${{ command.getModelSingular }}->save();
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        "{{ command.getModelSingular|capitalize }} successfully created."
+                    );
+                    $this->redirect(
+                        '{{ command.getModelPlural }}/show/'.
+                        ${{ command.getModelSingular }}->getConnector()->getLastInsertId()
+                    );
+                } catch (\Exception $exp) {
+                    $this->setMessage(
+                        FlashMessages::TYPE_WARNING,
+                        "{{ command.getModelSingular|capitalize }} cannot be created. " . $exp->getMessage();
+                    );
+                }
+            } else {
+                $this->setMessage(
+                    FlashMessages::TYPE_ERROR,
+                    "{{ command.getModelSingular|capitalize }} cannot be created. Please check the errors below."
+                );
+            }
+        }
+        $this->set(compact('form'));
+    }
 
 {% endblock %}
 }

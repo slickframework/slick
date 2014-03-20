@@ -74,7 +74,7 @@ class Factory extends Base
     {
         $this->_form = new Form($name);
         foreach ($definition as $name => $element) {
-            $this->_addElement($this->_form, $name, $element);
+            $this->addElement($this->_form, $name, $element);
         }
         return $this->_form;
     }
@@ -88,12 +88,12 @@ class Factory extends Base
      *
      * @throws Exception\UnknownElementException
      */
-    protected function _addElement(FieldsetInterface &$form, $name, $data)
+    public function addElement(FieldsetInterface &$form, $name, $data)
     {
         if ($data['type'] == 'fieldset') {
             $fieldset = new Fieldset(['name' => $name]);
             foreach ($data['elements'] as $key => $def) {
-                $this->_addElement($fieldset, $key, $def);
+                $this->addElement($fieldset, $key, $def);
             }
             $form->add($fieldset);
         } else {

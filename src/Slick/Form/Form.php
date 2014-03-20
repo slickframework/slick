@@ -28,6 +28,7 @@ use Zend\EventManager\EventManagerAwareInterface,
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property InputFilter $inputFilter
+ * @property Factory $factory
  */
 class Form extends AbstractFieldset
     implements FormInterface, EventManagerAwareInterface
@@ -53,6 +54,12 @@ class Form extends AbstractFieldset
 
     /**
      * @readwrite
+     * @var Factory
+     */
+    protected $_factory;
+
+    /**
+     * @readwrite
      * @var array
      */
     protected $_attributes =[
@@ -70,6 +77,28 @@ class Form extends AbstractFieldset
     {
         parent::__construct($options);
         $this->setName($name);
+        $this->_setup();
+    }
+
+    /**
+     * Callback for
+     */
+    protected function _setup()
+    {
+
+    }
+
+    /**
+     * Lazy loads and returns form factory object
+     *
+     * @return Factory
+     */
+    public function getFactory()
+    {
+        if (is_null($this->_factory)) {
+            $this->factory = new Factory();
+        }
+        return $this->_factory;
     }
 
     /**

@@ -12,10 +12,10 @@
 
 namespace Slick\Mvc\Libs\Utils;
 
-use Slick\Common\Base,
-    Slick\Common\Inspector;
-use Slick\Mvc\Model;
-use Slick\Orm\Relation\MultipleEntityRelationInterface;
+use Slick\Mvc\Model,
+    Slick\Common\Base,
+    Slick\Common\Inspector,
+    Slick\Orm\Relation\MultipleEntityRelationInterface;
 
 /**
  * Model meta data inspector

@@ -120,4 +120,14 @@ class ControllerData extends Base
     {
         return strtolower($this->getModelSimpleName());
     }
+
+    /**
+     * Returns the form name for this controller
+     *
+     * @return string
+     */
+    public function getFormName()
+    {
+        return $this->getModelSimpleName() .'Form';
+    }
 } 
