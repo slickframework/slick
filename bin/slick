@@ -6,7 +6,7 @@ if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
     include_once dirname(__DIR__) . '/vendor/autoload.php';
 } else {
     // autoload from inside vendors folder
-    include_once dirname(__FILE__) . '/autoload.php';
+    include_once dirname(dirname(dirname(__DIR__))) . '/autoload.php';
 }
 
 use Symfony\Component\Console\Application;

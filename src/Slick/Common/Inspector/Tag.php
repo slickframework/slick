@@ -104,11 +104,10 @@ class Tag
         );
         
         $elements = count($value);
-
         if ($elements > 1) {
             $this->value = new TagValues($this->_parseValue($value));
-        } else if ($elements == 1 && strpos($value[0], '=')) {
-            $this->value = $this->_parseValue($value);
+        } else if ($elements == 1 && strpos($value[0], '=') !== false) {
+            $this->value = new TagValues($this->_parseValue($value));
         } else {
             $this->value = reset($value);
         }

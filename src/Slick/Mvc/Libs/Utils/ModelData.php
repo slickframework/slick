@@ -63,14 +63,17 @@ class ModelData extends Base
     /**
      * Overrides parent constructor to set the inspected model
      *
-     * @param Model $model
+     * @param String $model
      * @param array $options
      */
-    public function __construct(Model $model, $options = [])
+    public function __construct($model, $options = [])
     {
         parent::__construct($options);
         $this->_model = $model;
-        $this->_modelClass = get_class($model);
+        $this->_modelClass = $model;
+        if (is_object($model)) {
+            $this->_modelClass = get_class($model);
+        }
     }
 
     /**

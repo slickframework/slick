@@ -20,6 +20,8 @@ use Slick\Common\Base,
  *
  * @package   Slick\Mvc\Command\Utils
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $modelName
  */
 class ControllerData extends Base
 {

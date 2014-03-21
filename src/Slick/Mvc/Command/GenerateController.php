@@ -12,8 +12,9 @@
 
 namespace Slick\Mvc\Command;
 
-use Slick\Template\Template,
-    Slick\Mvc\Command\Utils\ControllerData;
+use Slick\Mvc\Command\Utils\ControllerData,
+    Slick\Mvc\Command\Utils\ControllerBuilder;
+use Slick\Mvc\Command\Utils\FormBuilder;
 use Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputInterface,
@@ -29,7 +30,14 @@ use Symfony\Component\Console\Command\Command,
 class GenerateController extends Command
 {
 
+    /**
+     * @var string controller file path
+     */
     protected $_path;
+
+    /**
+     * @var string controller file nam  e
+     */
     protected $_controllerFile;
 
     /**
@@ -37,11 +45,6 @@ class GenerateController extends Command
      * @var ControllerData
      */
     protected $_controllerData;
-
-    /**
-     * @var
-     */
-    protected $_template;
 
     /**
      * Configures the current command.
@@ -58,17 +61,23 @@ class GenerateController extends Command
             )
             ->addOption(
                 'path',
-                null,
+                'p',
                 InputOption::VALUE_OPTIONAL,
                 'Sets the application path where controllers are located',
                 getcwd()
             )
             ->addOption(
                 'out',
-                null,
+                'o',
                 InputOption::VALUE_OPTIONAL,
-                'The controllers folder where to save the controller. Defaults to "Controllers".',
+                'The controllers folder where to save the controller.',
                 'Controllers'
+            )
+            ->addOption(
+                'scaffold',
+                'S',
+                InputOption::VALUE_NONE,
+                'If set the controller will have only the scaffold property set.'
             );
     }
 
@@ -98,44 +107,14 @@ class GenerateController extends Command
             ]
         );
 
-        $output->writeln($this->getCode());
+        $controllerBuilder = new ControllerBuilder(
+            ['controllerData' => $this->_controllerData]
+        );
+
+        $formBuilder = new FormBuilder($this->_controllerData);
+
+        $output->writeln($formBuilder->getCode());
         return null;
     }
-
-
-
-    protected function getTemplate()
-    {
-        if (is_null($this->_template)) {
-            Template::addPath(dirname(__DIR__) .'/'. 'Views');
-            $template = new Template(['engine' => 'twig']);
-            $this->_template = $template->initialize();
-        }
-        return $this->_template;
-    }
-
-    protected function getCode()
-    {
-        return $this->getTemplate()
-            ->parse('template/controller.php.twig')
-            ->process(['command' => $this->_controllerData]);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getControllerFile()
-    {
-        return $this->_controllerFile;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPath()
-    {
-        return $this->_path;
-    }
-
 
 } 

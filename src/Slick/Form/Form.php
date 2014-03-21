@@ -81,11 +81,26 @@ class Form extends AbstractFieldset
     }
 
     /**
-     * Callback for
+     * Callback for form setup
      */
     protected function _setup()
     {
+    }
 
+    /**
+     * Adds an element to the form using the built in factory
+     *
+     * @param string $name Element name
+     * @param array $data Factory data
+     *
+     * @return Form A self instance for method call chain
+     *
+     * @throws Exception\UnknownElementException
+     */
+    public function AddElement($name, $data)
+    {
+        $this->factory->addElement($this, $name, $data);
+        return $this;
     }
 
     /**

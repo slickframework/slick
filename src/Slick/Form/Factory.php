@@ -28,7 +28,12 @@ class Factory extends Base
      * @var array A list of form element classes and its alias
      */
     protected static $_elementAlias = [
-        'text' => 'Slick\Form\Element\Text'
+        'text' => 'Slick\Form\Element\Text',
+        'dateTime' => 'Slick\Form\Element\DateTime',
+        'hidden' => 'Slick\Form\Element\Hidden',
+        'select' => 'Slick\Form\Element\Select',
+        'area' => 'Slick\Form\Element\Area',
+        'checkbox' => 'Slick\Form\Element\Checkbox',
     ];
 
     /**

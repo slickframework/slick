@@ -66,6 +66,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
         $form = new Form\{{ command.getFormName }}('add-{{ command.getModelSingular }}');
 
         if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
             if ($form->isValid()) {
                 ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getData());
                 try {
