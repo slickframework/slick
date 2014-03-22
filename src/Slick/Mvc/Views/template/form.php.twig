@@ -28,21 +28,25 @@ class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
     protected function _setup()
     {
         $this
-        {%  for name, property in elements %}
-    ->addElement('{{ name }}', [
+            {%-  for name, property in elements %}
+
+            ->addElement('{{ name }}', [
                 'type' => '{{ property.type }}',
                 'label' => '{{ property.label }}',
                 'validate' => [
                 {% for validator in property.validate %}
     '{{ validator }}',
-                {% endfor %}
-]
+                {% endfor -%}
+                ],
                 'filter' => [
-                 {% for filter in property.filter %}
+                {% for filter in property.filter %}
     '{{ filter }}',
-                {% endfor %}
-])
-        {% endfor %};
+                {% endfor -%}
+
+                ]
+            ])
+{%- endfor -%};
+
         $this->add(
             new Element\Submit(
                 ['value' => 'Save']

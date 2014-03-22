@@ -12,6 +12,8 @@
 
 namespace Slick\Mvc\Command;
 
+use Slick\FileSystem\File;
+use Slick\FileSystem\Folder;
 use Slick\Mvc\Command\Utils\ControllerData,
     Slick\Mvc\Command\Utils\ControllerBuilder;
 use Slick\Mvc\Command\Utils\FormBuilder;
@@ -20,6 +22,7 @@ use Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\DialogHelper;
 
 /**
  * Generate controller command
@@ -107,14 +110,88 @@ class GenerateController extends Command
             ]
         );
 
+        $this->_path = $input->getOption('path');
+        $this->_path .= '/'. $input->getOption('out');
+
         $controllerBuilder = new ControllerBuilder(
             ['controllerData' => $this->_controllerData]
         );
 
+
+
         $formBuilder = new FormBuilder($this->_controllerData);
 
-        $output->writeln($formBuilder->getCode());
+        $this->saveControllerFile($controllerBuilder, $output);
+        $this->saveFormFile($formBuilder, $output);
         return null;
+    }
+
+    public function getControllerFile()
+    {
+        $name = $this->_controllerData->getControllerSimpleName();
+        $name .= ".php";
+        return $name;
+    }
+
+    public function saveControllerFile(ControllerBuilder $data, OutputInterface $output)
+    {
+        $folder = new Folder(['name' => $this->_path]);
+        /** @var DialogHelper $dialog */
+        $dialog = $this->getHelperSet()->get('dialog');
+        $name = $folder->details->getRealPath() . '/'. $this->getControllerFile();
+        $save = true;
+        if ($folder->hasFile($this->getControllerFile())) {
+            $output->writeln("<comment>File '{$name}' already exists.</comment>");
+            if (!$dialog->askConfirmation(
+                $output,
+                '<question>Do you want to override existing file?</question>',
+                false
+            )) {
+                $save = false;
+            }
+        }
+
+        if ($save) {
+            $folder->addFile($this->getControllerFile())
+                ->write($data->getCode());
+            $output->writeln("<info>Controller file generated successfully!</info>");
+
+        } else {
+            $output->writeln("<comment>Controller file was not created.</comment>");
+        }
+
+    }
+
+    public function saveFormFile(FormBuilder $formBuilder, OutputInterface $output)
+    {
+        $folder = new Folder(['name' => $this->_path .'/Forms']);
+
+        /** @var DialogHelper $dialog */
+        $dialog = $this->getHelperSet()->get('dialog');
+        $formFile = $formBuilder->getClassName().'.php';
+        $name = $folder->details->getRealPath() . '/'. $formFile;
+
+
+        $save = true;
+        if ($folder->hasFile($formFile)) {
+            $output->writeln("<comment>File '{$name}' already exists.</comment>");
+            if (!$dialog->askConfirmation(
+                $output,
+                '<question>Do you want to override existing file?</question>',
+                false
+            )) {
+                $save = false;
+            }
+        }
+
+        if ($save) {
+            $folder->addFile($formFile)
+                ->write($formBuilder->getCode());
+            $output->writeln("<info>Form file generated successfully!</info>");
+
+        } else {
+            $output->writeln("<comment>Form file was not created.</comment>");
+        }
     }
 
 } 

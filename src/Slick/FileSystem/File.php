@@ -142,4 +142,9 @@ class File extends Node
         $file = $this->details->getRealPath();
         return file_get_contents($file);
     }
+
+    public function exists()
+    {
+
+    }
 }

@@ -35,7 +35,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
         $pagination->setTotal({{ command.getModelSimpleName }}::count($options));
         $options['limit'] = $pagination->rowsPerPage;
         $options['page'] = $pagination->offset;
-        ${{ command.getModelPlural }} = {{ command.getModelSimpleName }}::all($options));
+        ${{ command.getModelPlural }} = {{ command.getModelSimpleName }}::all($options);
         $this->set(compact('{{ command.getModelPlural }}', 'pagination'));
     }
 
@@ -82,7 +82,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
                 } catch (\Exception $exp) {
                     $this->setMessage(
                         FlashMessages::TYPE_WARNING,
-                        "{{ command.getModelSingular|capitalize }} cannot be created. " . $exp->getMessage();
+                        "{{ command.getModelSingular|capitalize }} cannot be created. " . $exp->getMessage()
                     );
                 }
             } else {

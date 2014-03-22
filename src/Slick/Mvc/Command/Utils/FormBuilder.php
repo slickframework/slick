@@ -182,4 +182,11 @@ class FormBuilder extends Base
         }
         return $validations;
     }
+
+    public function getClassName()
+    {
+        $name = ucfirst($this->_controllerData->getModelSimpleName());
+        $name .= 'Form';
+        return $name;
+    }
 }

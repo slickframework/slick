@@ -30,8 +30,7 @@
 	},
 	"autoload" : {
 		"psr-0" : {
-			"Slick\\" : "src/",
-            "": "tests/app"
+			"Slick\\" : "src/"
 		}
 	},
     "extra": {
