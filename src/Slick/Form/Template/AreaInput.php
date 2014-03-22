@@ -1,32 +1,29 @@
 <?php
 
 /**
- * DateTime
+ * AreaInput
  *
- * @package   Slick\Form\Element
+ * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
-namespace Slick\Form\Element;
+namespace Slick\Form\Template;
 
 /**
- * DateTime
+ * AreaInput
  *
- * @package   Slick\Form\Element
+ * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class DateTime extends Text
+class AreaInput extends AbstractTemplate
 {
 
     /**
      * @readwrite
-     * @var array HTML attributes
+     * @var string
      */
-    protected $_attributes = [
-        'type' => 'text',
-
-    ];
+    protected $_templateFile = 'area-input.html.twig';
 } 

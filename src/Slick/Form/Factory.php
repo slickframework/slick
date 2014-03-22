@@ -14,6 +14,7 @@ namespace Slick\Form;
 
 use Slick\Common\Base;
 use Slick\Form\InputFilter\Factory as InputFilterFactory;
+use Slick\Validator\StaticValidator;
 
 /**
  * Form Factory
@@ -117,11 +118,6 @@ class Factory extends Base
 
             /** @var Element $element */
             $element = new $class(['name' => $name]);
-            foreach (array_keys($this->_elementProperties) as $key) {
-                if (isset($data[$key])) {
-                    $element->$key = $data[$key];
-                }
-            }
 
             if (isset($data['input'])) {
                 $element->input = InputFilterFactory::createInput(
@@ -130,7 +126,50 @@ class Factory extends Base
                 );
             }
 
+            if (!empty($data['validate'])) {
+                $this->addValidation($element, $data['validate']);
+            }
+
+            foreach (array_keys($this->_elementProperties) as $key) {
+                if (isset($data[$key])) {
+                    $element->$key = $data[$key];
+                }
+            }
+
             $form->add($element);
+        }
+    }
+
+    /**
+     * Add validator to the provided element
+     *
+     * @param Element $element
+     * @param array $data
+     */
+    public function addValidation(Element &$element, array $data)
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($key)) {
+                $element->getInput()->getValidatorChain()->add(StaticValidator::create($key, $value));
+                $this->checkRequired($key, $element);
+            } else {
+                $element->getInput()->getValidatorChain()->add(StaticValidator::create($value));
+                $this->checkRequired($value, $element);
+            }
+        }
+    }
+
+    /**
+     * Check required flag based on validator name
+     *
+     * @param $validator
+     * @param Element $element
+     */
+    public function checkRequired($validator, Element &$element)
+    {
+        if (in_array($validator, ['notEmpty'])) {
+            $element->getInput()->required = true;
+            $element->getInput()->allowEmpty = false;
         }
     }
 } 

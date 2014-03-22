@@ -1,0 +1,8 @@
+<div class="checkbox">
+    <label>
+        <input onchange="if ($(this).is(':checked')) $('#{{ element.getName() }}-input').val('1'); else $('#{{ element.getName() }}-input').val('0');" type="checkbox" {{ element.getHtmlAttributes|raw }}>
+        {{ element.getLabel }}
+
+    </label>
+    <input type="hidden" value="{{ element.value }}" name="{{ element.getName() }}" id="{{ element.getName() }}-input" />
+</div>

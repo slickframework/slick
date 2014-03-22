@@ -18,7 +18,7 @@ namespace Slick\Form\Template;
  * @package   Slick\Form\Template
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class SelectInput extends AbstractTemplate
+    class SelectInput extends AbstractTemplate
 {
 
     /**
