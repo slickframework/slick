@@ -21,6 +21,8 @@ use Slick\Common\Base,
  *
  * @package   Slick\Mvc\Command\Utils
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property boolean $scaffold
  */
 class ControllerBuilder extends Base
 {
@@ -36,6 +38,12 @@ class ControllerBuilder extends Base
      * @var Twig Template engine
      */
     protected $_template;
+
+    /**
+     * @readwrite
+     * @var bool
+     */
+    protected $_scaffold = false;
 
     /**
      * Template used to render the code
@@ -59,8 +67,12 @@ class ControllerBuilder extends Base
      */
     public function getCode()
     {
+        $template = "template/controller.php.twig";
+        if ($this->_scaffold) {
+            $template = "template/controller.scaffold.php.twig";
+        }
         return $this->getTemplate()
-            ->parse('template/controller.php.twig')
+            ->parse($template)
             ->process(['command' => $this->_controllerData]);
     }
 } 

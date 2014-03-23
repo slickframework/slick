@@ -117,12 +117,15 @@ class GenerateController extends Command
             ['controllerData' => $this->_controllerData]
         );
 
+        if ($input->getOption('scaffold')) {
+            $controllerBuilder->scaffold = true;
+            $this->saveControllerFile($controllerBuilder, $output);
+        } else {
+            $this->saveControllerFile($controllerBuilder, $output);
+            $formBuilder = new FormBuilder($this->_controllerData);
+            $this->saveFormFile($formBuilder, $output);
+        }
 
-
-        $formBuilder = new FormBuilder($this->_controllerData);
-
-        $this->saveControllerFile($controllerBuilder, $output);
-        $this->saveFormFile($formBuilder, $output);
         return null;
     }
 

@@ -11,7 +11,9 @@
 namespace {{ command.getNamespace }};
 
 use {{ command.getModelName|raw }};
-use Slick\Mvc\Controller,
+use Slick\Mvc\Model,
+    Slick\Mvc\Controller,
+    Slick\Filter\StaticFilter,
     Slick\Mvc\Libs\Utils\Pagination,
     Slick\Mvc\Libs\Session\FlashMessages;
 
@@ -63,12 +65,12 @@ class {{ command.getControllerSimpleName  }} extends Controller
     public function add()
     {
 
-        $form = new Form\{{ command.getFormName }}('add-{{ command.getModelSingular }}');
+        $form = new Forms\{{ command.getFormName }}('add-{{ command.getModelSingular }}');
 
         if ($this->request->isPost()) {
             $form->setData($this->request->getPost());
             if ($form->isValid()) {
-                ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getData());
+                ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getValues());
                 try {
                     ${{ command.getModelSingular }}->save();
                     $this->setMessage(
@@ -93,6 +95,73 @@ class {{ command.getControllerSimpleName  }} extends Controller
             }
         }
         $this->set(compact('form'));
+    }
+
+    /**
+     * Handles the request to edit a {{ command.getModelSingular }}
+     *
+     * @param integer $id {{ command.getModelSingular|capitalize }} primary key value
+     */
+    public function edit($id = 0)
+    {
+        $form = new Forms\{{ command.getFormName }}('edit-{{ command.getModelSingular }}');
+
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getValues());
+                try {
+                    ${{ command.getModelSingular }}->save();
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        "{{ command.getModelSingular|capitalize }} successfully updated."
+                    );
+                    $this->redirect("{{ command.getModelPlural }}/show/{$id}");
+                } catch (\Exception $exp) {
+                    $this->setMessage(
+                        FlashMessages::TYPE_WARNING,
+                        "{{ command.getModelSingular|capitalize }} cannot be updated. " . $exp->getMessage()
+                    );
+                }
+            } else {
+                $this->setMessage(
+                    FlashMessages::TYPE_ERROR,
+                    "{{ command.getModelSingular|capitalize }} cannot be updated. Please check the errors below."
+                );
+            }
+        } else {
+            /** @var Model ${{ command.getModelSingular }} */
+            ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get($id);
+            $form->setData(${{ command.getModelSingular }}->getData());
+        }
+
+        $this->set(compact('{{ command.getModelSingular }}', 'form'));
+    }
+
+    /**
+     * Handles the request to delete a record
+     */
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            $id = StaticFilter::filter('text', $this->request->getPost('id'));
+            ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get($id);
+            if (!${{ command.getModelSingular }}) {
+                $this->setMessage(
+                    FlashMessages::TYPE_WARNING,
+                    "The specified {{ command.getModelSingular }} does not exists."
+                );
+            } else {
+                if (${{ command.getModelSingular }}->delete()) {
+                    $this->setMessage(
+                        FlashMessages::TYPE_SUCCESS,
+                        "{{ command.getModelSingular|capitalize }} successfully deleted."
+                    );
+                }
+            }
+
+        }
+        $this->redirect('{{ command.getModelPlural }}/index');
     }
 
 {% endblock %}
