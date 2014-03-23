@@ -22,6 +22,9 @@ use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
+use Zend\I18n\Translator\Translator;
+use Zend\I18n\Translator\TranslatorAwareInterface;
+use Zend\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * MVC Application
@@ -29,7 +32,8 @@ use Zend\Http\PhpEnvironment\Response;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Application extends Base implements EventManagerAwareInterface
+class Application extends Base implements EventManagerAwareInterface,
+    TranslatorAwareInterface
 {
 
     /**
@@ -70,6 +74,11 @@ class Application extends Base implements EventManagerAwareInterface
     protected $_event;
 
     /**
+     * Default implementation for translator aware interface
+     */
+    use TranslatorAwareTrait;
+
+    /**
      * Bootstrap the application
      *
      * @returns Application
@@ -94,6 +103,13 @@ class Application extends Base implements EventManagerAwareInterface
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);
 
+        $translator = new Translator();
+        $translator->addTranslationFilePattern(
+            'Gettext',
+            getcwd().'/I18n/',
+            '%s/default.mo'
+        );
+        $this->setTranslator($translator);
 
         foreach (Configuration::getPathList() as $path) {
             if (is_file("{$path}/{$bootstrap}")) {
@@ -104,6 +120,8 @@ class Application extends Base implements EventManagerAwareInterface
                 include("{$path}/{$routesFile}");
             }
         }
+
+
     }
 
     /**
