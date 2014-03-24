@@ -102,6 +102,10 @@ class GenerateController extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln($this->getApplication()->getLongVersion());
+        $output->writeln("Generate controller for model ". $input->getArgument('modelName'));
+        $output->writeln("");
+
         $this->_controllerData = new ControllerData(
             [
                 'controllerName' => $input->getArgument('modelName'),
@@ -120,10 +124,12 @@ class GenerateController extends Command
         if ($input->getOption('scaffold')) {
             $controllerBuilder->scaffold = true;
             $this->saveControllerFile($controllerBuilder, $output);
+            $output->writeln("");
         } else {
             $this->saveControllerFile($controllerBuilder, $output);
             $formBuilder = new FormBuilder($this->_controllerData);
             $this->saveFormFile($formBuilder, $output);
+            $output->writeln("");
         }
 
         return null;

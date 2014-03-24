@@ -16,6 +16,7 @@ use Slick\Di\DependencyInjector,
     Slick\Form\InputFilter\InputFilter,
     Slick\Form\Template\AbstractTemplate,
     Slick\Form\Template\BasicForm;
+use Slick\I18n\TranslateMethods;
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
     Zend\EventManager\SharedEventManager,
@@ -57,6 +58,11 @@ class Form extends AbstractFieldset
      * @var Factory
      */
     protected $_factory;
+
+    /**
+     * Adds translate methods to this class
+     */
+    use TranslateMethods;
 
     /**
      * @readwrite
