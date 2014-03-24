@@ -16,24 +16,23 @@ use Slick\Common\Base;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\Driver\DriverInterface;
 use Slick\Di\DependencyInjector;
+use Slick\I18n\Translator;
 use Slick\Template\Template;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
-use Zend\I18n\Translator\Translator;
-use Zend\I18n\Translator\TranslatorAwareInterface;
-use Zend\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * MVC Application
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property Translator $translator
  */
-class Application extends Base implements EventManagerAwareInterface,
-    TranslatorAwareInterface
+class Application extends Base implements EventManagerAwareInterface
 {
 
     /**
@@ -74,9 +73,10 @@ class Application extends Base implements EventManagerAwareInterface,
     protected $_event;
 
     /**
-     * Default implementation for translator aware interface
+     * @readwrite
+     * @var Translator
      */
-    use TranslatorAwareTrait;
+    protected $_translator;
 
     /**
      * Bootstrap the application
@@ -103,13 +103,7 @@ class Application extends Base implements EventManagerAwareInterface,
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);
 
-        $translator = new Translator();
-        $translator->addTranslationFilePattern(
-            'gettext',
-            getcwd().'/I18n/',
-            '%s/default.mo'
-        );
-        $this->setTranslator($translator);
+        $this->translator = Translator::getInstance();
 
         foreach (Configuration::getPathList() as $path) {
             if (is_file("{$path}/{$bootstrap}")) {
@@ -120,7 +114,6 @@ class Application extends Base implements EventManagerAwareInterface,
                 include("{$path}/{$routesFile}");
             }
         }
-
 
     }
 

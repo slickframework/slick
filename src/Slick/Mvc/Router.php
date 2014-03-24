@@ -324,7 +324,6 @@ class Router extends Base
 
         /** @var Controller $instance */
         $instance = new $className($options);
-        $instance->setTranslator($app->getTranslator());
 
         if (!method_exists($instance, $this->_action)) {
             if (!$instance->scaffold) {

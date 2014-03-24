@@ -13,6 +13,7 @@
 namespace Slick\Mvc;
 
 use Slick\Common\Base,
+    Slick\I18n\TranslateMethods,
     Slick\Di\DependencyInjector,
     Slick\Mvc\Libs\Session\FlashMessages;
 use Zend\EventManager\EventManager,
@@ -21,8 +22,6 @@ use Zend\EventManager\EventManager,
     Zend\Http\Header\GenericHeader,
     Zend\Http\PhpEnvironment\Request,
     Zend\Http\PhpEnvironment\Response;
-use Zend\I18n\Translator\TranslatorAwareInterface;
-use Zend\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * MVC Controller
@@ -40,8 +39,7 @@ use Zend\I18n\Translator\TranslatorAwareTrait;
  * @property string $actionName
  * @property FlashMessages $flashMessages
  */
-abstract class Controller extends Base implements EventManagerAwareInterface,
-    TranslatorAwareInterface
+abstract class Controller extends Base implements EventManagerAwareInterface
 {
     /**
      * @readwrite
@@ -128,9 +126,9 @@ abstract class Controller extends Base implements EventManagerAwareInterface,
     protected $_flashMessages;
 
     /**
-     * Default implementation of TranslatorAwareInterface
+     * Adds translate methods to this class
      */
-    use TranslatorAwareTrait;
+    use TranslateMethods;
 
     /**
      * Sets the values to be used in the views.

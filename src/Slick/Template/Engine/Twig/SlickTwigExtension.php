@@ -12,6 +12,8 @@
 
 namespace Slick\Template\Engine\Twig;
 
+use Slick\I18n\TranslateMethods;
+use Slick\I18n\Translator;
 use Slick\Version\Version;
 use Zend\Http\PhpEnvironment\Request;
 
@@ -28,6 +30,11 @@ class SlickTwigExtension extends \Twig_Extension
      * @var Request HTTP Request object
      */
     protected $_request;
+
+    /**
+     * Adds translate methods to this class
+     */
+    use TranslateMethods;
 
     /**
      * Returns the name of the extension.
@@ -69,7 +76,21 @@ class SlickTwigExtension extends \Twig_Extension
                 function($name) {
                     return $this->addLinkRef($name);
                 }
-            )
+            ),
+
+            new \Twig_SimpleFunction(
+                'translate',
+                function($message) {
+                    return $this->translate($message);
+                }
+            ),
+
+            new \Twig_SimpleFunction(
+                'transPlural',
+                function($singular, $plural, $number) {
+                    return $this->translatePlural($singular, $plural, $number);
+                }
+            ),
         ];
     }
 
@@ -106,5 +127,6 @@ class SlickTwigExtension extends \Twig_Extension
         $path = "{$base}/{$folder}{$name}";
         return $path;
     }
+
 
 }
