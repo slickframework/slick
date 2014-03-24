@@ -105,7 +105,7 @@ class Application extends Base implements EventManagerAwareInterface,
 
         $translator = new Translator();
         $translator->addTranslationFilePattern(
-            'Gettext',
+            'gettext',
             getcwd().'/I18n/',
             '%s/default.mo'
         );

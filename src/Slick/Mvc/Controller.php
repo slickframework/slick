@@ -21,6 +21,8 @@ use Zend\EventManager\EventManager,
     Zend\Http\Header\GenericHeader,
     Zend\Http\PhpEnvironment\Request,
     Zend\Http\PhpEnvironment\Response;
+use Zend\I18n\Translator\TranslatorAwareInterface;
+use Zend\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * MVC Controller
@@ -38,7 +40,8 @@ use Zend\EventManager\EventManager,
  * @property string $actionName
  * @property FlashMessages $flashMessages
  */
-abstract class Controller extends Base implements EventManagerAwareInterface
+abstract class Controller extends Base implements EventManagerAwareInterface,
+    TranslatorAwareInterface
 {
     /**
      * @readwrite
@@ -123,6 +126,11 @@ abstract class Controller extends Base implements EventManagerAwareInterface
      * @var FlashMessages
      */
     protected $_flashMessages;
+
+    /**
+     * Default implementation of TranslatorAwareInterface
+     */
+    use TranslatorAwareTrait;
 
     /**
      * Sets the values to be used in the views.
