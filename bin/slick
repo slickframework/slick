@@ -16,6 +16,7 @@ $application = new Application("Slick Framework", Slick\Version\Version::VERSION
 // Adding MVC commands to cli application
 if (class_exists('Slick\Mvc\Command\GenerateController')) {
     $application->add(new \Slick\Mvc\Command\GenerateController);
+    $application->add(new \Slick\Mvc\Command\GenerateViews);
 }
 
 $application->run();
