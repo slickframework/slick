@@ -12,6 +12,9 @@
 
 namespace Slick\Mvc\Command;
 
+use Slick\FileSystem\Folder;
+use Slick\Mvc\Command\Utils\ControllerData;
+use Slick\Mvc\Command\Utils\ViewBuilder;
 use Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console\Helper\DialogHelper,
@@ -29,6 +32,11 @@ class GenerateViews extends Command
 {
 
     /**
+     * @var string controller file path
+     */
+    protected $_path;
+
+    /**
      * Configures the current command.
      */
     protected function configure()
@@ -40,6 +48,27 @@ class GenerateViews extends Command
                 'modelName',
                 InputArgument::REQUIRED,
                 'Full qualified model class name'
+            )
+            ->addOption(
+                'view',
+                null,
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
+                'Tells witch view to generate.',
+                ['index', 'show', 'add', 'edit']
+            )
+            ->addOption(
+                'path',
+                'p',
+                InputOption::VALUE_OPTIONAL,
+                'Sets the application path where views are located',
+                getcwd()
+            )
+            ->addOption(
+                'out',
+                'o',
+                InputOption::VALUE_OPTIONAL,
+                'The views folder where to save the view templates.',
+                'Views'
             );
     }
 
@@ -67,5 +96,63 @@ class GenerateViews extends Command
             $input->getArgument('modelName')
         );
         $output->writeln("");
+
+        $ctrlData = new ControllerData(
+            [
+                'controllerName' => $input->getArgument('modelName'),
+                'namespace' => $input->getOption('out'),
+                'modelName' => $input->getArgument('modelName')
+            ]
+        );
+
+        $this->_path = $input->getOption('path');
+        $this->_path .= '/'. $input->getOption('out');
+        $this->_path .= '/'. strtolower($ctrlData->getControllerSimpleName());
+
+        $viewBuilder = new ViewBuilder($ctrlData);
+
+        foreach (array_keys($viewBuilder->templates) as $name) {
+            if (in_array($name, $input->getOption('view'))) {
+                $this->saveFile($name, $viewBuilder->getCode($name), $output);
+            }
+        }
+    }
+
+    /**
+     * Saves current data into a template file
+     *
+     * @param string $name
+     * @param string $data
+     * @param OutputInterface $output
+     */
+    protected function saveFile($name, $data, OutputInterface $output)
+    {
+        $folder = new Folder(['name' => $this->_path]);
+        $fileName = "{$name}.html.twig";
+
+        /** @var DialogHelper $dialog */
+        $dialog = $this->getHelperSet()->get('dialog');
+        $name = $folder->details->getRealPath() . '/'. $fileName;
+
+        $save = true;
+        if ($folder->hasFile($fileName)) {
+            $output->writeln("<comment>File '{$name}' already exists.</comment>");
+            if (!$dialog->askConfirmation(
+                $output,
+                '<question>Do you want to override existing file?</question>',
+                false
+            )) {
+                $save = false;
+            }
+        }
+
+        if ($save) {
+            $folder->addFile($fileName)
+                ->write($data);
+            $output->writeln("<info>'{$name}' template file generated successfully!</info>");
+
+        } else {
+            $output->writeln("<comment>'{$name}' template file was not created.</comment>");
+        }
     }
 } 

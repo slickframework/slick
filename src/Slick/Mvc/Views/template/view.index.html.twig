@@ -1,0 +1,33 @@
+{% import "template/translate.macro.twig" as transMacro %}
+{{  '{% import "template/delete.html.twig" as modal %}'|raw }}
+<div class="entity-index">
+    <h1>{{ transMacro.message(command.getModelPlural()|capitalize) }}</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="pull-right col-xs-5 table-actions">
+                    <a href="{{ url(modelPlural ~ '/add') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        {{ transMacro.message("Add " ~  command.getModelSingular()) }}
+                    </a>
+                </div>
+
+                <div class="table-search col-xs-7">
+                    <form class="form-inline" role="form">
+                        <div class="form-group has-feedback">
+                            <label class="sr-only" for="search-pattern">{{ transMacro.message("Search " ~  command.getModelPlural()) }}</label>
+                            <input type="text" class="form-control " id="search-pattern"
+                                   placeholder="{{ transMacro.message("Search " ~  command.getModelPlural()) }}">
+                            <span class="hidden-xs glyphicon glyphicon-search form-control-feedback"></span>
+                        </div>
+                    </form>
+                </div>
+                <span class="clearfix"></span>
+            </div>
+        </div>
+
+        <div class="panel-body">
+        </div>
+
+    </div>
+</div>
