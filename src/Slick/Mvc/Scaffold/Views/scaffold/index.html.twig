@@ -1,4 +1,4 @@
-{% import "scaffold/delete.html.twig" as modal %}
+{% import "template/delete.html.twig" as modal %}
 <div class="entity-index">
     <h1>{{ modelPlural|capitalize }}</h1>
     <div class="panel panel-default">
@@ -100,7 +100,7 @@
 {% for record in records %}
     {{ modal.deleteMacro(
     url(modelPlural ~ '/delete/' ~ record.getKey()),
-    record.getKey(),
+    record,
     "delete" ~ record.getKey(),
     modelSingular
     ) }}

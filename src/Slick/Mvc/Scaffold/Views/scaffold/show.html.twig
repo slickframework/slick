@@ -1,4 +1,4 @@
-{% import "scaffold/delete.html.twig" as modal %}
+{% import "template/delete.html.twig" as modal %}
 {% set columns = record.modelData.getPropertyList(true) %}
 <div class="entity-show">
     <h1>View "{{ record }}"</h1>
@@ -22,7 +22,7 @@
         </a>
         {{ modal.deleteMacro(
             url(modelPlural ~ '/delete/' ~ record.getKey()),
-            record.getKey(),
+            record,
             "delete" ~ record.getKey(),
             modelSingular
         ) }}

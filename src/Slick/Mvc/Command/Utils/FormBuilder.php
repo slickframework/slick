@@ -15,6 +15,7 @@ use Slick\Common\Base;
 use Slick\Common\Inspector\TagList;
 use Slick\Mvc\Libs\Utils\ModelData;
 use Slick\Mvc\Model;
+use Slick\Orm\Relation\BelongsTo;
 use Slick\Template\Engine\Twig;
 use Slick\Template\Template;
 
@@ -107,7 +108,8 @@ class FormBuilder extends Base
                 'type' => $this->getType($property),
                 'label' => ucfirst(trim($name, '_')),
                 'validate' => $this->getValidation($property),
-                'filter' => $this->getFilters($property)
+                'filter' => $this->getFilters($property),
+                'options' => $this->getElementOptions($property)
             ];
         }
         return $meta;
@@ -188,5 +190,14 @@ class FormBuilder extends Base
         $name = ucfirst($this->_controllerData->getModelSimpleName());
         $name .= 'Form';
         return $name;
+    }
+
+    public function getElementOptions(TagList $meta)
+    {
+        if ($meta->hasTag('@belongsTo')) {
+            $model = $meta->getTag('@belongsTo')->value[0];
+            return "\\{$model}::getList()";
+        }
+        return '[]';
     }
 }

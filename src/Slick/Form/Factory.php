@@ -50,7 +50,8 @@ class Factory extends Base
     protected $_elementProperties = [
         'label' => null,
         'attributes' => [],
-        'value' => null
+        'value' => null,
+        'options' => []
     ];
 
     /**

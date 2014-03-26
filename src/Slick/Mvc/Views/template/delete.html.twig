@@ -1,4 +1,4 @@
-{% macro deleteMacro(link, id, element, modelName)%}
+{% macro deleteMacro(link, record, element, modelName)%}
     <!-- Modal -->
     <div class="modal fade {{ element }}" tabindex="-1" role="dialog" aria-labelledby="Confirmation" aria-hidden="true">
         <div class="modal-dialog">
@@ -12,12 +12,12 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        {{ translate('Are you sure you want to delete %s #%d?')|format(modelName, id) }}
+                        {{ translate('Are you sure you want to delete the %s "%s"?')|format(modelName, record) }}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">{{ translate('No, close.') }}</button>
                         <button type="submit" class="btn btn-warning">{{ translate('Yes, delete it!') }}</button>
-                        <input type="hidden" name="id" value="{{ id }}" />
+                        <input type="hidden" name="id" value="{{ record.getKey() }}" />
                     </div>
                 </form>
             </div>

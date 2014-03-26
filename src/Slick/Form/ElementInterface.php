@@ -140,4 +140,20 @@ interface ElementInterface
      * @return ElementInterface
      */
     public function setTemplate(TemplateInterface $template);
+
+    /**
+     * Return current element options
+     *
+     * @return mixed
+     */
+    public function getOptions();
+
+    /**
+     * Sets element options
+     *
+     * @param $options
+     *
+     * @return ElementInterface
+     */
+    public function setOptions($options);
 } 

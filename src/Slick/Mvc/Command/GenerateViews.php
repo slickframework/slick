@@ -152,7 +152,7 @@ class GenerateViews extends Command
             $output->writeln("<info>'{$name}' template file generated successfully!</info>");
 
         } else {
-            $output->writeln("<comment>'{$name}' template file was not created.</comment>");
+            $output->writeln("<comment>'{$fileName}' template file was not created.</comment>");
         }
     }
 } 

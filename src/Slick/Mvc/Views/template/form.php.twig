@@ -33,6 +33,7 @@ class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
             ->addElement('{{ name }}', [
                 'type' => '{{ property.type }}',
                 'label' => '{{ property.label }}',
+                'options' => {{ property.options }},
                 'validate' => [
                 {% for validator in property.validate %}
     '{{ validator }}',

@@ -1,1 +1,1 @@
-{% macro message(text)%}{{ ('{{ translate("' ~ text ~ '") }}')|raw }}{% endmacro %}
+{% macro message(text, raw='')%}{{ ('{{ translate(\'' ~ text ~ '\')'~raw~' }}')|raw }}{% endmacro %}

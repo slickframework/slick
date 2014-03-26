@@ -1,12 +1,14 @@
 {% import "template/translate.macro.twig" as transMacro %}
-{{  '{% import "template/delete.html.twig" as modal %}'|raw }}
+
+{{  '{% import "template/table-record.actions.html.twig" as tableRecord %}'|raw }}
 <div class="entity-index">
     <h1>{{ transMacro.message(command.getModelPlural()|capitalize) }}</h1>
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="row">
                 <div class="pull-right col-xs-5 table-actions">
-                    <a href="{{ url(modelPlural ~ '/add') }}" class="btn btn-primary">
+                    {%  set titleLnk = '{{ url("'~ command.getModelPlural() ~'/add") }}' -%}
+                    <a href="{{ titleLnk|raw }}" class="btn btn-primary">
                         <span class="glyphicon glyphicon-plus"></span>
                         {{ transMacro.message("Add " ~  command.getModelSingular()) }}
                     </a>
@@ -27,7 +29,61 @@
         </div>
 
         <div class="panel-body">
+            {% set condition = "|length > 0 %}" -%}
+            {{ "{% if " ~ command.getModelPlural -}}{{- condition|raw }}
+            <table class="table table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        {% for column in modelData.getPropertyList(true) -%}
+                        {% if loop.first  -%}
+                        <th>{{ transMacro.message(column|capitalize) }}</th>
+                        {% else -%}
+                        <th class="hidden-xs">{{ transMacro.message(column|capitalize) }}</th>
+                        {% endif -%}
+                        {%- endfor -%}
+                        <th>{{ transMacro.message('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ '{% for '~ command.getModelSingular ~' in '~ command.getModelPlural ~' %}' }}
+                    <tr>
+                        {% for column in modelData.getPropertyList(true) -%}
+                        {%- set value = '{{ '~ command.getModelSingular ~'.getValue("' ~ column ~'") }}' -%}
+                        {% if loop.first  -%}
+                        {%- set lnk = '{{ url("' ~ command.getModelPlural ~'/show/" ~ ' ~ command.getModelSingular ~'.getKey()) }}' -%}
+                        <td>
+                            <a href="{{ lnk|raw  }}">
+                                {{ value|raw }}
+                                <span class="glyphicon glyphicon-share"></span>
+                            </a>
+                        </td>
+                        {% else -%}
+                        <td class="hidden-xs">{{ value|raw }}</td>
+                        {% endif -%}
+                        {%- endfor -%}
+                        {%- set actions = '{{ tableRecord.getActions('~ command.getModelSingular ~', "'~ command.getModelPlural ~'", "'~ command.getModelSingular ~'") }}' -%}
+                        <td>{{ actions|raw }}</td>
+                    </tr>
+                    {{ '{%- endfor -%}' }}
+                </tbody>
+            </table>
+            {{ '{% else %}' }}
+            {% set newLnk = command.getModelPlural() ~ '/add' -%}
+            {%- set message = 'There are no ' ~ command.getModelPlural()
+                ~ ' to show up here. Click the <a href="%s">'
+                ~ 'Add ' ~ command.getModelSingular() ~ '</a> button to add a new '
+                ~ command.getModelSingular() ~ '.'
+            -%}
+                {{ transMacro.message(message, '|format(url("'~ newLnk ~'"))|raw') }}
+            {{ '{% endif %}' }}
         </div>
-
+        <div class="panel-footer">
+            {{ '{% include "pagination/pagination.html.twig" %}'|raw }}
+        </div>
     </div>
 </div>
+{% set cicle = '{% for '~ command.getModelSingular ~' in '~ command.getModelPlural ~' %}' -%}
+{{ cicle|raw }}
+    {% set dialog = '{{ tableRecord.createDialog('~ command.getModelSingular ~', "'~ command.getModelPlural ~'", "'~ command.getModelSingular ~'") }}' -%}
+    {{ dialog|raw }}
+{{ '{% endfor %}'|raw }}

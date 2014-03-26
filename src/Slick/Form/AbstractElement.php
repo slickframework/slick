@@ -63,6 +63,12 @@ abstract class AbstractElement extends Base implements ElementInterface
     protected $_template;
 
     /**
+     * @readwrite
+     * @var array
+     */
+    protected $_options;
+
+    /**
      * Sets all attributes of this element
      *
      * @param array $attributes
@@ -236,6 +242,29 @@ abstract class AbstractElement extends Base implements ElementInterface
             $this->_template = new BasicInput();
         }
         return $this->_template;
+    }
+
+    /**
+     * Return current element options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
+    }
+
+    /**
+     * Sets element options
+     *
+     * @param $options
+     *
+     * @return Element
+     */
+    public function setOptions($options)
+    {
+        $this->_options = $options;
+        return $this;
     }
 
     public function getHtmlAttributes()

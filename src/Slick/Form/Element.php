@@ -97,5 +97,4 @@ class Element extends AbstractElement implements ElementInterface, InputAwareInt
     {
         return $this->getInput()->getValue();
     }
-
 }

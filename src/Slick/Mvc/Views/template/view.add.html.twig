@@ -1,0 +1,7 @@
+{% import "template/translate.macro.twig" as transMacro %}
+<div class="add-{{ command.getModelPlural }}">
+    <h1>{{ transMacro.message('Add new' ~ command.getModelPlural) }}</h1>
+    <div class="form-wrapper">
+        {{ '{{ form.render|raw }}'}}
+    </div>
+</div>
