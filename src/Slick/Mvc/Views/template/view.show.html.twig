@@ -1,0 +1,63 @@
+{% import "template/translate.macro.twig" as transMacro %}
+{{  '{% import "template/table-record.actions.html.twig" as tableRecord %}'|raw }}
+<div class="entity-show">
+    <h1>{{ transMacro.message('View "%s"', "|format("~ command.getModelSingular ~")|raw") }}</h1>
+    <div class="entity-data">
+        <dl class="dl-horizontal">
+            {% for column in modelData.getPropertyList(true) -%}
+            {%- set value = '{{ '~ command.getModelSingular ~'.getValue("' ~ column ~'") }}' -%}
+            <dt>{{ transMacro.message(column|capitalize ) }}:</dt>
+            <dd>{{ value|raw }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+
+    <div class="show-actions">
+        {% set editLnk = '{{ url("'~ command.getModelPlural ~'/edit/" ~ '~ command.getModelSingular ~'.getKey()) }}'  -%}
+        <a href="{{ editLnk|raw }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-pencil"></span>
+            &nbsp;{{ transMacro.message("Edit " ~ command.getModelSingular) }}</a>
+
+        &nbsp;
+        <a href=".delete{{ '{{ '~ command.getModelSingular ~'.getKey() }}' }}" class="btn btn-warning" data-toggle="modal">
+            <span class="glyphicon glyphicon-trash"></span>
+            &nbsp;{{ transMacro.message("Delete " ~ command.getModelSingular) }}
+        </a>
+
+        {% set dialog = '{{ tableRecord.createDialog('~ command.getModelSingular ~', "'~ command.getModelPlural ~'", "'~ command.getModelSingular ~'") }}' -%}
+        {{ dialog|raw }}
+
+    </div>
+
+    {% set relations = modelData.getMultipleEntityRelations() %}
+    &nbsp;<br />
+    {% if relations|length > 0 %}
+    <div class="entity-related-data panel panel-default">
+        <div class="panel-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+{% for prop, rel in relations -%}
+{% if loop.first %}
+                <li class="active"><a href="#tab{{ loop.index }}" data-toggle="tab">{{ transMacro.message(prop|capitalize) }}</a></li>
+{% else %}
+                <li><a href="#tab{{ loop.index }}" data-toggle="tab">{{ transMacro.message(prop|capitalize) }}</a></li>
+{% endif -%}
+{%- endfor %}
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+{% for prop, rel in relations -%}
+{% if loop.first %}
+                <div class="tab-pane active" id="tab{{ loop.index }}">
+                </div>
+{% else %}
+                <div class="tab-pane" id="tab{{ loop.index }}">
+                </div>
+{% endif -%}
+{%- endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
