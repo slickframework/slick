@@ -16,6 +16,7 @@ use Slick\Mvc\Model,
     Slick\Common\Base,
     Slick\Common\Inspector,
     Slick\Orm\Relation\MultipleEntityRelationInterface;
+use Slick\Utility\Text;
 
 /**
  * Model meta data inspector
@@ -178,5 +179,15 @@ class ModelData extends Base
             }
         }
         return $result;
+    }
+
+    public function getPluralName()
+    {
+        return Text::plural($this->getSingularName());
+    }
+
+    public function getSingularName()
+    {
+        return strtolower(end(explode('\\', $this->modelClass)));
     }
 } 

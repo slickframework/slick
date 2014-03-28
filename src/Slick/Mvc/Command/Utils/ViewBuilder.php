@@ -12,6 +12,9 @@
 
 namespace Slick\Mvc\Command\Utils;
 
+use Slick\Mvc\Libs\Utils\ModelData,
+    Slick\Orm\Relation\RelationInterface;
+
 /**
  * View builder
  *
@@ -54,5 +57,18 @@ class ViewBuilder extends FormBuilder
                     'elements' => $this->getElementData()
                 ]
             );
+    }
+
+    /**
+     * Returns the model data object for a given relation
+     *
+     * @param RelationInterface $relation
+     *
+     * @return ModelData
+     */
+    public function getModelData(RelationInterface $relation)
+    {
+        $modelData = new ModelData($relation->getRelated());
+        return $modelData;
     }
 } 

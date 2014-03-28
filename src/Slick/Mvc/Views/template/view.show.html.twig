@@ -2,35 +2,38 @@
 {{  '{% import "template/table-record.actions.html.twig" as tableRecord %}'|raw }}
 <div class="entity-show">
     <h1>{{ transMacro.message('View "%s"', "|format("~ command.getModelSingular ~")|raw") }}</h1>
-    <div class="entity-data">
-        <dl class="dl-horizontal">
-            {% for column in modelData.getPropertyList(true) -%}
-            {%- set value = '{{ '~ command.getModelSingular ~'.getValue("' ~ column ~'") }}' -%}
-            <dt>{{ transMacro.message(column|capitalize ) }}:</dt>
-            <dd>{{ value|raw }}</dd>
-            {% endfor %}
-        </dl>
+    <div class="entity panel panel-default">
+        <div class="panel-body">
+            <div class="entity-data">
+                <dl class="dl-horizontal">
+                    {% for column in modelData.getPropertyList(true) -%}
+                    {%- set value = '{{ '~ command.getModelSingular ~'.getValue("' ~ column ~'") }}' -%}
+                    <dt>{{ transMacro.message(column|capitalize ) }}:</dt>
+                    <dd>{{ value|raw }}</dd>
+                    {% endfor %}
+                </dl>
+            </div>
+
+            <div class="show-actions">
+                {% set editLnk = '{{ url("'~ command.getModelPlural ~'/edit/" ~ '~ command.getModelSingular ~'.getKey()) }}'  -%}
+                <a href="{{ editLnk|raw }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    &nbsp;{{ transMacro.message("Edit " ~ command.getModelSingular) }}</a>
+
+                &nbsp;
+                <a href=".delete{{ '{{ '~ command.getModelSingular ~'.getKey() }}' }}" class="btn btn-warning" data-toggle="modal">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    &nbsp;{{ transMacro.message("Delete " ~ command.getModelSingular) }}
+                </a>
+
+                {% set dialog = '{{ tableRecord.createDialog('~ command.getModelSingular ~', "'~ command.getModelPlural ~'", "'~ command.getModelSingular ~'") }}' -%}
+                {{ dialog|raw }}
+
+            </div>
+        </div>
     </div>
-
-    <div class="show-actions">
-        {% set editLnk = '{{ url("'~ command.getModelPlural ~'/edit/" ~ '~ command.getModelSingular ~'.getKey()) }}'  -%}
-        <a href="{{ editLnk|raw }}" class="btn btn-primary">
-            <span class="glyphicon glyphicon-pencil"></span>
-            &nbsp;{{ transMacro.message("Edit " ~ command.getModelSingular) }}</a>
-
-        &nbsp;
-        <a href=".delete{{ '{{ '~ command.getModelSingular ~'.getKey() }}' }}" class="btn btn-warning" data-toggle="modal">
-            <span class="glyphicon glyphicon-trash"></span>
-            &nbsp;{{ transMacro.message("Delete " ~ command.getModelSingular) }}
-        </a>
-
-        {% set dialog = '{{ tableRecord.createDialog('~ command.getModelSingular ~', "'~ command.getModelPlural ~'", "'~ command.getModelSingular ~'") }}' -%}
-        {{ dialog|raw }}
-
-    </div>
-
     {% set relations = modelData.getMultipleEntityRelations() %}
-    &nbsp;<br />
+
     {% if relations|length > 0 %}
     <div class="entity-related-data panel panel-default">
         <div class="panel-body">
@@ -50,12 +53,54 @@
 {% for prop, rel in relations -%}
 {% if loop.first %}
                 <div class="tab-pane active" id="tab{{ loop.index }}">
-                </div>
 {% else %}
                 <div class="tab-pane" id="tab{{ loop.index }}">
-                </div>
 {% endif -%}
-{%- endfor %}
+{%- set model = builder.getModelData(rel) -%}
+{%- set columns = model.getPropertyList(true) -%}
+{%- set modelProp = command.getModelSingular~'.getValue("'~prop~'")' -%}
+{%- set cond = '{% if '~ modelProp ~'|length > 0 %}' %}
+                    <br />
+                    {{ cond|raw }}
+                    <table class="table table-bordered table-condensed table-hover">
+                        <thead>
+                            <tr>
+                                {% for column in  columns -%}
+                                {%- if loop.first  -%}
+                                    <th>{{ transMacro.message(column|capitalize) }}</th>
+                                {% else -%}
+                                    <th class="hidden-xs">{{ transMacro.message(column|capitalize) }}</th>
+                                {% endif -%}
+                                {%- endfor -%}{{- '' }}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set rowLoop = '{% for '~ model.getSingularName ~' in '~ modelProp ~' %}' -%}
+                            {{- rowLoop|raw }}
+                            <tr>
+                                {% for column in  columns -%}
+                                {%- set value = '{{ '~model.getSingularName ~'.getValue("'~ column ~'") }}' -%}
+                                {%- set rowLnk = '{{ url("'~ model.getPluralName ~ '/show/" ~ '~model.getSingularName~'.getKey()) }}' -%}
+                                {%- if loop.first  -%}
+                                    <td>
+                                    <a href="{{ rowLnk|raw }}">
+                                        {{ value|raw }}
+                                        <span class="glyphicon glyphicon-share"></span>
+                                    </a>
+                                </td>
+                                {% else -%}
+                                    <td class="hidden-xs">{{ value|raw }}</td>
+                                {% endif -%}
+                                {%- endfor -%}{{- '' }}
+                            </tr>
+                            {{ '{% endfor %}' }}
+                        </tbody>
+                    </table>
+                    {{ '{% else %}' }}
+                    {{ transMacro.message('There are no '~prop~' to show up here.') }}
+                    {{ '{% endif %}' }}
+                </div>
+{% endfor %}
             </div>
         </div>
     </div>

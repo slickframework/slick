@@ -52,7 +52,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
         if (!${{ command.getModelSingular }}) {
             $this->setMessage(
                 FlashMessages::TYPE_WARNING,
-                "The specified {{ command.getModelSingular }} does not exists."
+                $this->translate("The specified {{ command.getModelSingular }} does not exists.")
             );
             $this->redirect('{{ command.getModelPlural }}/index');
         }
@@ -75,7 +75,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
                     ${{ command.getModelSingular }}->save();
                     $this->setMessage(
                         FlashMessages::TYPE_SUCCESS,
-                        "{{ command.getModelSingular|capitalize }} successfully created."
+                        $this->translate("{{ command.getModelSingular|capitalize }} successfully created.")
                     );
                     $this->redirect(
                         '{{ command.getModelPlural }}/show/'.
@@ -84,13 +84,16 @@ class {{ command.getControllerSimpleName  }} extends Controller
                 } catch (\Exception $exp) {
                     $this->setMessage(
                         FlashMessages::TYPE_WARNING,
-                        "{{ command.getModelSingular|capitalize }} cannot be created. " . $exp->getMessage()
+                        sprintf(
+                            $this->translate("{{ command.getModelSingular|capitalize }} cannot be created. %s"),
+                            $exp->getMessage()
+                        )
                     );
                 }
             } else {
                 $this->setMessage(
                     FlashMessages::TYPE_ERROR,
-                    "{{ command.getModelSingular|capitalize }} cannot be created. Please check the errors below."
+                    $this->translate("{{ command.getModelSingular|capitalize }} cannot be created. Please check the errors below.")
                 );
             }
         }
@@ -114,19 +117,22 @@ class {{ command.getControllerSimpleName  }} extends Controller
                     ${{ command.getModelSingular }}->save();
                     $this->setMessage(
                         FlashMessages::TYPE_SUCCESS,
-                        "{{ command.getModelSingular|capitalize }} successfully updated."
+                        $this->translate("{{ command.getModelSingular|capitalize }} successfully updated.")
                     );
                     $this->redirect("{{ command.getModelPlural }}/show/{$id}");
                 } catch (\Exception $exp) {
                     $this->setMessage(
                         FlashMessages::TYPE_WARNING,
-                        "{{ command.getModelSingular|capitalize }} cannot be updated. " . $exp->getMessage()
+                        sprintf(
+                            $this->translate("{{ command.getModelSingular|capitalize }} cannot be updated. %s"),
+                            $exp->getMessage()
+                        )
                     );
                 }
             } else {
                 $this->setMessage(
                     FlashMessages::TYPE_ERROR,
-                    "{{ command.getModelSingular|capitalize }} cannot be updated. Please check the errors below."
+                    $this->translate("{{ command.getModelSingular|capitalize }} cannot be updated. Please check the errors below.")
                 );
             }
         } else {
@@ -149,13 +155,13 @@ class {{ command.getControllerSimpleName  }} extends Controller
             if (!${{ command.getModelSingular }}) {
                 $this->setMessage(
                     FlashMessages::TYPE_WARNING,
-                    "The specified {{ command.getModelSingular }} does not exists."
+                    $this->translate("The specified {{ command.getModelSingular }} does not exists.")
                 );
             } else {
                 if (${{ command.getModelSingular }}->delete()) {
                     $this->setMessage(
                         FlashMessages::TYPE_SUCCESS,
-                        "{{ command.getModelSingular|capitalize }} successfully deleted."
+                        $this->translate("{{ command.getModelSingular|capitalize }} successfully deleted.")
                     );
                 }
             }
