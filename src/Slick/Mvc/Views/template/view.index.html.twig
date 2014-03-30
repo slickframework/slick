@@ -2,7 +2,10 @@
 
 {{  '{% import "template/table-record.actions.html.twig" as tableRecord %}'|raw }}
 <div class="entity-index">
-    <h1>{{ transMacro.message(command.getModelPlural()|capitalize) }}</h1>
+    <h2 class="section-header">{{ transMacro.message(command.getModelPlural()|capitalize) }}</h2>
+    {% set page = "index" %}
+    {% include "template/quick-access-menu.html.twig" %}
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="row">

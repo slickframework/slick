@@ -35,3 +35,6 @@ $I->fillField('#title-input', 'My blog post');
 $I->click('Save');
 $I->seeInCurrentUrl('posts/index');
 $I->see('My blog post');
+
+$I->amOnPage('/comments/edit/1');
+$I->see('This blog is great');

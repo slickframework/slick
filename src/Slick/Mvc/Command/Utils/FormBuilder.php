@@ -195,7 +195,11 @@ class FormBuilder extends Base
     public function getElementOptions(TagList $meta)
     {
         if ($meta->hasTag('@belongsTo')) {
-            $model = $meta->getTag('@belongsTo')->value[0];
+            if (is_string($meta->getTag('@belongsTo')->value)) {
+                $model = $meta->getTag('@belongsTo')->value;
+            } else {
+                $model = $meta->getTag('@belongsTo')->value[0];
+            }
             return "\\{$model}::getList()";
         }
         return '[]';

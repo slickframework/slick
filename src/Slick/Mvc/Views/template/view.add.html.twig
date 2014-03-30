@@ -1,6 +1,9 @@
 {% import "template/translate.macro.twig" as transMacro %}
 <div class="add-{{ command.getModelPlural }}">
-    <h1>{{ transMacro.message('Add new' ~ command.getModelPlural) }}</h1>
+    <h2 class="section-header">{{ transMacro.message('Add new ' ~ command.getModelSingular) }}</h2>
+    {% set page = "add" %}
+    {% include "template/quick-access-menu.html.twig" %}
+
     <div class="form-wrapper">
         {{ '{{ form.render|raw }}'}}
     </div>

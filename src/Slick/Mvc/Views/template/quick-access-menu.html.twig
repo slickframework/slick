@@ -1,0 +1,33 @@
+{% import "template/translate.macro.twig" as transMacro %}
+
+<div class="btn-group hidden-xs quick-access">
+        <a class="btn btn-default" href="{{ url("") }}">
+            <span class="glyphicon glyphicon-home"></span>
+            {{ transMacro.message("Dashboard") }}
+        </a>
+{% set listLnk = '{{ url("'~ command.getModelPlural ~'") }}' %}
+{% if page == "index" %}
+{% set lstClass = 'active' %}
+{% endif %}
+        <a class="btn btn-default {{ lstClass }}" href="{{ listLnk|raw }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            {{ transMacro.message("Manage "~command.getModelPlural) }}
+        </a>
+{% set listLnk = '{{ url("'~ command.getModelPlural ~'/add") }}' %}
+{% if page == "add" %}
+{% set addClass = 'active' %}
+{% endif %}
+        <a class="btn btn-default {{ addClass }}" href="{{ listLnk|raw }}">
+            <span class="glyphicon glyphicon-plus"></span>
+            {{ transMacro.message("Add "~command.getModelSingular) }}
+        </a>
+{% set relations = modelData.getRelations() %}
+{% for prop, rel in relations %}
+{% set model = builder.getModelData(rel) %}
+{% set listLnk = '{{ url("'~ model.getPluralName ~'") }}' %}
+        <a class="btn btn-default" href="{{ listLnk|raw }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            {{ transMacro.message("Manage "~model.getPluralName) }}
+        </a>
+    {% endfor %}
+</div>

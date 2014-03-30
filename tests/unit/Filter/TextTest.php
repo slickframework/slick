@@ -21,7 +21,7 @@ use Slick\Filter\Text;
 /**
  * ext filter test case
  *
- * @package    Test\Validator
+ * @package    Test\Filter
  * @author     Filipe Silva <silvam.filipe@gmail.com>
  */
 class TextTest extends \Codeception\TestCase\Test

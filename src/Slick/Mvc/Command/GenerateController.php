@@ -12,6 +12,8 @@
 
 namespace Slick\Mvc\Command;
 
+// @codeCoverageIgnoreStart
+
 use Slick\FileSystem\File;
 use Slick\FileSystem\Folder;
 use Slick\Mvc\Command\Utils\ControllerData,
@@ -203,4 +205,6 @@ class GenerateController extends Command
         }
     }
 
-} 
+}
+
+// @codeCoverageIgnoreEnd

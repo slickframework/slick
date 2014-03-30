@@ -24,7 +24,7 @@ class Comment extends Model
     /**
      * @readwrite
      * @column type=text, size=big
-     * @validate notEmpty
+     * @validate notEmpty, text
      * @filter text
      * @var string
      * @display

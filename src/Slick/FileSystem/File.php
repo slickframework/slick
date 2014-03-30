@@ -143,8 +143,4 @@ class File extends Node
         return file_get_contents($file);
     }
 
-    public function exists()
-    {
-
-    }
 }

@@ -181,6 +181,21 @@ class ModelData extends Base
         return $result;
     }
 
+    /**
+     * returns all model relations
+     *
+     * @return array
+     */
+    public function getRelations()
+    {
+        $result = [];
+        $relMan = $this->model->getRelationsManager();
+        foreach ($relMan->relations as $key => $rel) {
+            $result[trim($key, '_')] = $rel;
+        }
+        return $result;
+    }
+
     public function getPluralName()
     {
         return Text::plural($this->getSingularName());
