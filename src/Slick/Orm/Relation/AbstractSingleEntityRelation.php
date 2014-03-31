@@ -174,6 +174,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             if (isset($data[$prop])) {
                 if (is_array($data[$prop])) {
                     $options[$prop] = array_shift($data[$prop]);
+
                 } else {
                     $options[$prop] = $data[$prop];
                 }

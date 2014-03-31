@@ -119,12 +119,13 @@ class BelongsTo extends AbstractSingleEntityRelation
         if (!isset($entity->raw[$frKey])) {
             return null;
         }
-        return call_user_func_array(
+        $data = call_user_func_array(
             array($related, 'get'),
             array(
                 $entity->raw[$frKey]
             )
         );
+        return $data;
     }
 
     public function prepareInsertUpdate(Event $event)

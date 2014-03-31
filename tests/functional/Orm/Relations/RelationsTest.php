@@ -84,6 +84,20 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertEquals('PHP', $tag->name);
     }
 
+    /**
+     * Trying to save relationship data
+     * @test
+     */
+    public function saveBelongsToData()
+    {
+        $comment = new Comment(['body' => "Good one", 'post' => 1]);
+        $this->assertTrue($comment->save());
+        $comment = Comment::get($comment->getConnector()->getLastInsertId());
+        $this->assertInstanceOf('Orm\Relations\Post', $comment->post);
+
+        $this->assertEquals('1', $comment->post->id);
+    }
+
 }
 
 class User extends Entity
