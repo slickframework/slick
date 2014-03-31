@@ -11,9 +11,12 @@
  */
 
 namespace Slick\Mvc;
+
 use Slick\Common\Base,
     Slick\Template\Template,
-    Slick\Mvc\View\Exception;
+    Slick\Mvc\View\Exception,
+    Slick\Common\EventManagerMethods;
+use Zend\EventManager\EventManagerAwareInterface;
 
 
 /**
@@ -25,7 +28,7 @@ use Slick\Common\Base,
  * @property string $file
  * @property \Slick\Template\Engine\Twig template
  */
-class View extends Base
+class View extends Base implements EventManagerAwareInterface
 {
     /**
      * Template file to use
@@ -49,6 +52,11 @@ class View extends Base
     protected $_data = array();
 
     /**
+     * Implementation of EventManagerAwareInterface interface
+     */
+    use EventManagerMethods;
+
+    /**
      * Overrides the constructor to set the template engine.
      *
      * @param array|Object $options The properties for the object
@@ -68,8 +76,16 @@ class View extends Base
      */
     public function render()
     {
+        $this->getEventManager()->trigger('viewBeforeRender', $this);
         $this->_template->parse($this->file);
         $output = $this->_template->process($this->_data);
+        $this->getEventManager()->trigger(
+            'viewAfterRender',
+            $this,
+            [
+                'output' => &$output
+            ]
+        );
         return $output;
     }
 

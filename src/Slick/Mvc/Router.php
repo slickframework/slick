@@ -12,15 +12,17 @@
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base;
-use Slick\Common\Inspector;
-use Slick\Configuration\Configuration;
-use Slick\Configuration\Driver\DriverInterface;
-use Slick\Mvc\Router\AbstractRoute;
-use Slick\Mvc\Router\RouteInterface;
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\PhpEnvironment\Response;
-use Slick\Mvc\Router\Exception;
+use Slick\Common\Base,
+    Slick\Common\Inspector,
+    Slick\Mvc\Router\Exception,
+    Slick\Mvc\Router\RouteInterface,
+    Slick\Mvc\Router\AbstractRoute,
+    Slick\Common\EventManagerMethods,
+    Slick\Configuration\Configuration,
+    Slick\Configuration\Driver\DriverInterface;
+use Zend\EventManager\EventManagerAwareInterface,
+    Zend\Http\PhpEnvironment\Response,
+    Zend\Http\PhpEnvironment\Request;
 
 /**
  * Router
@@ -28,7 +30,7 @@ use Slick\Mvc\Router\Exception;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Router extends Base
+class Router extends Base implements EventManagerAwareInterface
 {
 
     /**
@@ -79,6 +81,11 @@ class Router extends Base
      * @var DriverInterface
      */
     protected $_configuration;
+
+    /**
+     * Implementation of EventManagerAwareInterface interface
+     */
+    use EventManagerMethods;
 
     /**
      * Adds a route to the list of defined routes.
@@ -236,6 +243,8 @@ class Router extends Base
             }
         };
 
+        $this->getEventManager()->trigger('controllerBeforeFilter', $instance);
+
         $hooks($methodMeta, "@before");
 
         call_user_func_array(
@@ -247,8 +256,19 @@ class Router extends Base
         );
 
         $hooks($methodMeta, "@after");
+        $this->getEventManager()->trigger('controllerAfterFilter', $instance);
+
         $response = $app->getResponse();
-        $response->setContent($instance->render());
+        $this->getEventManager()->trigger('controllerBeforeRender', $instance);
+        $output = $instance->render();
+        $this->getEventManager()->trigger(
+            'controllerAfterRender',
+            $instance,
+            [
+                'output' => &$output
+            ]
+        );
+        $response->setContent($output);
         return $response;
     }
 

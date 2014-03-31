@@ -83,7 +83,21 @@ class Form extends AbstractFieldset
     {
         parent::__construct($options);
         $this->setName($name);
+        $this->getEventManager()->trigger(
+            'formBeforeSetup',
+            $this,
+            array(
+                'name' => $name
+            )
+        );
         $this->_setup();
+        $this->getEventManager()->trigger(
+            'formAfterSetup',
+            $this,
+            array(
+                'name' => $name
+            )
+        );
     }
 
     /**
@@ -105,7 +119,23 @@ class Form extends AbstractFieldset
      */
     public function AddElement($name, $data)
     {
+        $this->getEventManager()->trigger(
+            'formBeforeAddElement',
+            $this,
+            array(
+                'name' => $name,
+                'data' => &$data
+            )
+        );
         $this->factory->addElement($this, $name, $data);
+        $this->getEventManager()->trigger(
+            'formBeforeAddElement',
+            $this,
+            array(
+                'name' => $name,
+                'data' => &$data
+            )
+        );
         return $this;
     }
 
@@ -281,9 +311,38 @@ class Form extends AbstractFieldset
         return $this->_template;
     }
 
+    /**
+     * Returns the attributes as they will be used in the HTML output
+     * @return string
+     */
     public function getHtmlAttributes()
     {
         $result = parent::getHtmlAttributes();
         return trim(str_replace('form-control', '', $result));
+    }
+
+    /**
+     * Renders the form as HTML string
+     *
+     * @return string The HTML output string
+     */
+    public function render()
+    {
+        $this->getEventManager()->trigger(
+            'formBeforeRender',
+            $this,
+            array(
+
+            )
+        );
+        $output = parent::render();
+        $this->getEventManager()->trigger(
+            'formAfterRender',
+            $this,
+            array(
+                'output' => &$output
+            )
+        );
+        return $output;
     }
 }
