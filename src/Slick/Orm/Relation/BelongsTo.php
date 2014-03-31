@@ -12,6 +12,7 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Common\Inspector\Tag;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
@@ -34,6 +35,40 @@ class BelongsTo extends AbstractSingleEntityRelation
     protected $_dependent = true;
 
     /**
+     * Creates a relation from notation tag
+     *
+     * @param Tag $tag
+     * @param Entity $entity
+     * @param string $property Property name
+     *
+     * @throws \Slick\Orm\Exception\UndefinedClassException if the class does
+     *  not exists
+     * @throws \Slick\Orm\Exception\InvalidArgumentException if the class
+     *  does not implement Slick\Orm\EntityInterface interface
+     *
+     * @return BelongsTo
+     */
+    public static function create(Tag $tag, Entity &$entity, $property)
+    {
+        /** @var BelongsTo $relation */
+        $relation = parent::create($tag, $entity, $property);
+        $entity->getEventManager()->attach(
+            'prepareForInsert',
+            function ($event) use ($relation) {
+                $relation->prepareInsertUpdate($event);
+            }
+        );
+
+        $entity->getEventManager()->attach(
+            'prepareForUpdate',
+            function ($event) use ($relation){
+                $relation->prepareInsertUpdate($event);
+            }
+        );
+        return $relation;
+    }
+
+    /**
      * Returns foreign key name
      *
      * @return string
@@ -41,7 +76,7 @@ class BelongsTo extends AbstractSingleEntityRelation
     public function getForeignKey()
     {
         if (is_null($this->_foreignKey)) {
-            $this->_foreignKey = strtolower($this->_related->getAlias()) .
+            $this->_foreignKey = strtolower($this->getRelated()->getAlias()) .
                 "_id";
         }
         return $this->_foreignKey;
@@ -90,5 +125,48 @@ class BelongsTo extends AbstractSingleEntityRelation
                 $entity->raw[$frKey]
             )
         );
+    }
+
+    public function prepareInsertUpdate(Event $event)
+    {
+        $data = $event->getParam('data');
+        $raw = $event->getParam('raw');
+        $value = $this->_needPrepare($data, $raw);
+        if ($value) {
+            $data[$this->getForeignKey()] = $value;
+        }
+        $event->setParam('data', $data);
+    }
+
+    protected function _needPrepare($data, $raw)
+    {
+        $search = [$this->getPropertyName(), $this->getForeignKey()];
+
+        foreach ($search as $value) {
+            if (in_array($value, array_keys($data))) {
+                return $this->_verifyValue($data[$value]);
+            }
+
+            if (in_array($value, array_keys($raw))) {
+                return $this->_verifyValue($raw[$value]);
+            }
+        }
+        return false;
+    }
+
+    protected function _verifyValue($object)
+    {
+        $prk = $this->getRelated()->primaryKey;
+        $value = false;
+
+        if (is_integer($object) || intval($object) > 0) {
+            $value = intval($object);
+        } else {
+            $object = (object) $object;
+            if (isset($object->$prk)) {
+                $value = intval($object->$prk);
+            }
+        }
+        return $value;
     }
 }

@@ -138,6 +138,7 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
                 $relation->hydrate($event);
             }
         );
+
         return $relation;
     }
 

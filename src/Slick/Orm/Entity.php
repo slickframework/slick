@@ -11,12 +11,10 @@
 
 namespace Slick\Orm;
 
+use Slick\Common\EventManagerMethods;
 use Slick\Database\RecordList;
-use Slick\Di\DependencyInjector;
 use Slick\Orm\Entity\Column;
 use Slick\Orm\Exception;
-use Slick\Orm\Relation\BelongsTo;
-use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 
@@ -33,11 +31,6 @@ class Entity extends AbstractEntity
 {
 
     /**
-     * @var EventManagerInterface
-     */
-    protected $_events;
-
-    /**
      * @readwrite
      * @var array Default query options
      */
@@ -48,6 +41,11 @@ class Entity extends AbstractEntity
         'limit' => null,
         'page' => 0
     ];
+
+    /**
+     * Default implementation for EventManagerAwareInterface interface
+     */
+    use EventManagerMethods;
 
     /**
      * Retrieves the record with the provided primary key
@@ -419,17 +417,39 @@ class Entity extends AbstractEntity
                 $data[$col->name] = $this->$prop;
             }
 
-            $this->_saveRelations($data);
+            //$this->_saveRelations($data);
         }
 
+        $this->getEventManager()->trigger(
+            'prepareForInsert',
+            $this,
+            [
+                'query' => &$query,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
         $query->set($data);
-        return $query->save();
+        $result =  $query->save();
+
+        $this->getEventManager()->trigger(
+            'afterInsert',
+            $this,
+            [
+                'result' => $result,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
+        return $result;
     }
 
-    protected function _saveRelations(&$data)
+    /*protected function _saveRelations(&$data)
     {
         /** @var BelongsTo $relation */
-        foreach ($this->getRelationsManager()->relations as $property => $relation) {
+        /*foreach ($this->getRelationsManager()->relations as $property => $relation) {
             $property = trim($property, '_');
             if (is_a($this->$property, '\Slick\Orm\EntityInterface')) {
                 if (is_a($relation, '\Slick\Orm\Relation\BelongsTo')) {
@@ -447,7 +467,7 @@ class Entity extends AbstractEntity
                 }
             }
         }
-    }
+    }*/
 
     /**
      * Updated current or provided data on this entity
@@ -479,48 +499,32 @@ class Entity extends AbstractEntity
                 $prop = $col->raw;
                 $data[$col->name] = $this->$prop;
             }
-
-            $this->_saveRelations($data);
         }
 
-        $query->set($data);
-        return $query->save();
-    }
-
-    /**
-     * Inject an EventManager instance
-     *
-     * @param  EventManagerInterface $eventManager
-     * @return Entity
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $eventManager->setIdentifiers(
-            array(
-                __CLASS__,
-                get_called_class(),
-            )
+        $this->getEventManager()->trigger(
+            'prepareForUpdate',
+            $this,
+            [
+                'query' => &$query,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
         );
-        $this->_events = $eventManager;
-        return $this;
+        $query->set($data);
+        $result =  $query->save();
+
+        $this->getEventManager()->trigger(
+            'afterUpdate',
+            $this,
+            [
+                'result' => $result,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
+        return $result;
     }
 
-    /**
-     * Retrieve the event manager
-     *
-     * Lazy-loads an EventManager instance if none registered.
-     *
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        if (is_null($this->_events)) {
-            $injector = DependencyInjector::getDefault();
-            $sharedEvent = $injector->get('DefaultEventManager');
-            $events = new EventManager();
-            $events->setSharedManager($sharedEvent);
-            $this->setEventManager($events);
-        }
-        return $this->_events;
-    }
+
 }
