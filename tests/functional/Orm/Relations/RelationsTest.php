@@ -96,6 +96,18 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Orm\Relations\Post', $comment->post);
 
         $this->assertEquals('1', $comment->post->id);
+
+        $post = Post::get(1);
+        $user = User::get(2);
+
+        $other = new Comment(['body' => "other one", 'post' => $post, 'user' => $user]);
+        $this->assertTrue($other->save());
+        $otherId = $other->getConnector()->getLastInsertId();
+        $other = Comment::get($otherId);
+        $this->assertTrue($other->save(['user_id' => ['id' => 1]]));
+        $other->load();
+        $this->assertEquals(1, $other->user->id);
+
     }
 
 }

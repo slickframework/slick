@@ -59,7 +59,7 @@ class Entity extends AbstractEntity
         /** @var Entity $entity */
         $entity = new static();
         $className = get_called_class();
-        $row = $entity->query()
+        $query = $entity->query()
             ->select($entity->table)
             ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $key]);
 
@@ -67,13 +67,13 @@ class Entity extends AbstractEntity
             'beforeSelect',
             $entity,
             [
-                'query' => &$row,
+                'query' => &$query,
                 'id' => $key,
                 'action' => 'get'
             ]
         );
 
-        $row = $row->first();
+        $row = $query->first();
 
         if ($row) {
             $object = new $className($row);
@@ -367,19 +367,21 @@ class Entity extends AbstractEntity
             );
         }
 
-        $row = $this->query()
+        $query = $this->query()
             ->select($this->table)
-            ->where(["{$pmKey} = ?" => $this->$pmKey])
-            ->first();
+            ->where(["{$this->table}.{$this->primaryKey} = ?" => $this->$pmKey]);
+
 
         $this->getEventManager()->trigger(
             'beforeSelect',
             $this,
             [
-                'query' => &$row,
+                'query' => &$query,
                 'action' => 'load'
             ]
         );
+
+        $row = $query->first();
 
         if ($row) {
             $this->_hydrate($row);
@@ -445,29 +447,6 @@ class Entity extends AbstractEntity
 
         return $result;
     }
-
-    /*protected function _saveRelations(&$data)
-    {
-        /** @var BelongsTo $relation */
-        /*foreach ($this->getRelationsManager()->relations as $property => $relation) {
-            $property = trim($property, '_');
-            if (is_a($this->$property, '\Slick\Orm\EntityInterface')) {
-                if (is_a($relation, '\Slick\Orm\Relation\BelongsTo')) {
-                    $pmk = $this->$property->primaryKey;
-                    $data[$relation->getForeignKey()] =
-                        $this->$property->$pmk;
-                    continue;
-                }
-            } else {
-                if (is_a($relation, '\Slick\Orm\Relation\BelongsTo')) {
-                    if (isset($this->_raw[$property])) {
-                        $data[$relation->getForeignKey()] =
-                            $this->_raw[$property];
-                    }
-                }
-            }
-        }
-    }*/
 
     /**
      * Updated current or provided data on this entity

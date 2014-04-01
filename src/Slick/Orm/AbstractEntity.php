@@ -273,7 +273,8 @@ class AbstractEntity extends Base implements DiAwareInterface
     {
         $columns = $this->getColumns();
         if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
+            $optionsCopy = $options;
+            foreach ($optionsCopy as $key => $value) {
                 if ($columns->hasColumn($key)) {
                     $prop = $value;
                     if (is_array($value)) {
@@ -284,6 +285,7 @@ class AbstractEntity extends Base implements DiAwareInterface
                     $key = ucfirst($key);
                     $method = "set{$key}";
                     $this->$method($prop);
+                    unset($options[$key]);
                 }
             }
         }

@@ -116,15 +116,20 @@ class BelongsTo extends AbstractSingleEntityRelation
         $this->setEntity($entity);
         $related = get_class($this->getRelated());
         $frKey = $this->getForeignKey();
-        if (!isset($entity->raw[$frKey])) {
-            return null;
+        $data = null;
+
+        if (
+            isset($entity->raw[$frKey]) &&
+            is_callable(array($related, 'get'))
+        ) {
+            $data = call_user_func_array(
+                array($related, 'get'),
+                array(
+                    $entity->raw[$frKey]
+                )
+            );
         }
-        $data = call_user_func_array(
-            array($related, 'get'),
-            array(
-                $entity->raw[$frKey]
-            )
-        );
+
         return $data;
     }
 
@@ -160,14 +165,22 @@ class BelongsTo extends AbstractSingleEntityRelation
         $prk = $this->getRelated()->primaryKey;
         $value = false;
 
-        if (is_integer($object) || intval($object) > 0) {
-            $value = intval($object);
-        } else {
-            $object = (object) $object;
-            if (isset($object->$prk)) {
-                $value = intval($object->$prk);
-            }
+        if (is_a($object, 'Slick\Orm\EntityInterface')) {
+            $value = intval($object->$prk);
         }
+
+        if (is_array($object)) {
+            $object = (object) $object;
+        }
+
+        if (is_object($object)) {
+            $value = intval($object->$prk);
+        }
+
+        if (is_string($object) || is_integer($object)) {
+            $value = intval($object);
+        }
+
         return $value;
     }
 }

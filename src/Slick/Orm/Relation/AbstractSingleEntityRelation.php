@@ -155,6 +155,8 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
             $entity = $event->getParam('entity');
             $this->_hydrate($data, $entity);
         }
+
+        $event->setParam('data', $data);
     }
 
     /**
