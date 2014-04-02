@@ -85,6 +85,7 @@ class Application extends Base implements EventManagerAwareInterface
      */
     public function bootstrap()
     {
+        set_exception_handler(['\Slick\Mvc\Exception\Handler', 'handle']);
         $router = $this->getRouter();
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
