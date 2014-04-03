@@ -13,7 +13,10 @@
 namespace Slick\Form;
 
 use Slick\Di\DependencyInjector,
-    Slick\Form\InputFilter\InputFilter;
+    Slick\Form\InputFilter\InputFilter,
+    Slick\Form\Template\AbstractTemplate,
+    Slick\Form\Template\BasicForm;
+use Slick\I18n\TranslateMethods;
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
     Zend\EventManager\SharedEventManager,
@@ -26,6 +29,7 @@ use Zend\EventManager\EventManagerAwareInterface,
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property InputFilter $inputFilter
+ * @property Factory $factory
  */
 class Form extends AbstractFieldset
     implements FormInterface, EventManagerAwareInterface
@@ -50,6 +54,26 @@ class Form extends AbstractFieldset
     protected $_inputFilter;
 
     /**
+     * @readwrite
+     * @var Factory
+     */
+    protected $_factory;
+
+    /**
+     * Adds translate methods to this class
+     */
+    use TranslateMethods;
+
+    /**
+     * @readwrite
+     * @var array
+     */
+    protected $_attributes =[
+        'action' => '',
+        'method' => 'post'
+    ];
+
+    /**
      * Overrides the parent constructor to set name as mandatory param.
      *
      * @param string       $name
@@ -59,6 +83,73 @@ class Form extends AbstractFieldset
     {
         parent::__construct($options);
         $this->setName($name);
+        $this->getEventManager()->trigger(
+            'formBeforeSetup',
+            $this,
+            array(
+                'name' => $name
+            )
+        );
+        $this->_setup();
+        $this->getEventManager()->trigger(
+            'formAfterSetup',
+            $this,
+            array(
+                'name' => $name
+            )
+        );
+    }
+
+    /**
+     * Callback for form setup
+     */
+    protected function _setup()
+    {
+    }
+
+    /**
+     * Adds an element to the form using the built in factory
+     *
+     * @param string $name Element name
+     * @param array $data Factory data
+     *
+     * @return Form A self instance for method call chain
+     *
+     * @throws Exception\UnknownElementException
+     */
+    public function AddElement($name, $data)
+    {
+        $this->getEventManager()->trigger(
+            'formBeforeAddElement',
+            $this,
+            array(
+                'name' => $name,
+                'data' => &$data
+            )
+        );
+        $this->factory->addElement($this, $name, $data);
+        $this->getEventManager()->trigger(
+            'formBeforeAddElement',
+            $this,
+            array(
+                'name' => $name,
+                'data' => &$data
+            )
+        );
+        return $this;
+    }
+
+    /**
+     * Lazy loads and returns form factory object
+     *
+     * @return Factory
+     */
+    public function getFactory()
+    {
+        if (is_null($this->_factory)) {
+            $this->factory = new Factory();
+        }
+        return $this->_factory;
     }
 
     /**
@@ -205,5 +296,53 @@ class Form extends AbstractFieldset
     public function getValues()
     {
         return $this->getInputFilter()->getValues();
+    }
+
+    /**
+     * lazy loads a default template for this element
+     *
+     * @return AbstractTemplate
+     */
+    public function getTemplate()
+    {
+        if (is_null($this->_template)) {
+            $this->setTemplate(new BasicForm());
+        }
+        return $this->_template;
+    }
+
+    /**
+     * Returns the attributes as they will be used in the HTML output
+     * @return string
+     */
+    public function getHtmlAttributes()
+    {
+        $result = parent::getHtmlAttributes();
+        return trim(str_replace('form-control', '', $result));
+    }
+
+    /**
+     * Renders the form as HTML string
+     *
+     * @return string The HTML output string
+     */
+    public function render()
+    {
+        $this->getEventManager()->trigger(
+            'formBeforeRender',
+            $this,
+            array(
+
+            )
+        );
+        $output = parent::render();
+        $this->getEventManager()->trigger(
+            'formAfterRender',
+            $this,
+            array(
+                'output' => &$output
+            )
+        );
+        return $output;
     }
 }

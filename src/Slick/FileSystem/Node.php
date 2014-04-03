@@ -25,7 +25,7 @@ abstract class Node extends Base
 
     /**
      * @read
-     * @var \SplFileObject The file object infomation
+     * @var \SplFileObject The file object information
      */
     protected $_details = null;
 

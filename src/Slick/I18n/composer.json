@@ -1,0 +1,17 @@
+{
+    "name": "slick/i18n",
+    "description": "I18n for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "i18n"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\I18n\\": ""
+        }
+    },
+    "target-dir": "Slick/I18n",
+    "require" : {
+        "zendframework/zend-i18n": ">=2.2.5",
+        "zendframework/zend-servicemanager": "2.2.5",
+        "slick/Common": "self.version"
+    }
+}

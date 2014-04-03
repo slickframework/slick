@@ -14,6 +14,7 @@ namespace Slick\Form;
 
 use Slick\Common\Base;
 use Slick\Form\InputFilter\Factory as InputFilterFactory;
+use Slick\Validator\StaticValidator;
 
 /**
  * Form Factory
@@ -28,7 +29,12 @@ class Factory extends Base
      * @var array A list of form element classes and its alias
      */
     protected static $_elementAlias = [
-        'text' => 'Slick\Form\Element\Text'
+        'text' => 'Slick\Form\Element\Text',
+        'dateTime' => 'Slick\Form\Element\DateTime',
+        'hidden' => 'Slick\Form\Element\Hidden',
+        'select' => 'Slick\Form\Element\Select',
+        'area' => 'Slick\Form\Element\Area',
+        'checkbox' => 'Slick\Form\Element\Checkbox',
     ];
 
     /**
@@ -44,7 +50,8 @@ class Factory extends Base
     protected $_elementProperties = [
         'label' => null,
         'attributes' => [],
-        'value' => null
+        'value' => null,
+        'options' => []
     ];
 
     /**
@@ -74,7 +81,7 @@ class Factory extends Base
     {
         $this->_form = new Form($name);
         foreach ($definition as $name => $element) {
-            $this->_addElement($this->_form, $name, $element);
+            $this->addElement($this->_form, $name, $element);
         }
         return $this->_form;
     }
@@ -88,12 +95,12 @@ class Factory extends Base
      *
      * @throws Exception\UnknownElementException
      */
-    protected function _addElement(FieldsetInterface &$form, $name, $data)
+    public function addElement(FieldsetInterface &$form, $name, $data)
     {
         if ($data['type'] == 'fieldset') {
             $fieldset = new Fieldset(['name' => $name]);
             foreach ($data['elements'] as $key => $def) {
-                $this->_addElement($fieldset, $key, $def);
+                $this->addElement($fieldset, $key, $def);
             }
             $form->add($fieldset);
         } else {
@@ -112,11 +119,6 @@ class Factory extends Base
 
             /** @var Element $element */
             $element = new $class(['name' => $name]);
-            foreach (array_keys($this->_elementProperties) as $key) {
-                if (isset($data[$key])) {
-                    $element->$key = $data[$key];
-                }
-            }
 
             if (isset($data['input'])) {
                 $element->input = InputFilterFactory::createInput(
@@ -125,7 +127,50 @@ class Factory extends Base
                 );
             }
 
+            if (!empty($data['validate'])) {
+                $this->addValidation($element, $data['validate']);
+            }
+
+            foreach (array_keys($this->_elementProperties) as $key) {
+                if (isset($data[$key])) {
+                    $element->$key = $data[$key];
+                }
+            }
+
             $form->add($element);
+        }
+    }
+
+    /**
+     * Add validator to the provided element
+     *
+     * @param Element $element
+     * @param array $data
+     */
+    public function addValidation(Element &$element, array $data)
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($key)) {
+                $element->getInput()->getValidatorChain()->add(StaticValidator::create($key, $value));
+                $this->checkRequired($key, $element);
+            } else {
+                $element->getInput()->getValidatorChain()->add(StaticValidator::create($value));
+                $this->checkRequired($value, $element);
+            }
+        }
+    }
+
+    /**
+     * Check required flag based on validator name
+     *
+     * @param $validator
+     * @param Element $element
+     */
+    public function checkRequired($validator, Element &$element)
+    {
+        if (in_array($validator, ['notEmpty'])) {
+            $element->getInput()->required = true;
+            $element->getInput()->allowEmpty = false;
         }
     }
 } 

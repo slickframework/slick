@@ -197,10 +197,12 @@ class InputFilter extends Base implements InputFilterInterface
         $values = array();
         /** @var Input $input */
         foreach ($this->_inputs as $name => $input) {
-            $values[$name] = call_user_func_array(
-                [$input, 'getValue'],
-                [$name]
-            );
+            if (strlen($name) > 0) {
+                $values[$name] = call_user_func_array(
+                    [$input, 'getValue'],
+                    [$name]
+                );
+            }
         }
         return $values;
     }

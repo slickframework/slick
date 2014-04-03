@@ -11,11 +11,10 @@
 
 namespace Slick\Orm;
 
+use Slick\Common\EventManagerMethods;
 use Slick\Database\RecordList;
-use Slick\Di\DependencyInjector;
 use Slick\Orm\Entity\Column;
 use Slick\Orm\Exception;
-use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 
@@ -32,11 +31,6 @@ class Entity extends AbstractEntity
 {
 
     /**
-     * @var EventManagerInterface
-     */
-    protected $_events;
-
-    /**
      * @readwrite
      * @var array Default query options
      */
@@ -47,6 +41,11 @@ class Entity extends AbstractEntity
         'limit' => null,
         'page' => 0
     ];
+
+    /**
+     * Default implementation for EventManagerAwareInterface interface
+     */
+    use EventManagerMethods;
 
     /**
      * Retrieves the record with the provided primary key
@@ -60,7 +59,7 @@ class Entity extends AbstractEntity
         /** @var Entity $entity */
         $entity = new static();
         $className = get_called_class();
-        $row = $entity->query()
+        $query = $entity->query()
             ->select($entity->table)
             ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $key]);
 
@@ -68,16 +67,17 @@ class Entity extends AbstractEntity
             'beforeSelect',
             $entity,
             [
-                'query' => &$row,
+                'query' => &$query,
                 'id' => $key,
                 'action' => 'get'
             ]
         );
 
-        $row = $row->first();
+        $row = $query->first();
 
         if ($row) {
             $object = new $className($row);
+            $row = $object->remainingData;
             $entity->getEventManager()->trigger(
                 'afterSelect',
                 $object,
@@ -164,8 +164,10 @@ class Entity extends AbstractEntity
         $result = new RecordList();
 
         if ($rows && is_a($rows, '\ArrayObject')) {
-            foreach ($rows as $row) {
-                $result->append(new $className($row));
+            foreach ($rows as &$row) {
+                $object = new $className($row);
+                $row = $object->remainingData;
+                $result->append($object);
             }
         }
 
@@ -224,6 +226,7 @@ class Entity extends AbstractEntity
 
         if ($row) {
             $object = new $className($row);
+            $row = $object->remainingData;
             $entity->getEventManager()->trigger(
                 'afterSelect',
                 $object,
@@ -260,23 +263,29 @@ class Entity extends AbstractEntity
         $pmKey = $this->primaryKey;
         $abort = false;
         $result = false;
+        $action = 'insert';
+        if ($this->$pmKey || isset($data[$pmKey])) {
+            $action = 'update';
+        }
         $this->getEventManager()->trigger(
             'beforeSave',
             $this,
             array(
                 'data' => &$data,
-                'abort' => &$abort
+                'abort' => &$abort,
+                'action' => $action
             )
         );
+
         if (!$abort) {
-            if ($this->$pmKey || isset($data[$pmKey])) {
+            if ($action == 'update') {
                 $result = $this->_update($data);
                 $this->getEventManager()->trigger(
                     'afterSave',
                     $this,
                     array(
                         'data' => &$data,
-                        'action' => 'update'
+                        'action' => $action
                     )
                 );
             } else {
@@ -286,7 +295,7 @@ class Entity extends AbstractEntity
                     $this,
                     array(
                         'data' => &$data,
-                        'action' => 'insert'
+                        'action' => $action
                     )
                 );
             }
@@ -358,22 +367,25 @@ class Entity extends AbstractEntity
             );
         }
 
-        $row = $this->query()
+        $query = $this->query()
             ->select($this->table)
-            ->where(["{$pmKey} = ?" => $this->$pmKey])
-            ->first();
+            ->where(["{$this->table}.{$this->primaryKey} = ?" => $this->$pmKey]);
+
 
         $this->getEventManager()->trigger(
             'beforeSelect',
             $this,
             [
-                'query' => &$row,
+                'query' => &$query,
                 'action' => 'load'
             ]
         );
 
+        $row = $query->first();
+
         if ($row) {
-            $this->_hydratate($row);
+            $this->_hydrate($row);
+            $row = $this->remainingData;
             $this->getEventManager()->trigger(
                 'afterSelect',
                 $this,
@@ -406,10 +418,34 @@ class Entity extends AbstractEntity
                 $prop = $col->raw;
                 $data[$col->name] = $this->$prop;
             }
+
+            //$this->_saveRelations($data);
         }
 
+        $this->getEventManager()->trigger(
+            'prepareForInsert',
+            $this,
+            [
+                'query' => &$query,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
         $query->set($data);
-        return $query->save();
+        $result =  $query->save();
+
+        $this->getEventManager()->trigger(
+            'afterInsert',
+            $this,
+            [
+                'result' => $result,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
+        return $result;
     }
 
     /**
@@ -444,44 +480,30 @@ class Entity extends AbstractEntity
             }
         }
 
-        $query->set($data);
-        return $query->save();
-    }
-
-    /**
-     * Inject an EventManager instance
-     *
-     * @param  EventManagerInterface $eventManager
-     * @return Entity
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $eventManager->setIdentifiers(
-            array(
-                __CLASS__,
-                get_called_class(),
-            )
+        $this->getEventManager()->trigger(
+            'prepareForUpdate',
+            $this,
+            [
+                'query' => &$query,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
         );
-        $this->_events = $eventManager;
-        return $this;
+        $query->set($data);
+        $result =  $query->save();
+
+        $this->getEventManager()->trigger(
+            'afterUpdate',
+            $this,
+            [
+                'result' => $result,
+                'data' => &$data,
+                'raw' => $this->_raw
+            ]
+        );
+
+        return $result;
     }
 
-    /**
-     * Retrieve the event manager
-     *
-     * Lazy-loads an EventManager instance if none registered.
-     *
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        if (is_null($this->_events)) {
-            $injector = DependencyInjector::getDefault();
-            $sharedEvent = $injector->get('DefaultEventManager');
-            $events = new EventManager();
-            $events->setSharedManager($sharedEvent);
-            $this->setEventManager($events);
-        }
-        return $this->_events;
-    }
+
 }

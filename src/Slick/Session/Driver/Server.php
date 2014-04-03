@@ -50,7 +50,9 @@ class Server extends Driver
 
         session_set_cookie_params($this->lifetime, '/', $this->domain);
         session_name($this->name);
-        @session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
 
     }
 

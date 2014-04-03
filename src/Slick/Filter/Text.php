@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Text
+ * Text filter
  *
  * @package   Slick\Filter
  * @author    Filipe Silva <silvam.filipe@gmail.com>

@@ -16,6 +16,7 @@ use Slick\Common\Base;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\Driver\DriverInterface;
 use Slick\Di\DependencyInjector;
+use Slick\I18n\Translator;
 use Slick\Template\Template;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -28,6 +29,8 @@ use Zend\Http\PhpEnvironment\Response;
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property Translator $translator
  */
 class Application extends Base implements EventManagerAwareInterface
 {
@@ -70,12 +73,20 @@ class Application extends Base implements EventManagerAwareInterface
     protected $_event;
 
     /**
+     * @readwrite
+     * @var Translator
+     */
+    protected $_translator;
+
+    /**
      * Bootstrap the application
      *
      * @returns Application
      */
     public function bootstrap()
     {
+        set_exception_handler(['\Slick\Mvc\Exception\Handler', 'handle']);
+        set_error_handler(['\Slick\Mvc\Exception\Handler', 'handleError']);
         $router = $this->getRouter();
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
@@ -87,12 +98,14 @@ class Application extends Base implements EventManagerAwareInterface
         $this->_event = $event;
 
         Template::addPath(
-            '/'. $this->getConfiguration()->get('paths.views', 'Views')
+            getcwd() .'/'. $this->getConfiguration()->get('paths.views', 'Views')
         );
+        Template::appendPath(__DIR__ . '/Views');
 
         $this->getEventManager()
             ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);
 
+        $this->translator = Translator::getInstance();
 
         foreach (Configuration::getPathList() as $path) {
             if (is_file("{$path}/{$bootstrap}")) {
@@ -103,6 +116,7 @@ class Application extends Base implements EventManagerAwareInterface
                 include("{$path}/{$routesFile}");
             }
         }
+
     }
 
     /**

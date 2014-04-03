@@ -25,7 +25,10 @@ class StaticFilter
      * @var array List of available filter
      */
     public static $filters = [
-        'text' => 'Slick\Filter\Text'
+        'text' => 'Slick\Filter\Text',
+        'htmlEntities' => 'Slick\Filter\HtmlEntities',
+        'number' => 'Slick\Filter\Number',
+        'url' => 'Slick\Filter\Url'
     ];
 
     /**
@@ -66,7 +69,7 @@ class StaticFilter
             $class = $filter;
         } else {
             throw new Exception\UnknownFilterClassException(
-                "The validator '{$filter}' is not defined or does not " .
+                "The filter '{$filter}' is not defined or does not " .
                 "implements the Slick\\Filter\\FilterInterface interface"
             );
         }

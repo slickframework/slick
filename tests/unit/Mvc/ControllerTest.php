@@ -88,7 +88,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $controller = new MyController();
         $layout = $controller->getLayout();
         $this->assertInstanceOf('Slick\Mvc\View', $layout);
-        $this->assertEquals('Layouts/default.html.twig', $layout->file);
+        $this->assertEquals('layouts/default.html.twig', $layout->file);
         $controller->setLayout('testLayout');
         $this->assertEquals('testLayout.html.twig', $controller->getLayout()->file);
         $controller->setView('test');

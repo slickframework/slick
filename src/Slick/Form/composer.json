@@ -11,6 +11,7 @@
     "target-dir": "Slick/Form",
     "require": {
         "slick/common": "self.version",
+        "slick/i18n": "self.version",
         "slick/di": "self.version"
     }
 }

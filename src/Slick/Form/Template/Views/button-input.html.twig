@@ -1,0 +1,4 @@
+<button {{ element.getHtmlAttributes|raw }}>{% if element.hasGlyph %}
+    <span class="glyphicon {{ element.getGlyphIcon }}"></span>
+{% endif %}
+ {{ element.getValue }}</button>

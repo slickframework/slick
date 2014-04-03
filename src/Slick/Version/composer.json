@@ -1,0 +1,12 @@
+{
+    "name": "slick/version",
+    "description": "Version for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "version"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Version\\": ""
+        }
+    },
+    "target-dir": "Slick/Version"
+}

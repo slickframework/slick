@@ -12,14 +12,19 @@
 		}
 	],
 	"require" : {
-        "codeception/codeception": "1.8.*@dev",
-		"phpmd/phpmd" : "1.4.*",
 		"monolog/monolog" : "~1.4",
         "twig/twig": "1.15.*@dev",
         "zendframework/zend-eventmanager": ">=2.2.5",
         "zendframework/zend-uri" : ">=2.2.5",
-        "zendframework/zend-http": ">=2.2.5"
+        "zendframework/zend-http": ">=2.2.5",
+        "zendframework/zend-i18n": ">=2.2.5",
+        "zendframework/zend-servicemanager": "2.2.5",
+        "symfony/console": ">=2.3.0"
 	},
+    "require-dev": {
+        "codeception/codeception": "1.8.*@dev",
+        "phpmd/phpmd" : "1.4.*"
+    },
 	"replace" : {
 		"slick/common" : "self.version",
 		"slick/database" : "self.version",
@@ -33,9 +38,10 @@
 		}
 	},
     "extra": {
-    "branch-alias": {
-        "dev-master": "1.0-dev",
-        "dev-develop": "1.1-dev"
-    }
-}
+        "branch-alias": {
+            "dev-master": "1.0-dev",
+            "dev-develop": "1.1-dev"
+        }
+    },
+    "bin": ["bin/slick"]
 }

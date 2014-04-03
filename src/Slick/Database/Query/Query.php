@@ -26,7 +26,7 @@ class Query extends AbstractQuery implements QueryInterface
      * Creates a 'Select' SQL statement
      * 
      * @param string $tableName The table name for select statement
-     * @param array  $fields    A list of fields to retreive whit query
+     * @param array  $fields    A list of fields to retrieve whit query
      * 
      * @return \Slick\Database\Query\Sql\Select The SQL select object
      */

@@ -17,6 +17,8 @@ namespace Slick\FileSystem;
  *
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property \SplFileInfo $details
  */
 class Folder extends Node
 {

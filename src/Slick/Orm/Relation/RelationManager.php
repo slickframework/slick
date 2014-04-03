@@ -22,6 +22,8 @@ use Slick\Orm\Entity;
  *
  * @package   Slick\Orm\Entity
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property ArrayObject $relations
  */
 class RelationManager extends Base
 {

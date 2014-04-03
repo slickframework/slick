@@ -12,9 +12,11 @@
 
 namespace Slick\Template\Engine;
 
+use Slick\Template\Engine\Twig\SlickTwigExtension;
 use Slick\Template\EngineInterface;
 use Twig_Environment,
     Twig_Loader_Filesystem,
+    Twig_Extension_Debug,
     Twig_Error;
 use Slick\Template\Exception;
 
@@ -56,6 +58,7 @@ class Twig extends AbstractEngine
     public function parse($source)
     {
         $this->_source = $source;
+        return $this;
     }
 
     /**
@@ -88,8 +91,13 @@ class Twig extends AbstractEngine
     {
         if (is_null($this->_twig)) {
             $this->_twig = new Twig_Environment(
-                new Twig_Loader_Filesystem($this->_paths)
+                new Twig_Loader_Filesystem($this->_paths),
+                [
+                    'debug' => true,
+                ]
             );
+            $this->_twig->addExtension(new Twig_Extension_Debug());
+            $this->_twig->addExtension(new SlickTwigExtension());
         }
         return $this->_twig;
     }

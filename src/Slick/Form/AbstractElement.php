@@ -13,14 +13,18 @@
 namespace Slick\Form;
 
 use Slick\Common\Base;
+use Slick\Form\Template\AbstractTemplate;
+use Slick\Form\Template\BasicInput;
 
 /**
  * AbstractElement
  *
  * @package   Slick\Form
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property TemplateInterface $template
  */
-abstract class AbstractElement extends Base
+abstract class AbstractElement extends Base implements ElementInterface
 {
     /**
      * @readwrite
@@ -51,6 +55,18 @@ abstract class AbstractElement extends Base
      * @var string
      */
     protected $_value;
+
+    /**
+     * @readwrite
+     * @var AbstractTemplate
+     */
+    protected $_template;
+
+    /**
+     * @readwrite
+     * @var array
+     */
+    protected $_options;
 
     /**
      * Sets all attributes of this element
@@ -188,5 +204,82 @@ abstract class AbstractElement extends Base
     public function getLabel()
     {
         return $this->_label;
+    }
+
+    /**
+     * Renders the form as HTML string
+     *
+     * @return string The HTML output string
+     */
+    public function render()
+    {
+        return $this->getTemplate()
+            ->setElement($this)
+            ->render();
+    }
+
+    /**
+     * Sets template decorator for this element
+     *
+     * @param TemplateInterface $template
+     *
+     * @return AbstractElement
+     */
+    public function setTemplate(TemplateInterface $template)
+    {
+        $this->_template = $template;
+        return $this;
+    }
+
+    /**
+     * lazy loads a default template for this element
+     *
+     * @return AbstractTemplate
+     */
+    public function getTemplate()
+    {
+        if (is_null($this->_template)) {
+            $this->_template = new BasicInput();
+        }
+        return $this->_template;
+    }
+
+    /**
+     * Return current element options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
+    }
+
+    /**
+     * Sets element options
+     *
+     * @param $options
+     *
+     * @return Element
+     */
+    public function setOptions($options)
+    {
+        $this->_options = $options;
+        return $this;
+    }
+
+    public function getHtmlAttributes()
+    {
+        if (isset($this->_attributes['class'])) {
+            $this->_attributes['class'] = 'form-control ' .
+                $this->_attributes['class'];
+        } else {
+            $this->_attributes['class'] = 'form-control';
+        }
+
+        $parts = [];
+        foreach ($this->_attributes as $key => $value) {
+            $parts[] = "{$key} = \"{$value}\"";
+        }
+        return implode(' ', $parts);
     }
 } 

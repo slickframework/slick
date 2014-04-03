@@ -90,13 +90,19 @@ class AbstractEntity extends Base implements DiAwareInterface
     protected $_raw;
 
     /**
+     * @read
+     * @var mixed
+     */
+    protected $_remainingData;
+
+    /**
      * Overrides Base constructor to handle property populating process
      * from throwing undefined property exceptions.
      *
      * @param array|Object $options
      * @throws Exception\PrimaryKeyException
      */
-    public function __construct(&$options = array())
+    public function __construct($options = array())
     {
         parent::__construct();
         $columns = $this->getColumns();
@@ -107,7 +113,7 @@ class AbstractEntity extends Base implements DiAwareInterface
         }
 
         $this->_raw = $options;
-        $this->_hydratate($options);
+        $this->_hydrate($options);
     }
 
     /**
@@ -263,11 +269,12 @@ class AbstractEntity extends Base implements DiAwareInterface
      *
      * @param $options
      */
-    protected function _hydratate(&$options)
+    protected function _hydrate($options)
     {
         $columns = $this->getColumns();
         if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
+            $optionsCopy = $options;
+            foreach ($optionsCopy as $key => $value) {
                 if ($columns->hasColumn($key)) {
                     $prop = $value;
                     if (is_array($value)) {
@@ -278,8 +285,10 @@ class AbstractEntity extends Base implements DiAwareInterface
                     $key = ucfirst($key);
                     $method = "set{$key}";
                     $this->$method($prop);
+                    unset($options[$key]);
                 }
             }
         }
+        $this->_remainingData = $options;
     }
 }

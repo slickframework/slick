@@ -124,4 +124,36 @@ interface ElementInterface
      * @return array
      */
     public function getMessages();
+
+    /**
+     * Renders the form as HTML string
+     *
+     * @return string The HTML output string
+     */
+    public function render();
+
+    /**
+     * Sets template decorator for this element
+     *
+     * @param TemplateInterface $template
+     *
+     * @return ElementInterface
+     */
+    public function setTemplate(TemplateInterface $template);
+
+    /**
+     * Return current element options
+     *
+     * @return mixed
+     */
+    public function getOptions();
+
+    /**
+     * Sets element options
+     *
+     * @param $options
+     *
+     * @return ElementInterface
+     */
+    public function setOptions($options);
 } 

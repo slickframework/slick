@@ -13,7 +13,9 @@
 namespace Slick\Mvc;
 
 use Slick\Common\Base,
-    Slick\Di\DependencyInjector;
+    Slick\I18n\TranslateMethods,
+    Slick\Di\DependencyInjector,
+    Slick\Mvc\Libs\Session\FlashMessages;
 use Zend\EventManager\EventManager,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
@@ -35,6 +37,7 @@ use Zend\EventManager\EventManager,
  * @property EventManager $events
  * @property string $controllerName
  * @property string $actionName
+ * @property FlashMessages $flashMessages
  */
 abstract class Controller extends Base implements EventManagerAwareInterface
 {
@@ -42,7 +45,7 @@ abstract class Controller extends Base implements EventManagerAwareInterface
      * @readwrite
      * @var array
      */
-    protected $_viewVars;
+    protected $_viewVars = array();
 
     /**
      * @readwrite
@@ -109,6 +112,23 @@ abstract class Controller extends Base implements EventManagerAwareInterface
      * @var string The action name from the router
      */
     protected $_actionName;
+
+    /**
+     * @read
+     * @var bool
+     */
+    protected $_scaffold = false;
+
+    /**
+     * @readwrite
+     * @var FlashMessages
+     */
+    protected $_flashMessages;
+
+    /**
+     * Adds translate methods to this class
+     */
+    use TranslateMethods;
 
     /**
      * Sets the values to be used in the views.
@@ -203,7 +223,7 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $sharedEvents =  DependencyInjector::getDefault()
+            $sharedEvents = DependencyInjector::getDefault()
                 ->get('DefaultEventManager');
             $events = new EventManager();
             $events->setSharedManager($sharedEvents);
@@ -221,6 +241,9 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function render()
     {
         $results = null;
+
+        // set flash messages
+        $this->set('flashMessages', $this->flashMessages);
 
         $doLayout = $this->renderLayout && $this->getLayout();
         $doView = $this->renderView && $this->getView();
@@ -297,10 +320,49 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function getLayout()
     {
         if (is_null($this->_layout)) {
-            $this->setLayout('Layouts/default');
+            $this->setLayout('layouts/default');
         }
         return $this->_layout;
     }
 
+    /**
+     * Returns a value previously assigned with set() method
+     *
+     * @see Controller::set()
+     * @param string $varName
+     *
+     * @return null|mixed
+     */
+    public function get($varName)
+    {
+        $value = null;
+        if ($this->_viewVars[$varName]) {
+            $value = $this->_viewVars[$varName];
+        }
+        return $value;
+    }
 
+    /**
+     * Lazy load of flash messages
+     *
+     * @return FlashMessages
+     */
+    public function getFlashMessages()
+    {
+        if (is_null($this->_flashMessages)) {
+            $this->_flashMessages = new FlashMessages();
+        }
+        return $this->_flashMessages;
+    }
+
+    /**
+     * Sets a flash message to be displayed
+     *
+     * @param int $type
+     * @param string $message
+     */
+    public function setMessage($type, $message)
+    {
+        $this->flashMessages->set($type, $message);
+    }
 }

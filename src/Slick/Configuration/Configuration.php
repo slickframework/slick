@@ -96,8 +96,8 @@ class Configuration extends Base
     }
 
     /**
-     * [initialize description]
-     * @return [type] [description]
+     * @return DriverInterface
+     * @throws Exception\InvalidArgumentException
      */
     public function initialize()
     {

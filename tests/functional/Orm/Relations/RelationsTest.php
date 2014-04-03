@@ -45,8 +45,13 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('\Slick\Database\RecordList', $comments);
         $this->assertInstanceOf('\Orm\Relations\User', $comments[0]->user);
         $user = $comments[0]->user;
-        $this->assertEquals('some.name@example.com', $user->email);
-        $this->assertEquals('Filipe Silva', $user->profile->fullName);
+        if ($user->id == 1) {
+            $this->assertEquals('silvam.filipe@gmail.com', $user->email);
+            $this->assertEquals('Filipe Silva', $user->profile->fullName);
+        } else {
+            $this->assertEquals('some.name@example.com', $user->email);
+            $this->assertEquals('Guest User', $user->profile->fullName);
+        }
         $this->assertInstanceOf('\Orm\Relations\Post', $comments[0]->post);
         $this->assertInstanceOf('\Orm\Relations\User', $comments[0]->user->profile->user);
 
@@ -77,6 +82,32 @@ class RelationsTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Slick\Database\RecordList', $post->tags);
         $tag = $post->tags[0];
         $this->assertEquals('PHP', $tag->name);
+    }
+
+    /**
+     * Trying to save relationship data
+     * @test
+     */
+    public function saveBelongsToData()
+    {
+        $comment = new Comment(['body' => "Good one", 'post' => 1]);
+        $this->assertTrue($comment->save());
+        $comment = Comment::get($comment->getConnector()->getLastInsertId());
+        $this->assertInstanceOf('Orm\Relations\Post', $comment->post);
+
+        $this->assertEquals('1', $comment->post->id);
+
+        $post = Post::get(1);
+        $user = User::get(2);
+
+        $other = new Comment(['body' => "other one", 'post' => $post, 'user' => $user]);
+        $this->assertTrue($other->save());
+        $otherId = $other->getConnector()->getLastInsertId();
+        $other = Comment::get($otherId);
+        $this->assertTrue($other->save(['user_id' => ['id' => 1]]));
+        $other->load();
+        $this->assertEquals(1, $other->user->id);
+
     }
 
 }
@@ -123,7 +154,7 @@ class User extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 
     /**
      * @readwrite
@@ -167,7 +198,7 @@ class Comment extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }
 
 class Post extends Entity
@@ -205,7 +236,7 @@ class Post extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 
     /**
      * @readwrite
@@ -243,7 +274,7 @@ class Profile extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }
 
 class Tag extends Entity
@@ -274,5 +305,5 @@ class Tag extends Entity
      * @read
      * @var string The configuration file name
      */
-    protected $_configFile = 'config';
+    protected $_configFile = 'config_orm';
 }

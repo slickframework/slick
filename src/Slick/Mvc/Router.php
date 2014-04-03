@@ -12,15 +12,17 @@
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base;
-use Slick\Common\Inspector;
-use Slick\Configuration\Configuration;
-use Slick\Configuration\Driver\DriverInterface;
-use Slick\Mvc\Router\AbstractRoute;
-use Slick\Mvc\Router\RouteInterface;
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\PhpEnvironment\Response;
-use Slick\Mvc\Router\Exception;
+use Slick\Common\Base,
+    Slick\Common\Inspector,
+    Slick\Mvc\Router\Exception,
+    Slick\Mvc\Router\RouteInterface,
+    Slick\Mvc\Router\AbstractRoute,
+    Slick\Common\EventManagerMethods,
+    Slick\Configuration\Configuration,
+    Slick\Configuration\Driver\DriverInterface;
+use Zend\EventManager\EventManagerAwareInterface,
+    Zend\Http\PhpEnvironment\Response,
+    Zend\Http\PhpEnvironment\Request;
 
 /**
  * Router
@@ -28,7 +30,7 @@ use Slick\Mvc\Router\Exception;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Router extends Base
+class Router extends Base implements EventManagerAwareInterface
 {
 
     /**
@@ -79,6 +81,11 @@ class Router extends Base
      * @var DriverInterface
      */
     protected $_configuration;
+
+    /**
+     * Implementation of EventManagerAwareInterface interface
+     */
+    use EventManagerMethods;
 
     /**
      * Adds a route to the list of defined routes.
@@ -149,9 +156,11 @@ class Router extends Base
             $matches = $route->matches($url);
             if ($matches) {
                 $controller = $route->getController();
-                $action = $route->getAction();
+                $action = ($route->getAction()) ?
+                    $route->getAction() : $action;
                 $parameters = $route->getParameters();
-                $namespace = $route->getNamespace();
+                $namespace = ($route->getNamespace()) ?
+                    $route->getNamespace() : $namespace;
                 $matched = true;
                 break;
             }
@@ -191,19 +200,9 @@ class Router extends Base
     public function dispatch(Application $app)
     {
         $name = $this->_namespace .'\\'. ucfirst($this->_controller);
-        $this->_checkController($name);
+        $instance = $this->_getController($name, $app);
 
-        /** @var Controller $instance */
-        $instance = new $name(
-            array(
-                'parameters' => $this->_params,
-                'extension' => $this->getExtension(),
-                'request' => $app->getRequest(),
-                'response' => $app->getResponse(),
-                'actionName' => $this->_action,
-                'controllerName' => $this->_controller
-            )
-        );
+
 
         $inspector = new Inspector($instance);
         $methodMeta = $inspector->getMethodMeta($this->_action);
@@ -244,6 +243,8 @@ class Router extends Base
             }
         };
 
+        $this->getEventManager()->trigger('controllerBeforeFilter', $instance);
+
         $hooks($methodMeta, "@before");
 
         call_user_func_array(
@@ -255,8 +256,19 @@ class Router extends Base
         );
 
         $hooks($methodMeta, "@after");
+        $this->getEventManager()->trigger('controllerAfterFilter', $instance);
+
         $response = $app->getResponse();
-        $response->setContent($instance->render());
+        $this->getEventManager()->trigger('controllerBeforeRender', $instance);
+        $output = $instance->render();
+        $this->getEventManager()->trigger(
+            'controllerAfterRender',
+            $instance,
+            [
+                'output' => &$output
+            ]
+        );
+        $response->setContent($output);
         return $response;
     }
 
@@ -293,13 +305,27 @@ class Router extends Base
     public function getExtension()
     {
         if (is_null($this->_extension)) {
-            $ext = $this->getConfiguration()->get('router.extension', 'html');
-            $this->_extension = $this->_request->getQuery('extension', $ext);
+            $this->_extension = $this->getConfiguration()->get('router.extension', 'html');
+            $query = $this->_request->getQuery('extension', $this->_extension);
+            if (strlen($query) > 1) {
+                $this->_extension = $query;
+            }
         }
         return $this->_extension;
     }
 
-    protected function _checkController($className)
+    /**
+     * Creates controller instance
+     *
+     * @param $className
+     * @param Application $app
+     *
+     * @return Controller
+     *
+     * @throws Router\Exception\ControllerNotFoundException
+     * @throws Router\Exception\ActionNotFoundException
+     */
+    protected function _getController($className, Application $app)
     {
         if (!class_exists($className)) {
             throw new Exception\ControllerNotFoundException(
@@ -307,11 +333,28 @@ class Router extends Base
             );
         }
 
-        if (!method_exists($className, $this->_action)) {
-            throw new Exception\ActionNotFoundException(
-                "Action {$this->_action} not found"
-            );
+        $options = array(
+            'parameters' => $this->_params,
+            'extension' => $this->getExtension(),
+            'request' => $app->getRequest(),
+            'response' => $app->getResponse(),
+            'actionName' => $this->_action,
+            'controllerName' => $this->_controller
+        );
+
+        /** @var Controller $instance */
+        $instance = new $className($options);
+
+        if (!method_exists($instance, $this->_action)) {
+            if (!$instance->scaffold) {
+                throw new Exception\ActionNotFoundException(
+                    "Action {$this->_action} not found"
+                );
+            }
+            $instance = Scaffold::getController($instance, $options);
         }
+
+        return $instance;
     }
 
 

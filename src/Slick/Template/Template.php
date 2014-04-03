@@ -53,6 +53,19 @@ class Template extends Base
     }
 
     /**
+     * Prepends a searchable path to available paths list.
+     *
+     * @param string $path
+     */
+    public static function appendPath($path)
+    {
+        $path = str_replace('//', '/', rtrim($path, '/'));
+        if (is_dir($path) && !in_array($path, self::$_paths)) {
+            array_push(self::$_paths, $path);
+        }
+    }
+
+    /**
      * Initializes the engine
      *
      * @throws Exception\InvalidArgumentException
