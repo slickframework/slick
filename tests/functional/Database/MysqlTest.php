@@ -191,7 +191,7 @@ class MysqlTest extends \Codeception\TestCase\Test
         $rows = $this->_conn->query()->select('users')->all();
         $this->assertEquals(1, count($rows));
         $usr['id'] = 1;
-        $this->assertEquals((object) $usr, $rows[0]);
+        $this->assertEquals($usr, $rows[0]);
     }
 
     /**
@@ -215,7 +215,7 @@ class MysqlTest extends \Codeception\TestCase\Test
 
         $rows = $this->_conn->query()->select('users')->all();
         $this->assertEquals(1, count($rows));
-        $this->assertEquals((object) $usr, $rows[0]);
+        $this->assertEquals($usr, $rows[0]);
     }
 
     /**

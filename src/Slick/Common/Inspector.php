@@ -12,6 +12,7 @@
 
 namespace Slick\Common;
 
+use Slick\Common\Inspector\TagList;
 use Slick\Utility\Text,
     Slick\Utility\ArrayMethods,
     Slick\Common\Inspector\ClassMetaData,
@@ -81,9 +82,9 @@ class Inspector
     }
     
     /**
-     * Retrives the list of class properties.
+     * Retrieves the list of class properties.
      * 
-     * @return array An array with property names.
+     * @return \ArrayIterator An array with property names.
      */
     public function getClassProperties()
     {
@@ -113,13 +114,14 @@ class Inspector
         }
         return $this->_methods;
     }
-    
+
     /**
      * Returns property meta data.
      *
      * @param string $property The property name to retrieve the meta data.
-     * 
-     * @return array A key/value(s) associative array from property comment.
+     *
+     * @throws Exception\InvalidArgumentException
+     * @return TagList A key/value(s) associative array from property comment.
      */
     public function getPropertyMeta($property)
     {

@@ -56,6 +56,16 @@ abstract class AbstractConnector extends BaseSingleton
      */
     protected $_lastStatement = null;
 
+    /**
+     * Prevents a second call to initialize
+     *
+     * @return $this
+     */
+    public function initialize()
+    {
+        return $this;
+    }
+
 
     /**
      * Connects to database service.
@@ -96,13 +106,13 @@ abstract class AbstractConnector extends BaseSingleton
      * Executes an SQL statement in a single function call, returning the
      * number of rows affected by the statement
      *
-     * @param string $sql The SQL statment to execute.
+     * @param string $sql The SQL statement to execute.
      * 
      * @return integer The number of rows that were modified or deleted by
      * the SQL statement you issued
      *
      * @throws \Slick\Database\Exception\ServiceException If this connector
-     *  hasn't a valid PDO object
+     *  has not a valid PDO object
      */
     public function execute($sql)
     {
@@ -118,10 +128,10 @@ abstract class AbstractConnector extends BaseSingleton
     /**
      * Returns the ID of the last row to be inserted.
      *
-     * @return string The last insertd ID value.
+     * @return string The last inserted ID value.
      *
      * @throws \Slick\Database\Exception\ServiceException If this connector
-     *  hasn't a valid PDO object
+     *  has not a valid PDO object
      */
     public function getLastInsertId()
     {
@@ -140,7 +150,7 @@ abstract class AbstractConnector extends BaseSingleton
      * @return integer The number of rows affected by last query.
      *
      * @throws \Slick\Database\Exception\ServiceException If this connector
-     *  hasn't a valid PDO object
+     *  has not a valid PDO object
      */
     public function getAffectedRows()
     {
@@ -162,7 +172,7 @@ abstract class AbstractConnector extends BaseSingleton
      * @return string The last error of occur.
      *
      * @throws \Slick\Database\Exception\ServiceException If this connector
-     *  hasn't a valid PDO object
+     *  has not a valid PDO object
      */
     public function getLastError()
     {
@@ -176,16 +186,16 @@ abstract class AbstractConnector extends BaseSingleton
     }
 
     /**
-     * Sets the dsn to use with PDO initializarion
+     * Sets the dsn to use with PDO initialization
      * 
-     * @return string The DSN string to initilize the PDO class.
+     * @return string The DSN string to initialize the PDO class.
      */
     abstract public function getDsn();
 
     /**
      * Magic method to handle undefined methods call.
      *
-     * This method gives this connecto the ability to behave as a proxy for
+     * This method gives this connect to the ability to behave as a proxy for
      * the Slick\Database\Connector\AbstractConnector::$_dataObject.
      *
      * It check is it has the calling method defined and returns its execution
@@ -194,10 +204,13 @@ abstract class AbstractConnector extends BaseSingleton
      *
      * @see  Slick\Database\Connector\AbstractConnector::$_dataObject
      * @see  Slick\Base::__call()
-     * 
-     * @param string $method    The method name
-     * @param array  $arguments The arguments set with the calling
-     * 
+     *
+     * @param string $method The method name
+     * @param array $arguments The arguments set with the calling
+     *
+     * @throws \Slick\Database\Exception\ServiceException if not connected to
+     * a valida database service.
+     *
      * @return mixed  The return of the used method.
      */
     public function __call($method, $arguments = array())

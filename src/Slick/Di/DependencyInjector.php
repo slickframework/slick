@@ -34,6 +34,11 @@ class DependencyInjector extends AbstractDependencyInjector
     protected $_freshInstance = false;
 
     /**
+     * @var DependencyInjector The default dependency container
+     */
+    protected static $_defaultContainer;
+
+    /**
      * Registers a shared service in the services container
      * 
      * @param string  $name       The service name
@@ -47,10 +52,10 @@ class DependencyInjector extends AbstractDependencyInjector
     }
 
     /**
-     * Attempts to register a service in the servives container
+     * Attempts to register a service in the services container
      *
      * This method is similar to the DiInterface::set() except that it will
-     * only register the service if a service hasn’t been registered
+     * only register the service if a service has not been registered
      * previously with the same name
      * 
      * @param string  $name       The service name
@@ -85,9 +90,12 @@ class DependencyInjector extends AbstractDependencyInjector
 
     /**
      * Returns a service definition without resolving
-     * 
+     *
      * @param string $name The service name
-     * 
+     *
+     * @throws Exception\ServiceNotFoundException if your try to retrieve a
+     *  service that does not exists
+     *
      * @return ServiceInterface
      */
     public function getService($name)
@@ -111,5 +119,35 @@ class DependencyInjector extends AbstractDependencyInjector
     public function wasFreshInstance()
     {
         return $this->_freshInstance;
+    }
+
+    /**
+     * Returns the default static container
+     *
+     * @return DependencyInjector
+     */
+    public static function getDefault()
+    {
+        if (is_null(self::$_defaultContainer)) {
+            $diCont = new DependencyInjector();
+            $diCont->set(
+                'DefaultEventManager',
+                [
+                    'className' => '\Zend\EventManager\SharedEventManager'
+                ]
+            );
+            self::$_defaultContainer = $diCont;
+        }
+        return self::$_defaultContainer;
+    }
+
+    /**
+     * Sets the default dependency injector container
+     *
+     * @param DependencyInjector $container
+     */
+    public static function setContainer(DependencyInjector $container)
+    {
+        self::$_defaultContainer = $container;
     }
 }

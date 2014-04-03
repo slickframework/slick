@@ -1,0 +1,17 @@
+{
+    "name": "slick/form",
+    "description": "Forms component for Slick Framework",
+    "license": "MIT",
+    "keywords": ["slick", "form"],
+    "autoload": {
+        "psr-0": {
+            "Slick\\Form\\": ""
+        }
+    },
+    "target-dir": "Slick/Form",
+    "require": {
+        "slick/common": "self.version",
+        "slick/i18n": "self.version",
+        "slick/di": "self.version"
+    }
+}

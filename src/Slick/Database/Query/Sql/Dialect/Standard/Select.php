@@ -204,7 +204,7 @@ EOT;
         }
 
         if ($this->_sql->offset > 0) {
-            return "LIMIT {$this->_sql->limit}, {$this->_sql->offset}";
+            return "LIMIT {$this->_sql->offset}, {$this->_sql->limit}";
         } 
         return "LIMIT {$this->_sql->limit}";
     }

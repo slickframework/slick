@@ -13,7 +13,8 @@
 namespace Slick\Session;
 
 use Slick\Common\Base,
-    Slick\Session\Driver;
+    Slick\Session\Driver,
+    Slick\Configuration\Configuration;
 
 /**
  * Session factory class
@@ -37,13 +38,40 @@ class Session extends Base
     protected $_options;
 
     /**
+     * Factory method to retrieve a session object
+     *
+     * @param \Slick\Configuration\Driver\DriverInterface $config
+     *
+     * @return Driver\DriverInterface
+     */
+    public static function get($config = null)
+    {
+        /** @var Session $session */
+        $session = new static();
+        if (is_null($config)) {
+            $config = Configuration::get('config');
+        }
+        $class = $config->get('session.type', 'server');
+        $options = $config->get('session', array());
+        if ($config->get('session.type', false)) {
+            unset ($options['type']);
+        }
+
+        $session->class = $class;
+        $session->options = $options;
+        return $session->initialize();
+
+    }
+
+    /**
      * Returns a new session driver based on the class property.
      *
-     * @return /Slick/Session/Driver A new Session driver based on class.
+     * @throws Exception\InvalidArgumentException
+     * @return Driver\DriverInterface A new Session driver based on class.
      */
     public function initialize()
     {
-        $driver = $this->getClass();
+        $driver = $this->_class;
 
         if (empty($driver)) {
             throw new Exception\InvalidArgumentException(
@@ -53,7 +81,7 @@ class Session extends Base
 
         // Load user defined driver
         if (class_exists($driver)) {
-            $driverObj = new $driver($this->getOptions());
+            $driverObj = new $driver($this->_options);
             if (is_a($driverObj, '\Slick\Session\Driver\DriverInterface')) {
                 return $driverObj;
             } else {
@@ -64,10 +92,10 @@ class Session extends Base
             }
         }
 
-        // Load module predifined drivers
+        // Load module predefined drivers
         switch ($driver) {
             case 'server':
-                $driverObj = new Driver\Server($this->getOptions());
+                $driverObj = new Driver\Server($this->_options);
                 break;
 
             default:

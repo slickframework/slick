@@ -13,6 +13,10 @@ modules:
     enabled:
         - PhpBrowser
         - WebHelper
+        - Db
     config:
         PhpBrowser:
             url: 'http://localhost/myapp/'
+coverage:
+    enabled: false
+    remote: false

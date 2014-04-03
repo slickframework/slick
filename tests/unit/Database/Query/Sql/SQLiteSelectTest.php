@@ -29,7 +29,7 @@ class SQLiteSelectTest extends \Codeception\TestCase\Test
     /**
      * Settin a select query an check all return
      * @test
-     * @expectedException Slick\Database\Exception\UnsupportedSyntaxException
+     * @expectedException \Slick\Database\Exception\UnsupportedSyntaxException
      */
     public function gelAllQuery()
     {
@@ -78,7 +78,7 @@ LEFT JOIN profile ON profile.user_id = users.id
 WHERE id = '?' AND Active = :active
 GROUP BY Origin
 ORDER BY name DESC
-LIMIT 10, 1
+LIMIT 1, 10
 EOS;
         $this->assertEquals(trim($expected), self::$_lastQuery);
 

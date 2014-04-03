@@ -27,7 +27,7 @@ class ContainerTest extends \Codeception\TestCase\Test
 {
     
     /**
-     * Create a dependecy injector
+     * Create a dependency injector
      * @test
      */
     public function createInjector()
@@ -48,9 +48,9 @@ class ContainerTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Retrieve a chared request
+     * Retrieve a shared request
      * @test
-     * @expectedException Slick\Di\Exception\ServiceNotFoundException
+     * @expectedException \Slick\Di\Exception\ServiceNotFoundException
      */
     public function sharedRequest()
     {
@@ -70,7 +70,7 @@ class ContainerTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Attempt to creaate a servive if it not exists
+     * Attempt to create a service if it not exists
      * @test
      */
     public function attemptService()
@@ -84,9 +84,39 @@ class ContainerTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf("Slick\Di\DependencyInjector", $obj1->getDi());
         $this->assertEquals($di, $obj1->getDi());
     }
+
+    /**
+     * Use an object instance
+     * @test
+     */
+    public function useObjectInstance()
+    {
+        $di = new DependencyInjector();
+        $obj = new OtherObject();
+        $di->set('foo', new OtherObject());
+        $this->assertInstanceOf('Di\OtherObject', $di->get('foo'));
+    }
+
+    /**
+     * Set default dependency injector
+     * @test
+     */
+    public function setDefaultInjector()
+    {
+        $old = DependencyInjector::getDefault();
+        $di = new DependencyInjector();
+        DependencyInjector::setContainer($di);
+        $this->assertSame($di, DependencyInjector::getDefault());
+        DependencyInjector::setContainer($old);
+    }
 }
 
 class ObjectForDi extends base implements DiAwareInterface
+{
+
+}
+
+class OtherObject
 {
 
 }

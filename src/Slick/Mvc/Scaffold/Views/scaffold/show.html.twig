@@ -1,0 +1,64 @@
+{% import "template/delete.html.twig" as modal %}
+{% set columns = record.modelData.getPropertyList(true) %}
+<div class="entity-show">
+    <h1>View "{{ record }}"</h1>
+    <div class="entity-data">
+        <dl class="dl-horizontal">
+            {% for column in columns %}
+            <dt>{{ column|capitalize }}:</dt>
+            <dd>{{ record.getValue(column) }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+    <div class="show-actions">
+        <a href="{{ url(modelPlural ~ '/edit/' ~ record.getKey()) }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-pencil"></span>
+            &nbsp;Edit {{ modelSingular }}</a>
+
+        &nbsp;
+        <a href=".delete{{ record.getKey() }}" class="btn btn-warning" data-toggle="modal">
+            <span class="glyphicon glyphicon-trash"></span>
+            &nbsp;Delete {{ modelSingular }}
+        </a>
+        {{ modal.deleteMacro(
+            url(modelPlural ~ '/delete/' ~ record.getKey()),
+            record,
+            "delete" ~ record.getKey(),
+            modelSingular
+        ) }}
+    </div>
+
+    {% set relations = record.modelData.getMultipleEntityRelations() %}
+    &nbsp;<br />
+    {% if relations|length > 0 %}
+    <div class="entity-related-data panel panel-default">
+        <div class="panel-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+                {% for prop, rel in relations %}
+                    {% if loop.first %}
+                        <li class="active"><a href="#tab{{ loop.index }}" data-toggle="tab">{{ prop|capitalize }}</a></li>
+                    {% else %}
+                        <li><a href="#tab{{ loop.index }}" data-toggle="tab">{{ prop|capitalize }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                {% for prop, rel in relations %}
+                    {% if loop.first %}
+                        <div class="tab-pane active" id="tab{{ loop.index }}">
+                            {% include 'scaffold/related.html.twig' with {'records': record.getValue(prop)} %}
+                        </div>
+                    {% else %}
+                        <div class="tab-pane" id="tab{{ loop.index }}">
+                            {% include 'scaffold/related.html.twig' with {'records': record.getValue(prop)} %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

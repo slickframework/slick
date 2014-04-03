@@ -25,15 +25,15 @@ class TagList extends \ArrayIterator
 
     /**
      * Appends a new Tag to the end to the list
-     * 
-     * @param  \Slick\Common\Inspector\Tag $tag The tag to appen
-     * 
+     *
+     * @param \Slick\Common\Inspector\Tag $value The tag to append
+     *
      * @return \Slick\Common\Inspector\TagList A self instance for method
      *  call chains
      */
-    public function append(\Slick\Common\Inspector\Tag $tag)
+    public function append($value)
     {
-        $this[$tag->name] = $tag;
+        $this[$value->name] = $value;
         return $this;
     }
 
@@ -64,7 +64,7 @@ class TagList extends \ArrayIterator
     /**
      * Returns the value at specified offset.
      * 
-     * @param string $offset The name of the tag to retreive
+     * @param string $offset The name of the tag to retrieve
      * 
      * @return \Slick\Common\Inspector\Tag The tag that has the provided name
      *  or boolean FALSE if there are no tags with the given name
@@ -82,7 +82,7 @@ class TagList extends \ArrayIterator
      * Check if this list contains a tag with the provided name.
      *
      * The tag name contains the '@' as it is set in the doc block. If you
-     * are check for the 'read' tag existance use '@read' as tag name.
+     * are check for the 'read' tag existence use '@read' as tag name.
      * 
      * @param string $name The tag name to check. Ex.: @read, @type, etc.
      * 
@@ -90,14 +90,14 @@ class TagList extends \ArrayIterator
      */
     public function hasTag($name)
     {
-        return $this->offsetExists($name);
+        return $this->offsetExists(strtolower($name));
     }
 
     /**
      * Retrieves the tag with the provided name from this list
      * 
      * The tag name contains the '@' as it is set in the doc block. If you
-     * are check for the 'read' tag existance use '@read' as tag name.
+     * are check for the 'read' tag existence use '@read' as tag name.
      * 
      * @param string $name The tag name to check. Ex.: @read, @type, etc.
      * 

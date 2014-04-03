@@ -1,0 +1,37 @@
+{% import "template/delete.html.twig" as modal %}
+<br />
+{% if records|length > 0 %}
+    <table class="table table-bordered table-condensed table-hover">
+        <thead>
+        <tr>
+            {% for column in records[0].modelData.getPropertyList(true) %}
+                {% if loop.first  %}
+                    <th>{{ column|capitalize }}</th>
+                {% else %}
+                    <th class="hidden-xs">{{ column|capitalize }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+                {% for column in records[0].modelData.getPropertyList(true) %}
+                    {% if loop.first  %}
+                        <td>
+                            <a href="{{ url(prop ~ '/show/' ~ record.getKey()) }}">
+                                {{ record.getValue(column) }}
+                                <span class="glyphicon glyphicon-share"></span>
+                            </a>
+                        </td>
+                    {% else %}
+                        <td class="hidden-xs">{{ record.getValue(column) }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    There are no {{ prop }} to show up here.
+{% endif %}

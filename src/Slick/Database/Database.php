@@ -13,8 +13,8 @@
 namespace Slick\Database;
 
 use Slick\Common\Base,
-    Slick\Utility\ProperyList,
     Slick\Database\Exception;
+use Slick\Database\Connector\ConnectorInterface;
 
 /**
  * Database is a factory for a database connector object.
@@ -37,21 +37,52 @@ class Database extends Base
     protected $_options = null;
 
     /**
+     * @read
+     * @var array A list of supported types
+     */
+    protected $_supportedTypes = array('mysql', 'sqlite');
+
+    /**
      * Initializes an database connector.
-     * 
-     * @return \Slick\Database\ConnectorInterface The database connector
+     *
+     * @throws Exception\InvalidArgumentException
+     * @return ConnectorInterface The database connector
      *  instance.
      */
     public function initialize()
     {
+        $connector = null;
         if (!$this->_type) {
             throw new Exception\InvalidArgumentException(
-                "Trying to initialize a database conncetor with an undefined ".
+                "Trying to initialize a database connector with an undefined ".
                 "connector type."
             );
         }
 
-        switch ($this->_type) {
+        if (
+            !in_array(strtolower($this->_type), $this->_supportedTypes) &&
+            class_exists($this->_type)
+        ) {
+            $class = $this->_type;
+            $connector = call_user_func_array(
+                [$class, 'getInstance'],
+                [$this->_options]
+            );
+            if (
+                !is_a(
+                    $connector,
+                    'Slick\Database\Connector\ConnectorInterface'
+                )
+            ) {
+                throw new Exception\InvalidArgumentException(
+                    "Class {$class} doesn't implement " .
+                    "Slick\Database\Connector\ConnectorInterface interface."
+                );
+            }
+            return $connector;
+        }
+
+        switch (strtolower($this->_type)) {
             case 'mysql':
                 $connector = Connector\Mysql::getInstance($this->_options);
                 break;
@@ -62,7 +93,7 @@ class Database extends Base
             
             default:
                 throw new Exception\InvalidArgumentException(
-                    "Trying to initialize a database conncetor with an ".
+                    "Trying to initialize a database connector with an ".
                     "unknown connector type."
                 );
         }
