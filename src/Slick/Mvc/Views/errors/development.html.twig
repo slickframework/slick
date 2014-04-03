@@ -27,9 +27,14 @@
 
 <!-- Begin page content -->
 <div class="container">
-    <h3 class="page-header">{{ handler.getExceptionName }}</h3>
-    <div class="alert alert-danger">
-        <strong>Message:</strong> {{ exception.getMessage() }}
+    <br />&nbsp;
+    <div class="panel panel-danger">
+        <div class="panel-heading   ">
+            {{ exceptionDetails.getExceptionName }}
+        </div>
+        <div class="panel-body">
+            {{ exception.getMessage() }}
+        </div>
     </div>
 
     <div class="panel panel-info">
@@ -38,10 +43,14 @@
         </div>
         <div class="panel-body">
 <pre>
-            {{- exception.getTraceAsString()|raw }}
+            {{- exceptionDetails.getStackTrace|raw }}
             </pre>
         </div>
     </div>
+    <hr>
+    <footer>
+        <p class="made-with-slick text-muted"><small>Slick {{ slickVersion }}</small></p>
+    </footer>
 </div>
 
 

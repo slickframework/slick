@@ -79,7 +79,7 @@ class TextTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Teste split opereatin on strings
+     * Test split operation on strings
      * 
      * @test
      */
@@ -88,6 +88,30 @@ class TextTest extends \Codeception\TestCase\Test
         $text = '@tag Some\\Value(param1=val1, param2=val2)';
         $expected = array('@tag', 'Some\\Value(param1=val1, param2=val2)');
         $this->assertEquals($expected, Text::split($text, '[\s*]', 2));
+    }
+
+    /**
+     * Check camel case split
+     *
+     * @test
+     */
+    public function camelCaseSplit()
+    {
+        $string = "thisIsACamelCaseString";
+        $expected = "this Is A Camel Case String";
+        $this->assertEquals($expected, Text::camelCaseToSeparator($string));
+        $obj = new \stdClass();
+        $this->assertEquals($obj, Text::camelCaseToSeparator($obj));
+        if (Text::$hasPcreUnicodeSupport) {
+            Text::$hasPcreUnicodeSupport = false;
+            // Not so important as PCRE is installed on newer systems
+            $this->assertEquals(
+                'this Is ACamel Case String',
+                Text::camelCaseToSeparator($string)
+            );
+            Text::$hasPcreUnicodeSupport = true;
+        }
+
     }
 
 }

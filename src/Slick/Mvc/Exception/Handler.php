@@ -13,8 +13,8 @@
 namespace Slick\Mvc\Exception;
 
 use Slick\Common\Base;
-use Exception;
-use Slick\Mvc\Exception\Handlers\DefaultHandler;
+use Exception,
+    ErrorException;
 
 /**
  * Exception handler (Handles uncaught exceptions)
@@ -25,7 +25,23 @@ use Slick\Mvc\Exception\Handlers\DefaultHandler;
 class Handler extends Base
 {
 
-    protected $_debugMode = 0;
+    /**
+     * @var array A key value pair of exception types and its handlers
+     */
+    protected static $_handlers = [
+        'Exception' => 'Slick\Mvc\Exception\Handlers\DefaultHandler'
+    ];
+
+    /**
+     * Adds a handler to the stack of exception handlers
+     *
+     * @param string $type    Exception type (interface or class name)
+     * @param string $handler HandlerInterface class name
+     */
+    public static function add($type, $handler)
+    {
+        static::$_handlers[$type] = $handler;
+    }
 
     /**
      * Handles the exception
@@ -34,8 +50,50 @@ class Handler extends Base
      */
     public static function handle(Exception $exp)
     {
-        $handler = new DefaultHandler(['exception' => $exp]);
+        $className = static::getHandler($exp);
+        /** @var HandlerInterface $handler */
+        $handler = new $className(['exception' => $exp]);
         $handler->getResponse()->send();
+    }
+
+    /**
+     * Handles the PHP errors
+     *
+     * @param int $errorNumber Level of the error raised
+     * @param string $message Error message
+     * @param string|null $file Filename that the error was raised in
+     * @param int $line Line number the error was raised at
+     * @param array $context Array of every variable that existed
+     *  in the scope the error was triggered in
+     *
+     * @throws \ErrorException
+     *
+     * @return boolean
+     */
+    public static function handleError(
+        $errorNumber,  $message, $file = null, $line = 0,  $context = [])
+    {
+        throw new ErrorException($message, 0, $errorNumber, $file, $line);
+    }
+
+    /**
+     * Gets the defined handler class name for provided exception
+     *
+     * @param Exception $exp
+     *
+     * @return string Handler class name
+     */
+    protected static function getHandler(Exception $exp)
+    {
+        $handler = static::$_handlers['Exception'];
+        $myList = array_reverse(static::$_handlers);
+        foreach ($myList as $type => $className) {
+            if (is_a($exp, $type)) {
+                $handler = $className;
+                break;
+            }
+        }
+        return $handler;
     }
 
 } 

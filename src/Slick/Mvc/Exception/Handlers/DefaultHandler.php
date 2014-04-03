@@ -15,6 +15,7 @@ namespace Slick\Mvc\Exception\Handlers;
 use Exception;
 use Slick\Common\Base,
     Slick\Mvc\Exception\HandlerInterface;
+use Slick\Mvc\Exception\Utils\ExceptionData;
 use Slick\Template\Engine\Twig;
 use Slick\Template\EngineInterface;
 use Slick\Template\Template;
@@ -36,6 +37,12 @@ class DefaultHandler extends Base implements HandlerInterface
      * @var Exception
      */
     protected $_exception;
+
+    /**
+     * @readwrite
+     * @var ExceptionData
+     */
+    protected $_exceptionData;
 
     /**
      * @read
@@ -106,6 +113,19 @@ class DefaultHandler extends Base implements HandlerInterface
     }
 
     /**
+     * Lazy loads exception evaluator utility
+     *
+     * @return ExceptionData
+     */
+    public function getExceptionData()
+    {
+        if (is_null($this->_exceptionData)) {
+            $this->_exceptionData = new ExceptionData($this->getException());
+        }
+        return $this->_exceptionData;
+    }
+
+    /**
      * Processes the exception in to a response
      *
      * @return Response
@@ -118,7 +138,7 @@ class DefaultHandler extends Base implements HandlerInterface
             $this->getTemplate()->process(
                 [
                     'exception' => $this->getException(),
-                    'handler' => $this
+                    'exceptionDetails' => $this->getExceptionData()
                 ]
             )
         );
@@ -126,8 +146,4 @@ class DefaultHandler extends Base implements HandlerInterface
         return $response;
     }
 
-    public function getExceptionName()
-    {
-        return get_class($this->_exception);
-    }
 }
