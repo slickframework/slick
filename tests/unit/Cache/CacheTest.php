@@ -28,7 +28,7 @@ class CacheTest extends \Codeception\TestCase\Test
     /**
      * Initialize a cache driver
      * @test
-     * @expectedException Slick\Cache\Exception\InvalidDriverException
+     * @expectedException \Slick\Cache\Exception\InvalidDriverException
      */
     public function initializeDriver()
     {
@@ -42,7 +42,7 @@ class CacheTest extends \Codeception\TestCase\Test
     /**
      * Initialize a custom driver
      * @test
-     * @expectedException Slick\Cache\Exception\InvalidDriverException
+     * @expectedException \Slick\Cache\Exception\InvalidDriverException
      */
     public function initializeCustomClass()
     {
@@ -52,6 +52,16 @@ class CacheTest extends \Codeception\TestCase\Test
 
         $cache->setClass("\StdClass");
         $driver = $cache->initialize();
+    }
+
+    /**
+     * Using factory method to get the cache driver
+     * @test
+     */
+    public function getDriverFromFactory()
+    {
+        $cache = Cache::get();
+        $this->assertInstanceOf('Slick\Cache\Driver\File', $cache);
     }
 
 }

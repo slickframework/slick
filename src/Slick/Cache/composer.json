@@ -1,8 +1,8 @@
 {
     "name": "slick/cache",
-    "description": "Cache compoment for Slick Framework",
+    "description": "Cache component for Slick Framework",
     "license": "MIT",
-    "keywords": ["slick", "cache"],
+    "keywords": ["slick", "cache", "memcached"],
     "autoload": {
         "psr-0": {
             "Slick\\Cache\\": ""

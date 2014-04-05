@@ -26,7 +26,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
 
     /**
      * @readwrite
-     * @var string The prefix for cacke key
+     * @var string The prefix for cache key
      */
     protected $_prefix = '';
 

@@ -43,6 +43,21 @@ class Cache extends Base
     protected $_supportedTypes = array('file', 'memcached');
 
     /**
+     * Factory method to initialize a cache driver
+     *
+     * @param string $type
+     * @param array  $options
+     *
+     * @return DriverInterface
+     */
+    public static function get($type='file', $options = [])
+    {
+        /** @var Cache $cache */
+        $cache = new static(['class' => $type, 'options' => $options]);
+        return $cache->initialize();
+    }
+
+    /**
      * Driver initialization
      * 
      * @return \Slick\Cache\DriverInterface A cache driver

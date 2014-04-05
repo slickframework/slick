@@ -95,7 +95,7 @@ class File extends AbstractDriver
      * @param mixed   $value    The value to store.
      * @param integer $duration The live time of cache in seconds.
      * 
-     * @return File A sefl instance for chaining method calls.
+     * @return File A self instance for chaining method calls.
      */
     public function set($key, $value, $duration = -999)
     {

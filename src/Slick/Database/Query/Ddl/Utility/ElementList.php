@@ -28,9 +28,12 @@ class ElementList extends \ArrayObject
      * 
      * @param \Slick\Database\Query\Ddl\Utility\TableElementInterface $value
      */
-    public function append(TableElementInterface $value)
+    public function append($value)
     {
-        $this[] = $value;
+        if ($value instanceof TableElementInterface) {
+            $this[] = $value;
+        }
+
     }
 
     /**

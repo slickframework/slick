@@ -148,7 +148,7 @@ class FakePDO extends \PDO
         return true;
     }
 
-    public function lastInsertId()
+    public function lastInsertId($seqname = NULL)
     {
         return 23;
     }
