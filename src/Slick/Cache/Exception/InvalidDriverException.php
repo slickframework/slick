@@ -15,7 +15,7 @@ namespace Slick\Cache\Exception;
 use Slick\Cache\Exception as CacheException;
 
 /**
- * InvalidDriverException
+ * Used when factory does not recognises the requested cache driver.
  *
  * @package   Slick\Cache\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>

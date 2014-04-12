@@ -12,5 +12,8 @@
     "require": {
         "slick/common": "self.version",
         "slick/filesystem": "self.version"
+    },
+    "suggest": {
+        "ext-memcache": "For a better performance cache"
     }
 }

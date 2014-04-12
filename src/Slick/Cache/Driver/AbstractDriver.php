@@ -16,10 +16,13 @@ use Slick\Common\Base,
     Slick\Cache\DriverInterface;
 
 /**
- * AbstractDriver
+ * Wrapper for common properties and methods among cache drivers
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string  $prefix   Prefix for cache key
+ * @property integer $duration Number of seconds for cache expiry
  */
 abstract class AbstractDriver extends Base implements DriverInterface
 {

@@ -13,7 +13,7 @@
 namespace Slick\Cache;
 
 /**
- * DriverInterface
+ * Interface for a cache driver.
  *
  * @package   Slick\Cache
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -44,7 +44,7 @@ interface DriverInterface
     public function set($key, $value, $duration = -1);
 
     /**
-     * Erase the value stored wit a given key.
+     * Erase the value stored with a given key.
      *
      * @param String $key The key under witch value was stored.
      * 

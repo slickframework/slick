@@ -12,11 +12,10 @@
 
 namespace Slick\Cache\Driver;
 
-use Slick\FileSystem\Folder,
-    Slick\FileSystem\File as FsFile;
+use Slick\FileSystem\Folder;
 
 /**
- * File cache driver
+ * Uses file system to store cache data
  *
  * @package   Slick\Cache\Driver
  * @author    Filcipe Silva <silvam.filipe@gmail.com>
@@ -61,7 +60,7 @@ class File extends AbstractDriver
     }
     
     /**
-     * Retrives a previously stored value.
+     * Retrieves a previously stored value.
      *
      * @param String $key     The key under witch value was stored.
      * @param mixed  $default The default value, if no value was stored before.

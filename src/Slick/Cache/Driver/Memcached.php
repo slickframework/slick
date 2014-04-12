@@ -16,7 +16,7 @@ use Memcache;
 use Slick\Cache\Exception\ServiceException;
 
 /**
- * Memcached
+ * Use memcached daemon to store cache data
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
