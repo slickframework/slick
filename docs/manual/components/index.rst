@@ -27,4 +27,5 @@ List of Slick modules:
 .. toctree::
     :maxdepth: 2
 
+    common
     cache
