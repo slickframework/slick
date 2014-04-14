@@ -12,6 +12,7 @@
 
 namespace Slick\Common;
 
+use Slick\Common\Inspector\TagList;
 use Slick\Utility\Text;
 
 /**
@@ -167,7 +168,7 @@ trait BaseMethods {
     /**
      * Retrieves the boolean value a property with the given name.
      * 
-     * @param type $name The property name to get the value.
+     * @param string $name The property name to get the value.
      * 
      * @return boolean The boolean value of the requested property.
      * 
@@ -236,5 +237,23 @@ trait BaseMethods {
     	// @codingStandardsIgnoreEnd
         $function = "set".ucfirst($name);
         return $this->$function($value);
+    }
+
+    /**
+     * Checks if a given property name exists and can be accessed
+     *
+     * @param string $name The property name
+     *
+     * @return bool True if a property with the provided name exists,
+     *  false otherwise
+     */
+    public function __isset($name)
+    {
+        $normalized = lcfirst($name);
+        $property = "_{$normalized}";
+        if (property_exists($this, $property)) {
+            return true;
+        }
+        return false;
     }
 }
