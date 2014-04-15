@@ -4,6 +4,10 @@
 // autoload on framework development
 if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
     include_once dirname(__DIR__) . '/vendor/autoload.php';
+} else if (is_file("vendor/outoload.php")){
+    // autoload from inside vendors folder
+    // but with sym link to executable
+    include_once 'vendor/autoload.php';
 } else {
     // autoload from inside vendors folder
     include_once dirname(__DIR__) . '/autoload.php';
