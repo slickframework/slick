@@ -12,13 +12,15 @@
 
 namespace Slick\Database;
 
+use Slick\Utility\ArrayObject;
+
 /**
  * RecordList is list of records from a query execute action
  *
  * @package   Slick\Database
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class RecordList extends \ArrayObject
+class RecordList extends ArrayObject
 {
 
 }

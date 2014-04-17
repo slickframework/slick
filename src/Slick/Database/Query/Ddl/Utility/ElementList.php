@@ -12,7 +12,8 @@
 
 namespace Slick\Database\Query\Ddl\Utility;
 
-use Slick\Database\Exception;
+use Slick\Database\Exception,
+    Slick\Utility\ArrayObject;
 
 /**
  * ElementList - List of table elements (columns, indexes, foreignKeys)
@@ -20,7 +21,7 @@ use Slick\Database\Exception;
  * @package   Slick\Database\Query\Ddl\Utility
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ElementList extends \ArrayObject
+class ElementList extends ArrayObject
 {
     
     /**
@@ -41,9 +42,10 @@ class ElementList extends \ArrayObject
      *
      * Overrides the ArrayObject::offsetSet() to force the insertion of
      * TableElementsInterface only.
-     * 
+     *
      * @param mixed $offset The index being set.
-     * @param mixed $value  The new value for the index.
+     * @param mixed $value The new value for the index.
+     * @throws \Slick\Database\Exception\InvalidArgumentException
      */
     public function offsetSet($offset, $value)
     {

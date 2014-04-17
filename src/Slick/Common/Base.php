@@ -13,6 +13,7 @@
 namespace Slick\Common;
 
 use Slick\Di\DiInterface;
+use Serializable;
 
 /**
  * Base
@@ -26,14 +27,14 @@ use Slick\Di\DiInterface;
  * only with some properties defined by passing an array (with those values)
  * or an object as argument.
  * Slick framework uses it in almost every class so it is important that
- * you understand how it works and the beneficts of using it.
+ * you understand how it works and the benefits of using it.
  *
  * @package    Slick\Common
  * @author     Filipe Silva <silvam.filipe@gmail.com>
  *
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
-abstract class Base
+abstract class Base implements Serializable
 {
     
     /**
@@ -61,14 +62,14 @@ abstract class Base
     use BaseMethods;
     
     /**
-     * Constructor assign ptoperties based on the array or object given.
+     * Constructor assign properties based on the array or object given.
      * 
      * The constructor will use the array keys or the object property
      * names to set the same property values with the ones given.
-     * It will set a class inspector used for annotaion read on properties.
+     * It will set a class inspector used for annotation read on properties.
      *
      * @param array|object $options The properties for the object
-     *  beeing constructed.
+     *  being constructed.
      * 
      * @see \Slick\Common\Inspector
      */
@@ -87,7 +88,7 @@ abstract class Base
     /**
      * Compares current object with provided one for equality
      * 
-     * @param mixed|ojbect $object The object to compare with
+     * @param mixed|object $object The object to compare with
      * 
      * @return boolean True if the provided object is equal to this object
      */
@@ -146,23 +147,45 @@ abstract class Base
     }
 
     /**
-     * Sets necessary properties when unserializing.
+     * Sets necessary properties when object is unserialized.
+     * Needed when using mock objects in tests.
      */
     public function __wakeup()
     {
         $this->_inspector = new Inspector($this);
     }
-    
+
     /**
-     * Removes unecessary data for serializing.
+     * Removes unnecessary data for serializing.
+     * @return string
      */
-    public function __sleep()
+    public function serialize()
     {
         // @codingStandardsIgnoreStart
         unset($this->_inspector, $this->___mocked);
         // @codingStandardsIgnoreEnd
-        return array_keys(get_object_vars($this));
+        $keys = array_keys(get_object_vars($this));
+        $data = [];
+        foreach ($keys as $key) {
+            $data[$key] = $this->$key;
+        }
+        return serialize($data);
     }
-    
+
+    /**
+     * Creates a new object from serialized data
+     *
+     * @param string $serialized
+     *
+     * @return Base
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->_inspector = new Inspector($this);
+        foreach ($data as $key => $value) {
+            $this->$key = $value;
+        }
+    }
     
 }

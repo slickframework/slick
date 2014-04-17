@@ -53,7 +53,8 @@ trait BaseMethods {
             throw new Exception\BadConstructorException(
                 "The constructor is not correct for use Slick\Common\Base"
                 ." class. You need to call 'parent::__construct()' for the"
-                ." right object initialization."
+                ." right object initialization. "
+                ." Using object ".get_class($this)
             );
         }
 
@@ -110,6 +111,7 @@ trait BaseMethods {
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
+            /** @var TagList $tags */
             $tags = $this->_inspector->getPropertyMeta($property);
 
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
@@ -144,7 +146,7 @@ trait BaseMethods {
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
             $tags = $this->_inspector->getPropertyMeta($property);
-
+            /** @var TagList $tags */
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@write')) {
                 $className = get_class($this);
                 throw new Exception\ReadOnlyException(
@@ -182,6 +184,7 @@ trait BaseMethods {
         $property = "_{$normalized}";
 
         if (property_exists($this, $property)) {
+            /** @var TagList $tags */
             $tags = $this->_inspector->getPropertyMeta($property);
 
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
