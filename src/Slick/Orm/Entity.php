@@ -16,7 +16,7 @@ use Slick\Database\RecordList;
 use Slick\Orm\Entity\Column;
 use Slick\Orm\Exception;
 use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
+use Serializable;
 
 /**
  * Entity
@@ -27,8 +27,13 @@ use Zend\EventManager\EventManagerInterface;
  * @property string primaryKey
  */
 class Entity extends AbstractEntity
-    implements EntityInterface, EventManagerAwareInterface
+    implements EntityInterface, EventManagerAwareInterface, Serializable
 {
+
+    /**
+     * Methods for entity serialization and unserialization
+     */
+    use EntitySerialization;
 
     /**
      * @readwrite
