@@ -40,7 +40,7 @@ trait EntitySerialization
      */
     protected $_invalidProperties =[
         '___mocked', '_connector', '_relationsManager', '_remainingData',
-        '_inspector'
+        '_inspector', '_events'
     ];
 
     /**
