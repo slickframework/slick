@@ -8,8 +8,5 @@
             "Slick\\Di\\": ""
         }
     },
-    "target-dir": "Slick/Di",
-    "require": {
-        "slick/common": "self.version"
-    }
+    "target-dir": "Slick/Di"
 }

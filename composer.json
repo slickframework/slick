@@ -19,7 +19,8 @@
         "zendframework/zend-http": ">=2.2.5",
         "zendframework/zend-i18n": ">=2.2.5",
         "zendframework/zend-servicemanager": "2.2.5",
-        "symfony/console": ">=2.3.0"
+        "symfony/console": ">=2.3.0",
+        "myclabs/php-enum": "1.*"
 	},
     "require-dev": {
         "codeception/codeception": "1.8.*@dev",

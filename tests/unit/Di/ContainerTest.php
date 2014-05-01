@@ -12,10 +12,16 @@
 
 namespace Di;
 
-use Codeception\Util\Stub,
-    Slick\Di\DependencyInjector,
-    Slick\Di\DiAwareInterface,
-    Slick\Common\Base;
+use Slick\Di\Container;
+use Slick\Di\Definition\AliasDefinition;
+use Slick\Di\Definition\CallableDefinition;
+use Slick\Di\Definition\DefinitionManager;
+use Slick\Di\Definition\Scope;
+use Slick\Di\Definition\ValueDefinition;
+use Slick\Di\DefinitionInterface;
+use Codeception\Util\Stub;
+use Slick\Di\Resolver\ValueResolver;
+
 
 /**
  * Container use case
@@ -25,98 +31,209 @@ use Codeception\Util\Stub,
  */
 class ContainerTest extends \Codeception\TestCase\Test
 {
-    
+
     /**
-     * Create a dependency injector
+     * Create a dependency container
      * @test
      */
-    public function createInjector()
+    public function createDependencyContainer()
     {
-        $di = new DependencyInjector();
-        $this->assertInstanceOf("Slick\Di\DiInterface", $di);
-        $di['test'] = function() {
-            return "Hello test"; 
+        $definitionManager = new DefinitionManager();
+        $container = new Container($definitionManager);
+
+        $this->assertSame($container, $container->get('Slick\Di\Container'));
+        $this->assertSame($container, $container->get('Slick\Di\ContainerInterface'));
+    }
+
+    /**
+     * Check an entry existence
+     * @test
+     * @expectedException \Slick\Di\Exception\InvalidArgumentException
+     */
+    public function checkingEntryExistence()
+    {
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add(new ValueDefinition('foo', 'bar'));
+        $container = new Container($definitionManager);
+
+        $this->assertTrue($container->has('foo'));
+        $this->assertFalse($container->has('other'));
+
+        $container->has(001);
+    }
+
+    /**
+     * Check exception on invalid argument on get method
+     * @test
+     * @expectedException \Slick\Di\Exception\InvalidArgumentException
+     */
+    public function invalidCallToGet()
+    {
+        $definitionManager = new DefinitionManager();
+        $container = new Container($definitionManager);
+
+        $container->get(000);
+    }
+
+    /**
+     * Resolve a definition
+     * @test
+     * @expectedException \Slick\Di\Exception\NotFoundException
+     */
+    public function resolveAnDefinition()
+    {
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add(new ValueDefinition('foo', 'bar'));
+        $container = new Container($definitionManager);
+
+        $this->assertEquals('bar', $container->get('foo'));
+
+        $container->get('test');
+    }
+
+    /**
+     * Resolving a definition without a resolver
+     * @test
+     * @expectedException \Slick\Di\Exception\NotFoundException
+     */
+    public function getUnknownResolver()
+    {
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add(new UnresolvedDefinition());
+        $container = new Container($definitionManager);
+
+        $container->get('test');
+    }
+
+    /**
+     * Resolving a definition that throws an exception
+     * @test
+     * @expectedException \Slick\Di\Exception\DependencyException
+     */
+    public function resolveWithError()
+    {
+        $definition = Stub::construct('Slick\Di\Definition\ValueDefinition', ['baz', 'bar'], [
+            'getValue' => function() {
+                    throw new \Exception("Error occurred on this.");
+                }
+        ]);
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add($definition);
+        $container = new Container($definitionManager);
+
+        $container->addResolver(get_class($definition), new ValueResolver());
+
+        $container->get('baz');
+
+    }
+
+    /**
+     * Trying to add an invalid class resolver
+     * @test
+     * @expectedException \Slick\Di\Exception\InvalidArgumentException
+     */
+    public function addingInvalidResolver()
+    {
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add(new UnresolvedDefinition());
+        $container = new Container($definitionManager);
+
+        $container->addResolver('SomeClass', new ValueResolver());
+    }
+
+    /**
+     * Using container as a factory
+     * @test
+     * @expectedException \Slick\Di\Exception\NotFoundException
+     */
+    public function useMakeFactory()
+    {
+        $callable = function($name) {
+            $obj = new \StdClass();
+            $obj->name = $name;
+            return $obj;
         };
-        $this->assertTrue($di->has('test'));
-        $this->assertTrue($di->offsetExists('test'));
-        $this->assertEquals('Hello test', $di->get('test'));
-        $this->assertEquals('Hello test', $di['test']);
-        $this->assertFalse($di->wasFreshInstance());
-        $this->assertFalse($di->isFreshInstance());
-        unset($di['test']);
-        $this->assertFalse(isset($di['test']));
+
+        $definition = new CallableDefinition('makeTest', $callable, ['foo']);
+        $definition->setScope(Scope::SINGLETON());
+        $this->assertNotEquals(Scope::PROTOTYPE(), $definition->getScope());
+        $this->assertEquals(Scope::SINGLETON(), $definition->getScope());
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add($definition);
+        $container = new Container($definitionManager);
+
+        $objA = $container->get('makeTest');
+        $this->assertEquals('foo', $objA->name);
+
+        $objB = $container->make('makeTest', ['foo']);
+        $this->assertEquals('foo', $objB->name);
+
+        $this->assertNotSame($objA, $objB);
+        $this->assertEquals($objA, $objB);
+
+        $container->make('anotherTest');
     }
 
     /**
-     * Retrieve a shared request
+     * Trying to call make with invalid name
      * @test
-     * @expectedException \Slick\Di\Exception\ServiceNotFoundException
+     * @expectedException \Slick\Di\Exception\InvalidArgumentException
      */
-    public function sharedRequest()
+    public function callMakeWithInvalidName()
     {
-        $di = new DependencyInjector();
-        $di->setShared('testShared', 'Di\ObjectForDi');
-        $obj1 = $di->get('testShared');
-        $obj2 = $di->get('testShared');
-        $this->assertSame($obj2, $obj1);
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add(new UnresolvedDefinition());
+        $container = new Container($definitionManager);
 
-        $di->set('notShared', 'Di\ObjectForDi');
-        $obj1 = $di->getShared('notShared');
-        $obj2 = $di->getShared('notShared');
-        $this->assertSame($obj2, $obj1);
-        $obj3 = $di->get('notShared');
-        $this->assertNotSame($obj2, $obj3);
-        $di->get("foo");
+        $container->make(0010);
     }
 
     /**
-     * Attempt to create a service if it not exists
+     * Trying to get an alias entry
      * @test
      */
-    public function attemptService()
+    public function getAnAliasEntry()
     {
-        $di = new DependencyInjector();
-        $srv1 = $di->attempt('notShared', 'Di\ObjectForDi');
-        $this->assertSame($srv1, $di->attempt('notShared', 'Di\ObjectForDi'));
+        $callable = function($name) {
+            $obj = new \StdClass();
+            $obj->name = $name;
+            return $obj;
+        };
 
-        $obj1 = $di->get('notShared');
-        $this->assertInstanceOf("Slick\Di\DiInterface", $obj1->getDi());
-        $this->assertInstanceOf("Slick\Di\DependencyInjector", $obj1->getDi());
-        $this->assertEquals($di, $obj1->getDi());
-    }
+        $definition = new CallableDefinition('makeTest', $callable, ['foo']);
+        $alias = new AliasDefinition('alias', 'makeTest');
 
-    /**
-     * Use an object instance
-     * @test
-     */
-    public function useObjectInstance()
-    {
-        $di = new DependencyInjector();
-        $obj = new OtherObject();
-        $di->set('foo', new OtherObject());
-        $this->assertInstanceOf('Di\OtherObject', $di->get('foo'));
-    }
+        $definitionManager = new DefinitionManager();
+        $definitionManager->add($definition)->add($alias);
+        $container = new Container($definitionManager);
 
-    /**
-     * Set default dependency injector
-     * @test
-     */
-    public function setDefaultInjector()
-    {
-        $old = DependencyInjector::getDefault();
-        $di = new DependencyInjector();
-        DependencyInjector::setContainer($di);
-        $this->assertSame($di, DependencyInjector::getDefault());
-        DependencyInjector::setContainer($old);
+        $objA = $container->get('makeTest');
+        $objB = $container->get('alias');
+
+        $this->assertSame($objA, $objB);
     }
 }
 
-class ObjectForDi extends base implements DiAwareInterface
+class UnresolvedDefinition implements DefinitionInterface
 {
 
-}
+    /**
+     * Returns the name of the entry in the container
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return 'test';
+    }
 
-class OtherObject
-{
-
+    /**
+     * Returns the scope of the entry
+     *
+     * @return Scope
+     */
+    public function getScope()
+    {
+        Scope::PROTOTYPE();
+    }
 }

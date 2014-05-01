@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ClassNotFoundException
+ * DefinitionException
  *
  * @package   Slick\Di\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,17 +12,15 @@
 
 namespace Slick\Di\Exception;
 
-use Slick\Di\Exception as DiException;
-use RuntimeException;
+use Slick\Di\Exception;
 
 /**
- * ClassNotFoundException
+ * DefinitionException
  *
  * @package   Slick\Di\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ClassNotFoundException extends RuntimeException
-    implements DiException
+class DefinitionException extends \LogicException implements Exception
 {
 
-}
+} 
