@@ -8,5 +8,8 @@
             "Slick\\Di\\": ""
         }
     },
-    "target-dir": "Slick/Di"
+    "target-dir": "Slick/Di",
+    "require": {
+        "myclabs/php-enum": "1.*"
+    }
 }

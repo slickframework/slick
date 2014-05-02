@@ -69,6 +69,32 @@ class Container implements ContainerInterface, FactoryInterface
     }
 
     /**
+     * Retrieves a container if it was already created
+     *
+     * @return false|Container False if there is no container created.
+     */
+    public static function getContainer()
+    {
+        $container = false;
+        if (isset(static::$_singletonEntries['Slick\Di\Container'])) {
+            $container = static::$_singletonEntries['Slick\Di\Container'];
+        }
+        return $container;
+    }
+
+    /**
+     * Returns current definition manager
+     *
+     * @return DefinitionManager
+     */
+    public function getDefinitionManager()
+    {
+        return $this->_definitionManager;
+    }
+
+
+
+    /**
      * Returns an entry of the container by its name.
      *
      * @param string $name Entry name or a class name.
