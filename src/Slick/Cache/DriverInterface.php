@@ -46,11 +46,22 @@ interface DriverInterface
     /**
      * Erase the value stored with a given key.
      *
+     * You can use the "?" and "*" wildcards to delete all matching keys.
+     * The "?" means a place holders for one unknown character, the "*" is
+     * a place holder for various characters.
+     *
      * @param String $key The key under witch value was stored.
      * 
      * @return DriverInterface A self instance for chaining method calls.
      */
     public function erase($key);
+
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     */
+    public function flush();
 
 
 

@@ -12,7 +12,9 @@
 
 namespace Slick\Cache\Driver;
 
+use Slick\Cache\DriverInterface;
 use Slick\FileSystem\Folder;
+use Slick\FileSystem\Node;
 
 /**
  * Uses file system to store cache data
@@ -111,7 +113,7 @@ class File extends AbstractDriver
      *
      * @param String $key The key under witch value was stored.
      * 
-     * @return File A sefl instance for chaining method calls.
+     * @return File A self instance for chaining method calls.
      */
     public function erase($key)
     {
@@ -134,5 +136,22 @@ class File extends AbstractDriver
     protected function _getFileName($key)
     {
         return $this->prefix . $key . '.tmp';
+    }
+
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     */
+    public function flush()
+    {
+        /** @var Node $node */
+        foreach ($this->getFolder()->getNodes() as $node) {
+            if ($node->details->isFile()) {
+                $node->delete();
+            }
+        }
+
+        return $this;
     }
 }

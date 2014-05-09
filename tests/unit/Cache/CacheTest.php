@@ -70,7 +70,7 @@ class CustomDriver implements DriverInterface
 {
 
     /**
-     * Retrives a previously stored value.
+     * Retrieves a previously stored value.
      *
      * @param String $key     The key under witch value was stored.
      * @param mixed  $default The default value, if no value was stored before.
@@ -109,4 +109,13 @@ class CustomDriver implements DriverInterface
 
     }
 
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     */
+    public function flush()
+    {
+
+    }
 }
