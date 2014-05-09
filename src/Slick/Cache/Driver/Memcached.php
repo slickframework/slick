@@ -257,6 +257,10 @@ class Memcached extends AbstractDriver
      */
     public function __destruct()
     {
-        $this->disconnect();
+        try {
+            $this->disconnect();
+        } catch (\ErrorException $exp) {
+            // TODO: Do a better exist
+        }
     }
 }
