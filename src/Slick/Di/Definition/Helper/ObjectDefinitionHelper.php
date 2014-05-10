@@ -12,11 +12,11 @@
 
 namespace Slick\Di\Definition\Helper;
 
-use Slick\Di\Definition\DefinitionHelperInterface;
-use Slick\Di\Definition\ObjectDefinition\MethodInjection;
-use Slick\Di\Definition\ObjectDefinition\PropertyInjection;
-use Slick\Di\Definition\ObjectDefinition;
-use Slick\Di\Definition\Scope;
+use Slick\Di\Definition\Scope,
+    Slick\Di\Definition\ObjectDefinition,
+    Slick\Di\Definition\DefinitionHelperInterface,
+    Slick\Di\Definition\ObjectDefinition\MethodInjection,
+    Slick\Di\Definition\ObjectDefinition\PropertyInjection;
 
 /**
  * Helps construct an object definition
@@ -73,11 +73,13 @@ class ObjectDefinitionHelper implements DefinitionHelperInterface
     public function getDefinition($entryName)
     {
         $definition = new ObjectDefinition($entryName, $this->_className);
-        $definition->setConstructor($this->_constructor)
+        $definition
             ->setMethods($this->_methods)
             ->setProperties($this->_properties)
             ->setScope($this->_scope);
-
+        if ($this->_constructor) {
+            $definition->setConstructor($this->_constructor);
+        }
         return $definition;
     }
 

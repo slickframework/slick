@@ -18,7 +18,8 @@ use Database\MyOwnConnector;
 use Slick\Configuration\Configuration;
 use Slick\Database\Connector\SQLite;
 use Slick\Database\Query\Query;
-use Slick\Di\DependencyInjector;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\Orm\Entity;
 
 /**
@@ -43,10 +44,14 @@ class EntityTest extends Test
         parent::_before();
         Configuration::addPath(__DIR__);
         $connector = MyTestConnector::getInstance();
-        $di = new DependencyInjector();
-        $di->set('db_default', $connector);
+
+        $container = ContainerBuilder::buildContainer([
+            'db_default' => $connector
+        ]);
+
         $this->_user = new User();
-        $this->_user->setDi($di);
+        $this->_user->setContainer($container);
+
     }
 
     /**
@@ -70,9 +75,7 @@ class EntityTest extends Test
         $this->assertEquals('id', $this->_user->primaryKey);
         $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector);
         $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $this->_user->query());
-        $myUser = new User();
-        $di = DependencyInjector::getDefault();
-        $this->assertSame($di, $myUser->getDi());
+        $this->assertInstanceOf('Slick\Di\Container', $this->_user->getContainer());
         new Post();
     }
 

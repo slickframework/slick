@@ -10,12 +10,15 @@
  * @since     Version 1.0.0
  */
 namespace Form;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\Filter\StaticFilter;
 use Slick\Form\Element;
 use Slick\Form\Fieldset;
 use Slick\Form\Form;
 use Slick\Form\InputFilter\InputFilter;
 use Slick\Validator\StaticValidator;
+use Zend\EventManager\SharedEventManager;
 
 /**
  * Form test case
@@ -32,7 +35,12 @@ class FromTest extends \Codeception\TestCase\Test
      */
     public function getFormEventManager()
     {
-        $form = new Form("TestForm");
+        /** @var Form $form */
+        $form = ContainerBuilder::buildContainer([
+            "TestForm" => Definition::object('Slick\Form\Form')
+                ->constructor(["TestForm"]),
+            'DefaultEventManager' => Definition::object('Zend\EventManager\SharedEventManager')
+        ])->get("TestForm");
         $eventManager = $form->getEventManager();
         $this->assertContains('TestForm', $eventManager->getIdentifiers());
 
@@ -51,7 +59,11 @@ class FromTest extends \Codeception\TestCase\Test
         $mail = new Element(['name' => 'mail']);
         $fieldset = new Fieldset(['name' => 'fieldset']);
         $fieldset->add($mail);
-        $form = new Form("testForm");
+        /** @var Form $form */
+        $form = ContainerBuilder::buildContainer([
+            "testForm" => Definition::object('Slick\Form\Form')
+                    ->constructor(["testForm"])
+        ])->get("testForm");
         $form->add($name);
         $form->add($fieldset);
         $data = ['name' => 'foo', 'mail' => 'foo@example.com'];
@@ -81,7 +93,11 @@ class FromTest extends \Codeception\TestCase\Test
 
         $fieldset = new Fieldset(['name' => 'fieldset']);
         $fieldset->add($mail);
-        $form = new Form("testForm");
+        /** @var Form $form */
+        $form = ContainerBuilder::buildContainer([
+            "testForm" => Definition::object('Slick\Form\Form')
+                    ->constructor(["testForm"])
+        ])->get("testForm");
         $form->add($name);
         $form->add($fieldset);
         $data = ['name' => '<b>foo</b>', 'mail' => 'foo@example.com'];

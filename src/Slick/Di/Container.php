@@ -92,8 +92,6 @@ class Container implements ContainerInterface, FactoryInterface
         return $this->_definitionManager;
     }
 
-
-
     /**
      * Returns an entry of the container by its name.
      *

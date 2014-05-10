@@ -11,6 +11,7 @@
  */
 
 namespace Di;
+
 use Slick\Di\ContainerBuilder;
 use Slick\Di\Definition;
 

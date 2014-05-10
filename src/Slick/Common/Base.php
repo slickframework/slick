@@ -12,7 +12,6 @@
 
 namespace Slick\Common;
 
-use Slick\Di\DiInterface;
 use Serializable;
 
 /**
@@ -49,12 +48,6 @@ abstract class Base implements Serializable
     // @codingStandardsIgnoreStart
     public $___mocked;
     // @codingStandardsIgnoreEnd
- 
-    /**
-     * @readwrite
-     * @var DiInterface Dependency injector object
-     */
-    protected $_dependencyInjector;    
 
     /**
      * Trait with method for base class
@@ -121,29 +114,6 @@ abstract class Base implements Serializable
 
         }
         return $equals;
-    }
-
-    /**
-     * Returns the internal dependency injector
-     * 
-     * @return DiInterface The dependency injector
-     */
-    public function getDi()
-    {
-        return $this->_dependencyInjector;
-    }
-
-    /**
-     * Sets the dependency injector
-     * 
-     * @param DiInterface $dependencyInjector The injector to set
-     *
-     * @return Base A self instance for method chain calls
-     */
-    public function setDi(DiInterface $dependencyInjector)
-    {
-        $this->_dependencyInjector = $dependencyInjector;
-        return $this;
     }
 
     /**

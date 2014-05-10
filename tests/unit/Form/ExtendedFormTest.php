@@ -12,6 +12,9 @@
 
 namespace Form;
 
+use Slick\Di\Container;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\Form\Form as SlickFrom,
     Slick\Form\Element;
 
@@ -29,7 +32,13 @@ class ExtendedFormTest extends \Codeception\TestCase\Test
      */
     public function useExtendedForm()
     {
-        $form = new CommentForm('comment-edit');
+        $container = ContainerBuilder::buildContainer(
+            [
+                'commentForm' => Definition::object('\Form\CommentForm')
+                    ->constructor(['comment-edit'])
+            ]
+        );
+        $form = $container->get('commentForm');
         /** @var Element $element */
         $element = $form->get('body');
         $this->assertInstanceOf('Slick\Form\InputFilter\Input', $element->getInput());

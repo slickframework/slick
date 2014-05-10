@@ -12,6 +12,7 @@
 
 namespace Slick\Di\Resolver;
 
+use Slick\Di\ContainerAwareInterface;
 use Slick\Di\Exception\DependencyException;
 use Slick\Di\ResolverInterface,
     Slick\Di\ContainerInterface,
@@ -67,7 +68,20 @@ class ObjectResolver implements ResolverInterface
         /** @var ObjectDefinition $definition  */
         $instance =  $this->_createInstance($definition, $parameters);
         $this->_injectMethodsAndProperties($definition, $instance);
+        $this->_checkContainerAware($instance);
         return $instance;
+    }
+
+    /**
+     * Assigns the container for objects implementing ContainerAwareInterface
+     *
+     * @param mixed $instance The instance to check
+     */
+    public function _checkContainerAware($instance)
+    {
+        if ($instance instanceof ContainerAwareInterface) {
+            $instance->setContainer($this->_container);
+        }
     }
 
     /**
