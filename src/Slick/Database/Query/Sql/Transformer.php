@@ -86,6 +86,7 @@ class Transformer extends Base
                 );
             }
             $this->_sql = $dialect;
+            return $this;
         }
         switch ($this->_dialect) {
             case 'Mysql':
