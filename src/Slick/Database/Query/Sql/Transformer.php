@@ -80,7 +80,7 @@ class Transformer extends Base
         if (class_exists($this->_dialect)) {
             $class = $this->_dialect;
             $dialect = new $class(['sql' => $sql]);
-            if (!($class instanceof Dialect\Dialect)) {
+            if (!($dialect instanceof Dialect\Dialect)) {
                 throw new Exception\UndefinedSqlDialectException(
                     "The dialect '{$this->_dialect}' is not defined."
                 );
