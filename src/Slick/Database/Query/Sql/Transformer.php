@@ -13,26 +13,31 @@
 namespace Slick\Database\Query\Sql;
 
 use Slick\Common\Base,
-    Slick\Database\Exception;
+    Slick\Database\Exception,
+    Slick\Database\Query\Sql\SqlInterface,
+    Slick\Database\Query\Sql\Dialect,
+    Slick\Database\Query\Sql\Dialect\Dialect as SqlDialect;
 
 /**
  * Transformer
  *
  * @package   Slick\Database\Query\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property SqlInterface $sql
  */
 class Transformer extends Base
 {
 
     /**
      * @readwrite
-     * @var \Slick\Database\Query\Sql\Dialect
+     * @var SqlDialect
      */
     protected $_dialect = null;
 
     /**
      * @readwrite
-     * @var \Slick\Database\Query\Sql\SqlInterface
+     * @var SqlInterface
      */
     protected $_sql = null;
 
@@ -41,36 +46,47 @@ class Transformer extends Base
      * 
      * @param string $dialect The SQL dialect name
      * 
-     * @return \Slick\Database\Query\Sql\Transformer
+     * @return Transformer
      */
     public static function create($dialect)
     {
-        $transformer = new Static();
-        $transformer->setDialect($dialect);
-        return $transformer;
+        return new static(['dialect' => $dialect]);
     }
 
     /**
      * Transforms a SQL statement object int its correct string form
      * 
-     * @param \Slick\Database\Query\Sql\SqlInterface $sql
+     * @param SqlInterface $sql
      * 
      * @return string The sql query string for current dialect
      */
-    public function transform(\Slick\Database\Query\Sql\SqlInterface $sql)
+    public function transform(SqlInterface $sql)
     {
-        $this->setSql($sql);
-        return $this->getSql()->getStatement();
+        return $this->setSql($sql)
+            ->sql->getStatement();
     }
 
     /**
      * Sets the internal SQL object for current dialect
-     * 
-     * @param \Slick\Database\Query\Sql\SqlInterface $sql
+     *
+     * @param SqlInterface $sql
+     *
+     * @throws \Slick\Database\Exception\UndefinedSqlDialectException
+     * @return Transformer
      */
-    public function setSql(\Slick\Database\Query\Sql\SqlInterface $sql)
+    public function setSql(SqlInterface $sql)
     {
 
+        if (class_exists($this->_dialect)) {
+            $class = $this->_dialect;
+            $dialect = new $class(['sql' => $sql]);
+            if (!($class instanceof Dialect\Dialect)) {
+                throw new Exception\UndefinedSqlDialectException(
+                    "The dialect '{$this->_dialect}' is not defined."
+                );
+            }
+            $this->_sql = $dialect;
+        }
         switch ($this->_dialect) {
             case 'Mysql':
                 $this->_sql = new Dialect\Mysql(array('sql' => $sql));

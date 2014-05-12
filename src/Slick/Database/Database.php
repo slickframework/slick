@@ -59,6 +59,8 @@ class Database extends Base
             );
         }
 
+
+
         if (
             !in_array(strtolower($this->_type), $this->_supportedTypes) &&
             class_exists($this->_type)
