@@ -421,6 +421,9 @@ class Entity extends AbstractEntity
             /** @var Column $col */
             foreach ($columns as $col) {
                 $prop = $col->raw;
+                if ($col->primaryKey && empty($this->$prop)) {
+                    continue;
+                }
                 $data[$col->name] = $this->$prop;
             }
 
