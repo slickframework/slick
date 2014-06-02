@@ -116,7 +116,7 @@ class FolderTest extends \Codeception\TestCase\Test
     public function manipulateFiles()
     {
         $folder = new Folder(array('name' => $this->_path));
-        $file = $folder->getFile('example.txt');
+        $file = $folder->getFile('example.txt', "c+");
         $this->assertTrue($folder->hasFile('example.txt'));
         $this->assertFalse($folder->hasFile('other-example.txt'));
         $this->assertInstanceOf('Slick\FileSystem\File', $file);

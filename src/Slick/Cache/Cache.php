@@ -16,10 +16,14 @@ use Slick\Common\Base,
     Slick\Cache\Driver;
 
 /**
- * Cache
+ * Factory for cache driver creation
  *
  * @package   Slick\Cache
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $class   Driver name or class name.
+ * @property array  $options A associative array with with driver properties
+ * @property-read string[] $supportedTypes
  */
 class Cache extends Base
 {
@@ -41,6 +45,21 @@ class Cache extends Base
      * @var array A list of supported types
      */
     protected $_supportedTypes = array('file', 'memcached');
+
+    /**
+     * Factory method to initialize a cache driver
+     *
+     * @param string $type
+     * @param array  $options
+     *
+     * @return DriverInterface
+     */
+    public static function get($type = 'file', $options = [])
+    {
+        /** @var Cache $cache */
+        $cache = new static(['class' => $type, 'options' => $options]);
+        return $cache->initialize();
+    }
 
     /**
      * Driver initialization

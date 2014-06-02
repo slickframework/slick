@@ -119,9 +119,12 @@ EOS;
 
     /**
      * Generate Index definitions for create table statement
+     *
+     * @param string $pre Index prefix
+     *
      * @return string
      */
-    protected function _getIndexes()
+    protected function _getIndexes($pre = '')
     {
         $indexes = $this->_sql->getIndexes();
         $values = array();

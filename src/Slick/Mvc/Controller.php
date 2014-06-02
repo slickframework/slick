@@ -14,8 +14,9 @@ namespace Slick\Mvc;
 
 use Slick\Common\Base,
     Slick\I18n\TranslateMethods,
-    Slick\Di\DependencyInjector,
     Slick\Mvc\Libs\Session\FlashMessages;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Zend\EventManager\EventManager,
     Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
@@ -223,8 +224,14 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $sharedEvents = DependencyInjector::getDefault()
-                ->get('DefaultEventManager');
+            $container = ContainerBuilder::buildContainer(
+                [
+                    'DefaultEventManager' => Definition::object(
+                            'Zend\EventManager\SharedEventManager'
+                        )
+                ]
+            );
+            $sharedEvents = $container->get('DefaultEventManager');
             $events = new EventManager();
             $events->setSharedManager($sharedEvents);
             $this->setEventManager($events);

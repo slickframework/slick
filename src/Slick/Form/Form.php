@@ -12,14 +12,16 @@
 
 namespace Slick\Form;
 
-use Slick\Di\DependencyInjector,
+use Slick\Di\ContainerAwareInterface,
+    Slick\Di\ContainerAwareTrait,
     Slick\Form\InputFilter\InputFilter,
     Slick\Form\Template\AbstractTemplate,
     Slick\Form\Template\BasicForm;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\I18n\TranslateMethods;
 use Zend\EventManager\EventManagerAwareInterface,
     Zend\EventManager\EventManagerInterface,
-    Zend\EventManager\SharedEventManager,
     Zend\EventManager\EventManager;
 
 /**
@@ -32,7 +34,7 @@ use Zend\EventManager\EventManagerAwareInterface,
  * @property Factory $factory
  */
 class Form extends AbstractFieldset
-    implements FormInterface, EventManagerAwareInterface
+    implements FormInterface, EventManagerAwareInterface, ContainerAwareInterface
 {
 
     /**
@@ -65,6 +67,11 @@ class Form extends AbstractFieldset
     use TranslateMethods;
 
     /**
+     * Container aware implementation trait
+     */
+    use ContainerAwareTrait;
+
+    /**
      * @readwrite
      * @var array
      */
@@ -83,21 +90,7 @@ class Form extends AbstractFieldset
     {
         parent::__construct($options);
         $this->setName($name);
-        $this->getEventManager()->trigger(
-            'formBeforeSetup',
-            $this,
-            array(
-                'name' => $name
-            )
-        );
         $this->_setup();
-        $this->getEventManager()->trigger(
-            'formAfterSetup',
-            $this,
-            array(
-                'name' => $name
-            )
-        );
     }
 
     /**
@@ -119,23 +112,7 @@ class Form extends AbstractFieldset
      */
     public function AddElement($name, $data)
     {
-        $this->getEventManager()->trigger(
-            'formBeforeAddElement',
-            $this,
-            array(
-                'name' => $name,
-                'data' => &$data
-            )
-        );
         $this->factory->addElement($this, $name, $data);
-        $this->getEventManager()->trigger(
-            'formBeforeAddElement',
-            $this,
-            array(
-                'name' => $name,
-                'data' => &$data
-            )
-        );
         return $this;
     }
 
@@ -195,11 +172,16 @@ class Form extends AbstractFieldset
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $injector = DependencyInjector::getDefault();
-            /** @var SharedEventManager $sharedEvent */
-            $sharedEvent = $injector->get('DefaultEventManager');
+            $container = ContainerBuilder::buildContainer(
+                [
+                    'DefaultEventManager' => Definition::object(
+                            'Zend\EventManager\SharedEventManager'
+                    )
+                ]
+            );
+            $sharedEvents = $container->get('DefaultEventManager');
             $events = new EventManager();
-            $events->setSharedManager($sharedEvent);
+            $events->setSharedManager($sharedEvents);
             $this->setEventManager($events);
         }
         return $this->_events;

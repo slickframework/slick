@@ -22,9 +22,9 @@ interface Dialect
 {
 
     /**
-     * Retrieves the SQL statment for current dialect
+     * Retrieves the SQL statement for current dialect
      * 
-     * @return string The correct SQL statment
+     * @return string The correct SQL statement
      */
     public function getStatement();
 }

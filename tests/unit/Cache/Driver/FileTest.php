@@ -1,7 +1,7 @@
 <?php
 
 /**
- * File cahe driver test case
+ * File cache driver test case
  * 
  * @package    Test\Cache\Driver
  * @author     Filipe Silva <silvam.filipe@gmail.com>
@@ -16,7 +16,7 @@ use Codeception\Util\Stub,
     Slick\Cache\Driver\File as Driver;
 
 /**
- * File cahe driver test case
+ * File cache driver test case
  * 
  * @package    Test\Cache\Driver
  * @author     Filipe Silva <silvam.filipe@gmail.com>
@@ -25,7 +25,7 @@ class FileTest extends \Codeception\TestCase\Test
 {
 
     /**
-     * Cratea a file driver
+     * Create a file driver
      * @test
      */
     public function createFileDriver()
@@ -92,6 +92,27 @@ class FileTest extends \Codeception\TestCase\Test
         $file = $path . "/cache/foo.tmp";
         $this->assertFalse(file_exists($file));
 
+    }
+
+    /**
+     * Flush a cache value.
+     * @test
+     */
+    public function flushValues()
+    {
+        $cache = new Driver();
+        $path = dirname(dirname(dirname(__DIR__))) . '/app/Temp';
+        $cache->path = $path;
+
+        $data = array('foo', 'bar');
+        $cache->set('foo', $data);
+        $this->assertEquals($data, $cache->get('foo', false));
+
+        $result = $cache->flush();
+        $this->assertSame($cache, $result);
+        $this->assertFalse($cache->get('foo', false));
+        $file = $path . "/cache/foo.tmp";
+        $this->assertFalse(file_exists($file));
     }
 
 }

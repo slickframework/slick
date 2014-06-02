@@ -99,6 +99,19 @@ abstract class AbstractQuery extends Base implements QueryInterface
     }
 
     /**
+     * Set fetch mode for queries
+     *
+     * @param int $fetchMode PDO fetch mode
+     *
+     * @return $this
+     */
+    public function setFetchMode($fetchMode)
+    {
+        $this->_fetchMode = $fetchMode;
+        return $this;
+    }
+
+    /**
      * Creates a prepared statement, ready to receive params from given SQL
      *
      * @param string $sql The SQL statement to prepare

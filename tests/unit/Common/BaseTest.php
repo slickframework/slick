@@ -18,6 +18,7 @@ use Common\Examples\Animal;
  * Use example Car class for tests.
  */
 require_once dirname(__FILE__) . '/Examples/Animal.php';
+require_once dirname(__FILE__) . '/Examples/Car.php';
 
 /**
  * Base class test case
@@ -131,7 +132,7 @@ class BaseTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Instanciating a class that doesn't call parent constructor
+     * Instantiating a class that does not call parent constructor
      * @test
      * @expectedException \Slick\Common\Exception\BadConstructorException
      * @expectedExceptionMessage The constructor is not correct for use Slick\Common\Base class. You need to call 'parent::__construct()' for the right object initialization.
@@ -159,6 +160,17 @@ class BaseTest extends \Codeception\TestCase\Test
         $bidDog->setPet(true);
         $this->assertFalse($dog->equals($bidDog));
 
+    }
+
+    /**
+     * Use PHP __isset() magic method tho check property existence
+     * @test
+     */
+    public function validatePropertyExistence()
+    {
+        $dog = new Examples\Animal(array('name' => 'Dog'));
+        $this->assertTrue(isset($dog->name));
+        $this->assertFalse(isset($dog->lastName));
     }
 
 }

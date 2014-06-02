@@ -78,7 +78,7 @@ class ClassMetaData
      * 
      * @param string $name The property name to inspect.
      * 
-     * @return \Slick\Common\TagList The list of tags of inspected property
+     * @return \Slick\Common\Inspector\TagList The list of tags of inspected property
      */
     public function getPropertyMeta($name)
     {

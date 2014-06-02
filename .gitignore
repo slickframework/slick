@@ -1,7 +1,8 @@
 /nbproject/private/
 /vendor/
 /nbproject/
-/docs/
+/docs/api
+/docs/manual/_build
 /tests/_log/coverage
 /tests/_log/coverage.serialized
 /tests/_log/*.html

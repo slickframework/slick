@@ -54,6 +54,7 @@ class MemcachedTest extends \Codeception\TestCase\Test
      */
     public function getAndSetValues()
     {
+        /** @var Memcached $cache */
         $cache = new Cache(array('class' => 'memcached'));
         $cache = $cache->initialize();
         $expected = array('foo', 'bar');
@@ -65,9 +66,13 @@ class MemcachedTest extends \Codeception\TestCase\Test
         $cache->set('zed', $expected, 1);
         sleep(2);
         $this->assertFalse($cache->get('zed', false));
+        $expected =['foo', 'zed'];
+        $this->assertEquals($expected, $cache->getKeys());
+
         $cache->erase('foo');
         $cache->disconnect();
         $cache->set('foo', 'bar');
+
     }
 
     /**
@@ -77,6 +82,7 @@ class MemcachedTest extends \Codeception\TestCase\Test
      */
     public function eraseValues()
     {
+        /** @var Memcached $cache */
         $cache = new Cache(array('class' => 'memcached'));
         $cache = $cache->initialize();
         $cache->set("foo", array('foo'));
@@ -87,13 +93,31 @@ class MemcachedTest extends \Codeception\TestCase\Test
     }
 
     /**
+     * Flush cache values
+     * @test
+     * @expectedException \Slick\Cache\Exception\ServiceException
+     */
+    public function flushValues()
+    {
+        /** @var Memcached $cache */
+        $cache = new Cache(array('class' => 'memcached'));
+        $cache = $cache->initialize();
+        $cache->set("foo", array('foo'));
+        $this->assertEquals(['foo'], $cache->get('foo', []));
+        $cache->flush();
+        $this->assertFalse($cache->get('foo', false));
+        $cache->disconnect();
+        $cache->flush();
+    }
+
+    /**
      * disconnect from server
      * @test
      * @expectedException \Slick\Cache\Exception\ServiceException
      */
     public function disconnect()
     {
-        /** @var Memcached $cache*/
+        /** @var Memcached $result*/
         $cache = new Cache(array('class' => 'memcached'));
         $result = $cache->initialize()->disconnect();
         $this->assertInstanceOf('Slick\Cache\Driver\Memcached', $result);

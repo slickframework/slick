@@ -13,6 +13,8 @@
 namespace Slick\Form;
 
 use Slick\Common\Base;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\Form\InputFilter\Factory as InputFilterFactory;
 use Slick\Validator\StaticValidator;
 
@@ -79,7 +81,13 @@ class Factory extends Base
      */
     public function newForm($name, array $definition)
     {
-        $this->_form = new Form($name);
+        $container = ContainerBuilder::buildContainer([
+            $name => Definition::object('Slick\Form\Form')
+                ->constructor([$name])
+        ]);
+
+        $this->_form = $container->get($name);
+
         foreach ($definition as $name => $element) {
             $this->addElement($this->_form, $name, $element);
         }

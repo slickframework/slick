@@ -12,7 +12,6 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Common\Base;
-use Slick\Common\Inspector\Tag;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
 

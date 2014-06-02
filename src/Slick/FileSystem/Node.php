@@ -19,6 +19,8 @@ use Slick\Common\Base;
  *
  * @package   Slick\FileSystem
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property \SplFileInfo $details
  */
 abstract class Node extends Base
 {
@@ -36,7 +38,7 @@ abstract class Node extends Base
     protected $_autoCreate = true;
 
     /**
-     * Delets current node.
+     * Deletes current node.
      * 
      * @return boolean True if current node was deleted successfully.
      */
@@ -51,7 +53,7 @@ abstract class Node extends Base
     /**
      * Compares current object with provided one for equality
      * 
-     * @param mixed|ojbect $object The object to compare with
+     * @param mixed|object $object The object to compare with
      * 
      * @return boolean True if the provided object is equal to this object
      */

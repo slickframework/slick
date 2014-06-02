@@ -15,8 +15,8 @@ namespace Slick\Orm;
 use Slick\Common\Base;
 use Slick\Common\Inspector;
 use Slick\Database\Database;
-use Slick\Di\DependencyInjector;
-use Slick\Di\DiAwareInterface;
+use Slick\Di\ContainerAwareInterface;
+use Slick\Di\ContainerAwareTrait;
 use Slick\Orm\Relation\RelationManager;
 use Slick\Utility\Text;
 use Slick\Orm\Entity\Column,
@@ -33,7 +33,7 @@ use Slick\Configuration\Configuration;
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class AbstractEntity extends Base implements DiAwareInterface
+class AbstractEntity extends Base implements ContainerAwareInterface
 {
     /**
      * @readwrite
@@ -94,6 +94,11 @@ class AbstractEntity extends Base implements DiAwareInterface
      * @var mixed
      */
     protected $_remainingData;
+
+    /**
+     * Container aware interface implementation
+     */
+    use ContainerAwareTrait;
 
     /**
      * Overrides Base constructor to handle property populating process
@@ -221,19 +226,6 @@ class AbstractEntity extends Base implements DiAwareInterface
             $this->_relationsManager = new RelationManager();
         }
         return $this->_relationsManager;
-    }
-
-    /**
-     * Returns dependency injector container
-     *
-     * @return DependencyInjector
-     */
-    public function getDi()
-    {
-        if (is_null($this->_dependencyInjector)) {
-            $this->_dependencyInjector = DependencyInjector::getDefault();
-        }
-        return $this->_dependencyInjector;
     }
 
     /**

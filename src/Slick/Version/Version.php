@@ -24,7 +24,7 @@ final class Version
      * Slick Framework version identification
      * @see Version::compare
      */
-    const VERSION = '1.0.0-beta';
+    const VERSION = '1.0.0-RC';
 
     /**
      * The latest stable version available
