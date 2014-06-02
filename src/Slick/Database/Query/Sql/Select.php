@@ -11,6 +11,7 @@
  */
 
 namespace Slick\Database\Query\Sql;
+use Slick\Utility\ArrayObject;
 
 /**
  * Select is a representation of a SQL select statement
@@ -39,7 +40,7 @@ class Select extends AbstractSql implements SelectInterface
 
     /**
      * @readwrite
-     * @var \ArrayObject The list of joins for this select
+     * @var ArrayObject The list of joins for this select
      */
     protected $_joins = null;
 
@@ -141,12 +142,12 @@ class Select extends AbstractSql implements SelectInterface
     /**
      * Lazy method to create and return the joins list
      * 
-     * @return \ArrayObject The list of joins used.
+     * @return ArrayObject The list of joins used.
      */
     public function getJoins()
     {
         if (is_null($this->_joins)) {
-            $this->_joins = new \ArrayObject();
+            $this->_joins = new ArrayObject();
         }
         return $this->_joins;
     }

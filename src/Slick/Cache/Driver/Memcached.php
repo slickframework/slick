@@ -13,10 +13,11 @@
 namespace Slick\Cache\Driver;
 
 use Memcache;
+use Slick\Cache\DriverInterface;
 use Slick\Cache\Exception\ServiceException;
 
 /**
- * Memcached
+ * Use memcached daemon to store cache data
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -89,7 +90,7 @@ class Memcached extends AbstractDriver
     }
 
     /**
-     * Lazy loading of Memcache service.
+     * Lazy loading of Memcached service.
      *
      * @return Memcache
      */
@@ -172,20 +173,28 @@ class Memcached extends AbstractDriver
             MEMCACHE_COMPRESSED, 
             $duration
         );
+
+        $this->_addKey($key);
         return $this;
     }
 
     /**
      * Erase the value stored wit a given key.
      *
-     * @param String $key The key under witch value was stored.
+     * Erase the value stored with a given key.
+     *
+     * You can use the "?" and "*" wildcards to delete all matching keys.
+     * The "?" means a place holders for one unknown character, the "*" is
+     * a place holder for various characters.
+     *
+     * @param string $pattern The key under witch value was stored.
      * 
      * @return Memcached A self instance for chaining method calls.
      *
      * @throws ServiceException If you are trying to set a cache
      *   value without connecting to memcached service first.
      */
-    public function erase($key)
+    public function erase($pattern)
     {
         if (!$this->_isValidService()) {
             throw new ServiceException(
@@ -193,7 +202,34 @@ class Memcached extends AbstractDriver
             );
         }
 
-        $this->getService()->delete($this->_prefix.$key);
+        $keys = $this->getKeys($pattern);
+
+        foreach ($keys as $key) {
+            $this->getService()->delete($this->_prefix.$key);
+            $this->_removeKey($key);
+        }
+
+
+        return $this;
+    }
+
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     *
+     * @throws ServiceException If you are trying to set a cache
+     *   value without connecting to memcached service first.
+     */
+    public function flush()
+    {
+        if (!$this->_isValidService()) {
+            throw new ServiceException(
+                "Not connected to a valid memcached service."
+            );
+        }
+
+        $this->getService()->flush();
         return $this;
     }
 
@@ -221,6 +257,10 @@ class Memcached extends AbstractDriver
      */
     public function __destruct()
     {
-        $this->disconnect();
+        try {
+            $this->disconnect();
+        } catch (\ErrorException $exp) {
+            // TODO: Do a better exist
+        }
     }
 }

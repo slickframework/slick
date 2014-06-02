@@ -12,6 +12,7 @@
 
 namespace Slick\Common;
 
+use Slick\Common\Inspector\TagList;
 use Slick\Utility\Text;
 
 /**
@@ -52,7 +53,8 @@ trait BaseMethods {
             throw new Exception\BadConstructorException(
                 "The constructor is not correct for use Slick\Common\Base"
                 ." class. You need to call 'parent::__construct()' for the"
-                ." right object initialization."
+                ." right object initialization. "
+                ." Using object ".get_class($this)
             );
         }
 
@@ -109,6 +111,7 @@ trait BaseMethods {
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
+            /** @var TagList $tags */
             $tags = $this->_inspector->getPropertyMeta($property);
 
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
@@ -143,7 +146,7 @@ trait BaseMethods {
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
             $tags = $this->_inspector->getPropertyMeta($property);
-
+            /** @var TagList $tags */
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@write')) {
                 $className = get_class($this);
                 throw new Exception\ReadOnlyException(
@@ -167,7 +170,7 @@ trait BaseMethods {
     /**
      * Retrieves the boolean value a property with the given name.
      * 
-     * @param type $name The property name to get the value.
+     * @param string $name The property name to get the value.
      * 
      * @return boolean The boolean value of the requested property.
      * 
@@ -181,6 +184,7 @@ trait BaseMethods {
         $property = "_{$normalized}";
 
         if (property_exists($this, $property)) {
+            /** @var TagList $tags */
             $tags = $this->_inspector->getPropertyMeta($property);
 
             if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
@@ -236,5 +240,23 @@ trait BaseMethods {
     	// @codingStandardsIgnoreEnd
         $function = "set".ucfirst($name);
         return $this->$function($value);
+    }
+
+    /**
+     * Checks if a given property name exists and can be accessed
+     *
+     * @param string $name The property name
+     *
+     * @return bool True if a property with the provided name exists,
+     *  false otherwise
+     */
+    public function __isset($name)
+    {
+        $normalized = lcfirst($name);
+        $property = "_{$normalized}";
+        if (property_exists($this, $property)) {
+            return true;
+        }
+        return false;
     }
 }

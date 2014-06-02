@@ -76,13 +76,14 @@ class Folder extends Node
      * Adds a file to current folder
      * 
      * @param string $name The file name to add
+     * @param string $mode The file opening mode
      *
      * @return \Slick\FileSystem\File The added file object.
      */
-    public function addFile($name)
+    public function addFile($name, $mode = 'c+')
     {
         $path = $this->details->getRealPath();
-        return new File($path .'/'. ltrim($name, '/'));
+        return new File($path .'/'. ltrim($name, '/'), $mode);
     }
 
     /**
@@ -144,15 +145,16 @@ class Folder extends Node
     /**
      * Gets the file with the given name.
      *
-     * If file doesn't exists it will be created.
+     * If file does not exists it will be created.
      * 
      * @param string $name The file name
+     * @param string $mode The file opening mode
      *
      * @return \Slick\FileSystem\File The file object.
      */
-    public function getFile($name)
+    public function getFile($name, $mode = 'r')
     {
-        return $this->addFile($name);
+        return $this->addFile($name, $mode);
     }
 
     /**

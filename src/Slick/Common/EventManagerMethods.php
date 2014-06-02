@@ -12,9 +12,9 @@
 
 namespace Slick\Common;
 
-use Slick\Di\DependencyInjector;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Zend\EventManager\EventManager,
-    Zend\EventManager\SharedEventManager,
     Zend\EventManager\EventManagerInterface;
 
 /**
@@ -59,11 +59,16 @@ trait EventManagerMethods
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $injector = DependencyInjector::getDefault();
-            /** @var SharedEventManager $sharedEvent */
-            $sharedEvent = $injector->get('DefaultEventManager');
+            $container = ContainerBuilder::buildContainer(
+                [
+                    'DefaultEventManager' => Definition::object(
+                        'Zend\EventManager\SharedEventManager'
+                    )
+                ]
+            );
+            $sharedEvents = $container->get('DefaultEventManager');
             $events = new EventManager();
-            $events->setSharedManager($sharedEvent);
+            $events->setSharedManager($sharedEvents);
             $this->setEventManager($events);
         }
         return $this->_events;

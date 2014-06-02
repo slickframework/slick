@@ -15,7 +15,8 @@ namespace Slick\Mvc;
 use Slick\Common\Base;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\Driver\DriverInterface;
-use Slick\Di\DependencyInjector;
+use Slick\Di\ContainerBuilder;
+use Slick\Di\Definition;
 use Slick\I18n\Translator;
 use Slick\Template\Template;
 use Zend\EventManager\EventManager;
@@ -167,8 +168,14 @@ class Application extends Base implements EventManagerAwareInterface
     public function getEventManager()
     {
         if (is_null($this->_events)) {
-            $sharedEvents =  DependencyInjector::getDefault()
-                ->get('DefaultEventManager');
+            $container = ContainerBuilder::buildContainer(
+                [
+                    'DefaultEventManager' => Definition::object(
+                            'Zend\EventManager\SharedEventManager'
+                        )
+                ]
+            );
+            $sharedEvents = $container->get('DefaultEventManager');
             $events = new EventManager();
             $events->setSharedManager($sharedEvents);
             $this->setEventManager($events);

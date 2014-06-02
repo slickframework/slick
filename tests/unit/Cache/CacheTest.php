@@ -28,7 +28,7 @@ class CacheTest extends \Codeception\TestCase\Test
     /**
      * Initialize a cache driver
      * @test
-     * @expectedException Slick\Cache\Exception\InvalidDriverException
+     * @expectedException \Slick\Cache\Exception\InvalidDriverException
      */
     public function initializeDriver()
     {
@@ -42,7 +42,7 @@ class CacheTest extends \Codeception\TestCase\Test
     /**
      * Initialize a custom driver
      * @test
-     * @expectedException Slick\Cache\Exception\InvalidDriverException
+     * @expectedException \Slick\Cache\Exception\InvalidDriverException
      */
     public function initializeCustomClass()
     {
@@ -54,13 +54,23 @@ class CacheTest extends \Codeception\TestCase\Test
         $driver = $cache->initialize();
     }
 
+    /**
+     * Using factory method to get the cache driver
+     * @test
+     */
+    public function getDriverFromFactory()
+    {
+        $cache = Cache::get();
+        $this->assertInstanceOf('Slick\Cache\Driver\File', $cache);
+    }
+
 }
 
 class CustomDriver implements DriverInterface
 {
 
     /**
-     * Retrives a previously stored value.
+     * Retrieves a previously stored value.
      *
      * @param String $key     The key under witch value was stored.
      * @param mixed  $default The default value, if no value was stored before.
@@ -99,4 +109,13 @@ class CustomDriver implements DriverInterface
 
     }
 
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     */
+    public function flush()
+    {
+
+    }
 }

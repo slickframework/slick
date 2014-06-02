@@ -12,10 +12,10 @@
 
 namespace Slick\Orm\Relation;
 
-use ArrayObject;
-use Slick\Common\Base;
-use Slick\Common\Inspector\TagList;
-use Slick\Orm\Entity;
+use Slick\Orm\Entity,
+    Slick\Common\Base,
+    Slick\Utility\ArrayObject,
+    Slick\Common\Inspector\TagList;
 
 /**
  * RelationManager

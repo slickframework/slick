@@ -16,7 +16,7 @@ use Slick\Cache\Exception as CacheException;
 use RuntimeException;
 
 /**
- * ServiceException
+ * Used when an error occurs trying to use a cache service
  *
  * @package   Slick\Cache\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>

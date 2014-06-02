@@ -227,8 +227,11 @@ class Router extends Base implements EventManagerAwareInterface
             }
 
             if ($meta->hasTag($type)) {
-
-                foreach ($meta->getTag($type)->value as $method) {
+                $methods = $meta->getTag($type)->value;
+                if (is_string($methods)) {
+                    $methods = array($meta->getTag($type)->value);
+                }
+                foreach ($methods as $method) {
                     $hookMeta = $inspector->getMethodMeta($method);
                     if (
                         in_array($method, $run) &&

@@ -13,7 +13,7 @@
 namespace Slick\Cache;
 
 /**
- * Exception
+ * Used as a based type for all cache exceptions
  *
  * @package   Slick\Cache
  * @author    Filipe Silva <silvam.filipe@gmail.com>

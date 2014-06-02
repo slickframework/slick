@@ -12,8 +12,8 @@
 
 namespace Slick\Orm\Entity;
 
-use ArrayObject;
-use Slick\Orm\Exception;
+use Slick\Orm\Exception,
+    Slick\Utility\ArrayObject;
 
 /**
  * ColumnList

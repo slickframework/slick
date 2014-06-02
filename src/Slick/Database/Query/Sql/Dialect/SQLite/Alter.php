@@ -81,11 +81,14 @@ EOS;
 
     /**
      * Generate Index definitions for create table statement
+     *
+     * @param string $pre Index prefixes
+     *
      * @return string
      */
-    protected function _getIndexes()
+    protected function _getIndexes($pre = '')
     {
-        $str = parent::_getIndexes();
+        $str = parent::_getIndexes($pre);
         return ltrim(trim($str, ';'));
     }
 }

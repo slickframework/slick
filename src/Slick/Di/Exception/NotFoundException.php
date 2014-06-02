@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ServiceNotFoundException
+ * NotFoundException
  *
  * @package   Slick\Di\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -12,17 +12,16 @@
 
 namespace Slick\Di\Exception;
 
-use Slick\Di\Exception as DiException;
 use RuntimeException;
+use Slick\Di\Exception;
 
 /**
- * ServiceNotFoundException
+ * NotFoundException
  *
  * @package   Slick\Di\Exception
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ServiceNotFoundException extends RuntimeException
-    implements DiException
+class NotFoundException extends RuntimeException implements Exception
 {
 
-}
+} 

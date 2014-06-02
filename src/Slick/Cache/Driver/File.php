@@ -12,11 +12,12 @@
 
 namespace Slick\Cache\Driver;
 
-use Slick\FileSystem\Folder,
-    Slick\FileSystem\File as FsFile;
+use Slick\Cache\DriverInterface;
+use Slick\FileSystem\Folder;
+use Slick\FileSystem\Node;
 
 /**
- * File cache driver
+ * Uses file system to store cache data
  *
  * @package   Slick\Cache\Driver
  * @author    Filcipe Silva <silvam.filipe@gmail.com>
@@ -61,7 +62,7 @@ class File extends AbstractDriver
     }
     
     /**
-     * Retrives a previously stored value.
+     * Retrieves a previously stored value.
      *
      * @param String $key     The key under witch value was stored.
      * @param mixed  $default The default value, if no value was stored before.
@@ -95,7 +96,7 @@ class File extends AbstractDriver
      * @param mixed   $value    The value to store.
      * @param integer $duration The live time of cache in seconds.
      * 
-     * @return File A sefl instance for chaining method calls.
+     * @return File A self instance for chaining method calls.
      */
     public function set($key, $value, $duration = -999)
     {
@@ -112,7 +113,7 @@ class File extends AbstractDriver
      *
      * @param String $key The key under witch value was stored.
      * 
-     * @return File A sefl instance for chaining method calls.
+     * @return File A self instance for chaining method calls.
      */
     public function erase($key)
     {
@@ -135,5 +136,22 @@ class File extends AbstractDriver
     protected function _getFileName($key)
     {
         return $this->prefix . $key . '.tmp';
+    }
+
+    /**
+     * Flushes all values controlled by this cache driver
+     *
+     * @return DriverInterface A self instance for chaining method calls.
+     */
+    public function flush()
+    {
+        /** @var Node $node */
+        foreach ($this->getFolder()->getNodes() as $node) {
+            if ($node->details->isFile()) {
+                $node->delete();
+            }
+        }
+
+        return $this;
     }
 }
