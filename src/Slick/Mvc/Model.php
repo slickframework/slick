@@ -126,7 +126,7 @@ abstract class Model extends Entity implements EntityInterface
     public function __toString()
     {
         $displayField = $this->getDisplayField();
-        return $this->$displayField;
+        return (String) $this->$displayField;
     }
 
     /**
