@@ -79,18 +79,19 @@ class InspectorTest extends \Codeception\TestCase\Test
     public function readClassMetaData()
     {
 
-        $result = $this->_inspector->getClassMeta();
-        $this->assertInstanceOf('Slick\Common\Inspector\TagList', $result);
-        $this->assertTrue($result['@package']->value == 'Test\Common\Examples');
-        $this->assertTrue($result['@author']->value == 'Filipe Silva <silvam.filipe@gmail.com>');
-        $this->assertTrue($result['@test']->value);
+        /** @var Inspector\Annotation[]|Inspector\AnnotationsList $result */
+        $result = $this->_inspector->getClassAnnotations();
+        $this->assertInstanceOf('Slick\Common\Inspector\AnnotationsList', $result);
+        $this->assertTrue($result['package']->getValue() == 'Test\Common\Examples');
+        $this->assertTrue($result['author']->getValue() == 'Filipe Silva <silvam.filipe@gmail.com>');
+        $this->assertTrue($result['test']->getValue());
 
-        $this->assertTrue($result->hasTag('@author'));
+        $this->assertTrue($result->hasAnnotation('@author'));
 
-        $this->assertFalse($result->getTag('@read'));
+        $this->assertFalse($result->hasAnnotation('@read'));
         
         $inspector = new Inspector('\Common\Examples\Motor');
-        $this->assertTrue(count($inspector->getClassMeta()) == 0);
+        $this->assertTrue(count($inspector->getClassAnnotations()) == 0);
         unset($inspector);
     }
 
@@ -101,7 +102,7 @@ class InspectorTest extends \Codeception\TestCase\Test
      */
     public function readClassProperties()
     {
-        $expected = new \ArrayIterator(array('_brand', '_model'));
+        $expected = ['_brand', '_model'];
         $this->assertEquals($expected, $this->_inspector->getClassProperties());
 }
     
@@ -112,7 +113,7 @@ class InspectorTest extends \Codeception\TestCase\Test
      */
     public function readClassMethods()
     {
-        $expected = new \ArrayIterator(array('start', 'stop'));
+        $expected = ['start', 'stop'];
         $this->assertEquals($expected, $this->_inspector->getClassMethods());
     }
     
@@ -120,28 +121,30 @@ class InspectorTest extends \Codeception\TestCase\Test
      * Read property meta data
      * 
      * @test
-     * @expectedException Slick\Common\Exception\InvalidArgumentException
+     * @expectedException \Slick\Common\Exception\InvalidArgumentException
      */
     public function readPropertyMetaData()
     {
-        $result =  $this->_inspector->getPropertyMeta('_brand');
-        $this->assertInstanceOf('Slick\Common\Inspector\TagList', $result);
-        $this->assertTrue($result->hasTag('@var'));
-        $this->assertTrue($result['@readwrite']->value);
-        $tag = $result['@hasMany'];
-        $this->assertEquals('test', $tag->value['table']);
-        $this->assertEquals('my_brand', $tag->getForeignKey());
-        $this->assertNull($tag->getOtherName());
-        $this->assertTrue(count($this->_inspector->getPropertyMeta('_model')) == 0);
+        /** @var Inspector\Annotation[]|Inspector\AnnotationsList $result */
+        $result = $this->_inspector->getPropertyAnnotations('_brand');
+        $this->assertInstanceOf('Slick\Common\Inspector\AnnotationsList', $result);
+        $this->assertTrue($result->hasAnnotation('var'));
+        $this->assertTrue($result['readwrite']->getValue());
+        $values = $result->getArrayCopy();
+        $tag = $result['hasMany'];
+        $this->assertEquals('test', $tag->getParameter('table'));
+        $this->assertEquals('my_brand', $tag->getParameter('foreignKey'));
+        $this->assertNull($tag->getParameter('other'));
+        $this->assertTrue(count($this->_inspector->getPropertyAnnotations('_model')) == 0);
 
-        $this->_inspector->getPropertyMeta('_unknown');
+        $this->_inspector->getPropertyAnnotations('_unknown');
     }
     
     /**
      * Read method meta data
      * 
-     * @test
-     * @expectedException Slick\Common\Exception\InvalidArgumentException
+     * test
+     * @expectedException \Slick\Common\Exception\InvalidArgumentException
      */
     public function readMethodMetaData()
     {
@@ -155,12 +158,11 @@ class InspectorTest extends \Codeception\TestCase\Test
     /**
      * Check if only the Tag can be added to a tag list
      * @test
-     * @expectedException Slick\Common\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Only a Slick\Common\Inspector\Tag object can be added to a TagList
+     * @expectedException \Slick\Common\Exception\InvalidArgumentException
      */
     public function checkTagListAppend()
     {
-        $tgl = new TagList();
+        $tgl = new Inspector\AnnotationsList();
         $tgl[] = "Hello exception!";
     }
 

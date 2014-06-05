@@ -13,3 +13,4 @@
 /.buildpath
 /.project
 /.idea
+*.php.old
