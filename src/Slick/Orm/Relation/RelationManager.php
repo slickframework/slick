@@ -16,6 +16,7 @@ use Slick\Orm\Entity,
     Slick\Common\Base,
     Slick\Utility\ArrayObject,
     Slick\Common\Inspector\TagList;
+use Slick\Orm\Exception\InvalidArgumentException;
 
 /**
  * RelationManager
@@ -43,7 +44,7 @@ class RelationManager extends Base
     /**
      * @var array A list of available relations to build
      */
-    protected $_classes = array(
+    protected static $_classes = array(
         '@HasOne' => '\Slick\Orm\Relation\HasOne',
         '@BelongsTo' => '\Slick\Orm\Relation\BelongsTo',
         '@HasMany' => '\Slick\Orm\Relation\HasMany',
@@ -66,7 +67,7 @@ class RelationManager extends Base
      */
     public function check(TagList $propertyMeta, $property, Entity &$entity)
     {
-        foreach ($this->_classes as $tag => $class) {
+        foreach (static::$_classes as $tag => $class) {
             $tag = strtolower($tag);
             if ($propertyMeta->hasTag($tag)) {
 
@@ -111,6 +112,23 @@ class RelationManager extends Base
     public function isARelation($propertyName)
     {
         return array_key_exists($propertyName, $this->_relations);
+    }
+
+    /**
+     * Adds a class to the list of relations
+     * 
+     * @param $annotation
+     * @param $class
+     * @throws \Slick\Orm\Exception\InvalidArgumentException
+     */
+    public static function addClass($annotation, $class)
+    {
+        if (isset(static::$_classes[$annotation])) {
+            throw new InvalidArgumentException(
+                "Trying to replace a core relation. User another annotation."
+            );
+        }
+        static::$_classes[$annotation] = $class;
     }
 
 } 
