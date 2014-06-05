@@ -246,8 +246,8 @@ SQL;
         $user = new User();
         $user->save();
         $insertUser = <<<SQL
-INSERT INTO users (`id`, `name`)
-VALUES (:id, :name)
+INSERT INTO users (`name`)
+VALUES (:name)
 SQL;
         $this->assertEquals($insertUser, MyTestConnector::$lastSql);
 

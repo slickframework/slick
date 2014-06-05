@@ -116,7 +116,7 @@ class RelationManager extends Base
 
     /**
      * Adds a class to the list of relations
-     * 
+     *
      * @param $annotation
      * @param $class
      * @throws \Slick\Orm\Exception\InvalidArgumentException
