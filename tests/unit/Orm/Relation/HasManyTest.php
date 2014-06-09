@@ -75,13 +75,13 @@ class FooHm extends Entity
     protected $_name;
 
     /**
-     * @HasMany Orm\Relation\BarHm
+     * @hasMany Orm\Relation\BarHm
      * @var BarBt
      */
     protected $_bar;
 
     /**
-     * @HasMany Orm\Relation\BazHm, limit=30, foreignKey=barId, dependent=0
+     * @hasMany Orm\Relation\BazHm, limit=30, foreignKey=barId, dependent=false
      * @var BarBt
      */
     protected $_baz;
@@ -107,7 +107,7 @@ class BarHm extends Entity
     protected $_name;
 
     /**
-     * @BelongsTo \Orm\Relation\FooHm
+     * @belongsTo \Orm\Relation\FooHm
      * @var BarBt
      */
     protected $_foo;
@@ -133,7 +133,7 @@ class BazHm extends Entity
     protected $_name;
 
     /**
-     * @BelongsTo \Orm\Relation\FooHm
+     * @belongsTo \Orm\Relation\FooHm
      * @var BarBt
      */
     protected $_foo;

@@ -37,6 +37,14 @@ class Annotation implements AnnotationInterface
     protected $_parameters = [];
 
     /**
+     * @var array
+     */
+    protected $_commonTags = [
+        'author', 'var', 'return', 'throws', 'copyright',
+        'license', 'since', 'property', 'method'
+    ];
+
+    /**
      * Creates an annotation with parsed data
      *
      * @param string $name
@@ -47,8 +55,15 @@ class Annotation implements AnnotationInterface
         $this->_name = $name;
         $this->_value = $parsedData;
         if (is_array($parsedData)) {
+            $first = reset($parsedData);
+            if ($first === true) {
+                $this->_value = key($parsedData);
+                array_shift($parsedData);
+            }
             $this->_parameters = array_merge($this->_parameters, $parsedData);
         }
+
+        $this->_checkCommonTags();
     }
 
     /**
@@ -84,5 +99,15 @@ class Annotation implements AnnotationInterface
             return $this->_parameters[$name];
         }
         return null;
+    }
+
+    /**
+     * Fix the parameters for string tags
+     */
+    protected function _checkCommonTags()
+    {
+        if (in_array($this->getName(), $this->_commonTags)) {
+            $this->_value = $this->_parameters['_raw'];
+        }
     }
 }

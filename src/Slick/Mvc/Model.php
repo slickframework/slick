@@ -74,13 +74,14 @@ abstract class Model extends Entity implements EntityInterface
         $properties = $this->modelData->getPropertyList();
         foreach ($properties as $property => $meta) {
             $name = trim($property, '_');
-            if ($meta->hasTag('@belongsTo')) {
+            /** @var Inspector\AnnotationsList $meta*/
+            if ($meta->hasAnnotation('@belongsTo')) {
                 /** @var BelongsTo $field */
                 $fk = $this->getRelationsManager()
                     ->getRelation($property)
                     ->getRelated()->primaryKey;
                 $data[$name] =  $this->$property->$fk;
-            } else if ($meta->hasTag('@column')) {
+            } else if ($meta->hasAnnotation('@column')) {
                 $data[$name] = $this->$property;
             }
         }

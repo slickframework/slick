@@ -205,11 +205,11 @@ class Router extends Base implements EventManagerAwareInterface
 
 
         $inspector = new Inspector($instance);
-        $methodMeta = $inspector->getMethodMeta($this->_action);
+        $methodMeta = $inspector->getMethodAnnotations($this->_action);
 
         if (
-            !empty($methodMeta['@protected']) ||
-            !empty($methodMeta['@private'])
+            $methodMeta->hasAnnotation('@protected') || //$methodMeta['@protected']) ||
+            $methodMeta->hasAnnotation('@private') // empty($methodMeta['@private'])
         ) {
             throw new Exception\ActionNotFoundException(
                 "Action {$this->_action} not found"
@@ -217,7 +217,7 @@ class Router extends Base implements EventManagerAwareInterface
         }
 
         /**
-         * @param Inspector\TagList $meta
+         * @param Inspector\AnnotationsList $meta
          * @param string $type
          */
         $hooks = function ($meta, $type) use ($inspector, $instance) {
@@ -226,16 +226,16 @@ class Router extends Base implements EventManagerAwareInterface
                 $run = array();
             }
 
-            if ($meta->hasTag($type)) {
-                $methods = $meta->getTag($type)->value;
+            if ($meta->hasAnnotation($type)) {
+                $methods = $meta->getAnnotation($type)->getValue();
                 if (is_string($methods)) {
-                    $methods = array($meta->getTag($type)->value);
+                    $methods = explode(', ', $meta->getAnnotation($type)->getParameter('_raw'));
                 }
                 foreach ($methods as $method) {
-                    $hookMeta = $inspector->getMethodMeta($method);
+                    $hookMeta = $inspector->getMethodAnnotations($method);
                     if (
                         in_array($method, $run) &&
-                        $hookMeta->hasTag('@once')
+                        $hookMeta->hasAnnotation('@once')
                     ) {
                         continue;
                     }

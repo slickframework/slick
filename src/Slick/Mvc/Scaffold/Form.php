@@ -12,7 +12,7 @@
 
 namespace Slick\Mvc\Scaffold;
 
-use Slick\Common\Inspector\TagList,
+use Slick\Common\Inspector\AnnotationsList,
     Slick\Form\Form as SlickFrom,
     Slick\Form\Element,
     Slick\Orm\Entity\Column,
@@ -80,26 +80,22 @@ class Form extends SlickFrom
      * Creates an element based on the notations of a property
      *
      * @param string $name
-     * @param TagList $property
+     * @param AnnotationsList $property
      *
      * @return false|Element
      */
-    protected function _createElement($name, TagList $property)
+    protected function _createElement($name, AnnotationsList $property)
     {
-        if ($property->hasTag('@belongsto')) {
+        if ($property->hasAnnotation('@belongsTo')) {
             $element = $this->_createFromRelation($name);
         } else {
             $element = $this->_createFromColumn($name, $property);
         }
 
-        if ($property->hasTag('@validate')) {
-            $validations = [];
-            $tag = $property->getTag('@validate');
-            $validations[] = $tag->value;
+        if ($property->hasAnnotation('@validate')) {
 
-            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-                $validations = $tag->value->getArrayCopy();
-            }
+            $tag = $property->getAnnotation('@validate');
+            $validations = explode(', ', $tag->getParameter('_raw'));
 
             foreach ($validations as $validation)
             {
@@ -115,14 +111,12 @@ class Form extends SlickFrom
             }
         }
 
-        if ($property->hasTag('@filter')) {
-            $filters = [];
-            $tag = $property->getTag('@filter');
-            $filters[] = $tag->value;
+        if ($property->hasAnnotation('@filter')) {
 
-            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-                $filters = $tag->value->getArrayCopy();
-            }
+            $tag = $property->getAnnotation('@filter');
+            $filters = explode(', ', $tag->getParameter('_raw'));
+
+
 
             foreach ($filters as $filter){
                 $element->getInput()->getFilterChain()
@@ -137,11 +131,11 @@ class Form extends SlickFrom
     /**
      * Creates a form element from column object
      * @param string  $name
-     * @param TagList $property
+     * @param AnnotationsList $property
      *
      * @return Element
      */
-    protected function _createFromColumn($name, TagList $property)
+    protected function _createFromColumn($name, AnnotationsList $property)
     {
         $column = Column::parse($property, $name);
 

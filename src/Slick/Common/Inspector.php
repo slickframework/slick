@@ -13,9 +13,10 @@
 namespace Slick\Common;
 
 use ReflectionClass;
+use Slick\Common\Exception\InvalidArgumentException;
 use Slick\Common\Inspector\AnnotationInterface;
 use Slick\Common\Inspector\AnnotationsList;
-use zpt\anno\AnnotationParser;
+use Slick\Common\Inspector\AnnotationParser;
 
 /**
  * Inspector uses PHP reflection to inspect classes or objects.
@@ -124,6 +125,35 @@ class Inspector
     }
 
     /**
+     * Retrieves the list of annotations of provided methods
+     *
+     * @param string $method
+     * @return AnnotationsList
+     *
+     * @throws Exception\InvalidArgumentException
+     */
+    public function getMethodAnnotations($method)
+    {
+        if (!$this->hasMethod($method)) {
+            $name = $this->_getReflection()->getName();
+            throw new Exception\InvalidArgumentException(
+                "The class {$name} doesn't have a property called {$method}"
+            );
+        }
+
+        if (empty($this->_annotations['methods'][$method])) {
+            $comment = $this->_getReflection()->getMethod($method)->getDocComment();
+            $data = AnnotationParser::getAnnotations($comment);
+            $methodAnnotations = new AnnotationsList();
+            foreach ($data as $property => $parsedData) {
+                $methodAnnotations->append($this->_createAnnotation($property, $parsedData));
+            }
+            $this->_annotations['methods'][$method] = $methodAnnotations;
+        }
+        return $this->_annotations['methods'][$method];
+    }
+
+    /**
      * Retrieves the list of class properties.
      *
      * @return \ArrayIterator An array with property names.
@@ -177,6 +207,29 @@ class Inspector
     public function hasProperty($name)
     {
         return $this->_getReflection()->hasProperty($name);
+    }
+
+    /**
+     * Adds a class to the annotations class map
+     *
+     * @param string $name
+     * @param string $class
+     * @throws Exception\InvalidArgumentException
+     */
+    public static function addAnnotationClass($name, $class)
+    {
+        $reflection = new ReflectionClass($class);
+        if (
+            !$reflection->implementsInterface(
+                'Slick\Common\Inspector\AnnotationInterface'
+            )
+        ) {
+            throw new InvalidArgumentException(
+                "{$class} does not implement " .
+                "Slick\Common\Inspector\AnnotationInterface interface"
+            );
+        }
+        static::$_classMap[$name] = $class;
     }
 
     /**

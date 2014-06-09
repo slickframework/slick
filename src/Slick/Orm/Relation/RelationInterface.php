@@ -10,6 +10,7 @@
  */
 
 namespace Slick\Orm\Relation;
+use Slick\Common\Inspector\Annotation;
 use Slick\Common\Inspector\Tag;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
@@ -91,13 +92,13 @@ interface RelationInterface
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag $tag
+     * @param Annotation $tag
      * @param Entity $entity
      * @param $property
      *
      * @return RelationInterface
      */
-    public static function create(Tag $tag, Entity &$entity, $property);
+    public static function create(Annotation $tag, Entity &$entity, $property);
 
     /**
      * Returns the property name that holds this relation

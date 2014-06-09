@@ -95,7 +95,8 @@ class EntityTest extends Test
         $this->assertEquals('_id', $columns['id']->raw);
         $this->assertFalse($columns['id']->index);
 
-        $this->assertEquals('required' ,$columns['name']->validate->value);
+        $col = $columns['name'];
+        $this->assertEquals('required' ,$columns['name']->validate);
         $this->assertEquals('text' ,$columns['name']->type);
 
 

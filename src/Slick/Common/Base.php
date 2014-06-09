@@ -103,10 +103,10 @@ abstract class Base implements Serializable
             if (in_array($property, $skip)) {
                 continue;
             }
-            $tags = $this->_inspector->getPropertyMeta($property);
+            $annotations = $this->_inspector->getPropertyAnnotations($property);
             $property = str_replace('_', '', $property);
             
-            if (!$tags->hasTag('@write')
+            if (!$annotations->hasAnnotation('@write')
                 && $this->$property != $object->$property
             ) {
                 return false;

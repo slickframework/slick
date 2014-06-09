@@ -12,6 +12,8 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Common\Inspector\Annotation;
+use Slick\Common\Inspector\AnnotationsList;
 use Slick\Common\Inspector\Tag;
 use Slick\Common\Inspector\TagValues;
 use Slick\Database\RecordList;
@@ -86,41 +88,25 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag $tag
+     * @param Annotation $tag
      * @param Entity $entity
      * @param $property
      *
      * @return RelationInterface
      */
-    public static function create(Tag $tag, Entity &$entity, $property)
+    public static function create(Annotation $tag, Entity &$entity, $property)
     {
 
         $className = null;
         $options = array();
 
-        if (is_string($tag->value)) {
-            $className = $tag->value;
-        }
+        $className = $tag->getValue();
 
-        if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-            $className = $tag->value[0];
-            $options['foreignKey'] = self::_getTagValue(
-                $tag->value,
-                'foreignKey'
-            );
-            $options['associationFk'] =
-                self::_getTagValue($tag->value, 'associationForeignKey');
-            $options['joinTable'] = self::_getTagValue(
-                $tag->value,
-                'joinTable'
-            );
-            $options['dependent'] = self::_getTagValue(
-                $tag->value,
-                'dependent',
-                true
-            );
-            $options['limit'] = self::_getTagValue($tag->value, 'limit');
-        }
+        $options['foreignKey'] = $tag->getParameter('foreignKey');
+        $options['associationFk'] = $tag->getParameter('associationForeignKey');
+        $options['joinTable'] = $tag->getParameter('joinTable');
+        $options['dependent'] = $tag->getParameter('dependent');
+        $options['limit'] = $tag->getParameter('limit');
 
         $options['entity'] = $entity;
         $options['related'] = $className;
@@ -170,29 +156,4 @@ class HasAndBelongsToMany extends AbstractMultipleEntityRelation
         return $result;
     }
 
-    /**
-     * Gets the tag value
-     *
-     * @param TagValues $values
-     * @param $tag
-     * @param bool $bool
-     * @param null $default
-     * @return bool|null|string
-     */
-    protected static function _getTagValue(
-        TagValues $values, $tag, $bool = false, $default = null)
-    {
-        $return = $default;
-        $tag = strtolower($tag);
-
-        if ($values->check($tag)) {
-            if ($bool) {
-                $return = (boolean) $values[$tag];
-            } else {
-                $return = $values[$tag];
-            }
-        }
-
-        return $return;
-    }
 }

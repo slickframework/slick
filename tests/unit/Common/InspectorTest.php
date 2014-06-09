@@ -130,7 +130,7 @@ class InspectorTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Slick\Common\Inspector\AnnotationsList', $result);
         $this->assertTrue($result->hasAnnotation('var'));
         $this->assertTrue($result['readwrite']->getValue());
-        $values = $result->getArrayCopy();
+
         $tag = $result['hasMany'];
         $this->assertEquals('test', $tag->getParameter('table'));
         $this->assertEquals('my_brand', $tag->getParameter('foreignKey'));
@@ -143,16 +143,17 @@ class InspectorTest extends \Codeception\TestCase\Test
     /**
      * Read method meta data
      * 
-     * test
+     * @test
      * @expectedException \Slick\Common\Exception\InvalidArgumentException
      */
     public function readMethodMetaData()
     {
-        $tags = $this->_inspector->getMethodMeta('start');
-        $this->assertEquals('\Exception', $tags->getTag('@throws')->value);
-        $this->assertEquals('boolean The car state', $tags->getTag('@return')->value);
-        $this->assertEquals(0, count($this->_inspector->getMethodMeta('stop')));
-        $this->_inspector->getMethodMeta('_unknown');
+        /** @var Inspector\AnnotationsList|Inspector\AnnotationInterface[] $tags */
+        $tags = $this->_inspector->getMethodAnnotations('start');
+        $this->assertEquals('\Exception', $tags->getAnnotation('@throws')->getValue());
+        $this->assertEquals('boolean The car state', $tags['return']->getValue());
+        $this->assertEquals(0, count($this->_inspector->getMethodAnnotations('stop')));
+        $this->_inspector->getMethodAnnotations('_unknown');
     }
 
     /**

@@ -13,6 +13,7 @@
 namespace Slick\Common\Inspector;
 
 use ArrayObject;
+use Codeception\Module\Slick;
 use Slick\Common\Exception;
 
 /**
@@ -30,7 +31,7 @@ class AnnotationsList extends ArrayObject
      * @param AnnotationInterface $annotation
      * @return AnnotationsList
      */
-    public function append(AnnotationInterface $annotation)
+    public function append($annotation)
     {
         $this->offsetSet(null, $annotation);
         return $this;
@@ -60,18 +61,6 @@ class AnnotationsList extends ArrayObject
     }
 
     /**
-     * Returns the value in the provided offset
-     *
-     * @param mixed $offset
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        $offset = strtolower($offset);
-        return parent::offsetGet($offset);
-    }
-
-    /**
      * Checks if current list contains an annotation with the provided name
      *
      * @param string $name
@@ -89,5 +78,25 @@ class AnnotationsList extends ArrayObject
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the annotation with the provided name
+     *
+     * @param string $name
+     * @return AnnotationInterface
+     *
+     * @throws \Slick\Common\Exception\InvalidArgumentException
+     */
+    public function getAnnotation($name)
+    {
+        if (!$this->hasAnnotation($name)) {
+            throw new Exception\InvalidArgumentException(
+                "Annotation {$name} is not found in this list."
+            );
+        }
+
+        $name = str_replace('@', '', $name);
+        return $this[$name];
     }
 } 

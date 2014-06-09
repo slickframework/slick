@@ -12,11 +12,11 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Common\Inspector;
 use Slick\Orm\Entity,
     Slick\Common\Base,
     Slick\Utility\ArrayObject,
-    Slick\Common\Inspector\TagList;
-use Slick\Orm\Exception\InvalidArgumentException;
+    Slick\Common\Inspector\AnnotationsList;
 
 /**
  * RelationManager
@@ -44,11 +44,11 @@ class RelationManager extends Base
     /**
      * @var array A list of available relations to build
      */
-    protected static $_classes = array(
-        '@HasOne' => '\Slick\Orm\Relation\HasOne',
-        '@BelongsTo' => '\Slick\Orm\Relation\BelongsTo',
-        '@HasMany' => '\Slick\Orm\Relation\HasMany',
-        '@HasAndBelongsToMAny' => '\Slick\Orm\Relation\HasAndBelongsToMany'
+    protected $_classes = array(
+        '@hasOne' => '\Slick\Orm\Relation\HasOne',
+        '@belongsTo' => '\Slick\Orm\Relation\BelongsTo',
+        '@hasMany' => '\Slick\Orm\Relation\HasMany',
+        '@hasAndBelongsToMany' => '\Slick\Orm\Relation\HasAndBelongsToMany'
     );
 
     /**
@@ -60,21 +60,22 @@ class RelationManager extends Base
     {
         $this->_relations = new ArrayObject();
         parent::__construct($options);
+
+
     }
 
     /**
      * Checks if a property is a relation, creating the relation if it is
      */
-    public function check(TagList $propertyMeta, $property, Entity &$entity)
+    public function check(AnnotationsList $propertyMeta, $property, Entity &$entity)
     {
-        foreach (static::$_classes as $tag => $class) {
-            $tag = strtolower($tag);
-            if ($propertyMeta->hasTag($tag)) {
+        foreach ($this->_classes as $tag => $class) {
+            if ($propertyMeta->hasAnnotation($tag)) {
 
                 $this->_relations[$property] = call_user_func_array(
                     [$class, 'create'],
                     [
-                        $propertyMeta->getTag($tag),
+                        $propertyMeta->getAnnotation($tag),
                         $entity,
                         trim($property, '_')
                     ]

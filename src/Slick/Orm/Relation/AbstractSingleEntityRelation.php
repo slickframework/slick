@@ -11,7 +11,7 @@
  */
 
 namespace Slick\Orm\Relation;
-use Slick\Common\Inspector\Tag;
+use Slick\Common\Inspector\Annotation;
 use Slick\Orm\Entity;
 use Slick\Orm\Exception;
 use Zend\EventManager\Event;
@@ -68,13 +68,16 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      */
     public function getType()
     {
+        if (is_null($this->_type) || empty($this->_type)) {
+            $this->_type = static::JOIN_LEFT;
+        }
         return $this->_type;
     }
 
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag $tag
+     * @param Annotation $tag
      * @param Entity $entity
      * @param string $property Property name
      *
@@ -85,26 +88,17 @@ abstract class AbstractSingleEntityRelation extends AbstractRelation
      *
      * @return AbstractSingleEntityRelation
      */
-    public static function create(Tag $tag, Entity &$entity, $property)
+    public static function create(Annotation $tag, Entity &$entity, $property)
     {
         $options = ['entity' => $entity];
         $className = null;
         $elfName = get_called_class();
 
-        if (is_string($tag->value)) {
-            $className = $tag->value;
-        }
+        $className = $tag->getValue();
 
-        if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-            $className = $tag->value[0];
-            $options['foreignKey'] = $tag->value['foreignkey'];
-            if ($tag->value->check('dependent')) {
-                $options['dependent'] = (boolean) $tag->value['dependent'];
-            }
-            if ($tag->value->check('type')) {
-                $options['type'] = strtoupper($tag->value['type']);
-            }
-        }
+        $options['foreignKey'] = $tag->getParameter('foreignKey');
+        $options['dependent'] = $tag->getParameter('dependent');
+        $options['type'] = strtoupper($tag->getParameter('type'));
 
         if (!class_exists($className)) {
             throw new Exception\UndefinedClassException(

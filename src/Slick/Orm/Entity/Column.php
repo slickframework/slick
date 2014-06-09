@@ -12,6 +12,7 @@
 
 namespace Slick\Orm\Entity;
 use Slick\Common\Base;
+use Slick\Common\Inspector\AnnotationsList;
 use Slick\Common\Inspector\TagList;
 
 /**
@@ -98,7 +99,7 @@ class Column extends Base
     /**
      * Parses metadata to create a column
      *
-     * @param TagList $metaData Property meta data
+     * @param AnnotationsList $metaData Property meta data
      * @param string  $property Property name
      *
      * @return Column It wil return a column object or a boolean false it the
@@ -106,42 +107,30 @@ class Column extends Base
      */
     public static function parse($metaData, $property)
     {
-        if (!$metaData->hasTag("@column")) {
+        if (!$metaData->hasAnnotation("@column")) {
             return false;
         }
-
+        $columnAnnotation = $metaData->getAnnotation("@column");
         return new Column(
             [
                 'raw' => $property,
                 'name' => preg_replace('#^_#', '', $property),
-                'primaryKey' => (
-                        is_object($metaData->getTag("@column")->value)
-                    ) ?
-                    $metaData->getTag("@column")->value->check('primary') :
-                    false,
-                'unsigned' => (is_object($metaData->getTag("@column")->value)) ?
-                    $metaData->getTag("@column")->value->check('unsigned') :
-                    false,
-                'type' => (isset($metaData->getTag("@column")->value['type'])) ?
-                    $metaData->getTag("@column")->value['type'] :
-                    null,
-                'length' => (
-                        isset($metaData->getTag("@column")->value['length'])
-                    ) ?
-                    $metaData->getTag("@column")->value['length'] :
-                    null,
-                'size' => (isset($metaData->getTag("@column")->value['size'])) ?
-                    $metaData->getTag("@column")->value['size'] :
-                    null,
-                'index' => $metaData->hasTag("@index"),
+                'primaryKey' => $columnAnnotation->getParameter('primary'),
+                'unsigned' => $columnAnnotation->getParameter('unsigned'),
+                'type' => $columnAnnotation->getParameter('type'),
+                'length' => $columnAnnotation->getParameter('length'),
+                'size' => $columnAnnotation->getParameter('size'),
+                'index' => $columnAnnotation->getParameter('index'),
                 'write' =>
-                    $metaData->hasTag("@readwrite") ||
-                    $metaData->hasTag("@write"),
+                    $metaData->hasAnnotation("@readwrite") ||
+                    $metaData->hasAnnotation("@write"),
                 'read' =>
-                    $metaData->hasTag("@readwrite") ||
-                    $metaData->hasTag("@read"),
-                'validate' => $metaData->getTag("@validate"),
-                'label' => $metaData->getTag("@label")
+                    $metaData->hasAnnotation("@readwrite") ||
+                    $metaData->hasAnnotation("@read"),
+                'validate' => ($metaData->hasAnnotation('@validate')) ?
+                        $metaData->getAnnotation("@validate")->getParameter('_raw'):null,
+                'label' => ($metaData->hasAnnotation('@label')) ?
+                        $metaData->getAnnotation("@label")->getParameter('_raw'):null
             ]
         );
     }

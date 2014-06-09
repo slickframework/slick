@@ -110,6 +110,13 @@ class AbstractEntity extends Base implements ContainerAwareInterface
     public function __construct($options = array())
     {
         parent::__construct();
+
+        Inspector::addAnnotationClass('column', 'Slick\Orm\Entity\ColumnAnnotation');
+        Inspector::addAnnotationClass('hasAndBelongsToMany', 'Slick\Orm\Relation\RelationAnnotation');
+        Inspector::addAnnotationClass('belongsTo', 'Slick\Orm\Relation\RelationAnnotation');
+        Inspector::addAnnotationClass('hasMany', 'Slick\Orm\Relation\RelationAnnotation');
+        Inspector::addAnnotationClass('hasOne', 'Slick\Orm\Relation\RelationAnnotation');
+
         $columns = $this->getColumns();
         if (!$columns->hasPrimaryKey()) {
             throw new Exception\PrimaryKeyException(
@@ -119,6 +126,8 @@ class AbstractEntity extends Base implements ContainerAwareInterface
 
         $this->_raw = $options;
         $this->_hydrate($options);
+
+
     }
 
     /**
@@ -168,7 +177,7 @@ class AbstractEntity extends Base implements ContainerAwareInterface
             $this->_columns[$name] = new ColumnList();
 
             foreach ($properties as $property)  {
-                $propertyMeta = $inspector->getPropertyMeta($property);
+                $propertyMeta = $inspector->getPropertyAnnotations($property);
                 $column = Column::parse($propertyMeta, $property);
                 if ($column) {
                     $this->_columns[$name]->append($column);

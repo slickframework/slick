@@ -51,7 +51,7 @@ class ModelData extends Base
 
     /**
      * @read
-     * @var Inspector\TagList[]
+     * @var Inspector\AnnotationsList|Inspector\Annotation[]
      */
     protected $_propertyList;
 
@@ -99,7 +99,7 @@ class ModelData extends Base
      * @param boolean $external If its set to true it will return the
      * column names only
      *
-     * @return Inspector\TagList[]
+     * @return array
      */
     public function getPropertyList($external = false)
     {
@@ -107,11 +107,11 @@ class ModelData extends Base
             $inspector = $this->getInspector();
 
             foreach($inspector->getClassProperties() as $property) {
-                $propertyData = $inspector->getPropertyMeta($property);
+                $propertyData = $inspector->getPropertyAnnotations($property);
                 if (
-                    $propertyData->hasTag('@column') ||
-                    $propertyData->hasTag('@hasOne') ||
-                    $propertyData->hasTag('@belongsTo')
+                    $propertyData->hasAnnotation('@column') ||
+                    $propertyData->hasAnnotation('@hasOne') ||
+                    $propertyData->hasAnnotation('@belongsTo')
                 ) {
                     $this->_propertyList[$property] = $propertyData;
                 }
@@ -140,7 +140,6 @@ class ModelData extends Base
     public function getDisplayField()
     {
         if (is_null($this->_displayField)) {
-            /** @var Inspector\TagList[] $properties */
             $properties = array_reverse($this->getPropertyList(), true);
             foreach ($properties as $name => $prop) {
                 $name = trim($name, '_');
@@ -148,7 +147,7 @@ class ModelData extends Base
                     continue;
                 }
 
-                if ($prop->hasTag('@display')) {
+                if ($prop->hasAnnotation('@display')) {
                     $this->_displayField = $name;
                     break;
                 }

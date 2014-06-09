@@ -12,7 +12,7 @@
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Tag;
+use Slick\Common\Inspector\Annotation;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
@@ -37,7 +37,7 @@ class BelongsTo extends AbstractSingleEntityRelation
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag $tag
+     * @param Annotation $tag
      * @param Entity $entity
      * @param string $property Property name
      *
@@ -48,7 +48,7 @@ class BelongsTo extends AbstractSingleEntityRelation
      *
      * @return BelongsTo
      */
-    public static function create(Tag $tag, Entity &$entity, $property)
+    public static function create(Annotation $tag, Entity &$entity, $property)
     {
         /** @var BelongsTo $relation */
         $relation = parent::create($tag, $entity, $property);

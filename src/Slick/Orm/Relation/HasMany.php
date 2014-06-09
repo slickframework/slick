@@ -12,7 +12,7 @@
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Tag;
+use Slick\Common\Inspector\Annotation;
 use Slick\Database\RecordList;
 use Slick\Orm\Entity;
 use Slick\Orm\EntityInterface;
@@ -31,7 +31,7 @@ class HasMany extends AbstractMultipleEntityRelation
      * @readwrite
      * @var bool BelongsTo defines related as dependent
      */
-    protected $_dependent = true;
+    protected $_dependent;
 
     /**
      * Returns foreign key name
@@ -50,39 +50,22 @@ class HasMany extends AbstractMultipleEntityRelation
     /**
      * Creates a relation from notation tag
      *
-     * @param Tag $tag
+     * @param Annotation $tag
      * @param Entity $entity
      * @param string $property
      *
      * @return HasMany
      */
-    public static function create(Tag $tag, Entity &$entity, $property)
+    public static function create(Annotation $tag, Entity &$entity, $property)
     {
         $options = ['entity' => $entity];
         $className = null;
 
-        if (is_string($tag->value)) {
-            $className = $tag->value;
-        }
-
-        if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-            $className = $tag->value[0];
-
-            $options['foreignKey'] = ($tag->value->check('foreignkey')) ?
-                $tag->value['foreignkey'] : null;
-
-            if ($tag->value->check('dependent')) {
-                $options['dependent'] = (boolean) $tag->value['dependent'];
-            }
-
-            if ($tag->value->check('limit')) {
-                $options['limit'] = $tag->value['limit'];
-            }
-        }
-
-
+        $className = $tag->getValue();
+        $options['foreignKey'] = $tag->getParameter('foreignKey');
+        $options['dependent'] = $tag->getParameter('dependent');
+        $options['limit'] = $tag->getParameter('limit');
         $options['related'] = $className;
-
         $relation = new HasMany($options);
         return $relation;
     }

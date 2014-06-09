@@ -91,7 +91,7 @@ class Tag extends Entity
 
     /**
      * @readwrite
-     * @HasAndBelongsToMany Orm\Relation\Post, joinTable=postsTags, associationForeignKey=PostId
+     * @hasAndBelongsToMany Orm\Relation\Post, joinTable=postsTags, associationForeignKey=PostId
      * @var Post[]
      */
     protected $_posts;

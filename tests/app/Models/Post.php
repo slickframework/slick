@@ -16,7 +16,7 @@ class Post extends Model
 {
     /**
      * @readwrite
-     * @column type=integer, primaryKey, autoIncrement
+     * @column type=integer, primary, autoIncrement
      * @var int
      */
     protected $_id;

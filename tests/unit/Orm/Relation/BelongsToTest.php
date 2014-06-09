@@ -104,7 +104,7 @@ class FooBt extends Entity
 
     /**
      * @readwrite
-     * @BelongsTo Orm\Relation\BarBt
+     * @belongsTo Orm\Relation\BarBt
      * @var BarBt
      */
     protected $_bar;
@@ -143,7 +143,7 @@ class BarBt extends Entity
     protected $_type;
 
     /**
-     * @HasOne Orm\Relation\FooBt
+     * @hasOne Orm\Relation\FooBt
      * @var BarBt
      */
     protected $_foo;

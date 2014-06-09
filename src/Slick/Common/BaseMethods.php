@@ -12,6 +12,7 @@
 
 namespace Slick\Common;
 
+use Slick\Common\Inspector\AnnotationsList;
 use Slick\Common\Inspector\TagList;
 use Slick\Utility\Text;
 
@@ -111,10 +112,13 @@ trait BaseMethods {
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
-            /** @var TagList $tags */
-            $tags = $this->_inspector->getPropertyMeta($property);
+            /** @var AnnotationsList $annotations */
+            $annotations = $this->_inspector->getPropertyAnnotations($property);
 
-            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
+            if (
+                !$annotations->hasAnnotation('@readwrite') &&
+                !$annotations->hasAnnotation('@read')
+            ) {
                 $className = get_class($this);
                 throw new Exception\WriteOnlyException(
                     "Trying to read the values of a write only property."
@@ -145,9 +149,12 @@ trait BaseMethods {
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
-            $tags = $this->_inspector->getPropertyMeta($property);
-            /** @var TagList $tags */
-            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@write')) {
+            $annotations = $this->_inspector->getPropertyAnnotations($property);
+            /** @var AnnotationsList $annotations */
+            if (
+                !$annotations->hasAnnotation('@readwrite') &&
+                !$annotations->hasAnnotation('@write')
+            ) {
                 $className = get_class($this);
                 throw new Exception\ReadOnlyException(
                     "Trying to assign a value to a read only property."
@@ -184,10 +191,13 @@ trait BaseMethods {
         $property = "_{$normalized}";
 
         if (property_exists($this, $property)) {
-            /** @var TagList $tags */
-            $tags = $this->_inspector->getPropertyMeta($property);
+            /** @var AnnotationsList $annotations */
+            $annotations = $this->_inspector->getPropertyAnnotations($property);
 
-            if (!$tags->hasTag('@readwrite') && !$tags->hasTag('@read')) {
+            if (
+                !$annotations->hasAnnotation('@readwrite') &&
+                !$annotations->hasAnnotation('@read')
+            ) {
                 $className = get_class($this);
                 throw new Exception\WriteOnlyException(
                     "Trying to read the values of a write only property."

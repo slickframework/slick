@@ -131,14 +131,14 @@ class Foo extends Entity
 
     /**
      * @readwrite
-     * @HasOne \Orm\Relation\Bar
+     * @hasOne \Orm\Relation\Bar
      * @var Bar
      */
     protected $_bar;
 
     /**
      * @readwrite
-     * @HasOne \Orm\Relation\Baz, dependent=0, type=inner, foreignKey=fooId
+     * @hasOne \Orm\Relation\Baz, dependent=false, type=inner, foreignKey=fooId
      * @var Baz
      */
     protected $_baz;
@@ -223,7 +223,7 @@ class FooUndefined extends Entity
     protected $_id;
 
     /**
-     * @HasOne \Unknown\Name\Space\Class
+     * @hasOne \Unknown\Name\Space\Class
      * @var mixed
      */
     protected $_foo;
@@ -244,7 +244,7 @@ class BarNotEntity extends Entity
     protected $_id;
 
     /**
-     * @HasOne \StdClass
+     * @hasOne \StdClass
      * @var mixed
      */
     protected $_foo;

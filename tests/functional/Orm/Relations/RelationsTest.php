@@ -240,7 +240,7 @@ class Post extends Entity
 
     /**
      * @readwrite
-     * @HasAndBelongsToMany Orm\Relations\Tag, joinTable=post_tags
+     * @hasAndBelongsToMany Orm\Relations\Tag, joinTable=post_tags
      * @var Tag[]
      */
     protected $_tags;
@@ -296,7 +296,7 @@ class Tag extends Entity
 
     /**
      * @readwrite
-     * @HasAndBelongsToMany Orm\Relations\Post, joinTable=post_tags
+     * @hasAndBelongsToMany Orm\Relations\Post, joinTable=post_tags
      * @var Post[]
      */
     protected $_posts;
