@@ -25,7 +25,7 @@ class AnnotationParser
      * Annotation regular expression
      */
     const ANNOTATION_REGEX = '/@(\w+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/';
-    const ANNOTATION_PARAMETERS_REGEX = '/([\w]+\s*=\s*[\[\{]{1}[\w,\\\\\s:"\{\[\]\}]+[\}\]]{1})|([\w]+\s*=\s*[\\\\\w]+)|([\\\\\w]+)/i';
+    const ANNOTATION_PARAMETERS_REGEX = '/([\w]+\s*=\s*[\[\{"]{1}[\w,\\\\\s:\."\{\[\]\}]+[\}\]""]{1})|([\w]+\s*=\s*[\\\\\w\.]+)|([\\\\\w]+)/i';
 
     public static function getAnnotations($comment)
     {
@@ -77,10 +77,11 @@ class AnnotationParser
     private static function _getNameValuePair($part)
     {
         $parts = explode("=", $part, 2);
+        $pair = ['name' => $parts[0], 'value' => true];
         if (isset($parts[1])) {
-            return ['name' => $parts[0], 'value'=> static::_parseValue($parts[1])];
+            $pair = ['name' => $parts[0], 'value'=> static::_parseValue($parts[1])];
         }
-        return ['name' => $parts[0], 'value' => true];
+        return $pair;
     }
 
     /**
@@ -125,10 +126,11 @@ class AnnotationParser
                 return (float) $val;
             }
 
-        } else {
-            // Nothing special, just return as a string
-            return $val;
         }
+
+        // Nothing special, just return as a string
+        return $val;
+
     }
 
 } 
