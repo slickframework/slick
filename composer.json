@@ -23,8 +23,7 @@
         "myclabs/php-enum": "1.*"
 	},
     "require-dev": {
-        "codeception/codeception": "1.8.*@dev",
-        "phpmd/phpmd" : "1.4.*"
+        "codeception/codeception": "1.8.*@dev"
     },
 	"replace" : {
 		"slick/common" : "self.version",
