@@ -52,7 +52,8 @@ class AnnotationsList extends ArrayObject
     public function offsetSet($offset, $value)
     {
         if ($value instanceof AnnotationInterface) {
-            parent::offsetSet($value->getName(), $value);
+            $offset = $value->getName();
+            parent::offsetSet($offset, $value);
         } else {
             throw new Exception\InvalidArgumentException(
                 "Only annotation objects can be added to an AnnotationsList."

@@ -23,9 +23,12 @@ class AnnotationParser
 
     /**
      * Annotation regular expression
+     *
+     * @codingStandardsIgnoreStart
      */
     const ANNOTATION_REGEX = '/@(\w+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/';
     const ANNOTATION_PARAMETERS_REGEX = '/([\w]+\s*=\s*[\[\{"]{1}[\w,\\\\\s:\."\{\[\]\}]+[\}\]""]{1})|([\w]+\s*=\s*[\\\\\w\.]+)|([\\\\\w]+)/i';
+    // @codingStandardsIgnoreEnd
 
     public static function getAnnotations($comment)
     {
@@ -55,7 +58,7 @@ class AnnotationParser
                     )
                 ) {
                     $value = [];
-                    foreach($result[0] as $part) {
+                    foreach ($result[0] as $part) {
                         $param = static::_getNameValuePair($part);
                         $value[$param['name']] = $param['value'];
                     }
@@ -79,7 +82,10 @@ class AnnotationParser
         $parts = explode("=", $part, 2);
         $pair = ['name' => $parts[0], 'value' => true];
         if (isset($parts[1])) {
-            $pair = ['name' => $parts[0], 'value'=> static::_parseValue($parts[1])];
+            $pair = [
+                'name' => $parts[0],
+                'value'=> static::_parseValue($parts[1])
+            ];
         }
         return $pair;
     }
@@ -90,8 +96,9 @@ class AnnotationParser
      * @param string $value
      * @return array|bool|float|int|mixed|string
      */
-    private static function _parseValue($value) {
-        $val = trim($value);
+    private static function _parseValue($value)
+    {
+        $val = trim(trim($value), '"');
 
         if (substr($val, 0, 1) == '[' && substr($val, -1) == ']') {
             // Array values
@@ -105,10 +112,10 @@ class AnnotationParser
         } else if (substr($val, 0, 1) == '{' && substr($val, -1) == '}') {
             // If is json object that start with { } decode them
             return json_decode($val);
-        } else if (substr($val, 0, 1) == '"' && substr($val, -1) == '"') {
+        /* } else if (substr($val, 0, 1) == '"' && substr($val, -1) == '"') {
             // Quoted value, remove the quotes then recursively parse and return
             $val = substr($val, 1, -1);
-            return self::_parseValue($val);
+            return self::_parseValue($val);*/
 
         } else if (strtolower($val) == 'true') {
             // Boolean value = true
@@ -119,18 +126,21 @@ class AnnotationParser
             return false;
 
         } else if (is_numeric($val)) {
-            // Numeric value, determine if int or float and then cast
-            if ((float) $val == (int) $val) {
-                return (int) $val;
-            } else {
-                return (float) $val;
-            }
-
+            return static::_checkNumberValue($val);
         }
 
         // Nothing special, just return as a string
         return $val;
 
+    }
+
+    private static function _checkNumberValue($val)
+    {
+        // Numeric value, determine if int or float and then cast
+        if ((float) $val == (int) $val) {
+            return (int) $val;
+        }
+        return (float) $val;
     }
 
 } 

@@ -13,7 +13,6 @@
 namespace Slick\Common;
 
 use Slick\Common\Inspector\AnnotationsList;
-use Slick\Common\Inspector\TagList;
 use Slick\Utility\Text;
 
 /**
@@ -23,7 +22,8 @@ use Slick\Utility\Text;
  * @package   Slick\Common
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-trait BaseMethods {
+trait BaseMethods
+{
 
     /**
      * Handles the call for unimplemented methods.

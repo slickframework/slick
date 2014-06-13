@@ -111,7 +111,9 @@ class Inspector
         }
 
         if (empty($this->_annotations['properties'][$property])) {
-            $comment = $this->_getReflection()->getProperty($property)->getDocComment();
+            $comment = $this->_getReflection()
+                ->getProperty($property)
+                ->getDocComment();
             $data = AnnotationParser::getAnnotations($comment);
             $propertyAnnotations = new AnnotationsList();
             foreach ($data as $property => $parsedData) {
@@ -142,11 +144,15 @@ class Inspector
         }
 
         if (empty($this->_annotations['methods'][$method])) {
-            $comment = $this->_getReflection()->getMethod($method)->getDocComment();
+            $comment = $this->_getReflection()
+                ->getMethod($method)
+                ->getDocComment();
             $data = AnnotationParser::getAnnotations($comment);
             $methodAnnotations = new AnnotationsList();
             foreach ($data as $property => $parsedData) {
-                $methodAnnotations->append($this->_createAnnotation($property, $parsedData));
+                $methodAnnotations->append(
+                    $this->_createAnnotation($property, $parsedData)
+                );
             }
             $this->_annotations['methods'][$method] = $methodAnnotations;
         }
@@ -260,6 +266,6 @@ class Inspector
         }
 
         $classReflection = new ReflectionClass($class);
-        return $classReflection->newInstanceArgs(compact('name', 'parsedData'));
+        return $classReflection->newInstanceArgs([$name, $parsedData]);
     }
 } 
