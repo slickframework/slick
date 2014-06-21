@@ -30,7 +30,7 @@ class AdapterFactoryTest extends \Codeception\TestCase\Test
      */
     public function initializeMysqlAdapter()
     {
-        $adapter = new Adapter(['driver' => 'Mysql', 'options' => []]);
+        $adapter = new Adapter(['driver' => 'Mysql', 'options' => ['autoConnect' => false]]);
         $this->assertInstanceOf('Slick\Database\Adapter', $adapter);
         $adapter = $adapter->initialize();
         $this->assertInstanceOf('Slick\Database\Adapter\AdapterInterface', $adapter);
@@ -56,7 +56,8 @@ class AdapterFactoryTest extends \Codeception\TestCase\Test
     {
         $adapter = new Adapter(
             [
-                'driver' => 'Database\CustomAdapter'
+                'driver' => 'Database\CustomAdapter',
+                'options' => ['autoConnect' => false]
             ]
         );
         $adapter = $adapter->initialize();
@@ -67,7 +68,7 @@ class AdapterFactoryTest extends \Codeception\TestCase\Test
                 'driver' => 'Database\CustomClass'
             ]
         );
-        $adapter = $adapter->initialize();
+        $adapter->initialize();
     }
 }
 

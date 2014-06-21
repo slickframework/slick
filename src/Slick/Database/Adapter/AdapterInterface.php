@@ -12,10 +12,10 @@
 
 namespace Slick\Database\Adapter;
 
-use Slick\Database\RecordList,
-    Slick\Database\Sql\SqlInterface,
-    Slick\Database\Exception\ServiceException,
-    Slick\Database\Exception\SqlQueryException;
+use Slick\Database\RecordList;
+use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Exception\ServiceException;
+use Slick\Database\Exception\SqlQueryException;
 
 /**
  * Main interface for a database adapter

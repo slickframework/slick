@@ -46,7 +46,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @readwrite
      * @var string
      */
-    protected $_charset = 'utf-8';
+    protected $_charset = 'utf8';
 
     /**
      * @readwrite
@@ -72,12 +72,14 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
         $dsn = $dsn = "mysql:host={$this->_host};port={$this->_port}" .
             "dbname={$this->_database};charset={$this->_charset}";
         try {
-            $this->_handler = new PDO(
+            $class = $this->_handlerClass;
+            $this->_handler = new $class(
                 $dsn,
                 $this->_username,
                 $this->_password,
                 [PDO::ERRMODE_EXCEPTION]
             );
+            $this->_connected = true;
         } catch (\PDOException $exp) {
             throw new ServiceException(
                 "An error occurred when trying to connect to database " .

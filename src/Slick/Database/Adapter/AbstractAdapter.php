@@ -61,7 +61,13 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      * @readwrite
      * @var bool
      */
-    protected $_autoConnected = true;
+    protected $_autoConnect = true;
+
+    /**
+     * @write
+     * @var string
+     */
+    protected $_handlerClass = '\PDO';
 
     /**
      * Auto connects if the auto connect flag is set to true
@@ -70,7 +76,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     public function __construct($options = [])
     {
         parent::__construct($options);
-        if ($this->_autoConnected) {
+        if ($this->_autoConnect) {
             $this->connect();
         }
     }
@@ -120,7 +126,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
 
         $query = $sql;
         if (is_object($sql)) {
-            if (!(!$sql instanceof SqlInterface)) {
+            if (!($sql instanceof SqlInterface)) {
                 throw new InvalidArgumentException(
                     "The SQL provided is not a string or does not " .
                     "implements the Slick\Database\Sql\SqlInterface interface."
@@ -171,7 +177,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
 
         $query = $sql;
         if (is_object($sql)) {
-            if (!(!$sql instanceof SqlInterface)) {
+            if (!($sql instanceof SqlInterface)) {
                 throw new InvalidArgumentException(
                     "The SQL provided is not a string or does not " .
                     "implements the Slick\Database\Sql\SqlInterface interface."
@@ -194,7 +200,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
             );
         }
 
-        $this->_affectedRows;
+        return $this->_affectedRows;
     }
 
     /**
