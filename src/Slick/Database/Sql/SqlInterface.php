@@ -12,6 +12,8 @@
 
 namespace Slick\Database\Sql;
 
+use Slick\Database\Adapter\AbstractAdapter;
+
 /**
  * Sql interface
  *
@@ -27,5 +29,13 @@ interface SqlInterface
      * @return string
      */
     public function getQueryString();
+
+    /**
+     * Sets the adapter for this statement
+     *
+     * @param AbstractAdapter $adapter
+     * @return SqlInterface
+     */
+    public function setAdapter(AbstractAdapter $adapter);
 
 } 

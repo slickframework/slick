@@ -221,13 +221,13 @@ class Handler extends PDO
     }
 
 
-    public function prepare($sql)
+    public function prepare($statement, $options = null)
     {
-        static::$lastSql = $sql;
+        static::$lastSql = $statement;
         return new Statement($this);
     }
 
-    public function lastInsertId()
+    public function lastInsertId($seqname = null)
     {
         return static::$lastId;
     }
@@ -262,7 +262,7 @@ class Statement extends \PDOStatement
         return static::$rowCount;
     }
 
-    public function fetchAll($fetch_style = null, $fetch_argument = null, array $ctor_args = array())
+    public function fetchAll($how = null, $class_name = null, $ctor_args = array())
     {
         static::$rowCount = count(static::$rows);
         return static::$rows;
@@ -281,5 +281,16 @@ class CustomSql implements SqlInterface
     public function getQueryString()
     {
         return $this->queryString;
+    }
+
+    /**
+     * Sets the adapter for this statement
+     *
+     * @param AbstractAdapter $adapter
+     * @return SqlInterface
+     */
+    public function setAdapter(AbstractAdapter $adapter)
+    {
+
     }
 }
