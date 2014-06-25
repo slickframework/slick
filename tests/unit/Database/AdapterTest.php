@@ -286,10 +286,10 @@ class CustomSql implements SqlInterface
     /**
      * Sets the adapter for this statement
      *
-     * @param AbstractAdapter $adapter
+     * @param AdapterInterface $adapter
      * @return SqlInterface
      */
-    public function setAdapter(AbstractAdapter $adapter)
+    public function setAdapter(AdapterInterface $adapter)
     {
 
     }

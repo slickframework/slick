@@ -60,8 +60,10 @@ trait WhereMethods
                             $this->_parameters[] = $value;
                         }
                     }
-                } else {
+                } elseif (!is_numeric($predicate)) {
                     $this->_parameters[] = $param;
+                } else {
+                    $predicate = $param;
                 }
                 $conditions[] = $predicate;
             }
