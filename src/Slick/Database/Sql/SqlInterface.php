@@ -12,7 +12,7 @@
 
 namespace Slick\Database\Sql;
 
-use Slick\Database\Adapter\AbstractAdapter;
+use Slick\Database\Adapter\AdapterInterface;
 
 /**
  * Sql interface
@@ -33,9 +33,9 @@ interface SqlInterface
     /**
      * Sets the adapter for this statement
      *
-     * @param AbstractAdapter $adapter
+     * @param AdapterInterface $adapter
      * @return SqlInterface
      */
-    public function setAdapter(AbstractAdapter $adapter);
+    public function setAdapter(AdapterInterface $adapter);
 
 } 

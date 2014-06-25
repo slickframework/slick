@@ -70,6 +70,12 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     protected $_handlerClass = '\PDO';
 
     /**
+     * @write
+     * @var string
+     */
+    protected $_dialect = 'standard';
+
+    /**
      * Auto connects if the auto connect flag is set to true
      * @param array $options
      */
@@ -267,6 +273,16 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     {
         $isValidService = $this->_handler instanceof PDO;
         return $this->_connected && $isValidService;
+    }
+
+    /**
+     * Returns the dialect used in SQL language
+     *
+     * @return string
+     */
+    public function getDialect()
+    {
+        return $this->_dialect;
     }
 
     /**

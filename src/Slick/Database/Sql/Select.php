@@ -1,29 +1,72 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 6/23/14
- * Time: 9:36 PM
+ * Select SQL statement
+ *
+ * @package   Slick\Database\Sql
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Database\Sql;
 
+use Slick\Database\Sql\Select\Join;
 
+/**
+ * Select SQL statement
+ *
+ * @package   Slick\Database\Sql
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
 class Select extends AbstractSql implements SqlInterface
 {
 
-    protected $_fields;
+    /**
+     * @var string
+     */
+    private $alias;
 
-    protected $_joins = [];
+    /**
+     * @var string
+     */
+    private $_table;
 
-    protected $_limit = 100;
+    /**
+     * @var string
+     */
+    private $_order;
 
-    protected $_offset = 0;
+    /**
+     * @var string|string[]
+     */
+    private $_fields;
 
-    protected $_table;
+    /**
+     * @var Join[]
+     */
+    private $_joins = [];
 
-    protected $_order;
+    /**
+     * @var int
+     */
+    private $_offset = 0;
+
+    /**
+     * @var int
+     */
+    private $_limit = 100;
+
+    /**
+     * @var bool
+     */
+    private $_distinct = false;
+
+    /**
+     * Use where clause constructor methods
+     */
+    use WhereMethods;
 
     /**
      * Creates the sql with the table name and fields
@@ -47,13 +90,97 @@ class Select extends AbstractSql implements SqlInterface
         // TODO: Implement getQueryString() method.
     }
 
-    public function orderBy($orderBy)
+    /**
+     * @return string|\string[]
+     */
+    public function getFields()
     {
-        // TODO: Implement orderBy() method.
+        return $this->_fields;
     }
 
-    public function limit($limit, $offset = 0)
+    /**
+     * @return \Slick\Database\Sql\Select\Join[]
+     */
+    public function getJoins()
     {
-        // TODO: Implement limit() method.
+        return $this->_joins;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLimit()
+    {
+        return $this->_limit;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->_offset;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrder()
+    {
+        return $this->_order;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->_table;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * Checks if the select query uses the DISTINCT keyword
+     *
+     * @return bool
+     */
+    public function isDistinct()
+    {
+        return $this->_distinct;
+    }
+
+    /**
+     * Enables or disables the DISTINCT keyword in select
+     *
+     * @param bool $mode
+     *
+     * @return Select
+     */
+    public function setDistinct($mode = true)
+    {
+        $this->_distinct = $mode;
+        return $this;
+    }
+
+    public function first()
+    {
+
+    }
+
+    public function all()
+    {
+
+    }
+
+    public function count()
+    {
+
     }
 }

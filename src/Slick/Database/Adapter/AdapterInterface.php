@@ -103,4 +103,11 @@ interface AdapterInterface
      * @return mixed
      */
     public function getHandler();
+
+    /**
+     * Returns the dialect used in SQL language
+     *
+     * @return string
+     */
+    public function getDialect();
 } 

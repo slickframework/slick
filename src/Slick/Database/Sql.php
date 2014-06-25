@@ -11,7 +11,9 @@
  */
 
 namespace Slick\Database;
-use Zend\Validator\Barcode\AdapterInterface;
+
+use Slick\Database\Sql\Select;
+use Slick\Database\Adapter\AdapterInterface;
 
 /**
  * Sql factory class
@@ -36,8 +38,31 @@ class Sql
         $this->_adapter = $adapter;
     }
 
-    public function select()
+    /**
+     * Creates an SQL factory object
+     *
+     * @param AdapterInterface $adapter
+     *
+     * @return Sql
+     */
+    public static function createSql(AdapterInterface $adapter)
     {
+        $sql = new Sql($adapter);
+        return $sql;
+    }
 
+    /**
+     * Creates a Select statement object
+     *
+     * @param string $tableName
+     * @param array|string $fields
+     *
+     * @return Select
+     */
+    public function select($tableName, $fields = ['*'])
+    {
+        $sql = new Select($tableName, $fields);
+        $sql->setAdapter($this->_adapter);
+        return $sql;
     }
 }
