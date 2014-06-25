@@ -80,7 +80,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
                 [PDO::ERRMODE_EXCEPTION]
             );
             $this->_connected = true;
-        } catch (\PDOException $exp) {
+        } catch (\Exception $exp) {
             throw new ServiceException(
                 "An error occurred when trying to connect to database " .
                 "service. Error: {$exp->getMessage()}"
