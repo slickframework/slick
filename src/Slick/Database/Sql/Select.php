@@ -87,7 +87,8 @@ class Select extends AbstractSql implements SqlInterface
      */
     public function getQueryString()
     {
-        // TODO: Implement getQueryString() method.
+        $dialect = Dialect::create($this->_adapter->getDialect(), $this);
+        return $dialect->getSqlStatement();
     }
 
     /**

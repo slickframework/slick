@@ -19,6 +19,7 @@ use Slick\Common\Base,
     Slick\Database\Exception\SqlQueryException,
     Slick\Database\Exception\InvalidArgumentException;
 use PDO;
+use Slick\Database\Sql\Dialect;
 
 /**
  * Abstract database adapter
@@ -73,7 +74,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      * @write
      * @var string
      */
-    protected $_dialect = 'standard';
+    protected $_dialect = Dialect::STANDARD;
 
     /**
      * Auto connects if the auto connect flag is set to true

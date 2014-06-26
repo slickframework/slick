@@ -14,6 +14,7 @@ namespace Slick\Database\Adapter;
 
 use Slick\Database\Exception\ServiceException;
 use PDO;
+use Slick\Database\Sql\Dialect;
 
 /**
  * Mysql database adapter
@@ -59,6 +60,11 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @var string
      */
     protected $_password = '';
+
+    /**
+     * @var string
+     */
+    protected $_dialect = Dialect::MYSQL;
 
     /**
      * Connects to the database service
