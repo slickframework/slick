@@ -41,7 +41,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @readwrite
      * @var string
      */
-    protected $_database = 'test';
+    protected $_database;
 
     /**
      * @readwrite
@@ -53,13 +53,13 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @readwrite
      * @var string
      */
-    protected $_username = 'root';
+    protected $_username;
 
     /**
      * @readwrite
      * @var string
      */
-    protected $_password = '';
+    protected $_password;
 
     /**
      * @var string
@@ -75,7 +75,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function connect()
     {
-        $dsn = $dsn = "mysql:host={$this->_host};port={$this->_port}" .
+        $dsn = "mysql:host={$this->_host};port={$this->_port}" .
             "dbname={$this->_database};charset={$this->_charset}";
         try {
             $class = $this->_handlerClass;
