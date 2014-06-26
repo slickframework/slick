@@ -6,6 +6,9 @@ robust and cool to work with. The goal was to create a PHP framework
 that could be used to develop web applications with agile methodologies
 like SCRUM or KANBAN in mind.
 
+**Current build status**
+[![Build Status](https://travis-ci.org/slickframework/slick.svg?branch=feature/dba)](https://travis-ci.org/slickframework/slick)
+
 **Features**
 
 > -   Cache management
