@@ -37,8 +37,9 @@ class MysqlAdapterTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Slick\Database\Adapter\AdapterInterface', $adapter);
         $this->assertInstanceOf('Slick\Database\Adapter\AbstractAdapter', $adapter);
 
-        $adapter = new MysqlAdapter(['username' => '_unknown_']);
-        //$adapter->connect();
+        Handler::$connectionError = true;
+        $adapter = new MysqlAdapter(['handlerClass' => 'Database\Adapter\Handler']);
+
     }
 
 }
