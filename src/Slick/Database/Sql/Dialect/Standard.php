@@ -43,7 +43,7 @@ class Standard extends AbstractDialect implements DialectInterface
      */
     public function getSqlStatement()
     {
-        return $this->_template->processSql($this->_sql);
+        return $this->_getTemplate()->processSql($this->_sql);
     }
 
     /**
