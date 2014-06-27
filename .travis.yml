@@ -13,7 +13,7 @@ before_script:
   - composer install --prefer-source --no-interaction --dev
 
 script:
-  - vendor/bin/codecept run unit --coverage --coverage --xml
+  - vendor/bin/codecept run unit --coverage --xml
 
 after_script:
      - php vendor/bin/coveralls -v
