@@ -1,3 +1,2 @@
-repo_token: tWjDHOgJrWZnUstZK6rTLbf5PDZc0O2n8
 coverage_clover: tests/_log/coverage.xml
 json_path: tests/_log/coveralls-upload.json
