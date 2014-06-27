@@ -13,6 +13,7 @@
 namespace Slick\Database\Sql;
 
 use Slick\Database\Sql\Select\Join;
+use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 
 /**
  * Select SQL statement
@@ -20,7 +21,9 @@ use Slick\Database\Sql\Select\Join;
  * @package   Slick\Database\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Select extends AbstractSql implements SqlInterface
+class Select extends AbstractSql implements
+    SqlInterface,
+    FieldListAwareInterface
 {
 
     /**
@@ -92,7 +95,7 @@ class Select extends AbstractSql implements SqlInterface
     }
 
     /**
-     * @return string|\string[]
+     * @return string|string[]
      */
     public function getFields()
     {
@@ -167,6 +170,34 @@ class Select extends AbstractSql implements SqlInterface
     public function setDistinct($mode = true)
     {
         $this->_distinct = $mode;
+        return $this;
+    }
+
+    /**
+     * Adds a join table to the select query
+     *
+     * if fields is null it will not set any field to the select field
+     * list. if it is a string it will be passed to the select field list
+     * as it is. If you pass a list of field names they will be prefixed
+     * with the alias if is set or the table name, to avoid the ambiguous
+     * fields name
+     *
+     * @param string               $table
+     * @param string               $on
+     * @param string|null|string[] $fields
+     * @param string               $alias
+     * @param string               $type
+     *
+     * @return Select
+     */
+    public function join(
+        $table, $on, $fields = ['*'], $alias = null, $type = Join::JOIN_LEFT)
+    {
+        $join = new Join($table, $on, $fields, $type);
+        if (!is_null($alias)) {
+            $join->setAlias($alias);
+        }
+        $this->_joins[] = $join;
         return $this;
     }
 

@@ -41,10 +41,7 @@ trait WhereMethods
     {
 
         if (is_string($condition)) {
-            $this->_where[] = [
-                'operation' => $operation,
-                'condition' => $condition
-            ];
+            $this->_where[] = $condition;
             return $this;
         }
 
@@ -67,10 +64,7 @@ trait WhereMethods
                 }
                 $conditions[] = $predicate;
             }
-            $this->_where[] = [
-                'operation' => $operation,
-                'condition' => implode(' AND ', $conditions)
-            ];
+            $this->_where[] = implode(' AND ', $conditions);
         }
         return $this;
     }
@@ -116,5 +110,19 @@ trait WhereMethods
     public function orWhere($condition)
     {
         return $this->_setWhere($condition, 'OR');
+    }
+
+    /**
+     * Returns the where statement for sql
+     *
+     * @return bool|string
+     */
+    public function getWhereStatement()
+    {
+        if (empty($this->_where)) {
+            return false;
+        }
+
+        return implode(' AND ', $this->_where);
     }
 }

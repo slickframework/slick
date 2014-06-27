@@ -57,7 +57,32 @@ class SelectTest extends \Codeception\TestCase\Test
     {
         $sql = Sql::createSql($this->_adapter)->select('users');
         $this->assertInstanceOf('Slick\Database\Sql\Select', $sql);
-        $expected = "SELECT * FROM users";
+        $expected = "SELECT users.* FROM users";
+        $this->assertEquals($expected, $sql->getQueryString());
+        $sql->where(['id = :id' => [':id' => 1]]);
+        $expected .= " WHERE id = :id";
+        $this->assertEquals($expected, $sql->getQueryString());
+    }
+
+    /**
+     * Trying to do a select with joins
+     * @test
+     */
+    public function doSelectWithJoins()
+    {
+        $sql = Sql::createSql($this->_adapter)->select('users');
+        $sql->join('roles', 'roles.id = users.role_id', null);
+        $expected = "SELECT users.* FROM users LEFT JOIN roles ON roles.id = users.role_id";
+        $this->assertEquals($expected, $sql->getQueryString());
+
+        $sql = Sql::createSql($this->_adapter)->select('users');
+        $sql->join('roles', 'roles.id = users.role_id', ['*']);
+        $expected = "SELECT users.*, roles.* FROM users LEFT JOIN roles ON roles.id = users.role_id";
+        $this->assertEquals($expected, $sql->getQueryString());
+
+        $sql = Sql::createSql($this->_adapter)->select('users');
+        $sql->join('roles', 'roles.id = users.role_id', ['*'], 'Role', Sql\Select\Join::JOIN_INNER);
+        $expected = "SELECT users.*, Role.* FROM users INNER JOIN roles AS Role ON roles.id = users.role_id";
         $this->assertEquals($expected, $sql->getQueryString());
     }
 }

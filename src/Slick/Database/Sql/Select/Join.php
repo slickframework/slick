@@ -11,6 +11,7 @@
  */
 
 namespace Slick\Database\Sql\Select;
+use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 
 /**
  * Select join definition
@@ -18,7 +19,7 @@ namespace Slick\Database\Sql\Select;
  * @package   Slick\Database\Sql\Select
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Join
+class Join implements FieldListAwareInterface
 {
     /**#@+
      * @var string SQL join types
@@ -150,6 +151,5 @@ class Join
     {
         return $this->_alias;
     }
-
 
 }
