@@ -72,17 +72,6 @@ class Join implements FieldListAwareInterface
     }
 
     /**
-     * @param string $type
-     *
-     * @return Join
-     */
-    public function setType($type)
-    {
-        $this->_type = $type;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getType()
@@ -91,31 +80,11 @@ class Join implements FieldListAwareInterface
     }
 
     /**
-     * @param string $onClause
-     * @return Join
-     */
-    public function setOnClause($onClause)
-    {
-        $this->_onClause = $onClause;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getOnClause()
     {
         return $this->_onClause;
-    }
-
-    /**
-     * @param array|string $fields
-     * @return Join
-     */
-    public function setFields($fields)
-    {
-        $this->_fields = $fields;
-        return $this;
     }
 
     /**

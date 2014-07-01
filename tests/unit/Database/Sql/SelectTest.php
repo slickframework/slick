@@ -58,9 +58,13 @@ class SelectTest extends \Codeception\TestCase\Test
         $sql = Sql::createSql($this->_adapter)->select('users');
         $this->assertInstanceOf('Slick\Database\Sql\Select', $sql);
         $expected = "SELECT users.* FROM users";
-        $this->assertEquals($expected, $sql->getQueryString());
+        $this->assertEquals($expected.' FETCH FIRST 100 ROWS ONLY', $sql->getQueryString());
         $sql->where(['id = :id' => [':id' => 1]]);
         $expected .= " WHERE id = :id";
+        $this->assertEquals($expected.' FETCH FIRST 100 ROWS ONLY', $sql->getQueryString());
+        $sql->setDistinct(true);
+        $expected = "SELECT DISTINCT users.* FROM users";
+        $expected .= " WHERE id = :id FETCH FIRST 100 ROWS ONLY";
         $this->assertEquals($expected, $sql->getQueryString());
     }
 
@@ -72,17 +76,43 @@ class SelectTest extends \Codeception\TestCase\Test
     {
         $sql = Sql::createSql($this->_adapter)->select('users');
         $sql->join('roles', 'roles.id = users.role_id', null);
-        $expected = "SELECT users.* FROM users LEFT JOIN roles ON roles.id = users.role_id";
+        $expected = "SELECT users.* FROM users LEFT JOIN roles ON roles.id = users.role_id FETCH FIRST 100 ROWS ONLY";
         $this->assertEquals($expected, $sql->getQueryString());
 
         $sql = Sql::createSql($this->_adapter)->select('users');
         $sql->join('roles', 'roles.id = users.role_id', ['*']);
-        $expected = "SELECT users.*, roles.* FROM users LEFT JOIN roles ON roles.id = users.role_id";
+        $expected = "SELECT users.*, roles.* FROM users LEFT JOIN roles ON roles.id = users.role_id FETCH FIRST 100 ROWS ONLY";
         $this->assertEquals($expected, $sql->getQueryString());
 
         $sql = Sql::createSql($this->_adapter)->select('users');
         $sql->join('roles', 'roles.id = users.role_id', ['*'], 'Role', Sql\Select\Join::JOIN_INNER);
-        $expected = "SELECT users.*, Role.* FROM users INNER JOIN roles AS Role ON roles.id = users.role_id";
+        $expected = "SELECT users.*, Role.* FROM users INNER JOIN roles AS Role ON roles.id = users.role_id FETCH FIRST 100 ROWS ONLY";
+        $this->assertEquals($expected, $sql->getQueryString());
+    }
+
+    /**
+     * Do a select with order by
+     * @test
+     */
+    public function selectWithOrderBy()
+    {
+        $sql = Sql::createSql($this->_adapter)->select('users');
+        $sql->order('users.age DESC');
+        $expected = "SELECT users.* FROM users ORDER BY users.age DESC FETCH FIRST 100 ROWS ONLY";
+        $this->assertEquals($expected, $sql->getQueryString());
+
+    }
+
+    /**
+     * Tests simple limit
+     * @test
+     */
+    public function selectSimpleLimit()
+    {
+        //FETCH FIRST n ROWS ONLY
+        $sql = Sql::createSql($this->_adapter)->select('users');
+        $sql->limit(10);
+        $expected = "SELECT users.* FROM users FETCH FIRST 10 ROWS ONLY";
         $this->assertEquals($expected, $sql->getQueryString());
     }
 }

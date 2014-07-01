@@ -201,18 +201,31 @@ class Select extends AbstractSql implements
         return $this;
     }
 
-    public function first()
+    /**
+     * Set order by clause
+     *
+     * @param string $order
+     *
+     * @return Select
+     */
+    public function order($order)
     {
-
+        $this->_order = $order;
+        return $this;
     }
 
-    public function all()
+    /**
+     * Sets query limit and offset
+     *
+     * @param int $rows
+     * @param int $offset
+     *
+     * @return Select
+     */
+    public function limit($rows, $offset = 0)
     {
-
-    }
-
-    public function count()
-    {
-
+        $this->_limit = $rows;
+        $this->_offset = $offset;
+        return $this;
     }
 }

@@ -47,7 +47,9 @@ class SelectSqlTemplate implements SqlTemplateInterface
         $this->_sql = $sql;
         $this->_getSelectFieldsAndTable()
             ->_getWhereConditions()
-            ->_setJoins();
+            ->_setJoins()
+            ->_setOrder()
+            ->_setLimit();
         return $this->_statement;
     }
 
@@ -59,6 +61,9 @@ class SelectSqlTemplate implements SqlTemplateInterface
     protected function _getSelectFieldsAndTable()
     {
         $template = "SELECT %s FROM %s";
+        if ($this->_sql->isDistinct()) {
+            $template = "SELECT DISTINCT %s FROM %s";
+        }
         $this->_statement = sprintf(
             $template,
             $this->_getFieldList(),
@@ -129,6 +134,41 @@ class SelectSqlTemplate implements SqlTemplateInterface
         foreach ($joins as $join) {
             $this->_statement .= $this->_createJoinStatement($join);
         }
+        return $this;
+    }
+
+    /**
+     * Sets the order by clause
+     *
+     * @return SelectSqlTemplate
+     */
+    protected function _setOrder()
+    {
+        $order = $this->_sql->getOrder();
+        if (!(is_null($order) || empty($order))) {
+            $this->_statement .= " ORDER BY {$order}";
+        }
+        return $this;
+    }
+
+    protected function _setLimit()
+    {
+        if ($this->_sql->getOffset() > 0) {
+            return $this->_setLimitWithOffset();
+        }
+        return  $this->_setSimpleLimit();
+    }
+
+    protected function _setLimitWithOffset()
+    {
+        $this->_statement .= "OFFSET {$this->_sql->getOffset()} ROWS";
+        $this->_setSimpleLimit();
+        return $this;
+    }
+
+    protected function _setSimpleLimit()
+    {
+        $this->_statement .= " FETCH FIRST {$this->_sql->getLimit()} ROWS ONLY";
         return $this;
     }
 
