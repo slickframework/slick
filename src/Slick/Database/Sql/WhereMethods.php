@@ -41,7 +41,10 @@ trait WhereMethods
     {
 
         if (is_string($condition)) {
-            $this->_where[] = $condition;
+            $this->_where[] = [
+                'condition' => $condition,
+                'operation' => $operation
+            ];
             return $this;
         }
 
@@ -64,7 +67,11 @@ trait WhereMethods
                 }
                 $conditions[] = $predicate;
             }
-            $this->_where[] = implode(' AND ', $conditions);
+            $this->_where[] = [
+                'condition' => count($conditions) > 1 ?
+                        '('. implode(' AND ', $conditions) .')' : $conditions[0],
+                'operation' => $operation
+            ];
         }
         return $this;
     }
@@ -122,7 +129,12 @@ trait WhereMethods
         if (empty($this->_where)) {
             return false;
         }
+        $this->_where[0]['operation'] = null;
+        $str = '';
+        foreach ($this->_where as $condition) {
+            $str .= trim("{$condition['operation']} {$condition['condition']}"). " ";
+        }
 
-        return implode(' AND ', $this->_where);
+        return trim($str);
     }
 }

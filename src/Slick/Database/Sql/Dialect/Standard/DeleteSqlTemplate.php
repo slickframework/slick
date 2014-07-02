@@ -1,10 +1,13 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 6/25/14
- * Time: 11:56 PM
+ * Standard Delete SQL template
+ *
+ * @package   Slick\Database\Sql\Dialect\Standard
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Database\Sql\Dialect\Standard;
@@ -12,7 +15,14 @@ namespace Slick\Database\Sql\Dialect\Standard;
 use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\Dialect\SqlTemplateInterface;
 
-class DeleteSqlTemplate implements SqlTemplateInterface
+/**
+ * Standard Delete SQL template
+ *
+ * @package   Slick\Database\Sql\Dialect\Standard
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
+class DeleteSqlTemplate extends AbstractSqlTemplate implements
+    SqlTemplateInterface
 {
 
     /**
@@ -24,6 +34,9 @@ class DeleteSqlTemplate implements SqlTemplateInterface
      */
     public function processSql(SqlInterface $sql)
     {
-        // TODO: Implement processSql() method.
+        $this->_sql = $sql;
+        $this->_statement = "DELETE FROM {$this->_sql->getTable()}";
+        $this->_getWhereConditions();
+        return $this->_statement;
     }
 }

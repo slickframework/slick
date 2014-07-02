@@ -22,11 +22,6 @@ class Delete extends AbstractSql implements SqlInterface
 {
 
     /**
-     * @var string
-     */
-    private $_table;
-
-    /**
      * Use where clause constructor methods
      */
     use WhereMethods;
@@ -50,18 +45,5 @@ class Delete extends AbstractSql implements SqlInterface
     {
         $dialect = Dialect::create($this->_adapter->getDialect(), $this);
         return $dialect->getSqlStatement();
-    }
-
-    /**
-     * Executes the delete SQL command
-     *
-     * @return int The number of affected rows
-     */
-    public function execute()
-    {
-        return $this->_adapter->execute(
-            $this->getQueryString(),
-            $this->getParameters()
-        );
     }
 }

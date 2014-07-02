@@ -29,6 +29,11 @@ abstract class AbstractSql implements SqlInterface
     protected $_adapter;
 
     /**
+     * @var string
+     */
+    protected $_table;
+
+    /**
      * Sets the adapter for this statement
      *
      * @param AdapterInterface $adapter
@@ -39,4 +44,12 @@ abstract class AbstractSql implements SqlInterface
         $this->_adapter = $adapter;
         return $this;
     }
-} 
+
+    /**
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->_table;
+    }
+}

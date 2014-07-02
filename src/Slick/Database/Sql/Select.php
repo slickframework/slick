@@ -34,11 +34,6 @@ class Select extends AbstractSql implements
     /**
      * @var string
      */
-    private $_table;
-
-    /**
-     * @var string
-     */
     private $_order;
 
     /**
@@ -59,7 +54,7 @@ class Select extends AbstractSql implements
     /**
      * @var int
      */
-    private $_limit = 100;
+    private $_limit;
 
     /**
      * @var bool
@@ -132,14 +127,6 @@ class Select extends AbstractSql implements
     public function getOrder()
     {
         return $this->_order;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTable()
-    {
-        return $this->_table;
     }
 
     /**

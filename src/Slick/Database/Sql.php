@@ -12,6 +12,7 @@
 
 namespace Slick\Database;
 
+use Slick\Database\Sql\Delete;
 use Slick\Database\Sql\Select;
 use Slick\Database\Adapter\AdapterInterface;
 
@@ -62,6 +63,20 @@ class Sql
     public function select($tableName, $fields = ['*'])
     {
         $sql = new Select($tableName, $fields);
+        $sql->setAdapter($this->_adapter);
+        return $sql;
+    }
+
+    /**
+     * Creates a Delete statement object
+     *
+     * @param string $tableName
+     *
+     * @return Delete
+     */
+    public function delete($tableName)
+    {
+        $sql = new Delete($tableName);
         $sql->setAdapter($this->_adapter);
         return $sql;
     }

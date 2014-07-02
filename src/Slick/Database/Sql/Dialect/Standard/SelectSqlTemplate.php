@@ -12,10 +12,10 @@
 
 namespace Slick\Database\Sql\Dialect\Standard;
 
-use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 use Slick\Database\Sql\Select;
 use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\Dialect\SqlTemplateInterface;
+use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 
 /**
  * Standard Select SQL template
@@ -23,17 +23,9 @@ use Slick\Database\Sql\Dialect\SqlTemplateInterface;
  * @package   Slick\Database\Sql\Dialect\Standard
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class SelectSqlTemplate implements SqlTemplateInterface
+class SelectSqlTemplate extends AbstractSqlTemplate implements
+    SqlTemplateInterface
 {
-    /**
-     * @var Select
-     */
-    protected $_sql;
-
-    /**
-     * @var string
-     */
-    private $_statement = '';
 
     /**
      * Processes the SQL object and returns the SQL statement
@@ -109,21 +101,6 @@ class SelectSqlTemplate implements SqlTemplateInterface
     }
 
     /**
-     * Sets the where clause for this select statement
-     *
-     * @return SelectSqlTemplate
-     */
-    protected function _getWhereConditions()
-    {
-        $where = $this->_sql->getWhereStatement();
-        if ($where) {
-            $this->_statement .=  " WHERE {$where}";
-        }
-        return $this;
-
-    }
-
-    /**
      * Sets the joins for this select statement
      *
      * @return SelectSqlTemplate
@@ -153,6 +130,10 @@ class SelectSqlTemplate implements SqlTemplateInterface
 
     protected function _setLimit()
     {
+        if (is_null($this->_sql->getLimit()) || intval($this->_sql->getLimit()) < 1) {
+            return $this;
+        }
+
         if ($this->_sql->getOffset() > 0) {
             return $this->_setLimitWithOffset();
         }
@@ -161,7 +142,7 @@ class SelectSqlTemplate implements SqlTemplateInterface
 
     protected function _setLimitWithOffset()
     {
-        $this->_statement .= "OFFSET {$this->_sql->getOffset()} ROWS";
+        $this->_statement .= " OFFSET {$this->_sql->getOffset()} ROWS";
         $this->_setSimpleLimit();
         return $this;
     }
