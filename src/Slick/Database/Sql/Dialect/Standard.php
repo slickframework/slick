@@ -32,9 +32,10 @@ class Standard extends AbstractDialect implements DialectInterface
      * @var array A map that ties a known Sql class to a factory method
      */
     protected $_map = [
-        'select' => 'Slick\Database\Sql\Select',
-        'delete' => 'Slick\Database\Sql\Delete',
         'insert' => 'Slick\Database\Sql\Insert',
+        'select' => 'Slick\Database\Sql\Select',
+        'update' => 'Slick\Database\Sql\Update',
+        'delete' => 'Slick\Database\Sql\Delete',
     ];
 
     /**
@@ -85,12 +86,22 @@ class Standard extends AbstractDialect implements DialectInterface
     }
 
     /**
-     * Creates a insert sql template
+     * Creates an insert sql template
      *
      * @return Standard\InsertSqlTemplate
      */
     public function insert()
     {
         return new StandardDialect\InsertSqlTemplate();
+    }
+
+    /**
+     * Creates an update sql template
+     *
+     * @return Standard\UpdateSqlTemplate
+     */
+    public function update()
+    {
+        return new StandardDialect\UpdateSqlTemplate();
     }
 }

@@ -24,24 +24,26 @@ trait WhereMethods
     /**
      * @var array List of where conditions
      */
-    protected $_where = [];
+    protected $where = [];
 
     /**
      * @var array List of parameters
      */
-    protected $_parameters = [];
+    protected $parameters = [];
 
     /**
      * @param string|array $condition
      * @param string $operation
      *
      * @return Select|Delete
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *  it has 11 for a test limit of 10
      */
     protected function _setWhere($condition, $operation = 'AND')
     {
 
         if (is_string($condition)) {
-            $this->_where[] = [
+            $this->where[] = [
                 'condition' => $condition,
                 'operation' => $operation
             ];
@@ -55,21 +57,22 @@ trait WhereMethods
                     //param has multiple entries
                     foreach ($param as $key => $value) {
                         if (preg_match('/:[a-z_]*/i', $key)) {
-                            $this->_parameters[$key] = $value;
+                            $this->parameters[$key] = $value;
                         } else {
-                            $this->_parameters[] = $value;
+                            $this->parameters[] = $value;
                         }
                     }
                 } elseif (!is_numeric($predicate)) {
-                    $this->_parameters[] = $param;
+                    $this->parameters[] = $param;
                 } else {
                     $predicate = $param;
                 }
                 $conditions[] = $predicate;
             }
-            $this->_where[] = [
+            $this->where[] = [
                 'condition' => count($conditions) > 1 ?
-                        '('. implode(' AND ', $conditions) .')' : $conditions[0],
+                        '('. implode(' AND ', $conditions) .')' :
+                        $conditions[0],
                 'operation' => $operation
             ];
         }
@@ -105,7 +108,7 @@ trait WhereMethods
      */
     public function getParameters()
     {
-        return $this->_parameters;
+        return $this->parameters;
     }
 
     /**
@@ -126,13 +129,14 @@ trait WhereMethods
      */
     public function getWhereStatement()
     {
-        if (empty($this->_where)) {
+        if (empty($this->where)) {
             return false;
         }
-        $this->_where[0]['operation'] = null;
+        $this->where[0]['operation'] = null;
         $str = '';
-        foreach ($this->_where as $condition) {
-            $str .= trim("{$condition['operation']} {$condition['condition']}"). " ";
+        foreach ($this->where as $clause) {
+            $str .= trim("{$clause['operation']} {$clause['condition']}");
+            $str .= " ";
         }
 
         return trim($str);

@@ -14,6 +14,7 @@ namespace Slick\Database\Sql\Dialect\Standard;
 
 use Slick\Database\Sql\Delete;
 use Slick\Database\Sql\Insert;
+use Slick\Database\Sql\Update;
 use Slick\Database\Sql\Select;
 use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\Dialect\SqlTemplateInterface;
@@ -28,7 +29,7 @@ abstract class AbstractSqlTemplate implements SqlTemplateInterface
 {
 
     /**
-     * @var SqlInterface|Select|Delete|Insert
+     * @var SqlInterface|Select|Delete|Insert|Update
      */
     protected $_sql;
 

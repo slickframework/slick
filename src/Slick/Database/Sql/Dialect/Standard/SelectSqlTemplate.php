@@ -82,6 +82,12 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
         return implode(', ', $fields);
     }
 
+    /**
+     * Retrieve a field list from a FieldListAwareInterface object
+     *
+     * @param FieldListAwareInterface $object
+     * @return bool|string|string[]
+     */
     protected function _getFieldsFor(FieldListAwareInterface $object)
     {
         if (is_null($object->getFields())) {
@@ -93,7 +99,7 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
         $alias = (is_null($object->getAlias())) ?
             $object->getTable() : $object->getAlias();
         $fields = [];
-        foreach($object->getFields() as $field) {
+        foreach ($object->getFields() as $field) {
             $fields[] = "{$alias}.{$field}";
         }
 
@@ -128,9 +134,17 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
         return $this;
     }
 
+    /**
+     * Set limit clause
+     *
+     * @return SelectSqlTemplate
+     */
     protected function _setLimit()
     {
-        if (is_null($this->_sql->getLimit()) || intval($this->_sql->getLimit()) < 1) {
+        if (
+            is_null($this->_sql->getLimit()) ||
+            intval($this->_sql->getLimit()) < 1
+        ) {
             return $this;
         }
 
@@ -140,6 +154,11 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
         return  $this->_setSimpleLimit();
     }
 
+    /**
+     * Set limit clause when using offset
+     *
+     * @return SelectSqlTemplate
+     */
     protected function _setLimitWithOffset()
     {
         $this->_statement .= " OFFSET {$this->_sql->getOffset()} ROWS";
@@ -147,6 +166,11 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
         return $this;
     }
 
+    /**
+     * Set limit clause for simple limits
+     *
+     * @return SelectSqlTemplate
+     */
     protected function _setSimpleLimit()
     {
         $this->_statement .= " FETCH FIRST {$this->_sql->getLimit()} ROWS ONLY";

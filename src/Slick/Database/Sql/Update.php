@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Insert SQL statement
+ * Update SQL statement
  *
  * @package   Slick\Database\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -15,18 +15,27 @@ namespace Slick\Database\Sql;
 use Slick\Database\Sql\SetDataMethods;
 
 /**
- * Insert SQL statement
+ * Update SQL statement
  *
  * @package   Slick\Database\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Insert extends AbstractSql implements SqlInterface
+class Update extends AbstractSql implements SqlInterface
 {
 
     /**
      * Import set data methods
      */
-    use SetDataMethods;
+    use SetDataMethods {
+        SetDataMethods::getParameters as dataParameters;
+    }
+
+    /**
+     * Use where clause constructor methods
+     */
+    use WhereMethods {
+        WhereMethods::getParameters as whereParameters;
+    }
 
     /**
      * Creates the sql with the table name and fields
@@ -47,5 +56,15 @@ class Insert extends AbstractSql implements SqlInterface
     {
         $dialect = Dialect::create($this->_adapter->getDialect(), $this);
         return $dialect->getSqlStatement();
+    }
+
+    /**
+     * Returns the parameters entered in set data
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        return array_merge($this->dataParameters(), $this->whereParameters());
     }
 }

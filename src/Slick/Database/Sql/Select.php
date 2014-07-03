@@ -29,7 +29,7 @@ class Select extends AbstractSql implements
     /**
      * @var string
      */
-    private $alias;
+    private $_alias;
 
     /**
      * @var string
@@ -134,7 +134,7 @@ class Select extends AbstractSql implements
      */
     public function getAlias()
     {
-        return $this->alias;
+        return $this->_alias;
     }
 
     /**

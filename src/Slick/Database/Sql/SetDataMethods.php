@@ -10,9 +10,7 @@
  * @since     Version 1.1.0
  */
 
-namespace Slick\Database\Sql\Select;
-
-use Slick\Database\Sql\Insert;
+namespace Slick\Database\Sql;
 
 /**
  *  Sql set data methods
@@ -26,25 +24,25 @@ trait SetDataMethods
     /**
      * @var array
      */
-    protected $_fields = [];
+    protected $fields = [];
 
     /**
      * @var array
      */
-    protected $_parameters = [];
+    protected $dataParameters = [];
 
     /**
      * Sets the data for current SQL query
      *
      * @param array $data
      *
-     * @return Insert
+     * @return Insert|Update
      */
     public function set(array $data)
     {
         foreach ($data as $field => $value) {
-            $this->_fields[] = $field;
-            $this->_parameters[":{$field}"] = $value;
+            $this->fields[] = $field;
+            $this->dataParameters[":{$field}"] = $value;
         }
         return $this;
     }
@@ -56,7 +54,7 @@ trait SetDataMethods
      */
     public function getParameters()
     {
-        return $this->_parameters;
+        return $this->dataParameters;
     }
 
     /**
@@ -66,7 +64,7 @@ trait SetDataMethods
      */
     public function getFieldList()
     {
-        return implode(', ', $this->_fields);
+        return implode(', ', $this->fields);
     }
 
     /**
@@ -76,7 +74,17 @@ trait SetDataMethods
      */
     public function getPlaceholderList()
     {
-        $names = array_keys($this->_parameters);
+        $names = array_keys($this->dataParameters);
         return implode(', ', $names);
+    }
+
+    /**
+     * Returns the field names
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
     }
 }

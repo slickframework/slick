@@ -31,6 +31,7 @@ final class Dialect
      */
     const STANDARD = 'standard';
     const MYSQL    = 'mysql';
+    /**#@-*/
 
     /**
      * @var string Dialect interface to check
@@ -80,7 +81,8 @@ final class Dialect
         }
 
         throw new InvalidArgumentException(
-            "Trying to create an unknown dialect. '{$dialect}' is not recognized."
+            "Trying to create an unknown dialect. '{$dialect}' is" .
+            " not recognized."
         );
     }
 
@@ -100,4 +102,4 @@ final class Dialect
         $dialect->setSql($sql);
         return $dialect;
     }
-} 
+}

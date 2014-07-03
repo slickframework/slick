@@ -16,6 +16,7 @@ use Slick\Database\Sql\Delete;
 use Slick\Database\Sql\Insert;
 use Slick\Database\Sql\Select;
 use Slick\Database\Adapter\AdapterInterface;
+use Slick\Database\Sql\Update;
 
 /**
  * Sql factory class
@@ -92,6 +93,20 @@ class Sql
     public function insert($tableName)
     {
         $sql = new Insert($tableName);
+        $sql->setAdapter($this->_adapter);
+        return $sql;
+    }
+
+    /**
+     * Creates an Update statement object
+     *
+     * @param string $tableName
+     *
+     * @return Update
+     */
+    public function update($tableName)
+    {
+        $sql = new Update($tableName);
         $sql->setAdapter($this->_adapter);
         return $sql;
     }
