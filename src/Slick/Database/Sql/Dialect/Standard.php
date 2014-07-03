@@ -34,6 +34,7 @@ class Standard extends AbstractDialect implements DialectInterface
     protected $_map = [
         'select' => 'Slick\Database\Sql\Select',
         'delete' => 'Slick\Database\Sql\Delete',
+        'insert' => 'Slick\Database\Sql\Insert',
     ];
 
     /**
@@ -78,8 +79,18 @@ class Standard extends AbstractDialect implements DialectInterface
      *
      * @return Standard\DeleteSqlTemplate
      */
-    public function Delete()
+    public function delete()
     {
         return new StandardDialect\DeleteSqlTemplate();
+    }
+
+    /**
+     * Creates a insert sql template
+     *
+     * @return Standard\InsertSqlTemplate
+     */
+    public function insert()
+    {
+        return new StandardDialect\InsertSqlTemplate();
     }
 }
