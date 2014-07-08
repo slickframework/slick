@@ -41,6 +41,7 @@ class Text extends AbstractColumn
     public function setNullable($nullable)
     {
         $this->_nullable = $nullable;
+        return $this;
     }
 
     /**
@@ -62,6 +63,7 @@ class Text extends AbstractColumn
     public function setSize(Size $size)
     {
         $this->_size = $size;
+        return $this;
     }
 
     /**

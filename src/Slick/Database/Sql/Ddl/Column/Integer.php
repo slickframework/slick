@@ -42,7 +42,7 @@ class Integer extends AbstractColumn
     /**
      * @var int
      */
-    protected $_default;
+    protected $_default = 0;
 
     /**
      * Sets column default value
@@ -98,6 +98,7 @@ class Integer extends AbstractColumn
     public function setNullable($nullable)
     {
         $this->_nullable = $nullable;
+        return $this;
     }
 
     /**
@@ -119,6 +120,7 @@ class Integer extends AbstractColumn
     public function setSize(Size $size)
     {
         $this->_size = $size;
+        return $this;
     }
 
     /**
@@ -130,4 +132,27 @@ class Integer extends AbstractColumn
     {
         return new Size((string) $this->_size);
     }
+
+    /**
+     * Sets auto increment flag state
+     *
+     * @param boolean $autoIncrement
+     * @return Integer
+     */
+    public function setAutoIncrement($autoIncrement)
+    {
+        $this->_autoIncrement = $autoIncrement;
+        return $this;
+    }
+
+    /**
+     * Gets auto increment flag state
+     * @return boolean
+     */
+    public function getAutoIncrement()
+    {
+        return $this->_autoIncrement;
+    }
+
+
 }

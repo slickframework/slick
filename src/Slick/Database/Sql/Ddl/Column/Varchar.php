@@ -29,12 +29,22 @@ class Varchar extends AbstractColumn
     /**
      * Sets name and length
      *
-     * @param string $name
-     * @param array $length
+     * @param string  $name
+     * @param integer $length
      */
     public function __construct($name, $length)
     {
         $this->_name = $name;
         $this->_length = $length;
+    }
+
+    /**
+     * Gets column length
+     *
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->_length;
     }
 }

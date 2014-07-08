@@ -27,25 +27,16 @@ class DateTime extends AbstractColumn
     protected $_nullable = false;
 
     /**
-     * Sets new column with a given name
-     *
-     * @param string $name
-     */
-    public function __construct($name)
-    {
-        $this->_name = $name;
-    }
-
-    /**
      * Set the ISNULL flag for this column
      *
      * @param boolean $nullable
      *
-     * @return Integer
+     * @return DateTime
      */
     public function setNullable($nullable)
     {
         $this->_nullable = $nullable;
+        return $this;
     }
 
     /**

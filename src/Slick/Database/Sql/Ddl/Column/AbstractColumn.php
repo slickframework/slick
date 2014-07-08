@@ -46,7 +46,7 @@ abstract class AbstractColumn implements ColumnInterface
         $this->_name = $name;
         foreach ($options as $key => $value) {
             $prop = "_{$key}";
-            if (isset($this->$prop)) {
+            if (property_exists($this, $prop)) {
                 $this->$prop = $value;
             }
         }

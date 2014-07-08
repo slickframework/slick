@@ -48,4 +48,59 @@ class Blob extends AbstractColumn
         $options['length'] = $length;
         parent::__construct($name, $options);
     }
+
+    /**
+     * Sets column default value
+     *
+     * @param int $default
+     * @return Integer
+     */
+    public function setDefault($default)
+    {
+        $this->_default = $default;
+        return $this;
+    }
+
+    /**
+     * Gets column default value
+     *
+     * @return int
+     */
+    public function getDefault()
+    {
+        return $this->_default;
+    }
+
+    /**
+     * Set the ISNULL flag for this column
+     *
+     * @param boolean $nullable
+     *
+     * @return Blob
+     */
+    public function setNullable($nullable)
+    {
+        $this->_nullable = $nullable;
+        return $this;
+    }
+
+    /**
+     * Gets the ISNULL flag for this column
+     *
+     * @return boolean
+     */
+    public function getNullable()
+    {
+        return $this->_nullable;
+    }
+
+    /**
+     * Gets column length
+     *
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->_length;
+    }
 }
