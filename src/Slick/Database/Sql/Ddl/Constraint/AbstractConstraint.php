@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Abstract column
+ * Abstract able constraint
  *
  * @package   Slick\Database\Sql\Ddl\Column
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -10,36 +10,24 @@
  * @since     Version 1.1.0
  */
 
-namespace Slick\Database\Sql\Ddl\Column;
+namespace Slick\Database\Sql\Ddl\Constraint;
 
 /**
- * Abstract column - Basic column implementation
+ * Abstract able constraint
  *
  * @package   Slick\Database\Sql\Ddl\Column
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractColumn implements ColumnInterface
+class AbstractConstraint implements ConstraintInterface
 {
-
     /**
      * @var string
      */
     protected $_name;
 
     /**
-     * @param string $name Column name
-     *
+     * @param string $name
      * @param array $options
-     * Options can be (depending on the column type):
-     *  - length
-     *  - size
-     *  - nullable
-     *  - default
-     *  - autoIncrement
-     *  - precision
-     *  - digits
-     *  - decimal
-     *  - autoIncrement
      */
     public function __construct($name, $options = [])
     {
@@ -53,7 +41,7 @@ abstract class AbstractColumn implements ColumnInterface
     }
 
     /**
-     * Returns column name
+     * Returns constraint name
      *
      * @return string
      */

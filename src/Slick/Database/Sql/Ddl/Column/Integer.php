@@ -30,6 +30,11 @@ class Integer extends AbstractColumn
     protected $_size = Size::NORMAL;
 
     /**
+     * @var bool
+     */
+    protected $_autoIncrement = false;
+
+    /**
      * @var int
      */
     protected $_length;
@@ -125,5 +130,4 @@ class Integer extends AbstractColumn
     {
         return new Size((string) $this->_size);
     }
-
-} 
+}
