@@ -23,7 +23,7 @@ use Slick\Database\Sql\Ddl\Constraint\ConstraintInterface;
  * @package   Slick\Database\Sql\Ddl
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class CrateTable extends AbstractSql implements SqlInterface
+class CreateTable extends AbstractSql implements SqlInterface
 {
 
     /**
@@ -32,7 +32,7 @@ class CrateTable extends AbstractSql implements SqlInterface
     protected $_columns = [];
 
     /**
-     * @var array
+     * @var ConstraintInterface[]
      */
     protected $_constraints = [];
 
@@ -61,7 +61,7 @@ class CrateTable extends AbstractSql implements SqlInterface
      *
      * @param ColumnInterface $column
      *
-     * @return CrateTable
+     * @return CreateTable
      */
     public function addColumn(ColumnInterface $column)
     {
@@ -72,11 +72,31 @@ class CrateTable extends AbstractSql implements SqlInterface
     /**
      * @param ConstraintInterface $constraint
      *
-     * @return CrateTable
+     * @return CreateTable
      */
     public function addConstraint(ConstraintInterface $constraint)
     {
-        $this->_constraints[] = $constraint;
+        $this->_constraints[$constraint->getName()] = $constraint;
         return $this;
+    }
+
+    /**
+     * Returns the current list of columns
+     *
+     * @return ColumnInterface[]
+     */
+    public function getColumns()
+    {
+        return $this->_columns;
+    }
+
+    /**
+     * Returns the current list of constraints
+     *
+     * @return ConstraintInterface[]
+     */
+    public function getConstraints()
+    {
+        return $this->_constraints;
     }
 }
