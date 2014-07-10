@@ -18,6 +18,7 @@ use Slick\Database\Sql\Ddl\Column\Blob;
 use Slick\Database\Sql\Ddl\Column\Boolean;
 use Slick\Database\Sql\Ddl\Column\DateTime;
 use Slick\Database\Sql\Ddl\Column\Float;
+use Slick\Database\Sql\Ddl\Constraint\ForeignKey;
 use Slick\Database\Sql\Ddl\CreateTable;
 use Slick\Database\Sql\Ddl\Column\Size;
 use Slick\Database\Sql\Ddl\Column\Text;
@@ -111,7 +112,11 @@ class CreateTableTest extends \Codeception\TestCase\Test
         $expected .= "score DECIMAL(3, 2), ";
         $expected .= "created TIMESTAMP NOT NULL, ";
         $expected .= "updated TIMESTAMP, ";
-        $expected .= "picture BLOB(1024) NOT NULL";
+        $expected .= "picture BLOB(1024) NOT NULL, ";
+        $expected .= "CONSTRAINT pkUsers PRIMARY KEY (id), ";
+        $expected .= "CONSTRAINT usernameUnique UNIQUE (username), ";
+        $expected .= "CONSTRAINT fkProfile FOREIGN KEY (name) REFERENCES profile(id) ";
+        $expected .= "ON DELETE CASCADE ON UPDATE NO ACTION";
         $expected .= ")";
         /** @var CreateTable $ddl */
         $ddl = new CreateTable('users');
@@ -134,7 +139,18 @@ class CreateTableTest extends \Codeception\TestCase\Test
             ->addColumn(new Float('score', 3, 2))
             ->addColumn(new DateTime('created'))
             ->addColumn(new DateTime('updated', ['nullable' => true]))
-            ->addColumn(new Blob('picture', 1024));
+            ->addColumn(new Blob('picture', 1024))
+            ->addConstraint(new Primary('pkUsers', ['columnNames' => ['id']]))
+            ->addConstraint(new Unique('usernameUnique', ['column' => 'username']))
+            ->addConstraint(
+                new ForeignKey(
+                    'fkProfile',
+                    'name',
+                    'profile',
+                    'id',
+                    ['onDelete' => ForeignKey::CASCADE]
+                )
+            );
 
         $ddl->setAdapter($this->_adapter);
         $this->assertEquals($expected, $ddl->getQueryString());

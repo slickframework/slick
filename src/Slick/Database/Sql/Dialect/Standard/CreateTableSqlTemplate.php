@@ -13,9 +13,11 @@
 namespace Slick\Database\Sql\Dialect\Standard;
 
 use Slick\Database\Sql\Ddl\Column;
+use Slick\Database\Sql\Ddl\Constraint;
 use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\Ddl\CreateTable;
 use Slick\Database\Sql\Dialect\SqlTemplateInterface;
+use Slick\Utility\ArrayMethods;
 
 /**
  * Standard Create Table SQL template
@@ -30,7 +32,7 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
     /**
      * @var array
      */
-    protected static $_columnTypes = [
+    protected static $_columnMethods = [
         'Slick\Database\Sql\Ddl\Column\Integer' => '_getIntegerColumn',
         'Slick\Database\Sql\Ddl\Column\Text' => '_getTextColumn',
         'Slick\Database\Sql\Ddl\Column\Varchar' => '_getVarcharColumn',
@@ -38,6 +40,12 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
         'Slick\Database\Sql\Ddl\Column\Float' => '_getFloatColumn',
         'Slick\Database\Sql\Ddl\Column\DateTime' => '_getDateTimeColumn',
         'Slick\Database\Sql\Ddl\Column\Blob' => '_getBlobColumn'
+    ];
+
+    protected static $_constraintMethods = [
+        'Slick\Database\Sql\Ddl\Constraint\Primary' => '_getPrimaryConstraint',
+        'Slick\Database\Sql\Ddl\Constraint\Unique' => '_getUniqueConstraint',
+        'Slick\Database\Sql\Ddl\Constraint\ForeignKey' => '_getFKConstraint',
     ];
 
     /**
@@ -65,11 +73,13 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
         $this->_sql = $sql;
         $tableName = $this->_sql->getTable();
         $template = "CREATE TABLE %s (%s)";
-
+        $parts = ArrayMethods::clean(
+            [$this->_parseColumns(), $this->_parseConstraints()]
+        );
         return sprintf(
             $template,
             $tableName,
-            $this->_parseColumns()
+            implode(', ', $parts)
         );
     }
 
@@ -91,12 +101,96 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
      * Parses a given column and returns the SQL statement for it
      *
      * @param Column\ColumnInterface $column
-     * @return mixed
+     * @return string
      */
     protected function _parseColumn(Column\ColumnInterface $column)
     {
-        $method = static::$_columnTypes[get_class($column)];
+        $method = static::$_columnMethods[get_class($column)];
         return call_user_func_array([$this, $method], array($column));
+    }
+
+    /**
+     * Parse constraint list for SQL create statement
+     *
+     * @return string
+     */
+    protected function _parseConstraints()
+    {
+        $parts = [];
+        foreach ($this->_sql->getConstraints() as $constraint) {
+            $parts[] = $this->_parseConstraint($constraint);
+        }
+        return implode(', ', $parts);
+    }
+
+    /**
+     * Parses a given constraint and returns the SQL statement for it
+     *
+     * @param Constraint\ConstraintInterface $cons
+     * @return string
+     */
+    protected function _parseConstraint(Constraint\ConstraintInterface $cons)
+    {
+        $method = static::$_constraintMethods[get_class($cons)];
+        return call_user_func_array([$this, $method], array($cons));
+    }
+
+    /**
+     * Parse a Foreign Key constraint to its SQL representation
+     *
+     * @param Constraint\ForeignKey $cons
+     * @return string
+     */
+    protected function _getFKConstraint(Constraint\ForeignKey $cons)
+    {
+        $onDelete = '';
+        if ($cons->getOnDelete()) {
+            $onDelete = " ON DELETE {$cons->getOnDelete()}";
+        }
+        $onUpdated = '';
+        if ($cons->getOnUpdate()) {
+            $onUpdated = " ON UPDATE {$cons->getOnUpdate()}";
+        }
+        return sprintf(
+            'CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)%s%s',
+            $cons->getName(),
+            $cons->getColumn(),
+            $cons->getReferenceTable(),
+            $cons->getReferenceColumn(),
+            $onDelete,
+            $onUpdated
+        );
+    }
+
+    /**
+     * Parse a Primary Key constraint to its SQL representation
+     *
+     * @param Constraint\Primary $constraint
+     * @return string
+     */
+    protected function _getPrimaryConstraint(Constraint\Primary $constraint)
+    {
+        $columns = implode(', ', $constraint->getColumnNames());
+        return sprintf(
+            'CONSTRAINT %s PRIMARY KEY (%s)',
+            $constraint->getName(),
+            $columns
+        );
+    }
+
+    /**
+     * Parse a Unique constraint to its SQL representation
+     *
+     * @param Constraint\Unique $constraint
+     * @return string
+     */
+    protected function _getUniqueConstraint(Constraint\Unique $constraint)
+    {
+        return sprintf(
+            'CONSTRAINT %s UNIQUE (%s)',
+            $constraint->getName(),
+            $constraint->getColumn()
+        );
     }
 
     /**
