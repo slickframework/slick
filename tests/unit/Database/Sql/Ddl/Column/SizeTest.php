@@ -34,5 +34,6 @@ class SizeTest extends \Codeception\TestCase\Test
         $this->assertEquals(Size::SMALL, Size::small()->getValue());
         $this->assertEquals(Size::TINY, Size::tiny()->getValue());
         $this->assertEquals(Size::NORMAL, Size::normal()->getValue());
+        $this->assertEquals(Size::BIG, Size::big()->getValue());
     }
 }

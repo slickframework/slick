@@ -17,6 +17,7 @@ use Slick\Database\Sql\Insert;
 use Slick\Database\Sql\Update;
 use Slick\Database\Sql\Select;
 use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Sql\Ddl\CreateTable;
 use Slick\Database\Sql\Dialect\SqlTemplateInterface;
 
 /**
@@ -29,7 +30,7 @@ abstract class AbstractSqlTemplate implements SqlTemplateInterface
 {
 
     /**
-     * @var SqlInterface|Select|Delete|Insert|Update
+     * @var SqlInterface|Select|Delete|Insert|Update|CreateTable
      */
     protected $_sql;
 

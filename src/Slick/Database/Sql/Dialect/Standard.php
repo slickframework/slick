@@ -36,6 +36,7 @@ class Standard extends AbstractDialect implements DialectInterface
         'select' => 'Slick\Database\Sql\Select',
         'update' => 'Slick\Database\Sql\Update',
         'delete' => 'Slick\Database\Sql\Delete',
+        'createTable' => 'Slick\Database\Sql\Ddl\CreateTable',
     ];
 
     /**
@@ -103,5 +104,15 @@ class Standard extends AbstractDialect implements DialectInterface
     public function update()
     {
         return new StandardDialect\UpdateSqlTemplate();
+    }
+
+    /**
+     * Crates a create table sql template
+     *
+     * @return Standard\CreateTableSqlTemplate
+     */
+    public function createTable()
+    {
+        return new StandardDialect\CreateTableSqlTemplate();
     }
 }

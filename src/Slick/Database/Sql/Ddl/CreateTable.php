@@ -12,6 +12,7 @@
 
 namespace Slick\Database\Sql\Ddl;
 
+use Slick\Database\Sql\Dialect;
 use Slick\Database\Sql\AbstractSql;
 use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\Ddl\Column\ColumnInterface;
@@ -53,7 +54,8 @@ class CreateTable extends AbstractSql implements SqlInterface
      */
     public function getQueryString()
     {
-        // TODO: Implement getQueryString() method.
+        $dialect = Dialect::create($this->_adapter->getDialect(), $this);
+        return $dialect->getSqlStatement();
     }
 
     /**

@@ -36,7 +36,7 @@ class Float extends AbstractColumn
      * @param int $digits
      * @param int $decimal
      */
-    public function __construct($name, $digits, $decimal = 2)
+    public function __construct($name, $digits, $decimal = null)
     {
         parent::__construct($name);
         $this->_decimal = $decimal;

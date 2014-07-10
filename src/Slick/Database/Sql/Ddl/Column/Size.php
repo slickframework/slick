@@ -28,9 +28,10 @@ class Size extends Enum
      */
     const SMALL  = 'small';
     const TINY   = 'tiny';
-    const NORMAL = 'tiny';
+    const NORMAL = 'normal';
     const MEDIUM = 'medium';
     const LONG   = 'long';
+    const BIG    = 'big';
     /**#@-*/
 
     /**
@@ -81,5 +82,15 @@ class Size extends Enum
     final public static function long()
     {
         return new static(static::LONG);
+    }
+
+    /**
+     * Big column size
+     *
+     * @return Size
+     */
+    final public static function big()
+    {
+        return new static(static::BIG);
     }
 }
