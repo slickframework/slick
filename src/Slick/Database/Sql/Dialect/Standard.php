@@ -13,6 +13,7 @@
 namespace Slick\Database\Sql\Dialect;
 
 use Slick\Database\Sql\Dialect\Standard as StandardDialect;
+use Slick\Filter\StaticFilter;
 
 /**
  * Standard SQL Dialect
@@ -36,6 +37,8 @@ class Standard extends AbstractDialect implements DialectInterface
         'select' => 'Slick\Database\Sql\Select',
         'update' => 'Slick\Database\Sql\Update',
         'delete' => 'Slick\Database\Sql\Delete',
+        'dropTable' => 'Slick\Database\Sql\Ddl\DropTable',
+        'alterTable' => 'Slick\Database\Sql\Ddl\AlterTable',
         'createTable' => 'Slick\Database\Sql\Ddl\CreateTable',
     ];
 
@@ -114,5 +117,25 @@ class Standard extends AbstractDialect implements DialectInterface
     public function createTable()
     {
         return new StandardDialect\CreateTableSqlTemplate();
+    }
+
+    /**
+     * Creates an alter table sql template
+     *
+     * @return Standard\AlterTableSqlTemplate
+     */
+    public function alterTable()
+    {
+        return new StandardDialect\AlterTableSqlTemplate();
+    }
+
+    /**
+     * Creates a drop table sql template
+     *
+     * @return Standard\DropTableSqlTemplate
+     */
+    public function dropTable()
+    {
+        return new StandardDialect\DropTableSqlTemplate();
     }
 }
