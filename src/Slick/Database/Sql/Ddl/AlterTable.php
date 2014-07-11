@@ -103,4 +103,26 @@ class AlterTable extends CreateTable implements SqlInterface
     {
         return $this->_dropConstraints;
     }
+
+    /**
+     * @param ConstraintInterface $constraint
+     *
+     * @return AlterTable
+     */
+    public function addConstraint(ConstraintInterface $constraint)
+    {
+        return parent::addConstraint($constraint);
+    }
+
+    /**
+     * Adds a column to the table
+     *
+     * @param ColumnInterface $column
+     *
+     * @return AlterTable
+     */
+    public function addColumn(ColumnInterface $column)
+    {
+        return parent::addColumn($column);
+    }
 }

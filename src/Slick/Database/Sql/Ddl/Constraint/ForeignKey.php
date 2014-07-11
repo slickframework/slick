@@ -61,7 +61,7 @@ class ForeignKey extends AbstractConstraint implements ConstraintInterface
      * Creates a foreign key constraint
      *
      * @param string $name
-     * @param array  $column
+     * @param string $column
      * @param string $referenceTable
      * @param string $referenceColumn
      * @param array  $options

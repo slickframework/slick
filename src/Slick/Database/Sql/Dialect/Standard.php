@@ -63,6 +63,7 @@ class Standard extends AbstractDialect implements DialectInterface
             foreach ($this->_map as $method => $className) {
                 if ($this->_sql instanceof $className) {
                     $this->_template = $this->$method();
+                    break;
                 }
             }
         }
