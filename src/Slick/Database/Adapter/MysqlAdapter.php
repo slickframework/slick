@@ -85,6 +85,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
                 $this->_password,
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
             );
+            $this->_handler->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
             $this->_connected = true;
         } catch (\Exception $exp) {
             throw new ServiceException(

@@ -40,6 +40,7 @@ class Standard extends AbstractDialect implements DialectInterface
         'dropTable' => 'Slick\Database\Sql\Ddl\DropTable',
         'alterTable' => 'Slick\Database\Sql\Ddl\AlterTable',
         'createTable' => 'Slick\Database\Sql\Ddl\CreateTable',
+        'createIndex' => 'Slick\Database\Sql\Ddl\CreateIndex',
     ];
 
     /**
@@ -138,5 +139,15 @@ class Standard extends AbstractDialect implements DialectInterface
     public function dropTable()
     {
         return new StandardDialect\DropTableSqlTemplate();
+    }
+
+    /**
+     * Creates a create index sql template
+     *
+     * @return Standard\CreateIndexSqlTemplate
+     */
+    public function createIndex()
+    {
+        return new StandardDialect\CreateIndexSqlTemplate();
     }
 }
