@@ -27,6 +27,11 @@ class Delete extends AbstractSql implements SqlInterface
     use WhereMethods;
 
     /**
+     * Use execute methods
+     */
+    use ExecuteMethods;
+
+    /**
      * Creates the sql with the table name and fields
      *
      * @param string $tableName

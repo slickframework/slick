@@ -13,7 +13,6 @@
 namespace Slick\Database\Sql\Dialect;
 
 use Slick\Database\Sql\Dialect\Standard as StandardDialect;
-use Slick\Filter\StaticFilter;
 
 /**
  * Standard SQL Dialect
@@ -41,6 +40,7 @@ class Standard extends AbstractDialect implements DialectInterface
         'alterTable' => 'Slick\Database\Sql\Ddl\AlterTable',
         'createTable' => 'Slick\Database\Sql\Ddl\CreateTable',
         'createIndex' => 'Slick\Database\Sql\Ddl\CreateIndex',
+        'dropIndex' => 'Slick\Database\Sql\Ddl\DropIndex',
     ];
 
     /**
@@ -149,5 +149,15 @@ class Standard extends AbstractDialect implements DialectInterface
     public function createIndex()
     {
         return new StandardDialect\CreateIndexSqlTemplate();
+    }
+
+    /**
+     * Creates a drop index sql template
+     *
+     * @return Standard\DropIndexSqlTemplate
+     */
+    public function dropIndex()
+    {
+        return new StandardDialect\DropIndexSqlTemplate();
     }
 }

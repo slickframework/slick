@@ -29,6 +29,11 @@ class Insert extends AbstractSql implements SqlInterface
     use SetDataMethods;
 
     /**
+     * Use execute methods
+     */
+    use ExecuteMethods;
+
+    /**
      * Creates the sql with the table name and fields
      *
      * @param string $tableName

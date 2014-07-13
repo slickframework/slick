@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Drop Table SQL statement
+ * Drop table index SQL statement
  *
  * @package   Slick\Database\Sql\Ddl
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -18,12 +18,12 @@ use Slick\Database\Sql\SqlInterface;
 use Slick\Database\Sql\ExecuteMethods;
 
 /**
- * Drop Table SQL statement
+ * Drop table index SQL statement
  *
  * @package   Slick\Database\Sql\Ddl
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class DropTable extends AbstractSql implements SqlInterface
+class DropIndex extends AbstractSql implements SqlInterface
 {
     /**
      * Use execute methods
@@ -31,13 +31,30 @@ class DropTable extends AbstractSql implements SqlInterface
     use ExecuteMethods;
 
     /**
+     * @var string
+     */
+    protected $_name;
+
+    /**
      * Creates the sql with the table name
      *
+     * @param $name
      * @param string $tableName
      */
-    public function __construct($tableName)
+    public function __construct($name, $tableName)
     {
+        $this->_name = $name;
         $this->_table = $tableName;
+    }
+
+    /**
+     * Returns index name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_name;
     }
 
     /**

@@ -16,6 +16,7 @@ use Slick\Database\Sql\Dialect;
 use Slick\Utility\ArrayMethods;
 use Slick\Database\Sql\AbstractSql;
 use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Sql\ExecuteMethods;
 
 /**
  * Create table index SQL statement
@@ -25,6 +26,11 @@ use Slick\Database\Sql\SqlInterface;
  */
 class CreateIndex extends AbstractSql implements SqlInterface
 {
+    /**
+     * Use execute methods
+     */
+    use ExecuteMethods;
+
     /**
      * @var string
      */

@@ -13,6 +13,7 @@
 namespace Slick\Database\Sql\Ddl;
 
 use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Sql\ExecuteMethods;
 use Slick\Database\Sql\Ddl\Column\ColumnInterface;
 use Slick\Database\Sql\Ddl\Constraint\ConstraintInterface;
 
@@ -24,6 +25,10 @@ use Slick\Database\Sql\Ddl\Constraint\ConstraintInterface;
  */
 class AlterTable extends CreateTable implements SqlInterface
 {
+    /**
+     * Use execute methods
+     */
+    use ExecuteMethods;
 
     /**
      * @var ColumnInterface[]
