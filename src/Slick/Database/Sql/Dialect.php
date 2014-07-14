@@ -31,6 +31,7 @@ final class Dialect
      */
     const STANDARD = 'standard';
     const MYSQL    = 'mysql';
+    const SQLITE    = 'sqlite';
     /**#@-*/
 
     /**
@@ -44,6 +45,7 @@ final class Dialect
     private static $_map = [
         self::STANDARD => 'Slick\Database\Sql\Dialect\Standard',
         self::MYSQL => 'Slick\Database\Sql\Dialect\Mysql',
+        self::SQLITE => 'Slick\Database\Sql\Dialect\Sqlite',
     ];
 
     /**

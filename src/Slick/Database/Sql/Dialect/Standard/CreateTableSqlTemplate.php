@@ -118,7 +118,10 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
     {
         $parts = [];
         foreach ($this->_sql->getConstraints() as $constraint) {
-            $parts[] = $this->_parseConstraint($constraint);
+            $cons = $this->_parseConstraint($constraint);
+            if ($cons) {
+                $parts[] = $cons;
+            }
         }
         return implode(', ', $parts);
     }

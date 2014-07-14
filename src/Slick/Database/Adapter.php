@@ -42,7 +42,8 @@ final class Adapter extends Base
      * @var array List of known adapters
      */
     private $_knownAdapters = [
-        'mysql' => 'Slick\Database\Adapter\MysqlAdapter'
+        'mysql' => 'Slick\Database\Adapter\MysqlAdapter',
+        'sqlite' => 'Slick\Database\Adapter\SqliteAdapter'
     ];
 
     /**
@@ -85,6 +86,10 @@ final class Adapter extends Base
         switch (strtolower($this->_driver)) {
             case 'mysql':
                 $adapter = $this->_createAdapter('mysql');
+                break;
+
+            case 'sqlite':
+                $adapter = $this->_createAdapter('sqlite');
                 break;
 
             default:
