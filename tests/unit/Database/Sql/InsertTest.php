@@ -12,8 +12,8 @@
 
 namespace Database\Sql;
 
-use Slick\Database\Adapter;
 use Slick\Database\Sql;
+use Slick\Database\Adapter;
 use Slick\Database\Adapter\AdapterInterface;
 
 /**
@@ -34,7 +34,11 @@ class InsertTest extends \Codeception\TestCase\Test
     protected function _before()
     {
         parent::_before();
-        $this->_adapter = new Adapter(['options' => ['autoConnect' => false]]);
+        $this->_adapter = new Adapter(
+            [
+                'driver' => '\Database\Sql\InsertAdapter'
+            ]
+        );
         $this->_adapter = $this->_adapter->initialize();
     }
 
@@ -69,5 +73,67 @@ class InsertTest extends \Codeception\TestCase\Test
             ],
             $sql->getParameters()
         );
+
+        $this->assertEquals(1, $sql->execute());
+        $this->assertEquals($sql, InsertAdapter::$sql);
+        $this->assertEquals($sql->getParameters(), InsertAdapter::$params);
+    }
+
+}
+
+/**
+ * Mock class for test execute methods
+ */
+class InsertHandle extends \PDO
+{
+    /**
+     * PDO override
+     */
+    public function __construct()
+    {
+        parent::__construct('sqlite::memory:');
+    }
+}
+
+/**
+ * Mock the adapter
+ */
+class InsertAdapter extends Adapter\AbstractAdapter implements AdapterInterface
+{
+
+    public static $sql;
+
+    public static $params;
+
+    /**
+     * @write
+     * @var string
+     */
+    protected $_handlerClass = '\Database\Sql\InsertHandle';
+
+    /**
+     * Connects to the database service
+     *
+     * @return AdapterInterface The current adapter to chain method calls
+     */
+    public function connect()
+    {
+        $class = $this->_handlerClass;
+        $this->_handler = new $class();
+        $this->_connected = true;
+    }
+
+    /**
+     * Overrides for tests
+     *
+     * @param Sql\SqlInterface|string $sql
+     * @param array $parameters
+     * @return int|void
+     */
+    public function execute($sql, $parameters = [])
+    {
+        static::$sql = $sql;
+        static::$params = $parameters;
+        return 1;
     }
 }
