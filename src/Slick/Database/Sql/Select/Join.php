@@ -121,4 +121,17 @@ class Join implements FieldListAwareInterface
         return $this->_alias;
     }
 
+    /**
+     * Sets join fields to include in select statement
+     *
+     * @param string|array $fields
+     *
+     * @return Join
+     */
+    public function setFields($fields)
+    {
+        $this->_fields = $fields;
+        return $this;
+    }
+
 }

@@ -215,4 +215,46 @@ class Select extends AbstractSql implements
         $this->_offset = $offset;
         return $this;
     }
+
+    /**
+     * Retrieve all records matching this select query
+     *
+     * @return \Slick\Database\RecordList
+     */
+    public function all()
+    {
+        return $this->_adapter->query($this, $this->getParameters());
+    }
+
+    /**
+     * Retrieve first record matching this select query
+     *
+     * @return \Slick\Database\RecordList
+     */
+    public function first()
+    {
+        $sql = clone($this);
+        $sql->limit(1);
+        return $this->_adapter->query($sql, $sql->getParameters());
+    }
+
+    /**
+     * Counts all records matching this select query
+     *
+     * @return int
+     */
+    public function count()
+    {
+        $total = 0;
+        $sql = clone($this);
+        $sql->_fields = 'COUNT(*) AS total';
+        foreach ($sql->getJoins() as $join) {
+            $join->setFields(null);
+        }
+        $result = $this->_adapter->query($sql, $sql->getParameters());
+        if (!empty($result)) {
+            $total = intval($result[0]['total']);
+        }
+        return $total;
+    }
 }
