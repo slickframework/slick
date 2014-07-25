@@ -22,6 +22,7 @@ use Slick\Database\Sql\Ddl\Column\Integer;
 use Slick\Database\Sql\Ddl\Column\Size;
 use Slick\Database\Sql\Ddl\Column\Text;
 use Slick\Database\Sql\Ddl\Column\Varchar;
+use Slick\Database\Sql\Ddl\Constraint\ForeignKey;
 use Slick\Database\Sql\Ddl\Constraint\Primary;
 use Slick\Database\Sql\Ddl\Constraint\Unique;
 use Slick\Database\Sql\Ddl\CreateTable;
@@ -100,7 +101,7 @@ class SqliteTest extends \Codeception\TestCase\Test
     public function createDatabasePosts()
     {
 
-        $ddl = new CreateTable('tags');
+        $ddl = new CreateTable('categories');
         $ddl->setAdapter($this->_adapter);
         $ddl->addColumn(new Integer('id', ['autoIncrement' => 'true', 'size' => Size::big()]))
             ->addColumn(new Varchar('name', 255))
@@ -118,8 +119,11 @@ class SqliteTest extends \Codeception\TestCase\Test
             ->addColumn(new Blob('photo', 2048))
             ->addColumn(new Boolean('active'))
             ->addColumn(new Integer('age', ['size' => Size::tiny(), 'default' => 1]))
+            ->addColumn(new Integer('category_id', ['size' => Size::big()]))
             ->addColumn(new Float('score', 3, 2));
-        $ddl->addConstraint(new Primary('postsPk', ['columnNames' => ['id']]));
+        $ddl->addConstraint(new Primary('postsPk', ['columnNames' => ['id']]))
+            ->addConstraint(new ForeignKey('categoryFk', 'category_id', 'categories', 'id'));
+
         $result = $ddl->execute();
         $this->assertEquals(0, $result);
     }
