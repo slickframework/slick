@@ -12,7 +12,7 @@
 
 namespace Slick\Database\Sql;
 
-use Slick\Database\Adapter\AdapterInterface;
+use Slick\Database\Adapter\AdapterAwareInterface;
 
 /**
  * Sql interface
@@ -20,7 +20,7 @@ use Slick\Database\Adapter\AdapterInterface;
  * @package   Slick\Database\Sql
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-interface SqlInterface
+interface SqlInterface extends AdapterAwareInterface
 {
 
     /**
@@ -29,13 +29,5 @@ interface SqlInterface
      * @return string
      */
     public function getQueryString();
-
-    /**
-     * Sets the adapter for this statement
-     *
-     * @param AdapterInterface $adapter
-     * @return SqlInterface
-     */
-    public function setAdapter(AdapterInterface $adapter);
 
 } 

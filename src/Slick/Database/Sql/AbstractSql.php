@@ -46,6 +46,16 @@ abstract class AbstractSql implements SqlInterface
     }
 
     /**
+     * Retrieves the current adapter
+     *
+     * @return AdapterInterface
+     */
+    public function getAdapter()
+    {
+        return $this->_adapter;
+    }
+
+    /**
      * @return string
      */
     public function getTable()

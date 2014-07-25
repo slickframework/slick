@@ -35,19 +35,6 @@ use Serializable;
  */
 abstract class Base implements Serializable
 {
-    
-    /**
-     * @var \Slick\common\Inspector The self inspector object.
-     */
-    private $_inspector = null;
-
-    /**
-     * @readwrite
-     * @var mixed Used by codeception in test mockups.
-     */
-    // @codingStandardsIgnoreStart
-    public $___mocked;
-    // @codingStandardsIgnoreEnd
 
     /**
      * Trait with method for base class
@@ -68,14 +55,7 @@ abstract class Base implements Serializable
      */
     public function __construct($options = array())
     {
-        $this->_inspector = new Inspector($this);
-        if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
-                $key = ucfirst($key);
-                $method = "set{$key}";
-                $this->$method($value);
-            }
-        }
+        $this->_createObject($options);
     }
 
     /**

@@ -78,6 +78,16 @@ class CustomSql implements SqlInterface
     {
         // TODO: Implement setAdapter() method.
     }
+
+    /**
+     * Retrieves the current adapter
+     *
+     * @return AdapterInterface
+     */
+    public function getAdapter()
+    {
+        // TODO: Implement getAdapter() method.
+    }
 }
 
 class CustomDialect implements Dialect\DialectInterface

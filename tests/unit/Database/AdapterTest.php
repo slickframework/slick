@@ -293,4 +293,14 @@ class CustomSql implements SqlInterface
     {
 
     }
+
+    /**
+     * Retrieves the current adapter
+     *
+     * @return AdapterInterface
+     */
+    public function getAdapter()
+    {
+        // TODO: Implement getAdapter() method.
+    }
 }

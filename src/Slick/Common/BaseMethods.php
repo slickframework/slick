@@ -24,6 +24,30 @@ use Slick\Utility\Text;
  */
 trait BaseMethods
 {
+    /**
+     * @var \Slick\common\Inspector The self inspector object.
+     */
+    private $_inspector = null;
+
+    /**
+     * @readwrite
+     * @var mixed Used by codeception in test mockups.
+     */
+    // @codingStandardsIgnoreStart
+    public $___mocked;
+    // @codingStandardsIgnoreEnd
+
+    protected function _createObject($options = [])
+    {
+        $this->_inspector = new Inspector($this);
+        if (is_array($options) || is_object($options)) {
+            foreach ($options as $key => $value) {
+                $key = ucfirst($key);
+                $method = "set{$key}";
+                $this->$method($value);
+            }
+        }
+    }
 
     /**
      * Handles the call for unimplemented methods.
