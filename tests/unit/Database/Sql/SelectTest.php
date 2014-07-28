@@ -332,4 +332,14 @@ class SelectAdapter extends Adapter\AbstractAdapter implements AdapterInterface
         return $result;
 
     }
+
+    /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        // TODO: Implement getSchemaName() method.
+    }
 }

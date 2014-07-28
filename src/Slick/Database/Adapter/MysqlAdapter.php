@@ -95,4 +95,13 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
         }
     }
 
+    /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        return $this->_database;
+    }
 }

@@ -110,4 +110,11 @@ interface AdapterInterface
      * @return string
      */
     public function getDialect();
+
+    /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    public function getSchemaName();
 } 

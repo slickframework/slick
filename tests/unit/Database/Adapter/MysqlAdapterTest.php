@@ -31,14 +31,18 @@ class MysqlAdapterTest extends \Codeception\TestCase\Test
      */
     public function connectWithMysqlAdapter()
     {
-        $adapter = new MysqlAdapter(['handlerClass' => 'Database\Adapter\Handler']);
+        $adapter = new MysqlAdapter([
+            'handlerClass' => 'Database\Adapter\Handler',
+            'database' => 'test'
+        ]);
         $this->assertTrue($adapter->isConnected());
         $this->assertInstanceOf('Slick\Database\Adapter\MysqlAdapter', $adapter);
         $this->assertInstanceOf('Slick\Database\Adapter\AdapterInterface', $adapter);
         $this->assertInstanceOf('Slick\Database\Adapter\AbstractAdapter', $adapter);
+        $this->assertEquals('test', $adapter->getSchemaName());
 
         Handler::$connectionError = true;
-        $adapter = new MysqlAdapter(['handlerClass' => 'Database\Adapter\Handler']);
+        new MysqlAdapter(['handlerClass' => 'Database\Adapter\Handler']);
 
     }
 

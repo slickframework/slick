@@ -185,6 +185,16 @@ class MyAdapter extends AbstractAdapter
         $this->_connected = true;
         return $this;
     }
+
+    /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        // TODO: Implement getSchemaName() method.
+    }
 }
 
 /**

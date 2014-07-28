@@ -1,15 +1,23 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 7/25/14
- * Time: 5:41 PM
+ * Schema interface
+ *
+ * @package   Slick\Database
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Database\Schema;
 
 use Slick\Database\Adapter\AdapterAwareInterface;
 
+/**
+ * Interface SchemaInterface
+ * @package Slick\Database\Schema
+ */
 interface SchemaInterface extends AdapterAwareInterface
 {
 
@@ -37,4 +45,11 @@ interface SchemaInterface extends AdapterAwareInterface
      * @return SchemaInterface
      */
     public function addTable(TableInterface $table);
+
+    /**
+     * Returns schema name
+     *
+     * @return string
+     */
+    public function getName();
 }

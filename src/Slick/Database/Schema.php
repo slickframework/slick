@@ -112,7 +112,18 @@ class Schema implements SchemaInterface
      */
     public function addTable(TableInterface $table)
     {
+        $table->setSchema($this);
         $this->_tables[$table->getName()] = $table;
         return $this;
+    }
+
+    /**
+     * Returns schema name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_adapter->getSchemaName();
     }
 }

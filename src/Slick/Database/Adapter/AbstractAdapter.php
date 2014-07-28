@@ -287,6 +287,13 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     }
 
     /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    abstract public function getSchemaName();
+
+    /**
      * Check if the service is valid and its connected
      *
      * @throws \Slick\Database\Exception\ServiceException

@@ -9,6 +9,7 @@
 namespace Slick\Database\Schema;
 
 
+use Slick\Database\Schema;
 use Slick\Database\Sql\Ddl\Column\ColumnInterface;
 use Slick\Database\Sql\Ddl\Constraint\ConstraintInterface;
 
@@ -55,6 +56,14 @@ interface TableInterface
      * @return SchemaInterface
      */
     public function getSchema();
+
+    /**
+     * Sets the schema for this table
+     *
+     * @param Schema $schema
+     * @return TableInterface
+     */
+    public function setSchema(Schema $schema);
 
     /**
      * Returns table name

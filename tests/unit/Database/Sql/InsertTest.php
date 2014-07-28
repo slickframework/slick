@@ -136,4 +136,15 @@ class InsertAdapter extends Adapter\AbstractAdapter implements AdapterInterface
         static::$params = $parameters;
         return 1;
     }
+
+    /**
+     * Returns the schema name for this adapter
+     *
+     * @return string
+     */
+    public function getSchemaName()
+    {
+        // TODO: Implement getSchemaName() method.
+    }
+
 }
