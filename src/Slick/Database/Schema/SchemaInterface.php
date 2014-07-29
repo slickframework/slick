@@ -3,7 +3,7 @@
 /**
  * Schema interface
  *
- * @package   Slick\Database
+ * @package   Slick\Database\Schema
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
