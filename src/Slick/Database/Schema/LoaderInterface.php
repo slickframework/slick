@@ -24,6 +24,13 @@ interface LoaderInterface extends AdapterAwareInterface
 {
 
     /**
+     * Returns a list of table names
+     *
+     * @return string[]
+     */
+    public function getTables();
+
+    /**
      * Returns the schema for the given interface
      *
      * @return SchemaInterface

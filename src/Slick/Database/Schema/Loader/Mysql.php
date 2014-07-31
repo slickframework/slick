@@ -1,60 +1,31 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 7/30/14
- * Time: 5:08 PM
+ * Mysql Schema loader
+ *
+ * @package   Slick\Database\Schema\Loader
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Database\Schema\Loader;
 
 
+use Slick\Database\Schema;
 use Slick\Common\BaseMethods;
 use Slick\Database\Schema\LoaderInterface;
 use Slick\Database\Schema\SchemaInterface;
-use Slick\Database\Adapter\AdapterInterface;
-use Slick\Database\Adapter\AdapterAwareInterface;
-use Slick\Database\Schema;
 
-class Mysql implements LoaderInterface
+/**
+ * Mysql Schema loader
+ *
+ * @package   Slick\Database\Schema\Loader
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
+class Mysql extends Standard implements LoaderInterface
 {
-
-    /**
-     * Factory behavior methods from Slick\Common\Base class
-     */
-    use BaseMethods;
-
-    /**
-     * Easy construction with base methods
-     *
-     * @param array $options
-     */
-    public function __construct($options = [])
-    {
-        $this->_createObject($options);
-    }
-
-    /**
-     * Sets the adapter for this statement
-     *
-     * @param AdapterInterface $adapter
-     * @return AdapterAwareInterface
-     */
-    public function setAdapter(AdapterInterface $adapter)
-    {
-        // TODO: Implement setAdapter() method.
-    }
-
-    /**
-     * Retrieves the current adapter
-     *
-     * @return AdapterInterface
-     */
-    public function getAdapter()
-    {
-        // TODO: Implement getAdapter() method.
-    }
-
     /**
      * Returns the schema for the given interface
      *
