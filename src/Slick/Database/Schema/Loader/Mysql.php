@@ -26,13 +26,5 @@ use Slick\Database\Schema\SchemaInterface;
  */
 class Mysql extends Standard implements LoaderInterface
 {
-    /**
-     * Returns the schema for the given interface
-     *
-     * @return SchemaInterface
-     */
-    public function getSchema()
-    {
-        return new Schema();
-    }
+
 }

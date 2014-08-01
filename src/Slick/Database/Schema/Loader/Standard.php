@@ -18,6 +18,7 @@ use Slick\Database\Schema\Table;
 use Slick\Database\Schema\LoaderInterface;
 use Slick\Database\Schema\SchemaInterface;
 use Slick\Database\Adapter\AdapterInterface;
+use Slick\Database\Schema;
 use Slick\Database\Sql\Ddl\Column\ColumnInterface;
 
 /**
@@ -29,12 +30,15 @@ use Slick\Database\Sql\Ddl\Column\ColumnInterface;
  * @property      AdapterInterface $adapter
  * @property      string           $defaultColumn
  * @property-read string[]         $tables
+ * @property-read array            $typeExpressions
+ * @property-read array            $constraintExpressions
  *
  * @method Standard setDefaultColumn($column) Sets default column class
  * @method void     getDefaultColumn() Returns current default column class
  * @method array    getTypeExpressions() Returns the regex used in column
  *                                       instantiation.
- *
+ * @method array    getConstraintExpressions() Returns the regex used in
+ *                                             constraint instantiation.
  */
 class Standard implements LoaderInterface
 {
@@ -51,6 +55,15 @@ class Standard implements LoaderInterface
     const COLUMN_TEXT      = 'Text';
     const COLUMN_VARCHAR   = 'Varchar';
     /**#@-*/
+
+    /**#@+
+     * Supported constraints
+     * @var string
+     */
+    const CONSTRAINT_PRIMARY     = 'Primary';
+    const CONSTRAINT_UNIQUE      = 'Unique';
+    const CONSTRAINT_FOREIGN_KEY = 'ForeignKey';
+    /**@#-*/
 
     /**
      * Factory behavior methods from Slick\Common\Base class
@@ -81,6 +94,16 @@ class Standard implements LoaderInterface
         self::COLUMN_FLOAT => '(DECIMAL)|(FLOAT)|(DEC)|(DOUBLE)|(NUMERIC)',
         self::COLUMN_TEXT => '(TEXT)|(ENUM)',
         self::COLUMN_VARCHAR => '(VARCHAR)|(CHAR)'
+    ];
+
+    /**
+     * @read
+     * @var array
+     */
+    protected $_constraintExpressions = [
+        self::CONSTRAINT_FOREIGN_KEY => '(FOREIGN)',
+        self::CONSTRAINT_PRIMARY => '(PRIMARY)',
+        self::CONSTRAINT_UNIQUE => '(UNIQUE)'
     ];
 
     /**
@@ -129,9 +152,8 @@ class Standard implements LoaderInterface
     public function getTables()
     {
         if (is_null($this->_tables)) {
-            $sql  = "SELECT * FROM INFORMATION_SCHEMA.TABLES ";
-            $sql .= "WHERE TABLE_TYPE='BASE TABLE' ";
-            $sql .= "AND TABLE_SCHEMA=?";
+            $sql  = "SELECT * FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA=?";
 
             $result = $this->_adapter->query(
                 $sql,
@@ -157,10 +179,18 @@ class Standard implements LoaderInterface
     public function getTable($tableName)
     {
         $table = new Table($tableName);
-        $columns = $this->_getColumns($tableName);
 
+        $columns = $this->_getColumns($tableName);
         foreach ($columns as $col) {
             $table->addColumn($this->_createColumn($col));
+        }
+
+        $constraints = $this->_getConstraints($tableName);
+        foreach ($constraints as $constraint) {
+            $object = $this->_createConstraint($constraint);
+            if ($object) {
+                $table->addConstraint($object);
+            }
         }
 
         return $table;
@@ -173,7 +203,15 @@ class Standard implements LoaderInterface
      */
     public function getSchema()
     {
-        // TODO: Implement getSchema() method.
+        $schema = new Schema([
+            'adapter' => $this->_adapter
+        ]);
+        $tables = $this->getTables();
+        foreach ($tables as $tableName) {
+            $schema->addTable($this->getTable($tableName));
+        }
+
+        return $schema;
     }
 
     /**
@@ -185,7 +223,7 @@ class Standard implements LoaderInterface
     protected function _getColumns($tableName)
     {
         $sql = "SELECT
-                  column_name,
+                  COLUMN_NAME,
                   data_type,
                   character_maximum_length,
                   numeric_precision,
@@ -229,7 +267,10 @@ class Standard implements LoaderInterface
     }
 
     /**
-     * @param $colData
+     * Crates a DDL column object for provided column metadata
+     *
+     * @param array $colData
+     *
      * @return ColumnInterface
      */
     protected function _createColumn($colData)
@@ -269,5 +310,124 @@ class Standard implements LoaderInterface
         }
 
         return $column;
+    }
+
+    /**
+     * Returns the constraints of the provided table
+     *
+     * @param string $tableName
+     *
+     * @return \Slick\Database\RecordList
+     */
+    protected function _getConstraints($tableName)
+    {
+        $sql = "SELECT
+                  tc.CONSTRAINT_NAME AS constraintName,
+                  CONSTRAINT_TYPE AS constraintType,
+                  rc.UPDATE_RULE AS onUpdate,
+                  rc.DELETE_RULE AS onDelete,
+                  ccu.COLUMN_NAME AS columnName,
+                  rccu.COLUMN_NAME AS referenceColumn,
+                  rccu.TABLE_CATALOG,
+                  rccu.TABLE_SCHEMA,
+                  rccu.TABLE_NAME AS referenceTable,
+                  CHECK_CLAUSE AS checkClause
+                FROM
+                  INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON
+                    tc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
+                    tc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
+                    tc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME AND
+                    tc.TABLE_CATALOG=ccu.TABLE_CATALOG AND
+                    tc.TABLE_SCHEMA=ccu.TABLE_SCHEMA AND
+                    tc.TABLE_NAME=ccu.TABLE_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc ON
+                    rc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
+                    rc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
+                    rc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE rccu ON
+                    rc.UNIQUE_CONSTRAINT_CATALOG=rccu.CONSTRAINT_CATALOG AND
+                    rc.UNIQUE_CONSTRAINT_SCHEMA=rccu.CONSTRAINT_SCHEMA AND
+                    rc.UNIQUE_CONSTRAINT_NAME=rccu.CONSTRAINT_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc ON
+                    tc.CONSTRAINT_CATALOG=cc.CONSTRAINT_CATALOG AND
+                    tc.CONSTRAINT_SCHEMA=cc.CONSTRAINT_SCHEMA AND
+                    tc.CONSTRAINT_NAME=cc.CONSTRAINT_NAME
+                WHERE
+                  tc.TABLE_SCHEMA=:schemaName AND   -- see remark
+                  tc.TABLE_NAME=:tableName
+                ORDER BY tc.CONSTRAINT_NAME";
+        $params = [
+            ':schemaName' => $this->_adapter->getSchemaName(),
+            ':tableName' => $tableName
+        ];
+
+        return $this->_adapter->query($sql, $params);
+    }
+
+    /**
+     * Retrieves the constraint class name for provided constraint type
+     *
+     * @param string $type
+     *
+     * @return null|string
+     */
+    protected function _getConstraintClass($type)
+    {
+        $class = null;
+        foreach ($this->_constraintExpressions as $className => $exp) {
+            if (preg_match("/{$exp}/i", $type)) {
+                $class = $className;
+                break;
+            }
+        }
+        return $class;
+    }
+
+    protected function _createConstraint($constraintData)
+    {
+        $nameSpace = 'Slick\Database\Sql\Ddl\Constraint';
+        $type = $this->_getConstraintClass($constraintData['constraintType']);
+        if (is_null($type)) { // Unknown/Unsupported constraint
+            return false;
+        }
+        $reflection = new ReflectionClass($nameSpace."\\".$type);
+
+        $constraint = null;
+        switch ($type) {
+            case self::CONSTRAINT_FOREIGN_KEY:
+                $constraint = $reflection->newInstanceArgs([
+                    $constraintData['constraintName'],
+                    $constraintData['columnName'],
+                    $constraintData['referenceTable'],
+                    $constraintData['referenceColumn'],
+                    [
+                        'onUpdate' => $constraintData['onUpdate'],
+                        'onDelete' => $constraintData['onDelete'],
+                    ]
+                ]);
+                break;
+
+            case self::CONSTRAINT_PRIMARY:
+                $constraint = $reflection->newInstanceArgs([
+                    $constraintData['constraintName'],
+                    [
+                        $constraintData['columnName']
+                    ]
+                ]);
+                break;
+
+            case self::CONSTRAINT_UNIQUE:
+                $constraint = $reflection->newInstanceArgs([
+                    $constraintData['constraintName']
+                ]);
+                break;
+        }
+
+        return $constraint;
     }
 }
