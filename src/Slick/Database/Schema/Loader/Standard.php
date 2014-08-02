@@ -223,12 +223,12 @@ class Standard implements LoaderInterface
     protected function _getColumns($tableName)
     {
         $sql = "SELECT
-                  COLUMN_NAME,
-                  data_type,
-                  character_maximum_length,
-                  numeric_precision,
-                  column_default,
-                  is_nullable
+                  COLUMN_NAME AS columnName,
+                  data_type AS type,
+                  character_maximum_length AS length,
+                  numeric_precision AS 'precision',
+                  column_default AS 'default',
+                  is_nullable AS isNullable
                 FROM
                   information_schema.tables as t
                   JOIN
@@ -276,14 +276,14 @@ class Standard implements LoaderInterface
     protected function _createColumn($colData)
     {
         $nameSpace = 'Slick\Database\Sql\Ddl\Column';
-        $type = $this->_getColumnClass($colData['data_type']);
+        $type = $this->_getColumnClass($colData['type']);
         $reflection = new ReflectionClass($nameSpace . "\\{$type}");
 
         switch ($type) {
 
             case self::COLUMN_BOOLEAN:
                 $column = $reflection->newInstanceArgs([
-                    $colData['column_name']
+                    $colData['columnName']
                 ]);
                 break;
 
@@ -292,19 +292,19 @@ class Standard implements LoaderInterface
             case self::COLUMN_INTEGER:
             case self::COLUMN_DATE_TIME:
                 $column = $reflection->newInstanceArgs([
-                    $colData['column_name'],
-                    $colData['character_maximum_length'],
+                    $colData['columnName'],
                     [
-                        'nullable' => (boolean) $colData['is_nullable'],
-                        'default' => $colData['column_default']
+                        'length' => $colData['length'],
+                        'nullable' => (boolean) $colData['isNullable'],
+                        'default' => $colData['default']
                     ]
                 ]);
                 break;
             default:
             case self::COLUMN_VARCHAR:
                 $column = $reflection->newInstanceArgs([
-                    $colData['column_name'],
-                    $colData['character_maximum_length']
+                    $colData['columnName'],
+                    $colData['length']
                 ]);
                 break;
         }

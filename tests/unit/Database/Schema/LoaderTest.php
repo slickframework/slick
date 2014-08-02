@@ -30,6 +30,41 @@ class LoaderTest extends \Codeception\TestCase\Test
      */
     protected $_adapter;
 
+    protected static $_resultSets = [
+        0 => [
+            ['TABLE_NAME' => 'users'],
+        ],
+        1 => [
+            [
+                'columnName' => 'id',
+                'type' => 'int',
+                'length' => null,
+                'precision' => 10,
+                'default' => null,
+                'isNullable' => 'NO'
+            ],
+            [
+                'columnName' => 'name',
+                'type' => 'tinytext',
+                'length' => 255,
+                'precision' => null,
+                'default' => null,
+                'isNullable' => 'NO'
+            ]
+        ],
+        2 => [
+            [
+                'constraintName' => 'PRIMARY',
+                'constraintType' => 'PRIMARY',
+                'columnName' => 'id',
+                'referenceTable' => null,
+                'referenceColumn' => null,
+                'onUpdate' => null,
+                'onDelete' => null
+            ]
+        ]
+     ];
+
     /**
      * Sets default adapter for tests
      */
@@ -39,7 +74,16 @@ class LoaderTest extends \Codeception\TestCase\Test
             '\Slick\Database\Adapter\MysqlAdapter',
             [
                 'autoConnect' => false,
-                'database' => 'schemaTest'
+                'database' => 'schemaTest',
+                'query' => function($sql, $params = []) {
+                    static $version;
+
+                    if (is_null($version) || $version > 2) {
+                        $version = 0;
+                    }
+
+                    return static::$_resultSets[$version++];
+                }
             ]
         );
     }
