@@ -13,9 +13,11 @@
 namespace Slick\Database;
 
 use Slick\Common\BaseMethods;
+use Slick\Database\Schema\Table;
 use Slick\Database\Schema\TableInterface;
 use Slick\Database\Schema\SchemaInterface;
 use Slick\Database\Adapter\AdapterInterface;
+use Slick\Database\Sql\Ddl\CreateTable;
 
 /**
  * Encapsulation of a database schema
@@ -125,5 +127,25 @@ class Schema implements SchemaInterface
     public function getName()
     {
         return $this->_adapter->getSchemaName();
+    }
+
+    /**
+     * Returns the SQL create statement form this schema
+     *
+     * @return string
+     */
+    public function getCreateStatement()
+    {
+        $sql = [];
+
+        foreach ($this->tables as $table) {
+            /** @var Table $table*/
+            $createTable = new CreateTable($table->getName());
+            $createTable->setAdapter($this->getAdapter());
+            $createTable->setColumns($table->getColumns());
+            $createTable->setConstraints($table->getConstraints());
+            $sql[] = $createTable->getQueryString();
+        }
+        return implode(';', $sql);
     }
 }

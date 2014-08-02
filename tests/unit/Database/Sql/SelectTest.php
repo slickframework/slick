@@ -61,6 +61,7 @@ class SelectTest extends \Codeception\TestCase\Test
     public function createBasicSelectStatement()
     {
         $sql = Sql::createSql($this->_adapter)->select('users');
+        $this->assertEquals($this->_adapter, $sql->getAdapter());
         $this->assertInstanceOf('Slick\Database\Sql\Select', $sql);
         $expected = "SELECT users.* FROM users";
         $this->assertEquals($expected, $sql->getQueryString());

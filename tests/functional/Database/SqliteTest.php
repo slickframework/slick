@@ -73,6 +73,7 @@ class SqliteTest extends \Codeception\TestCase\Test
     protected function _after()
     {
         unset($this->_adapter);
+        unlink(__DIR__ . '/sqlite.db');
         parent::_after();
     }
 
@@ -100,7 +101,7 @@ class SqliteTest extends \Codeception\TestCase\Test
      */
     public function createDatabasePosts()
     {
-
+        $this->assertNull($this->_adapter->getSchemaName());
         $ddl = new CreateTable('categories');
         $ddl->setAdapter($this->_adapter);
         $ddl->addColumn(new Integer('id', ['autoIncrement' => 'true', 'size' => Size::big()]))
@@ -126,16 +127,7 @@ class SqliteTest extends \Codeception\TestCase\Test
 
         $result = $ddl->execute();
         $this->assertEquals(0, $result);
-    }
 
-    /**
-     * @depends createDatabasePosts
-     * @test
-     */
-    public function dropTable()
-    {
-        $ddl = new DropTable('posts');
-        $ddl->setAdapter($this->_adapter);
-        //$ddl->execute();
+
     }
 }

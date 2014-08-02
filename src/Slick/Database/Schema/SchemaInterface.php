@@ -52,4 +52,11 @@ interface SchemaInterface extends AdapterAwareInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * Returns the SQL create statement form this schema
+     *
+     * @return string
+     */
+    public function getCreateStatement();
 }

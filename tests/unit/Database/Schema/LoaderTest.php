@@ -44,13 +44,29 @@ class LoaderTest extends \Codeception\TestCase\Test
                 'isNullable' => 'NO'
             ],
             [
+                'columnName' => 'active',
+                'type' => 'boolean',
+                'length' => null,
+                'precision' => 1,
+                'default' => null,
+                'isNullable' => 'NO'
+            ],
+            [
                 'columnName' => 'name',
                 'type' => 'tinytext',
                 'length' => 255,
                 'precision' => null,
                 'default' => null,
                 'isNullable' => 'NO'
-            ]
+            ],
+            [
+            'columnName' => 'test',
+            'type' => 'varchar',
+            'length' => 255,
+            'precision' => null,
+            'default' => null,
+            'isNullable' => 'NO'
+            ],
         ],
         2 => [
             [
@@ -61,7 +77,34 @@ class LoaderTest extends \Codeception\TestCase\Test
                 'referenceColumn' => null,
                 'onUpdate' => null,
                 'onDelete' => null
-            ]
+            ],
+            [
+                'constraintName' => 'usersUniqueName',
+                'constraintType' => 'UNIQUE',
+                'columnName' => 'name',
+                'referenceTable' => null,
+                'referenceColumn' => null,
+                'onUpdate' => null,
+                'onDelete' => null
+            ],
+            [
+                'constraintName' => 'userFk',
+                'constraintType' => 'FOREIGN KEY',
+                'columnName' => 'user_id',
+                'referenceTable' => 'users',
+                'referenceColumn' => 'id',
+                'onUpdate' => null,
+                'onDelete' => 'CASCADE'
+            ],
+            [
+                'constraintName' => 'userFk',
+                'constraintType' => 'FOO',
+                'columnName' => 'user_id',
+                'referenceTable' => 'users',
+                'referenceColumn' => 'id',
+                'onUpdate' => null,
+                'onDelete' => 'CASCADE'
+            ],
         ]
      ];
 
@@ -108,6 +151,18 @@ class LoaderTest extends \Codeception\TestCase\Test
 
         $schema = $loader->load();
         $this->assertInstanceOf('Slick\Database\Schema\SchemaInterface', $schema);
+
+    }
+
+    /**
+     * Create a single loader
+     * @test
+     */
+    public function createSingleLoader()
+    {
+        $loader = new Loader\Standard(['adapter' => $this->_adapter]);
+        $this->assertInstanceOf('Slick\Database\Schema\LoaderInterface', $loader);
+        $this->assertEquals($this->_adapter, $loader->getAdapter());
     }
 
     /**

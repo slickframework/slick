@@ -19,6 +19,7 @@ use Slick\Database\Schema\SchemaInterface;
 use Slick\Database\Schema\TableInterface;
 use Slick\Database\Sql\Ddl\Column\ColumnInterface;
 use Slick\Database\Sql\Ddl\Constraint\ConstraintInterface;
+use Slick\Database\Sql\Dialect;
 
 /**
  * Schema test case
@@ -93,6 +94,21 @@ class SchemaTest extends \Codeception\TestCase\Test
         $result = $schema->setTables([$tableA, $tableB, $tableC]);
         $this->assertInstanceOf('Slick\Database\Schema', $result);
         $this->assertEquals($schema, $schema->getTables()['C']->getSchema());
+    }
+
+    /**
+     * Retrieve creation of a Schema SQL
+     * @test
+     */
+    public function getSchemaSql()
+    {
+        /** @var Schema $schema */
+        $schema = include(__DIR__ .'/schemaDef.php');
+        $this->assertInstanceOf('Slick\Database\Schema', $schema);
+        $schema->setAdapter($this->_adapter);
+
+        $sql = include(__DIR__ .'/schemaDump.php');
+        $this->assertEquals($sql, $schema->getCreateStatement());
     }
 }
 

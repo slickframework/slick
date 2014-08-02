@@ -306,7 +306,6 @@ class Standard implements LoaderInterface
                     $colData['columnName'],
                     $colData['length']
                 ]);
-                break;
         }
 
         return $column;

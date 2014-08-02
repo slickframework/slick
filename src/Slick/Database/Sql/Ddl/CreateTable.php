@@ -107,4 +107,34 @@ class CreateTable extends AbstractSql implements SqlInterface
     {
         return $this->_constraints;
     }
+
+    /**
+     * Sets collection of columns
+     *
+     * @param ColumnInterface[] $columns
+     *
+     * @return CreateTable
+     */
+    public function setColumns(array $columns)
+    {
+        foreach ($columns as $col) {
+            $this->addColumn($col);
+        }
+        return $this;
+    }
+
+    /**
+     * Sets collection of constraints
+     *
+     * @param ConstraintInterface[] $constraints
+     *
+     * @return CreateTable
+     */
+    public function setConstraints(array $constraints)
+    {
+        foreach ($constraints as $constraint) {
+            $this->addConstraint($constraint);
+        }
+        return $this;
+    }
 }

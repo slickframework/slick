@@ -153,6 +153,4 @@ class Integer extends AbstractColumn
     {
         return $this->_autoIncrement;
     }
-
-
 }
