@@ -39,4 +39,24 @@ class Mysql extends Standard implements DialectInterface
     {
         return new Mysql\AlterTableSqlTemplate();
     }
+
+    /**
+     * Creates an update sql template
+     *
+     * @return Standard\UpdateSqlTemplate
+     */
+    public function update()
+    {
+        return new Mysql\UpdateSqlTemplate();
+    }
+
+    /**
+     * Creates a select sql template
+     *
+     * @return Standard\SelectSqlTemplate
+     */
+    public function select()
+    {
+        return new Mysql\SelectSqlTemplate();
+    }
 } 

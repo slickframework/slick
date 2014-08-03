@@ -229,13 +229,14 @@ class Select extends AbstractSql implements
     /**
      * Retrieve first record matching this select query
      *
-     * @return \Slick\Database\RecordList
+     * @return mixed
      */
     public function first()
     {
         $sql = clone($this);
         $sql->limit(1);
-        return $this->_adapter->query($sql, $sql->getParameters());
+        $result = $this->_adapter->query($sql, $sql->getParameters());
+        return  (count($result) > 0) ? $result[0]: null;
     }
 
     /**

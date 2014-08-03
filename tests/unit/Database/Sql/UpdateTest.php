@@ -36,7 +36,12 @@ class UpdateTest extends \Codeception\TestCase\Test
     protected function _before()
     {
         parent::_before();
-        $this->_adapter = new Adapter(['options' => ['autoConnect' => false]]);
+        $this->_adapter = new Adapter([
+            'options' => [
+                'autoConnect' => false,
+                'dialect' => Sql\Dialect::STANDARD
+            ]
+        ]);
         $this->_adapter = $this->_adapter->initialize();
     }
 

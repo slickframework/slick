@@ -39,7 +39,10 @@ class SelectTest extends \Codeception\TestCase\Test
         parent::_before();
         $this->_adapter = new Adapter(
             [
-                'driver' => '\Database\Sql\SelectAdapter'
+                'driver' => '\Database\Sql\SelectAdapter',
+                'options' => [
+                    'dialect' => Sql\Dialect::STANDARD
+                ]
             ]
         );
         $this->_adapter = $this->_adapter->initialize();
@@ -209,9 +212,8 @@ class SelectTest extends \Codeception\TestCase\Test
 
         $result = $sql->first();
         $this->assertEquals($expected, SelectAdapter::$sql->getQueryString());
-        $this->assertEquals(1, count($result));
-        $this->assertEquals('Jon Doe', $result[0]['name']);
-        $this->assertInstanceOf('Slick\Database\RecordList', $result);
+        $this->assertEquals('Jon Doe', $result['name']);
+        $this->assertTrue(is_array($result));
 
         $this->assertNotEquals($sql, SelectAdapter::$sql);
         $this->assertEquals($sql->getParameters(), SelectAdapter::$params);
