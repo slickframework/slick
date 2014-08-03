@@ -62,6 +62,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
     protected $_password;
 
     /**
+     * @write
      * @var string
      */
     protected $_dialect = Dialect::MYSQL;
@@ -75,7 +76,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function connect()
     {
-        $dsn = "mysql:host={$this->_host};port={$this->_port}" .
+        $dsn = "mysql:host={$this->_host};port={$this->_port};" .
             "dbname={$this->_database};charset={$this->_charset}";
         try {
             $class = $this->_handlerClass;

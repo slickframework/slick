@@ -45,7 +45,8 @@ class SchemaTest extends \Codeception\TestCase\Test
             'driver' => 'Mysql',
             'options' => [
                 'autoConnect' => false,
-                'database' => 'mySchemaTest'
+                'database' => 'mySchemaTest',
+                'dialect' => Dialect::STANDARD
             ]
         ]);
         $this->_adapter = $adapter->initialize();

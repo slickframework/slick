@@ -66,6 +66,81 @@ class Standard implements LoaderInterface
     /**@#-*/
 
     /**
+     * @read
+     * @var string
+     */
+    protected $_getTablesSql = "SELECT * FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA=?";
+
+    /**
+     * @read
+     * @var string
+     */
+    protected $_getColumnsSql = "SELECT
+                  COLUMN_NAME AS columnName,
+                  data_type AS type,
+                  character_maximum_length AS length,
+                  numeric_precision AS 'precision',
+                  column_default AS 'default',
+                  is_nullable AS isNullable
+                FROM
+                  information_schema.tables as t
+                  JOIN
+                  information_schema.columns AS c ON
+                    t.table_catalog=c.table_catalog AND
+                    t.table_schema=c.table_schema AND
+                    t.table_name=c.table_name
+                WHERE
+                    c.table_schema=:schemaName
+                  AND
+                    c.table_name=:tableName";
+
+    /**
+     * @read
+     * @var string
+     */
+    protected $_getConstraintsSql = "SELECT
+                  tc.CONSTRAINT_NAME AS constraintName,
+                  CONSTRAINT_TYPE AS constraintType,
+                  rc.UPDATE_RULE AS onUpdate,
+                  rc.DELETE_RULE AS onDelete,
+                  ccu.COLUMN_NAME AS columnName,
+                  rccu.COLUMN_NAME AS referenceColumn,
+                  rccu.TABLE_CATALOG,
+                  rccu.TABLE_SCHEMA,
+                  rccu.TABLE_NAME AS referenceTable,
+                  CHECK_CLAUSE AS checkClause
+                FROM
+                  INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON
+                    tc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
+                    tc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
+                    tc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME AND
+                    tc.TABLE_CATALOG=ccu.TABLE_CATALOG AND
+                    tc.TABLE_SCHEMA=ccu.TABLE_SCHEMA AND
+                    tc.TABLE_NAME=ccu.TABLE_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc ON
+                    rc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
+                    rc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
+                    rc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE rccu ON
+                    rc.UNIQUE_CONSTRAINT_CATALOG=rccu.CONSTRAINT_CATALOG AND
+                    rc.UNIQUE_CONSTRAINT_SCHEMA=rccu.CONSTRAINT_SCHEMA AND
+                    rc.UNIQUE_CONSTRAINT_NAME=rccu.CONSTRAINT_NAME
+                  LEFT JOIN
+                  INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc ON
+                    tc.CONSTRAINT_CATALOG=cc.CONSTRAINT_CATALOG AND
+                    tc.CONSTRAINT_SCHEMA=cc.CONSTRAINT_SCHEMA AND
+                    tc.CONSTRAINT_NAME=cc.CONSTRAINT_NAME
+                WHERE
+                  tc.TABLE_SCHEMA=:schemaName AND   -- see remark
+                  tc.TABLE_NAME=:tableName
+                ORDER BY tc.CONSTRAINT_NAME";
+
+    /**
      * Factory behavior methods from Slick\Common\Base class
      */
     use BaseMethods;
@@ -87,7 +162,7 @@ class Standard implements LoaderInterface
      * @var array
      */
     protected $_typeExpressions = [
-        self::COLUMN_BLOB => '(BINARY)|(VARBINARY)|(INTEGER)',
+        self::COLUMN_BLOB => '(BINARY)|(VARBINARY)|(BLOB)',
         self::COLUMN_BOOLEAN => '(BOOLEAN)|(BOOL)|(BIT)',
         self::COLUMN_INTEGER => '(INT)|(SERIAL)|(INTEGER)|(YEAR)',
         self::COLUMN_DATE_TIME => '(DATE)|(TIME)',
@@ -152,11 +227,9 @@ class Standard implements LoaderInterface
     public function getTables()
     {
         if (is_null($this->_tables)) {
-            $sql  = "SELECT * FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA=?";
 
             $result = $this->_adapter->query(
-                $sql,
+                $this->_getTablesSql,
                 [$this->_adapter->getSchemaName()]
             );
 
@@ -222,29 +295,12 @@ class Standard implements LoaderInterface
      */
     protected function _getColumns($tableName)
     {
-        $sql = "SELECT
-                  COLUMN_NAME AS columnName,
-                  data_type AS type,
-                  character_maximum_length AS length,
-                  numeric_precision AS 'precision',
-                  column_default AS 'default',
-                  is_nullable AS isNullable
-                FROM
-                  information_schema.tables as t
-                  JOIN
-                  information_schema.columns AS c ON
-                    t.table_catalog=c.table_catalog AND
-                    t.table_schema=c.table_schema AND
-                    t.table_name=c.table_name
-                WHERE
-                    c.table_schema=:schemaName
-                  AND
-                    c.table_name=:tableName";
+
         $params = [
             ':schemaName' => $this->_adapter->getSchemaName(),
             ':tableName' => $tableName
         ];
-        return $this->_adapter->query($sql, $params);
+        return $this->_adapter->query($this->_getColumnsSql, $params);
     }
 
     /**
@@ -320,52 +376,13 @@ class Standard implements LoaderInterface
      */
     protected function _getConstraints($tableName)
     {
-        $sql = "SELECT
-                  tc.CONSTRAINT_NAME AS constraintName,
-                  CONSTRAINT_TYPE AS constraintType,
-                  rc.UPDATE_RULE AS onUpdate,
-                  rc.DELETE_RULE AS onDelete,
-                  ccu.COLUMN_NAME AS columnName,
-                  rccu.COLUMN_NAME AS referenceColumn,
-                  rccu.TABLE_CATALOG,
-                  rccu.TABLE_SCHEMA,
-                  rccu.TABLE_NAME AS referenceTable,
-                  CHECK_CLAUSE AS checkClause
-                FROM
-                  INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-                  LEFT JOIN
-                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON
-                    tc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
-                    tc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
-                    tc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME AND
-                    tc.TABLE_CATALOG=ccu.TABLE_CATALOG AND
-                    tc.TABLE_SCHEMA=ccu.TABLE_SCHEMA AND
-                    tc.TABLE_NAME=ccu.TABLE_NAME
-                  LEFT JOIN
-                  INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc ON
-                    rc.CONSTRAINT_CATALOG=ccu.CONSTRAINT_CATALOG AND
-                    rc.CONSTRAINT_SCHEMA=ccu.CONSTRAINT_SCHEMA AND
-                    rc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME
-                  LEFT JOIN
-                  INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE rccu ON
-                    rc.UNIQUE_CONSTRAINT_CATALOG=rccu.CONSTRAINT_CATALOG AND
-                    rc.UNIQUE_CONSTRAINT_SCHEMA=rccu.CONSTRAINT_SCHEMA AND
-                    rc.UNIQUE_CONSTRAINT_NAME=rccu.CONSTRAINT_NAME
-                  LEFT JOIN
-                  INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc ON
-                    tc.CONSTRAINT_CATALOG=cc.CONSTRAINT_CATALOG AND
-                    tc.CONSTRAINT_SCHEMA=cc.CONSTRAINT_SCHEMA AND
-                    tc.CONSTRAINT_NAME=cc.CONSTRAINT_NAME
-                WHERE
-                  tc.TABLE_SCHEMA=:schemaName AND   -- see remark
-                  tc.TABLE_NAME=:tableName
-                ORDER BY tc.CONSTRAINT_NAME";
+
         $params = [
             ':schemaName' => $this->_adapter->getSchemaName(),
             ':tableName' => $tableName
         ];
 
-        return $this->_adapter->query($sql, $params);
+        return $this->_adapter->query($this->_getConstraintsSql, $params);
     }
 
     /**

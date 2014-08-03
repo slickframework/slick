@@ -26,6 +26,7 @@ use Slick\Database\Sql\Ddl\Column\Varchar;
 use Slick\Database\Sql\Ddl\Column\Integer;
 use Slick\Database\Sql\Ddl\Constraint\Unique;
 use Slick\Database\Sql\Ddl\Constraint\Primary;
+use Slick\Database\Sql\Dialect;
 
 /**
  * Create table DDL test case
@@ -47,7 +48,10 @@ class CreateTableTest extends \Codeception\TestCase\Test
     protected function _before()
     {
         parent::_before();
-        $this->_adapter = new Adapter(['options' => ['autoConnect' => false]]);
+        $this->_adapter = new Adapter(['options' => [
+            'autoConnect' => false,
+            'dialect' => Dialect::STANDARD
+        ]]);
         $this->_adapter = $this->_adapter->initialize();
     }
 

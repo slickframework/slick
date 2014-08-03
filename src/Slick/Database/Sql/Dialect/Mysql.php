@@ -20,4 +20,23 @@ namespace Slick\Database\Sql\Dialect;
  */
 class Mysql extends Standard implements DialectInterface
 {
+    /**
+     * Crates a create table sql template
+     *
+     * @return Standard\CreateTableSqlTemplate
+     */
+    public function createTable()
+    {
+        return new Mysql\CreateTableSqlTemplate();
+    }
+
+    /**
+     * Creates an alter table sql template
+     *
+     * @return Standard\AlterTableSqlTemplate
+     */
+    public function alterTable()
+    {
+        return new Mysql\AlterTableSqlTemplate();
+    }
 } 
