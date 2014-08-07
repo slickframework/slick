@@ -23,7 +23,10 @@ $schema->addTable(new Schema\Table('people', [
             'size' => Column\Size::big()
         ]),
         new Column\Text('name', ['size' => Column\Size::tiny()]),
-        new Column\Varchar('email', 255)
+        new Column\Varchar('email', 255),
+        new Column\Integer('level', ['size' => Column\Size::tiny(), 'default' => 4]),
+        new Column\Float('score', 4, 2),
+        new Column\Blob('picture', 1024)
     ],
     'constraints' => [
         new Constraint\Primary('peoplePrimary', ['columnNames' => ['id']]),
@@ -61,7 +64,7 @@ $schema->addTable(new Schema\Table('people', [
             ]),
             new Column\Text('language', ['size' => Column\Size::tiny()]),
             new Column\Text('timeZone', ['size' => Column\Size::tiny()]),
-            new Column\Text('picture', ['size' => Column\Size::tiny()]),
+            new Column\Blob('picture', 1024),
             new Column\Integer('person_id', ['size' => Column\Size::big()]),
         ],
         'constraints' => [
@@ -82,8 +85,8 @@ $schema->addTable(new Schema\Table('people', [
                 'size' => Column\Size::big()
             ]),
             new Column\Varchar('name', 255),
-            new Column\DateTime('created'),
-            new Column\DateTime('updated')
+            new Column\DateTime('created', ['nullable' => true]),
+            new Column\DateTime('updated', ['nullable' => true])
         ],
         'constraints' => [
             new Constraint\Primary('tagsPrimary', ['columnNames' => ['id']]),

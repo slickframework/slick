@@ -1,17 +1,30 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 7/14/14
- * Time: 5:27 PM
+ * Create Table SQL template
+ *
+ * @package   Slick\Database\Sql\Dialect\Sqlite
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Database\Sql\Dialect\Sqlite;
 
 use Slick\Database\Sql\Ddl\Column;
 use Slick\Database\Sql\Ddl\Constraint;
+use Slick\Database\Sql\Ddl\CreateTable;
 use Slick\Database\Sql\Dialect\Standard;
+use Slick\Database\Sql\SqlInterface;
+use Slick\Utility\ArrayMethods;
 
+/**
+ * Create Table SQL template
+ *
+ * @package   Slick\Database\Sql\Dialect\Sqlite
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
 class CreateTableSqlTemplate extends Standard\CreateTableSqlTemplate
 {
 
@@ -19,6 +32,39 @@ class CreateTableSqlTemplate extends Standard\CreateTableSqlTemplate
      * @var bool Flag for disabling primary key constraint declaration
      */
     protected $_disablePrimaryConstraint = false;
+
+    /**
+     * @var string[]
+     */
+    protected $_afterCreate = [];
+
+    /**
+     * Processes the SQL object and returns the SQL statement
+     *
+     * @param SqlInterface $sql
+     *
+     * @return string
+     */
+    public function processSql(SqlInterface $sql)
+    {
+        /** @var CreateTable $sql */
+        $this->_sql = $sql;
+        $tableName = $this->_sql->getTable();
+        $template = "CREATE TABLE %s (%s)";
+        $parts = ArrayMethods::clean(
+            [$this->_parseColumns(), $this->_parseConstraints()]
+        );
+        $query = [];
+        $query[] = sprintf(
+            $template,
+            $tableName,
+            implode(', ', $parts)
+        );
+        foreach ($this->_afterCreate as $sql) {
+            $query[] = $sql;
+        }
+        return implode(';', $query);
+    }
 
     /**
      * Parses an integer column to its SQL representation
@@ -154,4 +200,21 @@ class CreateTableSqlTemplate extends Standard\CreateTableSqlTemplate
             $this->_nullableColumn($column)
         );
     }
-} 
+
+    /**
+     * Parse a Unique constraint to its SQL representation
+     *
+     * @param Constraint\Unique $constraint
+     * @return null|string
+     */
+    protected function _getUniqueConstraint(Constraint\Unique $constraint)
+    {
+        $this->_afterCreate[] = sprintf(
+            'CREATE UNIQUE INDEX %s ON %s(%s)',
+            $constraint->getName(),
+            $this->_sql->getTable(),
+            $constraint->getColumn()
+        );
+        return null;
+    }
+}

@@ -14,7 +14,9 @@ namespace Slick\Database\Adapter;
 
 use Slick\Database\Exception\ServiceException;
 use PDO;
+use Slick\Database\Exception\SqlQueryException;
 use Slick\Database\Sql\Dialect;
+use Slick\Database\Sql\SqlInterface;
 
 /**
  * Sqlite database adapter
@@ -52,7 +54,6 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
             $this->_handler->setAttribute(
                 PDO::ATTR_ERRMODE,
                 PDO::ERRMODE_EXCEPTION);
-            $this->_handler->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
             $this->_connected = true;
         } catch (\Exception $exp) {
             throw new ServiceException(
@@ -70,5 +71,38 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
     public function getSchemaName()
     {
         return null;
+    }
+
+    /**
+     * Executes an SQL or DDL query and returns the number of affected rows
+     *
+     * @param string|SqlInterface $sql A string containing
+     *  the SQL query to perform ot the equivalent SqlInterface or
+     *  DdlInterface object
+     * @param array $parameters
+     *
+     * @throws \Slick\Database\Exception\InvalidArgumentException if the
+     *  sql provided id not a string or does not implements the
+     *  Slick\Database\Sql\SqlInterface
+     *
+     * @throws SqlQueryException If any error occurs while preparing or
+     *  executing the SQL query
+     *
+     * @return integer The number of affected rows by executing the
+     *  query
+     */
+    public function execute($sql, $parameters = [])
+    {
+        $sql = ($sql instanceof SqlInterface) ? $sql->getQueryString(): $sql;
+        if (strpos($sql, ';') <= 0) {
+            return parent::execute($sql, $parameters);
+        }
+
+        $parts = explode(';', $sql);
+        $result = 0;
+        foreach ($parts as $query) {
+            $result = parent::execute($query, $parameters = []);
+        }
+        return $result;
     }
 }
