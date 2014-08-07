@@ -24,6 +24,8 @@ use Slick\Utility\ArrayMethods;
  *
  * @package   Slick\Database\Sql\Dialect\Standard
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 class CreateTableSqlTemplate extends AbstractSqlTemplate implements
     SqlTemplateInterface

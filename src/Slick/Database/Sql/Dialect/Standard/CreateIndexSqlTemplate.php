@@ -40,7 +40,8 @@ class CreateIndexSqlTemplate extends AbstractSqlTemplate implements
 
         $template = "CREATE INDEX %s ON %s (%s)";
 
-        return sprintf($template,
+        return sprintf(
+            $template,
             $this->_sql->getName(),
             $this->_sql->getTable(),
             implode(', ', $this->_sql->getColumnNames())

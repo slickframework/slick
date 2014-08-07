@@ -72,7 +72,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      *
      * @throws ServiceException If any error occurs while trying to
      *  connect to the database service
-     * @return AdapterInterface The current adapter to chain method calls
+     * @return MysqlAdapter The current adapter to chain method calls
      */
     public function connect()
     {
@@ -94,6 +94,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
                 "service. Error: {$exp->getMessage()}"
             );
         }
+        return $this;
     }
 
     /**

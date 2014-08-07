@@ -103,9 +103,8 @@ class Loader
         $reflexion = new ReflectionClass($this->getClass());
 
         /** @var LoaderInterface $loader */
-        $loader = $reflexion->newInstanceArgs([[
-            'adapter' => $this->_adapter
-        ]]);
+        $args = [['adapter' => $this->_adapter]];
+        $loader = $reflexion->newInstanceArgs($args);
 
         $className = '\Slick\Database\Schema\LoaderInterface';
 

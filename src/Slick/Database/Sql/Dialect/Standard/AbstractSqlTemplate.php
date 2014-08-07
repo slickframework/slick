@@ -32,7 +32,7 @@ abstract class AbstractSqlTemplate implements SqlTemplateInterface
 {
 
     /**
-     * @var SqlInterface|Select|Delete|Insert|Update|CreateTable|AlterTable|CreateIndex
+     * @var Select|Delete|Insert|Update|CreateTable|AlterTable|CreateIndex
      */
     protected $_sql;
 

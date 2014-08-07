@@ -83,7 +83,7 @@ abstract class Base implements Serializable
             if (in_array($property, $skip)) {
                 continue;
             }
-            $annotations = $this->_inspector->getPropertyAnnotations($property);
+            $annotations = $this->inspector->getPropertyAnnotations($property);
             $property = str_replace('_', '', $property);
             
             if (!$annotations->hasAnnotation('@write')
@@ -102,7 +102,7 @@ abstract class Base implements Serializable
      */
     public function __wakeup()
     {
-        $this->_inspector = new Inspector($this);
+        $this->inspector = new Inspector($this);
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class Base implements Serializable
     public function serialize()
     {
         // @codingStandardsIgnoreStart
-        unset($this->_inspector, $this->___mocked);
+        unset($this->inspector, $this->___mocked);
         // @codingStandardsIgnoreEnd
         $keys = array_keys(get_object_vars($this));
         $data = [];
@@ -132,7 +132,7 @@ abstract class Base implements Serializable
     public function unserialize($serialized)
     {
         $data = unserialize($serialized);
-        $this->_inspector = new Inspector($this);
+        $this->inspector = new Inspector($this);
         foreach ($data as $key => $value) {
             $this->$key = $value;
         }

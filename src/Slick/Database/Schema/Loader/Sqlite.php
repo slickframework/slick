@@ -66,8 +66,7 @@ class Sqlite extends Standard implements LoaderInterface
             $result = $this->_adapter->query($this->_getTablesSql);
 
             $names = [];
-            foreach ($result as $table)
-            {
+            foreach ($result as $table) {
                 $names[] = $table['name'];
             }
             $this->_tables = $names;
@@ -100,13 +99,15 @@ class Sqlite extends Standard implements LoaderInterface
         $nameSpace = 'Slick\Database\Sql\Ddl\Column';
         $type = $this->_getColumnClass($colData['type']);
         $reflection = new ReflectionClass($nameSpace . "\\{$type}");
-        $column = $reflection->newInstanceArgs([
-            $colData['name'],
+        $column = $reflection->newInstanceArgs(
             [
-                'nullable' => (!(boolean) $colData['notnull']),
-                'default' => $colData['dflt_value']
+                $colData['name'],
+                [
+                    'nullable' => (!(boolean) $colData['notnull']),
+                    'default' => $colData['dflt_value']
+                ]
             ]
-        ]);
+        );
 
         return $column;
     }
@@ -134,11 +135,14 @@ class Sqlite extends Standard implements LoaderInterface
         $columns = $this->_adapter->query("PRAGMA table_info({$tableName})");
         foreach ($columns as $col) {
             if ($col['pk'] == 1) {
-                $data[] = array_merge($structure, [
-                    'constraintType' => 'PRIMARY KEY',
-                    'constraintName' => $tableName.'Primary',
-                    'columnName' => $col['name']
-                ]);
+                $data[] = array_merge(
+                    $structure,
+                    [
+                        'constraintType' => 'PRIMARY KEY',
+                        'constraintName' => $tableName.'Primary',
+                        'columnName' => $col['name']
+                    ]
+                );
             }
         }
 
@@ -149,11 +153,14 @@ class Sqlite extends Standard implements LoaderInterface
                 $info = $this->_adapter->query(
                     "PRAGMA index_info({$index['name']})"
                 );
-                $data[] = array_merge($structure, [
-                    'constraintType' => 'UNIQUE',
-                    'constraintName' => $index['name'],
-                    'columnName' => $info[0]['name']
-                ]);
+                $data[] = array_merge(
+                    $structure,
+                    [
+                        'constraintType' => 'UNIQUE',
+                        'constraintName' => $index['name'],
+                        'columnName' => $info[0]['name']
+                    ]
+                );
             }
         }
 

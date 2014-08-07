@@ -53,7 +53,8 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
             $this->_handler = new $class($dsn);
             $this->_handler->setAttribute(
                 PDO::ATTR_ERRMODE,
-                PDO::ERRMODE_EXCEPTION);
+                PDO::ERRMODE_EXCEPTION
+            );
             $this->_connected = true;
         } catch (\Exception $exp) {
             throw new ServiceException(

@@ -95,8 +95,7 @@ class Table implements TableInterface
      */
     public function setColumns(array $columns)
     {
-        foreach ($columns as $col)
-        {
+        foreach ($columns as $col) {
             $this->addColumn($col);
         }
         return $this;

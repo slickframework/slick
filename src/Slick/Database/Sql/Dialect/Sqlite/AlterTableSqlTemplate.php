@@ -73,8 +73,10 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
             $parts[] = $this->_parseColumn($column);
         }
         $tableName = $this->_sql->getTable();
-        return implode("; ALTER TABLE {$tableName} " .
-                "ADD COLUMN ", $parts);
+        return implode(
+            "; ALTER TABLE {$tableName} ADD COLUMN ",
+            $parts
+        );
     }
 
     /**

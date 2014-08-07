@@ -234,8 +234,7 @@ class Standard implements LoaderInterface
             );
 
             $names = [];
-            foreach ($result as $table)
-            {
+            foreach ($result as $table) {
                 $names[] = $table['TABLE_NAME'];
             }
             $this->_tables = $names;
@@ -276,9 +275,7 @@ class Standard implements LoaderInterface
      */
     public function getSchema()
     {
-        $schema = new Schema([
-            'adapter' => $this->_adapter
-        ]);
+        $schema = new Schema(['adapter' => $this->_adapter]);
         $tables = $this->getTables();
         foreach ($tables as $tableName) {
             $schema->addTable($this->getTable($tableName));
@@ -338,30 +335,34 @@ class Standard implements LoaderInterface
         switch ($type) {
 
             case self::COLUMN_BOOLEAN:
-                $column = $reflection->newInstanceArgs([
-                    $colData['columnName']
-                ]);
+                $column = $reflection->newInstanceArgs(
+                    [$colData['columnName']]
+                );
                 break;
 
             case self::COLUMN_BLOB:
             case self::COLUMN_TEXT:
             case self::COLUMN_INTEGER:
             case self::COLUMN_DATE_TIME:
-                $column = $reflection->newInstanceArgs([
-                    $colData['columnName'],
+                $column = $reflection->newInstanceArgs(
                     [
-                        'length' => $colData['length'],
-                        'nullable' => (boolean) $colData['isNullable'],
-                        'default' => $colData['default']
+                        $colData['columnName'],
+                        [
+                            'length' => $colData['length'],
+                            'nullable' => (boolean) $colData['isNullable'],
+                            'default' => $colData['default']
+                        ]
                     ]
-                ]);
+                );
                 break;
             default:
             case self::COLUMN_VARCHAR:
-                $column = $reflection->newInstanceArgs([
-                    $colData['columnName'],
-                    $colData['length']
-                ]);
+                $column = $reflection->newInstanceArgs(
+                    [
+                        $colData['columnName'],
+                        $colData['length']
+                    ]
+                );
         }
 
         return $column;
@@ -416,31 +417,35 @@ class Standard implements LoaderInterface
         $constraint = null;
         switch ($type) {
             case self::CONSTRAINT_FOREIGN_KEY:
-                $constraint = $reflection->newInstanceArgs([
-                    $constraintData['constraintName'],
-                    $constraintData['columnName'],
-                    $constraintData['referenceTable'],
-                    $constraintData['referenceColumn'],
+                $constraint = $reflection->newInstanceArgs(
                     [
-                        'onUpdate' => $constraintData['onUpdate'],
-                        'onDelete' => $constraintData['onDelete'],
+                        $constraintData['constraintName'],
+                        $constraintData['columnName'],
+                        $constraintData['referenceTable'],
+                        $constraintData['referenceColumn'],
+                        [
+                            'onUpdate' => $constraintData['onUpdate'],
+                            'onDelete' => $constraintData['onDelete'],
+                        ]
                     ]
-                ]);
+                );
                 break;
 
             case self::CONSTRAINT_PRIMARY:
-                $constraint = $reflection->newInstanceArgs([
-                    $constraintData['constraintName'],
+                $constraint = $reflection->newInstanceArgs(
                     [
-                        $constraintData['columnName']
+                        $constraintData['constraintName'],
+                        [
+                            $constraintData['columnName']
+                        ]
                     ]
-                ]);
+                );
                 break;
 
             case self::CONSTRAINT_UNIQUE:
-                $constraint = $reflection->newInstanceArgs([
-                    $constraintData['constraintName']
-                ]);
+                $constraint = $reflection->newInstanceArgs(
+                    [$constraintData['constraintName']]
+                );
                 break;
         }
 

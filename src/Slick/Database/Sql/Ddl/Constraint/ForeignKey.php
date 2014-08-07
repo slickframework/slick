@@ -70,11 +70,14 @@ class ForeignKey extends AbstractConstraint implements ConstraintInterface
         $name, $column, $referenceTable, $referenceColumn,
         array $options = [])
     {
-        $options = array_merge($options, [
-            'column' => $column,
-            'referenceTable' => $referenceTable,
-            'referenceColumn' => $referenceColumn
-        ]);
+        $options = array_merge(
+            $options,
+            [
+                'column' => $column,
+                'referenceTable' => $referenceTable,
+                'referenceColumn' => $referenceColumn
+            ]
+        );
         parent::__construct($name, $options);
     }
 
