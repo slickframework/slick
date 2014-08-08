@@ -58,7 +58,7 @@ class Text extends AbstractColumn
      * Sets column size
      *
      * @param Size $size
-     * @returns Text
+     * @return Text
      */
     public function setSize(Size $size)
     {

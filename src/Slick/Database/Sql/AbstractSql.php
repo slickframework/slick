@@ -56,6 +56,8 @@ abstract class AbstractSql implements SqlInterface
     }
 
     /**
+     * Return the assigned table
+     *
      * @return string
      */
     public function getTable()

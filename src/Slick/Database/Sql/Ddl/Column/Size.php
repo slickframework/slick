@@ -24,7 +24,7 @@ class Size extends Enum
 {
 
     /**#@+
-     * Column sizes
+     * @var string Column sizes
      */
     const SMALL  = 'small';
     const TINY   = 'tiny';

@@ -21,16 +21,15 @@ namespace Slick\Database\Sql\Ddl\Constraint;
 class ForeignKey extends AbstractConstraint implements ConstraintInterface
 {
 
-    /**+@#
-     * OnDelete/OnUpdate actions
-     * @var string
+    /**#@+
+     * @var string OnDelete/OnUpdate actions
      */
     const NO_ACTION   = 'NO ACTION';
     const CASCADE     = 'CASCADE';
     const RESTRICTED  = 'RESTRICTED';
     const SET_DEFAULT = 'SET DEFAULT';
     const SET_NULL    = 'SET NULL';
-    /**-@#*/
+    /**#@-*/
 
     /**
      * @var string

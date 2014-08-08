@@ -90,6 +90,8 @@ class Select extends AbstractSql implements
     }
 
     /**
+     * Returns the fields statement
+     *
      * @return string|string[]
      */
     public function getFields()
@@ -98,7 +100,9 @@ class Select extends AbstractSql implements
     }
 
     /**
-     * @return \Slick\Database\Sql\Select\Join[]
+     * Return the current list of join objects
+     *
+     * @return Join[]
      */
     public function getJoins()
     {
@@ -106,6 +110,8 @@ class Select extends AbstractSql implements
     }
 
     /**
+     * Get select rows limit
+     *
      * @return int
      */
     public function getLimit()
@@ -114,6 +120,8 @@ class Select extends AbstractSql implements
     }
 
     /**
+     * Return limit offset
+     *
      * @return int
      */
     public function getOffset()
@@ -122,6 +130,8 @@ class Select extends AbstractSql implements
     }
 
     /**
+     * Return order clause
+     *
      * @return string
      */
     public function getOrder()
@@ -130,6 +140,8 @@ class Select extends AbstractSql implements
     }
 
     /**
+     * Returns table alias
+     *
      * @return string
      */
     public function getAlias()
@@ -163,9 +175,11 @@ class Select extends AbstractSql implements
     /**
      * Adds a join table to the select query
      *
-     * if fields is null it will not set any field to the select field
+     * If fields is null it will not set any field to the select field
      * list. if it is a string it will be passed to the select field list
-     * as it is. If you pass a list of field names they will be prefixed
+     * as it is.
+     *
+     * If you pass a list of field names they will be prefixed
      * with the alias if is set or the table name, to avoid the ambiguous
      * fields name
      *

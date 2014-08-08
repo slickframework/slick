@@ -102,6 +102,8 @@ class AlterTable extends CreateTable implements SqlInterface
     }
 
     /**
+     * Returns the list of dropped constraints
+     *
      * @return Constraint\ConstraintInterface[]
      */
     public function getDroppedConstraints()
@@ -110,6 +112,8 @@ class AlterTable extends CreateTable implements SqlInterface
     }
 
     /**
+     * Adds a constraint to the list of constraints
+     *
      * @param ConstraintInterface $constraint
      *
      * @return AlterTable

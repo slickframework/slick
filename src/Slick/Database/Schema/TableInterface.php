@@ -30,6 +30,7 @@ interface TableInterface
     public function addColumn(ColumnInterface $column);
 
     /**
+     * Add a constraint to this table
      * @param ConstraintInterface $constraint
      *
      * @return TableInterface

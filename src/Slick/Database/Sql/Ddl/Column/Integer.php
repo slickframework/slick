@@ -115,7 +115,7 @@ class Integer extends AbstractColumn
      * Sets column size
      *
      * @param Size $size
-     * @returns Integer
+     * @return Integer
      */
     public function setSize(Size $size)
     {

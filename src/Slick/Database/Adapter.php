@@ -23,6 +23,16 @@ use ReflectionClass;
  *
  * @package   Slick\Database
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $driver The database driver class name or alias.
+ * @property array $options The options used on driver initialization.
+ *
+ * @method Adapter setDriver(string $driver) Sets the database driver class
+ * name or alias.
+ * @method string getDriver() Returns database driver class name or alias.
+ * @method Adapter setOptions(array $options) Sets the options that will be
+ * passed to the driver class when instantiating.
+ * @method array getOptions() Returns the current set of driver options.
  */
 final class Adapter extends Base
 {

@@ -26,7 +26,7 @@ googleCseLabel:
 # Google Analytics tracking code
 googleAnalytics:
 # Template config file
-templateConfig: 'vendor/apigen/apigen/templates/bootstrap/config.neon'
+templateConfig: 'doc-templates/bootstrap/config.neon'
 # Grouping of classes
 groups: auto
 # List of allowed HTML tags in documentation

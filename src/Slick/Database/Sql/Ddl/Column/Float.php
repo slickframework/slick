@@ -32,6 +32,8 @@ class Float extends AbstractColumn
     protected $_decimal;
 
     /**
+     * Creates a float type column
+     *
      * @param string $name
      * @param int $digits
      * @param int $decimal
@@ -45,6 +47,7 @@ class Float extends AbstractColumn
 
     /**
      * Returns number of decimal places
+     *
      * @return int
      */
     public function getDecimal()

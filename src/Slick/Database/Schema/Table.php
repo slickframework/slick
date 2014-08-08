@@ -112,6 +112,8 @@ class Table implements TableInterface
     }
 
     /**
+     * Add a constraint to this table
+     *
      * @param ConstraintInterface $constraint
      *
      * @return Table

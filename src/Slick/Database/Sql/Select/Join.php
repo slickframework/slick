@@ -72,6 +72,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Returns the join type
+     *
      * @return string
      */
     public function getType()
@@ -80,6 +82,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Gets the join condition
+     *
      * @return string
      */
     public function getOnClause()
@@ -88,6 +92,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Get join table fields to select
+     *
      * @return array|string
      */
     public function getFields()
@@ -96,6 +102,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Returns the join table name
+     *
      * @return string
      */
     public function getTable()
@@ -104,6 +112,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Sets the join table alias
+     *
      * @param string $alias
      * @return Join
      */
@@ -114,6 +124,8 @@ class Join implements FieldListAwareInterface
     }
 
     /**
+     * Returns the join table alias
+     *
      * @return string
      */
     public function getAlias()
@@ -133,5 +145,4 @@ class Join implements FieldListAwareInterface
         $this->_fields = $fields;
         return $this;
     }
-
 }

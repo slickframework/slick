@@ -78,9 +78,11 @@ class CreateTable extends AbstractSql implements SqlInterface
     }
 
     /**
+     * Adds a new constraint to this sql statement
+     *
      * @param ConstraintInterface $constraint
      *
-     * @return CreateTable
+     * @return self
      */
     public function addConstraint(ConstraintInterface $constraint)
     {

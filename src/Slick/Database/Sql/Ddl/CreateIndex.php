@@ -44,7 +44,7 @@ class CreateIndex extends AbstractSql implements SqlInterface
     /**
      * Creates the sql with the table name
      *
-     * @param $name
+     * @param string $name
      * @param string $tableName
      */
     public function __construct($name, $tableName)
@@ -85,7 +85,7 @@ class CreateIndex extends AbstractSql implements SqlInterface
      * Sets the internal array of column names
      *
      * @param string[] $columns
-     * @return $this
+     * @return self
      */
     public function setColumnNames(array $columns)
     {

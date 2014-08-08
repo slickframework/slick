@@ -50,10 +50,12 @@ final class Dialect
     /**
      * Creates a dialect with provided SQL object
      *
-     * You can use the known dialects such as Dialect::MYSQL or you can create
-     * your custom dialect. The custom dialect class must implement the
-     * Slick\Database\Sql\Dialect\DialectInterface or an exception will be
-     * thrown when trying to create it.
+     * You can use the known dialects such as {@see Dialect::MYSQL} or you can
+     * create your custom dialect.
+     *
+     * The custom dialect class must implement the
+     * {@see \Slick\Database\Sql\Dialect\DialectInterface} interface or an
+     * exception will be thrown when trying to create it.
      *
      * @param string $dialect Dialect name or dialect class name.
      * @param SqlInterface $sql

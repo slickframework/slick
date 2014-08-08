@@ -27,6 +27,8 @@ abstract class AbstractColumn implements ColumnInterface
     protected $_name;
 
     /**
+     * Creates a DDL column
+     *
      * @param string $name Column name
      *
      * @param array $options

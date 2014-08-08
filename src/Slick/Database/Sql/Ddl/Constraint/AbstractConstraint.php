@@ -26,6 +26,8 @@ class AbstractConstraint implements ConstraintInterface
     protected $_name;
 
     /**
+     * Creates a new constraint
+     *
      * @param string $name
      * @param array $options
      */

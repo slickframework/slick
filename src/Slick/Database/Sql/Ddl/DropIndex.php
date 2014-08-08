@@ -38,7 +38,7 @@ class DropIndex extends AbstractSql implements SqlInterface
     /**
      * Creates the sql with the table name
      *
-     * @param $name
+     * @param string $name
      * @param string $tableName
      */
     public function __construct($name, $tableName)
