@@ -16,10 +16,19 @@ use Slick\Common\Base;
 use Slick\Configuration\Driver\DriverInterface;
 
 /**
- * Configuration
+ * Factory class to create configuration drivers
  *
  * @package   Slick\Configuration
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $class Driver class or driver class alias.
+ * @property array  $options Options that will be passed to the driver class.
+ * @method Configuration setClass(string $class) Sets the driver class or
+ * driver class alias to initialize.
+ * @method string getClass() Returns the driver class or driver class alias.
+ * @method Configuration setOptions(array $options) Sets the options that
+ * will be passed to the driver class when instantiating.
+ * @method array getOptions() Returns the current set of driver options.
  */
 class Configuration extends Base
 {
@@ -90,14 +99,25 @@ class Configuration extends Base
         }
     }
 
+    /**
+     * Returns the current configured paths where configuration files live in
+     *
+     * @return string[]
+     */
     public static function getPathList()
     {
         return self::$_paths;
     }
 
     /**
+     * Initializes the driver specified by class using the provided options.
+     *
      * @return DriverInterface
-     * @throws Exception\InvalidArgumentException
+     *
+     * @throws Exception\InvalidArgumentException If the class provided is not
+     * known, is not defined or if an existing class is provided it does not
+     * implements the {@see \Slick\Configuration\Driver\DriverInterface}
+     * interface
      */
     public function initialize()
     {

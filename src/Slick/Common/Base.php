@@ -15,7 +15,8 @@ namespace Slick\Common;
 use Serializable;
 
 /**
- * Base
+ * Base class that implements getters and setters using PHP magic methods
+ * __get() __set() __is() and __call().
  * 
  * Base class uses the PHP magic methods to handle class properties in a
  * way that is a lot easier to work with. It defines an annotation for property
@@ -49,7 +50,7 @@ abstract class Base implements Serializable
      * It will set a class inspector used for annotation read on properties.
      *
      * @param array|object $options The properties for the object
-     *  being constructed.
+     * being constructed.
      * 
      * @see \Slick\Common\Inspector
      */
@@ -76,7 +77,7 @@ abstract class Base implements Serializable
         }
 
         $props = array_keys(get_object_vars($this));
-        $skip = array('_inspector', '___mocked');
+        $skip = array('_inspector', '___mocked', 'inspector');
 
         $equals = true;
         foreach ($props as $property) {
@@ -98,7 +99,8 @@ abstract class Base implements Serializable
 
     /**
      * Sets necessary properties when object is unserialized.
-     * Needed when using mock objects in tests.
+     *
+     * @internal Needed when using mock objects in tests.
      */
     public function __wakeup()
     {
@@ -107,6 +109,7 @@ abstract class Base implements Serializable
 
     /**
      * Removes unnecessary data for serializing.
+     *
      * @return string
      */
     public function serialize()
@@ -127,7 +130,7 @@ abstract class Base implements Serializable
      *
      * @param string $serialized
      *
-     * @return Base
+     * @return self
      */
     public function unserialize($serialized)
     {
@@ -136,6 +139,6 @@ abstract class Base implements Serializable
         foreach ($data as $key => $value) {
             $this->$key = $value;
         }
+        return $this;
     }
-    
 }

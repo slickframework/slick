@@ -44,8 +44,7 @@ class Standard implements LoaderInterface
 {
 
     /**#@+
-     * Supported column types
-     * @var string
+     * @var string Supported column types
      */
     const COLUMN_BLOB      = 'Blob';
     const COLUMN_BOOLEAN   = 'Boolean';
@@ -57,8 +56,7 @@ class Standard implements LoaderInterface
     /**#@-*/
 
     /**#@+
-     * Supported constraints
-     * @var string
+     * @var string Supported constraints
      */
     const CONSTRAINT_PRIMARY     = 'Primary';
     const CONSTRAINT_UNIQUE      = 'Unique';

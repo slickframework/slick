@@ -12,28 +12,33 @@
 
 namespace Slick\Database\Adapter;
 
-use Slick\Database\Exception\ServiceException;
 use PDO;
-use Slick\Database\Exception\SqlQueryException;
 use Slick\Database\Sql\Dialect;
 use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Exception\SqlQueryException;
+use Slick\Database\Exception\ServiceException;
 
 /**
  * Sqlite database adapter
  *
  * @package   Slick\Database\Adapter
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $file Database file name
+ * @method SqliteAdapter setFile(string $file) Set the database file name
+ * @method string getFile() Returns the current database file name
  */
 class SqliteAdapter extends AbstractAdapter implements AdapterInterface
 {
 
     /**
      * @readwrite
-     * @var string
+     * @var string Database file name
      */
     protected $_file = ':memory:';
 
     /**
+     * @write
      * @var string
      */
     protected $_dialect = Dialect::SQLITE;
@@ -42,8 +47,8 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
      * Connects to the database service
      *
      * @throws ServiceException If any error occurs while trying to
-     *  connect to the database service
-     * @return AdapterInterface The current adapter to chain method calls
+     * connect to the database service
+     * @return SqliteAdapter The current adapter to chain method calls
      */
     public function connect()
     {
@@ -62,6 +67,7 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
                 "service. Error: {$exp->getMessage()}"
             );
         }
+        return $this;
     }
 
     /**
@@ -78,19 +84,19 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
      * Executes an SQL or DDL query and returns the number of affected rows
      *
      * @param string|SqlInterface $sql A string containing
-     *  the SQL query to perform ot the equivalent SqlInterface or
-     *  DdlInterface object
-     * @param array $parameters
+     * the SQL query to perform or the equivalent
+     * {@see \Slick\Database\Sql\SqlInterface} object
+     * @param array $parameters A list of parameters to bind
+     * {@see http://php.net/manual/en/pdo.prepare.php PDO prepared statements}
      *
      * @throws \Slick\Database\Exception\InvalidArgumentException if the
-     *  sql provided id not a string or does not implements the
-     *  Slick\Database\Sql\SqlInterface
+     * sql provided is not a string or does not implements the
+     * {@see \Slick\Database\Sql\SqlInterface} interface
      *
      * @throws SqlQueryException If any error occurs while preparing or
-     *  executing the SQL query
+     * executing the SQL query
      *
-     * @return integer The number of affected rows by executing the
-     *  query
+     * @return integer The number of affected rows by executing the query
      */
     public function execute($sql, $parameters = [])
     {

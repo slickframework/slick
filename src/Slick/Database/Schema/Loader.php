@@ -24,12 +24,12 @@ use Slick\Database\Exception\InvalidArgumentException;
  * @package   Slick\Database\Schema
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property AdapterInterface $adapter
- * @property string           $class
+ * @property AdapterInterface $adapter Database adapter to use
+ * @property string $class The loader class name
  *
  * @method AdapterInterface getAdapter() Retrieves the database adapter
  * @method Loader setAdapter(AdapterInterface $adapter) Set the adapter
- * @method Loader setClass($className) Sets loader class name
+ * @method Loader setClass(string $className) Sets loader class name
  */
 class Loader
 {
@@ -73,6 +73,8 @@ class Loader
 
     /**
      * Returns current class name
+     *
+     * @return string
      */
     public function getClass()
     {

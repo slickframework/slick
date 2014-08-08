@@ -26,8 +26,7 @@ final class Dialect
 {
 
     /**#@+
-     * Available dialects
-     * @var string
+     * @var string Available dialects
      */
     const STANDARD = 'standard';
     const MYSQL    = 'mysql';
