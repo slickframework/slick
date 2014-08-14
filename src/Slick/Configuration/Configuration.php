@@ -37,7 +37,7 @@ class Configuration extends Base
      * @readwrite
      * @var string Configuration type or driver class name.
      */
-    protected $_class = 'ini';
+    protected $_class = 'php';
 
     /**
      * @readwrite
@@ -61,7 +61,7 @@ class Configuration extends Base
      *
      * @return DriverInterface
      */
-    public static function get($file, $class='ini')
+    public static function get($file, $class='php')
     {
         foreach (self::$_paths as $path) {
             $fileName = "{$path}/{$file}.{$class}";
@@ -146,6 +146,10 @@ class Configuration extends Base
         switch ($class) {
             case 'ini':
                 $driver = new Driver\Ini($this->_options);
+                break;
+
+            case 'php':
+                $driver = new Driver\Php($this->_options);
                 break;
             
             default:

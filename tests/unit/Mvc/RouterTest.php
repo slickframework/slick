@@ -54,7 +54,7 @@ class RouterTest extends \Codeception\TestCase\Test
         if (is_null($this->_config)) {
             Configuration::addPath(dirname(dirname(__DIR__)).'/app/Configuration');
             Configuration::addPath(__DIR__);
-            $cfg = Configuration::get('routerConfig');
+            $cfg = Configuration::get('routerConfig', 'ini');
             $this->_router->setConfiguration($cfg);
             $this->_config = $cfg;
         }
