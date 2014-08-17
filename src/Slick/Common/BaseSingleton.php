@@ -34,19 +34,6 @@ use Slick\Utility\Text;
 abstract class BaseSingleton implements SingletonInterface
 {
     /**
-     * @var \Slick\common\Inspector The self inspector object.
-     */
-    private $_inspector = null;
-
-    /**
-     * @readwrite
-     * @var mixed Used by codeception in test mockups.
-     */
-    // @codingStandardsIgnoreStart
-    public $___mocked;
-    // @codingStandardsIgnoreEnd
-
-    /**
      * Trait with method for base class
      */
     use BaseMethods;
@@ -57,16 +44,9 @@ abstract class BaseSingleton implements SingletonInterface
      * 
      * @param array $options A list of properties for this connector
      */
-    protected function __construct($options = array())
+    protected function __construct($options = [])
     {
-        $this->_inspector = new Inspector($this);
-        if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
-                $key = ucfirst($key);
-                $method = "set{$key}";
-                $this->$method($value);
-            }
-        }
+        $this->_createObject($options);
     }
 
     /**

@@ -12,8 +12,8 @@
 
 namespace Slick\Common;
 
-use Slick\Common\Inspector\AnnotationsList;
 use Slick\Utility\Text;
+use Slick\Common\Inspector\AnnotationsList;
 
 /**
  * BaseMethods are common methods shared with Slick\Common\Base and
@@ -24,7 +24,33 @@ use Slick\Utility\Text;
  */
 trait BaseMethods
 {
+    /**
+     * @var \Slick\common\Inspector The self inspector object.
+     */
+    private $inspector = null;
 
+    // @codingStandardsIgnoreStart
+    /**
+     * @readwrite
+     * @var mixed Used by codeception in test mockups.
+     * @internal
+     */
+    public $___mocked;
+    // @codingStandardsIgnoreEnd
+
+    protected function _createObject($options = [])
+    {
+        $this->inspector = new Inspector($this);
+        if (is_array($options) || is_object($options)) {
+            foreach ($options as $key => $value) {
+                $key = ucfirst($key);
+                $method = "set{$key}";
+                $this->$method($value);
+            }
+        }
+    }
+
+    // @codingStandardsIgnoreStart
     /**
      * Handles the call for unimplemented methods.
      *
@@ -36,21 +62,23 @@ trait BaseMethods
      * If the method isn't one of "getProperty", "setProperty" or "isProperty"
      * an exception will be thrown saying that the method isn't implemented.
      *
-     * @param string $name      The calling method.
+     * @param string $name The calling method.
      * @param array  $arguments An array with the arguments passed to the
-     *  method calling.
+     * method calling.
      * 
-     * @return mixed Will return the property value or the current
-     *  instance for chain calls if the calling method was of type setProperty.
+     * @return mixed Will return the property value or the current instance
+     * for chain calls if the calling method was of type setProperty.
      * 
-     * @throws \Slick\Common\Exception\BadConstructorException
-     * @throws \Slick\Common\Exception\UnimplementedMethodCallException
+     * @throws Exception\BadConstructorException If the client class does runs
+     * this controller that will initialize the inspector needed for the
+     * magic methods implementation.
+     * @throws Exception\UnimplementedMethodCallException If the method called
+     * is not defined
      */
-	// @codingStandardsIgnoreStart
     public function __call($name, $arguments)
     {
     	// @codingStandardsIgnoreEnd
-        if (is_null($this->_inspector)) {
+        if (is_null($this->inspector)) {
             throw new Exception\BadConstructorException(
                 "The constructor is not correct for use Slick\Common\Base"
                 ." class. You need to call 'parent::__construct()' for the"
@@ -95,7 +123,8 @@ trait BaseMethods
             "The method '{$className}::{$name}()' its not defined."
         );
     }
-    
+
+    // @codingStandardsIgnoreStart
     /**
      * Retrieves the value a property with the given name.
      * 
@@ -103,9 +132,9 @@ trait BaseMethods
      * 
      * @return mixed The property value.
      * 
-     *  @throws \Slick\Common\Exception\WriteOnlyException
+     * @throws Exception\WriteOnlyException If the property being accessed
+     * has the annotation @write
      */
-    // @codingStandardsIgnoreStart
     protected function _getter($name)
     {
     	// @codingStandardsIgnoreEnd
@@ -113,7 +142,7 @@ trait BaseMethods
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
             /** @var AnnotationsList $annotations */
-            $annotations = $this->_inspector->getPropertyAnnotations($property);
+            $annotations = $this->inspector->getPropertyAnnotations($property);
 
             if (
                 !$annotations->hasAnnotation('@readwrite') &&
@@ -130,26 +159,28 @@ trait BaseMethods
         return null;
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Sets the value of a given property name.
      * 
-     * @param string $name  The property name to set the value.
+     * @param string $name The property name to set the value.
      * @param mixed  $value The value to assign to property.
      * 
-     * @return \Slick\Common\Base The current object instance for
-     *  multiple (chain) method calls.
+     * @return self The current object instance for
+     * multiple (chain) method calls.
      * 
-     * @throws \Slick\Common\Exception\ReadOnlyException
-     * @throws \Slick\Common\Exception\UndefinedPropertyException
+     * @throws Exception\ReadOnlyException If the property being changed
+     * has the annotation @read
+     * @throws Exception\UndefinedPropertyException If the property does
+     * not exists in class scope
      */
-    // @codingStandardsIgnoreStart
     protected function _setter($name, $value)
     {
     	// @codingStandardsIgnoreEnd
         $normalized = lcfirst($name);
         $property = "_{$normalized}";
         if (property_exists($this, $property)) {
-            $annotations = $this->_inspector->getPropertyAnnotations($property);
+            $annotations = $this->inspector->getPropertyAnnotations($property);
             /** @var AnnotationsList $annotations */
             if (
                 !$annotations->hasAnnotation('@readwrite') &&
@@ -173,7 +204,8 @@ trait BaseMethods
         );
 
     }
-    
+
+    // @codingStandardsIgnoreStart
     /**
      * Retrieves the boolean value a property with the given name.
      * 
@@ -181,9 +213,9 @@ trait BaseMethods
      * 
      * @return boolean The boolean value of the requested property.
      * 
-     * @throws \Slick\Common\Exception\WriteOnlyException
+     * @throws Exception\WriteOnlyException If property being accessed has
+     * the annotation @write
      */
-    // @codingStandardsIgnoreStart
     protected function _is($name)
     {
     	// @codingStandardsIgnoreEnd
@@ -192,7 +224,7 @@ trait BaseMethods
 
         if (property_exists($this, $property)) {
             /** @var AnnotationsList $annotations */
-            $annotations = $this->_inspector->getPropertyAnnotations($property);
+            $annotations = $this->inspector->getPropertyAnnotations($property);
 
             if (
                 !$annotations->hasAnnotation('@readwrite') &&
@@ -210,19 +242,17 @@ trait BaseMethods
         return false;
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Handles the call for unimplemented or invisible properties.
      *
      * This will result in a call to "getProperty" method handled with the
-     * magic method \Slick\Common\Base::__call().
+     * magic {@see \Slick\Common\Base::__call()} method.
      *
      * @param string $name The requested property name.
      * 
      * @return mixed The property value or null, if property isn't set.
-     * 
-     * @see \Slick\Common\Base::__call()
      */
-    // @codingStandardsIgnoreStart
     public function __get($name)
     {
     	// @codingStandardsIgnoreEnd
@@ -230,21 +260,22 @@ trait BaseMethods
         return $this->$function();
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Handles the call to assign values to invisible/unimplemented properties.
      *
      * This will result in a call to setName method handled with the
      * magic method \Slick\Common\Base::__call().
      *
-     * @param string $name  The requested property name.
+     * @param string $name The requested property name.
      * @param mixed  $value The value to assign to the property.
      * 
-     * @return \Slick\Common\Base The current object instance for
-     *  multiple (chain) method calls.
+     * @return self The current object instance for multiple
+     * (chain) method calls.
      * 
      * @see \Slick\Common\Base::__call()
+     * @internal
      */
-    // @codingStandardsIgnoreStart
     public function __set($name, $value)
     {
     	// @codingStandardsIgnoreEnd
@@ -258,7 +289,7 @@ trait BaseMethods
      * @param string $name The property name
      *
      * @return bool True if a property with the provided name exists,
-     *  false otherwise
+     * false otherwise
      */
     public function __isset($name)
     {

@@ -4,8 +4,16 @@ php:
   - 5.4
   - 5.5
 
+# optionally specify a list of environments, for example to test different RDBMS
+env:
+  - DB=mysql
+
 before_script:
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
-script: vendor/bin/codecept run unit --coverage --coverage --xml
+script:
+  - vendor/bin/codecept run unit --coverage --xml
+
+after_script:
+     - php vendor/bin/coveralls -v

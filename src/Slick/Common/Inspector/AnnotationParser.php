@@ -13,7 +13,7 @@
 namespace Slick\Common\Inspector;
 
 /**
- * Annotation Parser
+ * Parses doc block comments to retrieve the annotations values
  *
  * @package    Slick\Common\Inspector
  * @author     Filipe Silva <silvam.filipe@gmail.com>
@@ -21,15 +21,22 @@ namespace Slick\Common\Inspector;
 class AnnotationParser
 {
 
-    /**
-     * Annotation regular expression
-     *
+    /**#@+
+     * @var string Annotation regular expression
      * @codingStandardsIgnoreStart
      */
     const ANNOTATION_REGEX = '/@(\w+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/';
     const ANNOTATION_PARAMETERS_REGEX = '/([\w]+\s*=\s*[\[\{"]{1}[\w,\\\\\s:\."\{\[\]\}]+[\}\]""]{1})|([\w]+\s*=\s*[\\\\\w\.]+)|([\\\\\w]+)/i';
+    /**#@-*/
     // @codingStandardsIgnoreEnd
 
+    /**
+     * Retrieves a list of annotations within the provided comment.
+     *
+     * @param string $comment
+     *
+     * @return string[]
+     */
     public static function getAnnotations($comment)
     {
         $hasAnnotations = preg_match_all(
@@ -112,11 +119,6 @@ class AnnotationParser
         } else if (substr($val, 0, 1) == '{' && substr($val, -1) == '}') {
             // If is json object that start with { } decode them
             return json_decode($val);
-        /* } else if (substr($val, 0, 1) == '"' && substr($val, -1) == '"') {
-            // Quoted value, remove the quotes then recursively parse and return
-            $val = substr($val, 1, -1);
-            return self::_parseValue($val);*/
-
         } else if (strtolower($val) == 'true') {
             // Boolean value = true
             return true;
@@ -131,16 +133,19 @@ class AnnotationParser
 
         // Nothing special, just return as a string
         return $val;
-
     }
 
+    /**
+     * Numeric value, determine if int or float and then cast
+     *
+     * @param mixed $val
+     * @return float|int
+     */
     private static function _checkNumberValue($val)
     {
-        // Numeric value, determine if int or float and then cast
         if ((float) $val == (int) $val) {
             return (int) $val;
         }
         return (float) $val;
     }
-
-} 
+}
