@@ -37,7 +37,7 @@ abstract class AbstractSql implements SqlInterface
      * Sets the adapter for this statement
      *
      * @param AdapterInterface $adapter
-     * @return AbstractSql
+     * @return self
      */
     public function setAdapter(AdapterInterface $adapter)
     {
