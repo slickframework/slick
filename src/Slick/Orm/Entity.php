@@ -13,6 +13,7 @@
 namespace Slick\Orm;
 
 use Slick\Database\Sql;
+use Slick\Orm\Events\Save;
 use Slick\Utility\Text;
 use Slick\Di\Definition;
 use Slick\Database\Adapter;
@@ -109,34 +110,73 @@ class Entity extends AbstractEntity
         return $select;
     }
 
+    /**
+     * Saves the entity data or the provided data
+     *
+     * If no data is provided the save action will check all properties
+     * marked with @column annotation and crates a key/value pair array
+     * with those properties and its values. If the data is provided only
+     * the values in that associative array will be used except that if
+     * you don't set the primary key value and the entity has this property
+     * set it will be added to the data being saved.
+     * If data being saved has the primary key with value (by setting this
+     * property or entering the key/value in data) an update will be performed
+     * on database. In the opposite an insert will be done.
+     *
+     * @param array $data
+     *
+     * @return bool True if data was saved, false otherwise
+     */
     public function save(array $data = [])
     {
-        $action = 'insert';
+        $action = Save::INSERT;
         $pmk = $this->primaryKey;
         if ($this->$pmk || isset($data[$pmk])) {
-            $action = 'update';
+            $action = Save::UPDATE;
         }
 
-        if ($action == 'update') {
+        if ($action == Save::UPDATE) {
             return $this->_update($data);
         }
 
         return $this->_insert($data);
     }
 
+    /**
+     * Inserts a new record in the database
+     *
+     * @param array $data
+     * @return bool
+     */
     protected function _insert(array $data)
     {
         $data = $this->_setData($data);
         $sql = Sql::createSql($this->getAdapter())->insert($this->getTableName());
-        $result = $sql->set($data)->execute();
+        $event = new Save([
+            'action' => Save::INSERT,
+            'data' => $data,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Save::BEFORE_SAVE, $this, $event);
+        if ($event->abort) {
+            return false;
+        }
+        $result = $sql->set($event->data)->execute();
 
         if ($result > 0) {
             $pmk = $this->getPrimaryKey();
             $this->$pmk = $this->getAdapter()->getLastInsertId();
+            $this->getEventManager()->trigger(Save::AFTER_SAVE, $this, $event);
         }
         return $result > 0;
     }
 
+    /**
+     * Updated current entity or data
+     *
+     * @param array $data
+     * @return bool
+     */
     protected function _update(array $data)
     {
         $data = $this->_setData($data);
@@ -148,6 +188,12 @@ class Entity extends AbstractEntity
         return $result > 0;
     }
 
+    /**
+     * Sets the data to be saved
+     *
+     * @param array $data
+     * @return array
+     */
     protected function _setData(array $data)
     {
         $pmk = $this->getPrimaryKey();
@@ -160,6 +206,9 @@ class Entity extends AbstractEntity
         $columns = Manager::getInstance()->get($this)->getColumns();
         foreach (array_keys($columns) as $property) {
             $key = trim($property, '_');
+            if ($key == $pmk && !$this->$pmk) {
+                continue;
+            }
             $data[$key] = $this->$property;
         }
 

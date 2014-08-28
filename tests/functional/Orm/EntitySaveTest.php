@@ -16,6 +16,7 @@ use Slick\Configuration\Configuration;
 use Slick\Database\Adapter\MysqlAdapter;
 use Slick\Database\Schema;
 use Slick\Orm\Entity;
+use Slick\Orm\Events\Save;
 
 /**
  * Orm Entity save test case
@@ -72,12 +73,23 @@ class EntitySaveTest extends \Codeception\TestCase\Test
      */
     public function saveRecords()
     {
-        $filipe = new Person(
-            [
-                'name' => 'Filipe',
-                'email' => 'filipe@example.com'
-            ]
-        );
+        $data = [
+            'name' => 'Filipe',
+            'email' => 'filipe@example.com'
+        ];
+        $filipe = new Person($data);
+
+        $filipe->getEventManager()->attach(Save::BEFORE_SAVE, function(Save $event) use ($data) {
+            if ($event->action = Save::INSERT) {
+                $this->assertEquals($data, $event->data);
+            }
+        });
+        $filipe->getEventManager()->attach(Save::AFTER_SAVE, function(Save $event) use ($data) {
+            if ($event->action = Save::INSERT) {
+                $this->assertEquals($data, $event->data);
+                $this->assertEquals(1, $event->getTarget()->id);
+            }
+        });
         $this->assertTrue($filipe->save());
         $this->assertEquals(1, $filipe->id);
         $filipe->name = 'Filipe Silva';
@@ -103,6 +115,14 @@ class EntitySaveTest extends \Codeception\TestCase\Test
 
         $this->assertTrue($jon->save(['name' => 'Jon Doe']));
         $this->testGuy->seeInDatabase('people', ['name' => 'Jon Doe']);
+
+        $fake = new Person(['name' => 'fake']);
+        $fake->getEventManager()->attach(Save::BEFORE_SAVE, function(Save $event) {
+            if (!isset($event->data['email']) || !$event->data['email']) {
+                $event->abort = true;
+            }
+        });
+        $this->assertFalse($fake->save());
     }
 
 }
