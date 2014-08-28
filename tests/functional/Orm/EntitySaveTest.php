@@ -16,6 +16,7 @@ use Slick\Configuration\Configuration;
 use Slick\Database\Adapter\MysqlAdapter;
 use Slick\Database\Schema;
 use Slick\Orm\Entity;
+use Slick\Orm\Events\Delete;
 use Slick\Orm\Events\Save;
 
 /**
@@ -80,13 +81,21 @@ class EntitySaveTest extends \Codeception\TestCase\Test
         $filipe = new Person($data);
 
         $filipe->getEventManager()->attach(Save::BEFORE_SAVE, function(Save $event) use ($data) {
-            if ($event->action = Save::INSERT) {
+            if ($event->action == Save::INSERT) {
                 $this->assertEquals($data, $event->data);
+            } else {
+                $this->assertEquals([
+                    'name' => 'Filipe Silva',
+                    'email' => 'filipe@example.com',
+                    'id' => '1'
+                ], $event->data);
             }
         });
         $filipe->getEventManager()->attach(Save::AFTER_SAVE, function(Save $event) use ($data) {
-            if ($event->action = Save::INSERT) {
+            if ($event->action == Save::INSERT) {
                 $this->assertEquals($data, $event->data);
+                $this->assertEquals(1, $event->getTarget()->id);
+            } else {
                 $this->assertEquals(1, $event->getTarget()->id);
             }
         });
@@ -123,6 +132,18 @@ class EntitySaveTest extends \Codeception\TestCase\Test
             }
         });
         $this->assertFalse($fake->save());
+        $this->assertTrue($fake->setEmail('fake@example.com')->save());
+        $fake->email = null;
+        $this->assertFalse($fake->save());
+
+        $this->assertTrue($jon->delete());
+        $this->testGuy->dontSeeInDatabase('people', ['name' => 'Jon Doe']);
+
+        $fake->getEventManager()->attach(Delete::BEFORE_DELETE, function(Delete $event) {
+            $event->abort = true;
+        });
+        $this->assertFalse($fake->delete());
+
     }
 
 }

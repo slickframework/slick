@@ -13,6 +13,7 @@
 namespace Slick\Orm;
 
 use Slick\Database\Sql;
+use Slick\Orm\Events\Delete;
 use Slick\Orm\Events\Save;
 use Slick\Utility\Text;
 use Slick\Di\Definition;
@@ -143,6 +144,31 @@ class Entity extends AbstractEntity
     }
 
     /**
+     * Deletes current record from
+     *
+     * @return bool
+     */
+    public function delete()
+    {
+        $pmk = $this->getPrimaryKey();
+        $sql = Sql::createSql($this->getAdapter())
+            ->delete($this->getTableName())
+            ->where(["{$pmk} = :id" => [':id' => $this->$pmk]]);
+        $event = new Delete([
+            'primaryKey' => $this->$pmk,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Delete::BEFORE_DELETE, $this, $event);
+
+        if ($event->abort) {
+            return false;
+        }
+        $result = $sql->execute();
+        $this->getEventManager()->trigger(Delete::AFTER_DELETE, $event);
+        return $result > 0;
+    }
+
+    /**
      * Inserts a new record in the database
      *
      * @param array $data
@@ -182,9 +208,19 @@ class Entity extends AbstractEntity
         $data = $this->_setData($data);
         $pmk = $this->getPrimaryKey();
         $sql = Sql::createSql($this->getAdapter())->update($this->getTableName());
+        $event = new Save([
+            'action' => Save::UPDATE,
+            'data' => $data,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Save::BEFORE_SAVE, $this, $event);
+        if ($event->abort) {
+            return false;
+        }
         $result = $sql->set($data)
             ->where(["{$pmk} = :id" => [':id' => $this->$pmk]])
             ->execute();
+        $this->getEventManager()->trigger(Save::AFTER_SAVE, $this, $event);
         return $result > 0;
     }
 
