@@ -14,9 +14,9 @@ services:
 
 install:
   - sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-curl php5-intl
-  - echo "extension = memcache.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 before_script:
+  - phpenv config-add custom.ini
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
   - mysql -e 'create database slick_tests;'
@@ -25,4 +25,4 @@ script:
   - vendor/bin/codecept run --coverage --xml
 
 after_script:
-     - php vendor/bin/coveralls -v
+  - php vendor/bin/coveralls -v
