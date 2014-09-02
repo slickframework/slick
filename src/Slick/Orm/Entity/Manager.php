@@ -1,10 +1,13 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 8/26/14
- * Time: 7:08 PM
+ * Entity assets manager
+ *
+ * @package   Slick\Orm\Entity
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Entity;
@@ -14,6 +17,12 @@ use Slick\Orm\Entity;
 use Slick\Common\BaseSingleton;
 use Slick\Common\SingletonInterface;
 
+/**
+ * Entity assets manager
+ *
+ * @package   Slick\Orm\Entity
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ */
 class Manager extends BaseSingleton
 {
 
@@ -43,6 +52,10 @@ class Manager extends BaseSingleton
         if (is_null(static::$_instance)) {
             static::$_instance = new static($options);
             Inspector::addAnnotationClass('column', 'Slick\Orm\Annotation\Column');
+            Inspector::addAnnotationClass(
+                strtolower('HasMany'),
+                'Slick\Orm\Annotation\HasMany'
+            );
         }
         return static::$_instance;
     }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Column annotation class
+ * HasMany annotation class
  *
  * @package   Slick\Orm\Annotation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -15,13 +15,12 @@ namespace Slick\Orm\Annotation;
 use Slick\Common\Inspector\Annotation;
 
 /**
- * Column annotation class
+ * HasMany annotation class
  *
  * @package   Slick\Orm\Annotation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class Column extends Annotation
+class HasMany extends Annotation implements RelationInterface
 {
 
     /**
@@ -33,6 +32,6 @@ class Column extends Annotation
     public function __construct($name, $parsedData)
     {
         parent::__construct($name, $parsedData);
-        $this->_name = 'column';
+        $this->_name = 'hasMany';
     }
 }

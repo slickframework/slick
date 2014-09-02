@@ -1,10 +1,13 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 8/26/14
- * Time: 8:21 PM
+ * Abstract entity
+ *
+ * @package   Slick\Orm\Entity
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * @copyright 2014 Filipe Silva
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Entity;
@@ -14,6 +17,7 @@ use Slick\Di\Definition;
 use Slick\Database\Adapter;
 use Slick\Di\ContainerBuilder;
 use Slick\Di\ContainerInterface;
+use Slick\Orm\Entity;
 use Zend\EventManager\EventManager;
 use Slick\Di\ContainerAwareInterface;
 use Slick\Configuration\Configuration;
@@ -22,8 +26,10 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 
 /**
- * Class AbstractEntity
- * @package Slick\Orm\Entity
+ * Abstract entity
+ *
+ * @package   Slick\Orm\Entity
+ * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property string $configName Configuration entry name to start a
  * database adapter
@@ -33,7 +39,7 @@ use Zend\EventManager\EventManagerAwareInterface;
  * @property string $primaryKey Primary key field name
  *
  * @method string getPrimaryKey() Returns the primary key field name
- * @method self setPrimaryKey(string $pk) Sets the primary ky field name
+ * @method Entity setPrimaryKey(string $pk) Sets the primary ky field name
  */
 abstract class AbstractEntity extends Base implements
     Adapter\AdapterAwareInterface,
@@ -193,4 +199,26 @@ abstract class AbstractEntity extends Base implements
         }
         return $this->_className;
     }
-} 
+
+    // @codingStandardsIgnoreStart
+    /**
+     * Proxies the call to a property that defines a relation
+     *
+     * @param string $name
+     * @return mixed|void
+     */
+    public function __get($name)
+    {
+        // @codingStandardsIgnoreEnd
+
+        //Check if its a relation
+        $prop = "_{$name}";
+        $manager = Manager::getInstance()->get($this);
+        if (is_null($this->$prop) && $manager->isRelation($prop)) {
+            $this->$prop = $manager->getRelation($prop)->load();
+        }
+
+        // Not a relation, back to normal behavior
+        return parent::__get($name);
+    }
+}

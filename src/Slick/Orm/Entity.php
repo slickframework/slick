@@ -53,14 +53,12 @@ class Entity extends AbstractEntity
     public function getTableName()
     {
         if (is_null($this->_tableName)) {
-            $parts = explode('\\', get_class($this));
+            $parts = explode('\\', $this->getClassName());
             $name = end($parts);
             $this->_tableName = Text::plural(strtolower($name));
         }
         return $this->_tableName;
     }
-
-
 
     /**
      * Gets the record with the provided primary key
