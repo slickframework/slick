@@ -52,10 +52,8 @@ class Manager extends BaseSingleton
         if (is_null(static::$_instance)) {
             static::$_instance = new static($options);
             Inspector::addAnnotationClass('column', 'Slick\Orm\Annotation\Column');
-            Inspector::addAnnotationClass(
-                strtolower('HasMany'),
-                'Slick\Orm\Annotation\HasMany'
-            );
+            Inspector::addAnnotationClass('hasMany', 'Slick\Orm\Annotation\HasMany');
+            Inspector::addAnnotationClass('belongsTo', 'Slick\Orm\Annotation\BelongsTo');
         }
         return static::$_instance;
     }
@@ -63,13 +61,13 @@ class Manager extends BaseSingleton
     /**
      * Returns the descriptor for the provided entity object
      *
-     * @param Entity $entity
+     * @param Entity|string $entity
      *
      * @return Descriptor
      */
-    public function get(Entity $entity)
+    public function get($entity)
     {
-        $name = get_class($entity);
+        $name = is_object($entity) ? get_class($entity) : $entity;
         if (!isset($this->_entities[$name])) {
             $this->_entities[$name] = new Descriptor(['entity' => $entity]);
         }

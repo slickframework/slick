@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Has many relation
+ * Belongs to relation
  *
  * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
@@ -13,22 +13,19 @@
 namespace Slick\Orm\Relation;
 
 use Slick\Orm\Entity;
-use Slick\Database\Sql;
-use Slick\Di\Definition;
-use Slick\Orm\Sql\Select;
-use Slick\Orm\Events\Delete;
 use Slick\Database\RecordList;
-use Slick\Orm\RelationInterface;
 use Slick\Common\Inspector\Annotation;
+use Slick\Orm\Events\Save;
+use Slick\Orm\Sql\Select;
 use Zend\EventManager\SharedEventManager;
 
 /**
- * Has many relation
+ * Belongs to relation
  *
  * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class HasMany extends AbstractMultipleRelation implements RelationInterface
+class BelongsTo extends AbstractSingleRelation
 {
 
     /**
@@ -40,13 +37,12 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
      */
     public function setEntity(Entity $entity)
     {
-
         /** @var SharedEventManager $events */
         $events = $this->getContainer()->get('sharedEventManager');
         $events->attach(
             get_class($entity),
-            Delete::BEFORE_DELETE,
-            array($this, 'onDelete')
+            Save::BEFORE_SAVE,
+            [$this, 'beforeSave']
         );
         $this->getContainer()->set('sharedEventManager', $events);
         return parent::setEntity($entity);
@@ -59,9 +55,11 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
      */
     protected function _guessForeignKey()
     {
-        $name = $this->getEntity()->getClassName();
+        $descriptor = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $name = explode('\\', $descriptor->getEntity()->getClassName());
         $name = end($name);
-        return strtolower($name) .'_id';
+        return strtolower($name) . '_id';
     }
 
     /**
@@ -77,9 +75,10 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
     public static function create(
         Annotation $annotation, Entity $entity, $property)
     {
-        /** @var HasMAny $relation */
         $parameters = $annotation->getParameters();
         unset ($parameters['_raw']);
+
+        /** @var BelongsTo $relation */
         $relation = new static($parameters);
         $relation->setEntity($entity)->setPropertyName($property);
         $relation->setRelatedEntity($annotation->getValue());
@@ -96,42 +95,43 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
     {
         /** @var Select $sql */
         $sql = call_user_func_array(
-            array($this->getRelatedEntity(), 'find'),
+            [$this->getRelatedEntity(), 'find'],
             []
         );
-        $pmk = $this->getEntity()->getPrimaryKey();
-        $sql->where(
+        $pmk = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getPrimaryKey();
+
+        $sql-> where(
             [
-                "{$this->getForeignKey()} = :id" => [
-                    ':id' => $this->getEntity()->$pmk
+                "{$pmk} = :id" => [
+                    ':id' => $entity->getRawData()[$this->getForeignKey()]
                 ]
             ]
         );
-        $sql->limit($this->getLimit());
-        return $sql->all();
+        return $sql->first();
     }
 
     /**
-     * Runs before delete on entity event and deletes the children
-     * records on related entity.
+     * Runs before save to set the relation data to be saved
      *
-     * @param Delete $event
+     * @param Save $event
      */
-    public function onDelete(Delete $event)
+    public function beforeSave(Save $event)
     {
-        if ($this->isDependent()) {
+        $entity = $event->getTarget();
+        $property = $this->getPropertyName();
+        $field = $this->getForeignKey();
+        $data = $event->data;
+        if (isset($entity->$property) && !is_null($entity->$property)) {
+            /** @var Entity $object */
+            $object = $entity->$property;
+            $data[$field] = $object;
             $class = $this->getRelatedEntity();
-            /** @var Entity $entity */
-            $entity = new $class();
-            $fkField = $this->getForeignKey();
-            $pmk = $event->getTarget()->getPrimaryKey();
-            $sql = Sql::createSql($entity->getAdapter())
-                ->delete($entity->getTableName())
-                ->where(
-                    ["{$fkField} = :id" => [':id' => $event->getTarget()->$pmk]]
-                );
-
-            $sql->execute();
+            if ($object instanceof $class) {
+                $pmk = $object->getPrimaryKey();
+                $data[$field] = $object->$pmk;
+            }
+            $event->data = $data;
         }
     }
 }

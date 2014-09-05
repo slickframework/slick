@@ -118,7 +118,8 @@ interface RelationInterface
     /**
      * Lazy loading of relations callback method
      *
+     * @param Entity $entity
      * @return Entity|RecordList
      */
-    public function load();
+    public function load(Entity $entity);
 }

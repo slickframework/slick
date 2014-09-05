@@ -37,9 +37,12 @@ use Zend\EventManager\EventManagerAwareInterface;
  * @property ContainerInterface $container Dependency injection container
  * @property AdapterInterface $adapter
  * @property string $primaryKey Primary key field name
+ * @property-read array $rawData Array or object used to create the entity
  *
  * @method string getPrimaryKey() Returns the primary key field name
  * @method Entity setPrimaryKey(string $pk) Sets the primary ky field name
+ * @method array getRawData() Returns the array or object that was used to
+ * create the entity
  */
 abstract class AbstractEntity extends Base implements
     Adapter\AdapterAwareInterface,
@@ -88,6 +91,44 @@ abstract class AbstractEntity extends Base implements
      * @var string
      */
     protected $_className;
+
+    /**
+     * @read
+     * @var array
+     */
+    protected $_rawData;
+
+    /**
+     * Save all data in raw data before construction
+     *
+     * @param array $options
+     */
+    public function __construct($options = [])
+    {
+        $this->_rawData = $options;
+        $this->_createObject($options);
+    }
+
+    // @codingStandardsIgnoreStart
+    /**
+     * Sets the value of a given property name.
+     *
+     * @param string $name The property name to set the value.
+     * @param mixed  $value The value to assign to property.
+     *
+     * @return self The current object instance for
+     * multiple (chain) method calls.
+     */
+    protected function _setter($name, $value)
+    {
+        // @codingStandardsIgnoreEnd
+        $normalized = lcfirst($name);
+        $property = "_{$normalized}";
+        if (property_exists($this, $property)) {
+            $this->$property = $value;
+        }
+        return $this;
+    }
 
     /**
      * Sets the adapter for this statement
@@ -215,7 +256,7 @@ abstract class AbstractEntity extends Base implements
         $prop = "_{$name}";
         $manager = Manager::getInstance()->get($this);
         if (is_null($this->$prop) && $manager->isRelation($prop)) {
-            $this->$prop = $manager->getRelation($prop)->load();
+            $this->$prop = $manager->getRelation($prop)->load($this);
         }
 
         // Not a relation, back to normal behavior

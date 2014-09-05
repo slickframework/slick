@@ -14,6 +14,9 @@ namespace Slick\Orm\Relation;
 
 use Slick\Orm\Entity;
 use Slick\Common\Base;
+use Slick\Di\Container;
+use Slick\Di\Definition;
+use Slick\Di\ContainerBuilder;
 use Slick\Orm\RelationInterface;
 
 /**
@@ -21,6 +24,9 @@ use Slick\Orm\RelationInterface;
  *
  * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @method AbstractRelation setContainer(Container $container)
+ * Sets dependency container
  */
 abstract class AbstractRelation extends Base implements RelationInterface
 {
@@ -53,6 +59,12 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @var bool
      */
     protected $_dependent = true;
+
+    /**
+     * @readwrite
+     * @var Container
+     */
+    protected $_container;
 
     /**
      * Returns the entity that defines the relation
@@ -175,4 +187,22 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @return string
      */
     abstract protected function _guessForeignKey();
+
+    /**
+     * Returns the dependency container
+     *
+     * @return Container
+     */
+    public function getContainer()
+    {
+        if (is_null($this->_container)) {
+            $container = ContainerBuilder::buildContainer([
+                'sharedEventManager' => Definition::object(
+                        'Zend\EventManager\SharedEventManager'
+                    )
+            ]);
+            $this->setContainer($container);
+        }
+        return $this->_container;
+    }
 }

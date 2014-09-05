@@ -71,6 +71,7 @@ class Entity extends AbstractEntity
     {
         /** @var Entity $entity */
         $entity = new static();
+        Manager::getInstance()->get($entity)->refreshRelations();
         $className = $entity->getClassName();
         $sql = Sql::createSql($entity->getAdapter())
             ->select($entity->getTableName())
@@ -105,6 +106,7 @@ class Entity extends AbstractEntity
     public static function find($fields = '*')
     {
         $entity = new static();
+        Entity\Manager::getInstance()->get($entity)->refreshRelations();
         $select = new \Slick\Orm\Sql\Select($entity, $fields);
         return $select;
     }
@@ -128,6 +130,7 @@ class Entity extends AbstractEntity
      */
     public function save(array $data = [])
     {
+        Manager::getInstance()->get($this)->refreshRelations();
         $action = Save::INSERT;
         $pmk = $this->primaryKey;
         if ($this->$pmk || isset($data[$pmk])) {
@@ -148,6 +151,7 @@ class Entity extends AbstractEntity
      */
     public function delete()
     {
+        Manager::getInstance()->get($this)->refreshRelations();
         $pmk = $this->getPrimaryKey();
         $sql = Sql::createSql($this->getAdapter())
             ->delete($this->getTableName())

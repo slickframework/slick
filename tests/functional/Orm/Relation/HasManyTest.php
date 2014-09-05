@@ -32,6 +32,11 @@ class HasManyTest extends \Codeception\TestCase\Test
     protected $_adapter;
 
     /**
+     * @var \TestGuy
+     */
+    protected $testGuy;
+
+    /**
      * Runs before each test
      */
     protected function _before()
@@ -76,13 +81,19 @@ class HasManyTest extends \Codeception\TestCase\Test
                 'title' => 'A test post',
                 'body' => 'A simple body',
                 'created' => date("Y-m-d H:i:s"),
-                'person_id' => $filipe->id
+                'author' => $filipe
             ]
         );
         $this->assertTrue($post->save());
         $posts = $filipe->posts;
         $this->assertEquals(1, count($posts));
         $this->assertEquals($post->title, $posts[0]->title);
+        $firstPost = $posts[0];
+        $this->assertEquals($filipe->name, $firstPost->author->name);
+
+        $this->assertTrue($filipe->delete());
+        $this->testGuy->dontSeeInDatabase('posts', ['title' => 'A test post']);
+
     }
 }
 
@@ -112,7 +123,7 @@ class HasManyPerson extends Entity
 
     /**
      * @readwrite
-     * @hasMany Orm\Relation\HasManyPost, foreignKey=person_id, limit=10
+     * @hasMany Orm\Relation\HasManyPost, foreignKey=person_id, limit=10, dependent=true
      * @var HasManyPost[]
      */
     protected $_posts;
@@ -168,10 +179,10 @@ class HasManyPost extends Entity
 
     /**
      * @readwrite
-     * @column
-     * @var int
+     * @belongsTo Orm\Relation\HasManyPerson, foreignKey=person_id
+     * @var HasManyPerson
      */
-    protected $_person_id;
+    protected $_author;
 
     /**
      * @readwrite

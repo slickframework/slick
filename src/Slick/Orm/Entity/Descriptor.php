@@ -55,7 +55,8 @@ class Descriptor extends Base
      * @var array
      */
     private static $_annotations = [
-        'hasMany' => 'Slick\Orm\Relation\HasMany'
+        'hasMany' => 'Slick\Orm\Relation\HasMany',
+        'belongsTo' => 'Slick\Orm\Relation\BelongsTo',
     ];
 
     /**
@@ -107,6 +108,20 @@ class Descriptor extends Base
             }
         }
         return $this->_relations;
+    }
+
+    /**
+     * Refreshes relation settings
+     *
+     * @param bool $rest
+     * @return \Slick\Orm\RelationInterface[]
+     */
+    public function refreshRelations($rest = false)
+    {
+        if ($rest) {
+            $this->_relations = [];
+        }
+        return $this->getRelations();
     }
 
     /**
