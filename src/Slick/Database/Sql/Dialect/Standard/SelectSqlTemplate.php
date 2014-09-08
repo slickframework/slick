@@ -38,8 +38,8 @@ class SelectSqlTemplate extends AbstractSqlTemplate implements
     {
         $this->_sql = $sql;
         $this->_getSelectFieldsAndTable()
-            ->_getWhereConditions()
             ->_setJoins()
+            ->_getWhereConditions()
             ->_setOrder()
             ->_setLimit();
         return $this->_statement;

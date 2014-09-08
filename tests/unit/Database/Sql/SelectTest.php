@@ -232,8 +232,8 @@ class SelectTest extends \Codeception\TestCase\Test
             ->andWhere(['name LIKE :name' => [':name' => '%test%']])
             ->orWhere(['active = 0', 'banned = 0']);
         $sql->join('roles', 'roles.id = users.role_id', ['*']);
-        $expected = 'SELECT COUNT(*) AS total FROM users WHERE active = 1 AND name LIKE' .
-            ' :name OR (active = 0 AND banned = 0) LEFT JOIN roles ON roles.id = users.role_id';
+        $expected = 'SELECT COUNT(*) AS total FROM users LEFT JOIN roles ON roles.id = users.role_id WHERE active = 1 AND name LIKE' .
+            ' :name OR (active = 0 AND banned = 0)';
 
         SelectAdapter::$isCount = true;
         $result = $sql->count();

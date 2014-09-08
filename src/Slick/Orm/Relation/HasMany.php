@@ -59,7 +59,7 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
      */
     protected function _guessForeignKey()
     {
-        $name = $this->getEntity()->getClassName();
+        $name = explode('\\', $this->getEntity()->getClassName());
         $name = end($name);
         return strtolower($name) .'_id';
     }

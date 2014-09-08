@@ -44,6 +44,16 @@ class BelongsTo extends AbstractSingleRelation
             Save::BEFORE_SAVE,
             [$this, 'beforeSave']
         );
+        $events->attach(
+            get_class($entity),
+            \Slick\Orm\Events\Select::BEFORE_SELECT,
+            [$this, 'beforeSelect']
+        );
+        $events->attach(
+            get_class($entity),
+            \Slick\Orm\Events\Select::AFTER_SELECT,
+            [$this, 'afterSelect']
+        );
         $this->getContainer()->set('sharedEventManager', $events);
         return parent::setEntity($entity);
     }
@@ -133,5 +143,67 @@ class BelongsTo extends AbstractSingleRelation
             }
             $event->data = $data;
         }
+    }
+
+    /**
+     * Sets the join information on the select query when lazy load is false
+     *
+     * @param \Slick\Orm\Events\Select $event
+     */
+    public function beforeSelect(\Slick\Orm\Events\Select $event)
+    {
+        if ($this->lazyLoad) {
+            return;
+        }
+        $related = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $relatedTable = $related->getEntity()->getTableName();
+        $sql = $event->sqlQuery;
+        $columns = $related->getColumns();
+        $fields = [];
+        foreach (array_keys($columns) as $column) {
+            $name = trim($column, '_');
+            $fields[] = "{$name} AS {$relatedTable}_{$name}";
+        }
+        $pmk = $related->getEntity()->getPrimaryKey();
+        $ent = $this->getEntity()->getTableName();
+        $clause  = "{$relatedTable}.{$pmk} = {$ent}.{$this->getForeignKey()}";
+        $sql->join($relatedTable, $clause, $fields);
+        $event->sqlQuery = $sql;
+    }
+
+    /**
+     * Fixes the data to be sent to entity creation with related entity object
+     *
+     * @param \Slick\Orm\Events\Select $event
+     */
+    public function afterSelect(\Slick\Orm\Events\Select $event)
+    {
+        if ($this->lazyLoad) {
+            return;
+        }
+        $data = $event->data->getArrayCopy();
+        $related = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $relatedTable = $related->getEntity()->getTableName();
+        $class = $related->getEntity()->getClassName();
+        foreach ($data as $key => $row) {
+            $pmk =  $this->getEntity()->getPrimaryKey();
+            if (isset($row[$pmk]) && is_array($row[$pmk])) {
+                $data[$key][$pmk] = reset($row[$pmk]);
+            }
+            $options = [];
+            foreach ($row as $column => $value) {
+                if (preg_match('/'.$relatedTable.'_(.*)/i', $column)) {
+                    unset($data[$key][$column]);
+                    $name = str_replace($relatedTable.'_', '', $column);
+                    $options[$name] = $value;
+                }
+            }
+
+            $data[$key][$this->getPropertyName()] = new $class($options);
+        }
+
+        $event->data = $data;
     }
 }

@@ -91,6 +91,12 @@ class HasManyTest extends \Codeception\TestCase\Test
         $firstPost = $posts[0];
         $this->assertEquals($filipe->name, $firstPost->author->name);
 
+        Entity\Manager::getInstance()->get('Orm\Relation\HasManyPost')
+            ->getRelation('_author')->lazyLoad = false;
+        $posts = HasManyPost::find()->all();
+        $this->assertEquals(1, count($posts));
+        $this->assertEquals($filipe->name, $posts[0]->author->name);
+
         $this->assertTrue($filipe->delete());
         $this->testGuy->dontSeeInDatabase('posts', ['title' => 'A test post']);
 
@@ -179,7 +185,7 @@ class HasManyPost extends Entity
 
     /**
      * @readwrite
-     * @belongsTo Orm\Relation\HasManyPerson, foreignKey=person_id
+     * @belongsTo Orm\Relation\HasManyPerson, foreignKey=person_id, lazyLoad=true
      * @var HasManyPerson
      */
     protected $_author;
