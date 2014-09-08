@@ -12,11 +12,13 @@
 
 namespace Slick\Orm\Entity;
 
+use ReflectionClass;
 use Slick\Orm\Entity;
 use Slick\Common\Base;
 use Slick\Common\Inspector;
 use Slick\Orm\Annotation\Column;
 use Slick\Orm\RelationInterface;
+use Slick\Orm\Exception\InvalidArgumentException;
 
 /**
  * Entity descriptor class
@@ -179,5 +181,34 @@ class Descriptor extends Base
             $this->setEntity(new $class());
         }
         return $this->_entity;
+    }
+
+    /**
+     * Adds a new relation class to entity descriptor
+     *
+     * @param string $name
+     * @param string $class
+     *
+     * @throws \Slick\Orm\Exception\InvalidArgumentException if class does not
+     * exists or it does not implement the Slick\Orm\RelationInterface
+     * interface
+     */
+    public static function addRelationClass($name, $class)
+    {
+        $interface = 'Slick\Orm\RelationInterface';
+        if (!class_exists($class)) {
+            throw new InvalidArgumentException(
+                "{$class} class does not exists"
+            );
+        }
+
+        $rflClass = new ReflectionClass($class);
+        if (!$rflClass->implementsInterface($interface)) {
+            throw new InvalidArgumentException(
+                "{$class} class does not implement '{$interface}' interface"
+            );
+        }
+
+        static::$_annotations[$name] = $class;
     }
 }

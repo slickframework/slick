@@ -13,6 +13,8 @@
 namespace Orm\Entity;
 
 use Slick\Orm\Entity;
+use Slick\Orm\Relation\HasMany;
+use Slick\Orm\Exception;
 
 /**
  * Entity descriptor test case
@@ -37,6 +39,40 @@ class DescriptorTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Orm\Entity\Tag', $descriptor->getEntity());
         $relations = $descriptor->getRelations();
         $this->assertEquals($relations, $descriptor->refreshRelations(true));
+    }
+
+    /**
+     * Add a custom relation class to entity descriptor
+     * @test
+     */
+    public function setCustomRelationClass()
+    {
+        $this->assertNull(
+            Entity\Descriptor::addRelationClass(
+                'mayHaveMany',
+                'Orm\Entity\MayHaveMany'
+            )
+        );
+
+        try {
+            Entity\Descriptor::addRelationClass('test', 'foo');
+            $this->fail("Undefined class should throw an exception");
+        } catch (Exception $exp) {
+            $this->assertInstanceOf(
+                'Slick\Orm\Exception\InvalidArgumentException',
+                $exp
+            );
+        }
+
+        try {
+            Entity\Descriptor::addRelationClass('test', 'stdClass');
+            $this->fail("Unimplemented interface should throw an exception");
+        } catch (Exception $exp) {
+            $this->assertInstanceOf(
+                'Slick\Orm\Exception\InvalidArgumentException',
+                $exp
+            );
+        }
     }
 }
 
@@ -73,6 +109,11 @@ class Tag extends Entity
  * @package Orm\Entity
  */
 class Post extends Entity
+{
+
+}
+
+class MayHaveMany extends HasMany
 {
 
 }
