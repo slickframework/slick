@@ -16,6 +16,7 @@ use Slick\Orm\Entity;
 use Slick\Database\RecordList;
 use Slick\Common\Inspector\Annotation;
 use Slick\Orm\Events\Save;
+use Slick\Orm\RelationInterface;
 use Slick\Orm\Sql\Select;
 use Zend\EventManager\SharedEventManager;
 
@@ -25,38 +26,8 @@ use Zend\EventManager\SharedEventManager;
  * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class BelongsTo extends AbstractSingleRelation
+class BelongsTo extends AbstractSingleRelation implements RelationInterface
 {
-
-    /**
-     * Sets the entity that defines the relation
-     *
-     * @param Entity $entity
-     *
-     * @return self
-     */
-    public function setEntity(Entity $entity)
-    {
-        /** @var SharedEventManager $events */
-        $events = $this->getContainer()->get('sharedEventManager');
-        $events->attach(
-            get_class($entity),
-            Save::BEFORE_SAVE,
-            [$this, 'beforeSave']
-        );
-        $events->attach(
-            get_class($entity),
-            \Slick\Orm\Events\Select::BEFORE_SELECT,
-            [$this, 'beforeSelect']
-        );
-        $events->attach(
-            get_class($entity),
-            \Slick\Orm\Events\Select::AFTER_SELECT,
-            [$this, 'afterSelect']
-        );
-        $this->getContainer()->set('sharedEventManager', $events);
-        return parent::setEntity($entity);
-    }
 
     /**
      * Tries to guess the foreign key for this relation
@@ -72,28 +43,7 @@ class BelongsTo extends AbstractSingleRelation
         return strtolower($name) . '_id';
     }
 
-    /**
-     * Factory method to create a relation based on a column
-     * (annotation) object
-     *
-     * @param Annotation $annotation
-     * @param Entity $entity
-     * @param string $property
-     *
-     * @return self
-     */
-    public static function create(
-        Annotation $annotation, Entity $entity, $property)
-    {
-        $parameters = $annotation->getParameters();
-        unset ($parameters['_raw']);
 
-        /** @var BelongsTo $relation */
-        $relation = new static($parameters);
-        $relation->setEntity($entity)->setPropertyName($property);
-        $relation->setRelatedEntity($annotation->getValue());
-        return $relation;
-    }
 
     /**
      * Lazy loading of relations callback method
@@ -172,38 +122,5 @@ class BelongsTo extends AbstractSingleRelation
         $event->sqlQuery = $sql;
     }
 
-    /**
-     * Fixes the data to be sent to entity creation with related entity object
-     *
-     * @param \Slick\Orm\Events\Select $event
-     */
-    public function afterSelect(\Slick\Orm\Events\Select $event)
-    {
-        if ($this->lazyLoad) {
-            return;
-        }
-        $data = $event->data->getArrayCopy();
-        $related = Entity\Manager::getInstance()
-            ->get($this->getRelatedEntity());
-        $relatedTable = $related->getEntity()->getTableName();
-        $class = $related->getEntity()->getClassName();
-        foreach ($data as $key => $row) {
-            $pmk =  $this->getEntity()->getPrimaryKey();
-            if (isset($row[$pmk]) && is_array($row[$pmk])) {
-                $data[$key][$pmk] = reset($row[$pmk]);
-            }
-            $options = [];
-            foreach ($row as $column => $value) {
-                if (preg_match('/'.$relatedTable.'_(.*)/i', $column)) {
-                    unset($data[$key][$column]);
-                    $name = str_replace($relatedTable.'_', '', $column);
-                    $options[$name] = $value;
-                }
-            }
 
-            $data[$key][$this->getPropertyName()] = new $class($options);
-        }
-
-        $event->data = $data;
-    }
 }

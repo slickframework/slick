@@ -12,6 +12,12 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Database\RecordList;
+use Slick\Orm\Entity;
+use Slick\Orm\Events\Save;
+use Slick\Orm\Events\Select;
+use Zend\EventManager\SharedEventManager;
+
 /**
  * Abstract single relation
  *
@@ -30,4 +36,94 @@ abstract class AbstractSingleRelation extends AbstractRelation
      * @var bool
      */
     protected $_lazyLoad = false;
+
+    /**
+     * Sets the entity that defines the relation
+     *
+     * @param Entity $entity
+     *
+     * @return self
+     */
+    public function setEntity(Entity $entity)
+    {
+        /** @var SharedEventManager $events */
+        $events = $this->getContainer()->get('sharedEventManager');
+        $events->attach(
+            get_class($entity),
+            Save::BEFORE_SAVE,
+            [$this, 'beforeSave']
+        );
+        $events->attach(
+            get_class($entity),
+            Select::BEFORE_SELECT,
+            [$this, 'beforeSelect']
+        );
+        $events->attach(
+            get_class($entity),
+            Select::AFTER_SELECT,
+            [$this, 'afterSelect']
+        );
+        $this->getContainer()->set('sharedEventManager', $events);
+        return parent::setEntity($entity);
+    }
+
+    /**
+     * Runs before save to set the relation data to be saved
+     *
+     * @param Save $event
+     */
+    abstract public function beforeSave(Save $event);
+
+    /**
+     * Sets the join information on the select query when lazy load is false
+     *
+     * @param Select $event
+     */
+    abstract public function beforeSelect(Select $event);
+
+    /**
+     * Fixes the data to be sent to entity creation with related entity object
+     *
+     * @param Select $event
+     */
+    public function afterSelect(Select $event)
+    {
+        if ($this->lazyLoad) {
+            return;
+        }
+        $data = $event->data;
+        $multiple = $data instanceof RecordList;
+        if ($multiple) {
+            $data = $event->data->getArrayCopy();
+        } else {
+            $data = [$data];
+        }
+        $related = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $relatedTable = $related->getEntity()->getTableName();
+        $class = $related->getEntity()->getClassName();
+        foreach ($data as $key => $row) {
+            $pmk =  $this->getEntity()->getPrimaryKey();
+            if (isset($row[$pmk]) && is_array($row[$pmk])) {
+                $data[$key][$pmk] = reset($row[$pmk]);
+            }
+            $options = [];
+            foreach ($row as $column => $value) {
+                if (preg_match('/'.$relatedTable.'_(.*)/i', $column)) {
+                    unset($data[$key][$column]);
+                    $name = str_replace($relatedTable.'_', '', $column);
+                    $options[$name] = $value;
+                }
+            }
+
+            $data[$key][$this->getPropertyName()] = new $class($options);
+        }
+
+        if ($multiple) {
+            $event->data = $data;
+        } else {
+
+        }$event->data = reset($data);
+    }
+
 }

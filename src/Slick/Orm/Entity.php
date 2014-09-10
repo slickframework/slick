@@ -75,7 +75,14 @@ class Entity extends AbstractEntity
         $className = $entity->getClassName();
         $sql = Sql::createSql($entity->getAdapter())
             ->select($entity->getTableName())
-            ->where(["{$entity->_primaryKey} = :id" => [':id' => $id]]);
+            ->where(
+                [
+                    "{$entity->getTableName()}.{$entity->_primaryKey} = :id" =>
+                    [
+                        ':id' => $id
+                    ]
+                ]
+            );
         $events = $entity->getEventManager();
         $event = new Select([
             'sqlQuery' => $sql,

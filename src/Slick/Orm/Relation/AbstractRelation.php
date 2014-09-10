@@ -12,6 +12,7 @@
 
 namespace Slick\Orm\Relation;
 
+use Slick\Common\Inspector\Annotation;
 use Slick\Orm\Entity;
 use Slick\Common\Base;
 use Slick\Di\Container;
@@ -204,5 +205,28 @@ abstract class AbstractRelation extends Base implements RelationInterface
             $this->setContainer($container);
         }
         return $this->_container;
+    }
+
+    /**
+     * Factory method to create a relation based on a column
+     * (annotation) object
+     *
+     * @param Annotation $annotation
+     * @param Entity $entity
+     * @param string $property
+     *
+     * @return self
+     */
+    public static function create(
+        Annotation $annotation, Entity $entity, $property)
+    {
+        $parameters = $annotation->getParameters();
+        unset ($parameters['_raw']);
+
+        /** @var BelongsTo $relation */
+        $relation = new static($parameters);
+        $relation->setEntity($entity)->setPropertyName($property);
+        $relation->setRelatedEntity($annotation->getValue());
+        return $relation;
     }
 }

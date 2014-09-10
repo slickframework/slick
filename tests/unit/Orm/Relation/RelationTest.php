@@ -41,6 +41,9 @@ class RelationTest extends \Codeception\TestCase\Test
         $hasMany = Entity\Manager::getInstance()->get($tag)
             ->getRelation('_posts');
         $this->assertEquals('tag_id', $hasMany->getForeignKey());
+        $hasOne = Entity\Manager::getInstance()->get($post)
+            ->getRelation('_profile');
+        $this->assertEquals('post_id', $hasOne->getForeignKey());
     }
 
 }
@@ -92,4 +95,32 @@ class Post extends Entity
      * @var Tag
      */
     protected $_tag;
+
+    /**
+     * @readwrite
+     * @hasOne Orm\Relation\Profile
+     * @var Profile
+     */
+    protected $_profile;
+}
+
+/**
+ * Class Profile
+ * @package Orm\Relation
+ */
+class Profile extends Entity
+{
+    /**
+     * @readwrite
+     * @column
+     * @var int
+     */
+    protected $_id;
+
+    /**
+     * @readwrite
+     * @belongsTo Orm\Relation\Post
+     * @var Tag
+     */
+    protected $_post;
 }

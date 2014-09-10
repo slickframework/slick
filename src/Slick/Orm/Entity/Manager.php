@@ -53,6 +53,7 @@ class Manager extends BaseSingleton
             static::$_instance = new static($options);
             Inspector::addAnnotationClass('column', 'Slick\Orm\Annotation\Column');
             Inspector::addAnnotationClass('hasMany', 'Slick\Orm\Annotation\HasMany');
+            Inspector::addAnnotationClass('hasOne', 'Slick\Orm\Annotation\HasOne');
             Inspector::addAnnotationClass('belongsTo', 'Slick\Orm\Annotation\BelongsTo');
         }
         return static::$_instance;

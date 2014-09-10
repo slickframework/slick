@@ -59,9 +59,9 @@ $schema->addTable(new Schema\Table('people', [
                 'autoIncrement' => true,
                 'size' => Column\Size::big()
             ]),
-            new Column\Text('language', ['size' => Column\Size::tiny()]),
-            new Column\Text('timeZone', ['size' => Column\Size::tiny()]),
-            new Column\Text('picture', ['size' => Column\Size::tiny()]),
+            new Column\Text('language', ['size' => Column\Size::tiny(), 'nullable' => true]),
+            new Column\Text('timeZone', ['size' => Column\Size::tiny(), 'nullable' => true]),
+            new Column\Text('picture', ['size' => Column\Size::tiny(), 'nullable' => true]),
             new Column\Integer('person_id', ['size' => Column\Size::big()]),
         ],
         'constraints' => [

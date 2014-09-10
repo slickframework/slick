@@ -65,28 +65,6 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
     }
 
     /**
-     * Factory method to create a relation based on a column
-     * (annotation) object
-     *
-     * @param Annotation $annotation
-     * @param Entity $entity
-     * @param string $property
-     *
-     * @return self
-     */
-    public static function create(
-        Annotation $annotation, Entity $entity, $property)
-    {
-        /** @var HasMAny $relation */
-        $parameters = $annotation->getParameters();
-        unset ($parameters['_raw']);
-        $relation = new static($parameters);
-        $relation->setEntity($entity)->setPropertyName($property);
-        $relation->setRelatedEntity($annotation->getValue());
-        return $relation;
-    }
-
-    /**
      * Lazy loading of relations callback method
      *
      * @param \Slick\Orm\Entity $entity

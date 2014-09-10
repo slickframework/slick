@@ -59,6 +59,7 @@ class Descriptor extends Base
     private static $_annotations = [
         'hasMany' => 'Slick\Orm\Relation\HasMany',
         'belongsTo' => 'Slick\Orm\Relation\BelongsTo',
+        'hasOne' => 'Slick\Orm\Relation\HasOne',
     ];
 
     /**
