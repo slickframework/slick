@@ -12,13 +12,13 @@
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Annotation;
 use Slick\Orm\Entity;
 use Slick\Common\Base;
 use Slick\Di\Container;
 use Slick\Di\Definition;
 use Slick\Di\ContainerBuilder;
 use Slick\Orm\RelationInterface;
+use Slick\Common\Inspector\Annotation;
 
 /**
  * Abstract relation
@@ -26,8 +26,13 @@ use Slick\Orm\RelationInterface;
  * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
+ * @property string|array $conditions Extra load conditions.
+ *
  * @method AbstractRelation setContainer(Container $container)
  * Sets dependency container
+ * @method AbstractRelation setConditions($conditions) Sets an extra
+ * conditions when retrieving the related records.
+ * @method string|array getConditions() Return current load conditions
  */
 abstract class AbstractRelation extends Base implements RelationInterface
 {
@@ -66,6 +71,12 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @var Container
      */
     protected $_container;
+
+    /**
+     * @readwrite
+     * @var string|array
+     */
+    protected $_conditions;
 
     /**
      * Returns the entity that defines the relation

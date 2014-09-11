@@ -37,6 +37,7 @@ use Zend\EventManager\EventManagerAwareInterface;
  * @property ContainerInterface $container Dependency injection container
  * @property AdapterInterface $adapter
  * @property string $primaryKey Primary key field name
+ * @property bool $loadRelations Flag to enable/disable relation data loading
  * @property-read array $rawData Array or object used to create the entity
  *
  * @method string getPrimaryKey() Returns the primary key field name
@@ -97,6 +98,12 @@ abstract class AbstractEntity extends Base implements
      * @var array
      */
     protected $_rawData;
+
+    /**
+     * @readwrite
+     * @var bool Flag that enables/disables the relations loading
+     */
+    protected $_loadRelations = true;
 
     /**
      * Save all data in raw data before construction
@@ -255,7 +262,11 @@ abstract class AbstractEntity extends Base implements
         //Check if its a relation
         $prop = "_{$name}";
         $manager = Manager::getInstance()->get($this);
-        if (is_null($this->$prop) && $manager->isRelation($prop)) {
+        if (
+            $this->_loadRelations &&
+            is_null($this->$prop) &&
+            $manager->isRelation($prop)
+        ) {
             $this->$prop = $manager->getRelation($prop)->load($this);
         }
 

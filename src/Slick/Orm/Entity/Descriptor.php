@@ -60,6 +60,7 @@ class Descriptor extends Base
         'hasMany' => 'Slick\Orm\Relation\HasMany',
         'belongsTo' => 'Slick\Orm\Relation\BelongsTo',
         'hasOne' => 'Slick\Orm\Relation\HasOne',
+        'hasAndBelongsToMany' => 'Slick\Orm\Relation\HasAndBelongsToMany',
     ];
 
     /**

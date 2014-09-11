@@ -51,10 +51,26 @@ class Manager extends BaseSingleton
     {
         if (is_null(static::$_instance)) {
             static::$_instance = new static($options);
-            Inspector::addAnnotationClass('column', 'Slick\Orm\Annotation\Column');
-            Inspector::addAnnotationClass('hasMany', 'Slick\Orm\Annotation\HasMany');
-            Inspector::addAnnotationClass('hasOne', 'Slick\Orm\Annotation\HasOne');
-            Inspector::addAnnotationClass('belongsTo', 'Slick\Orm\Annotation\BelongsTo');
+            Inspector::addAnnotationClass(
+                'column',
+                'Slick\Orm\Annotation\Column'
+            );
+            Inspector::addAnnotationClass(
+                'hasMany',
+                'Slick\Orm\Annotation\HasMany'
+            );
+            Inspector::addAnnotationClass(
+                'hasOne',
+                'Slick\Orm\Annotation\HasOne'
+            );
+            Inspector::addAnnotationClass(
+                'belongsTo',
+                'Slick\Orm\Annotation\BelongsTo'
+            );
+            Inspector::addAnnotationClass(
+                'hasAndBelongsToMany',
+                'Slick\Orm\Annotation\HasAndBelongsToMany'
+            );
         }
         return static::$_instance;
     }

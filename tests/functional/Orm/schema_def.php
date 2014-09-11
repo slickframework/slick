@@ -82,8 +82,6 @@ $schema->addTable(new Schema\Table('people', [
                 'size' => Column\Size::big()
             ]),
             new Column\Varchar('name', 255),
-            new Column\DateTime('created'),
-            new Column\DateTime('updated')
         ],
         'constraints' => [
             new Constraint\Primary('tagsPrimary', ['columnNames' => ['id']]),

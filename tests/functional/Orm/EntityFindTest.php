@@ -80,14 +80,10 @@ class EntityFindTest extends \Codeception\TestCase\Test
         ]);
         $now = new \DateTime('now', new \DateTimeZone('UTC'));
         Sql::createSql($this->_adapter)->insert('tags')->set([
-            'name' => 'PHP',
-            'created' => $now->format("Y-m-d H:i:s"),
-            'updated' => $now->format("Y-m-d H:i:s")
+            'name' => 'PHP'
         ])->execute();
         Sql::createSql($this->_adapter)->insert('tags')->set([
-            'name' => 'Javascript',
-            'created' => $now->format("Y-m-d H:i:s"),
-            'updated' => $now->format("Y-m-d H:i:s")
+            'name' => 'Javascript'
         ])->execute();
 
         /** @var SharedEventManager $sharedEvents */
@@ -107,7 +103,7 @@ class EntityFindTest extends \Codeception\TestCase\Test
             if ($event->action == Select::FIND_ALL) {
                 $this->assertEquals(2, count($event->data));
             } else {
-                $this->assertEquals('PHP', $event->data['name']);
+                $this->assertEquals('Javascript', $event->data['name']);
             }
         });
 
@@ -125,7 +121,7 @@ class EntityFindTest extends \Codeception\TestCase\Test
 
         $php = Tag::find()->first();
         $this->assertInstanceOf('Orm\Tag', $php);
-        $this->assertEquals('PHP', $php->name);
+        $this->assertEquals('Javascript', $php->name);
         $this->assertEquals(2, Tag::find()->count());
     }
 
