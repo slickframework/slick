@@ -1,100 +1,115 @@
 <?php
 
 /**
- * HasMany
+ * Has many relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Annotation;
-use Slick\Database\RecordList;
 use Slick\Orm\Entity;
-use Slick\Orm\EntityInterface;
+use Slick\Database\Sql;
+use Slick\Di\Definition;
+use Slick\Orm\Sql\Select;
+use Slick\Orm\Events\Delete;
+use Slick\Database\RecordList;
+use Slick\Orm\RelationInterface;
+use Slick\Common\Inspector\Annotation;
+use Zend\EventManager\SharedEventManager;
 
 /**
- * HasMany
+ * Has many relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class HasMany extends AbstractMultipleEntityRelation
-    implements MultipleEntityRelationInterface
+class HasMany extends AbstractMultipleRelation implements RelationInterface
 {
 
     /**
-     * @readwrite
-     * @var bool BelongsTo defines related as dependent
-     */
-    protected $_dependent;
-
-    /**
-     * Returns foreign key name
+     * Sets the entity that defines the relation
      *
-     * @return string
+     * @param Entity $entity
+     *
+     * @return self
      */
-    public function getForeignKey()
+    public function setEntity(Entity $entity)
     {
-        if (is_null($this->_foreignKey)) {
-            $this->_foreignKey = strtolower($this->_entity->getAlias()) .
-                "_id";
-        }
-        return $this->_foreignKey;
+
+        /** @var SharedEventManager $events */
+        $events = $this->getContainer()->get('sharedEventManager');
+        $events->attach(
+            get_class($entity),
+            Delete::BEFORE_DELETE,
+            array($this, 'onDelete')
+        );
+        $this->getContainer()->set('sharedEventManager', $events);
+        return parent::setEntity($entity);
     }
 
     /**
-     * Creates a relation from notation tag
+     * Tries to guess the foreign key for this relation
      *
-     * @param Annotation $tag
-     * @param Entity $entity
-     * @param string $property
-     *
-     * @return HasMany
+     * @return string
      */
-    public static function create(Annotation $tag, Entity &$entity, $property)
+    protected function _guessForeignKey()
     {
-        $options = ['entity' => $entity];
-        $className = null;
-
-        $className = $tag->getValue();
-        $options['foreignKey'] = $tag->getParameter('foreignKey');
-        $options['dependent'] = $tag->getParameter('dependent');
-        $options['limit'] = $tag->getParameter('limit');
-        $options['related'] = $className;
-        $relation = new HasMany($options);
-        return $relation;
+        $name = explode('\\', $this->getEntity()->getClassName());
+        $name = end($name);
+        return strtolower($name) .'_id';
     }
 
     /**
      * Lazy loading of relations callback method
      *
-     * @param EntityInterface $entity
-     *
+     * @param \Slick\Orm\Entity $entity
      * @return Entity|RecordList
      */
-    public function load(EntityInterface $entity)
+    public function load(Entity $entity)
     {
-        $this->setEntity($entity);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $prmKey = $entity->primaryKey;
-        $related = get_class($this->getRelated());
-        $relTable = $this->getRelated()->getTable();
-        $frKey = $this->getForeignKey();
-
-        return call_user_func_array(
-            array($related, 'all'),
-            array(
-                [
-                    'conditions' => [
-                        "{$relTable}.{$frKey} = ?" => $entity->$prmKey
-                    ]
-                ]
-            )
+        /** @var Select $sql */
+        $sql = call_user_func_array(
+            array($this->getRelatedEntity(), 'find'),
+            []
         );
+        $pmk = $this->getEntity()->getPrimaryKey();
+        $sql->where(
+            [
+                "{$this->getForeignKey()} = :id" => [
+                    ':id' => $this->getEntity()->$pmk
+                ]
+            ]
+        );
+        $sql->limit($this->getLimit());
+        return $sql->all();
+    }
+
+    /**
+     * Runs before delete on entity event and deletes the children
+     * records on related entity.
+     *
+     * @param Delete $event
+     */
+    public function onDelete(Delete $event)
+    {
+        if ($this->isDependent()) {
+            $class = $this->getRelatedEntity();
+            /** @var Entity $entity */
+            $entity = new $class();
+            $fkField = $this->getForeignKey();
+            $pmk = $event->getTarget()->getPrimaryKey();
+            $sql = Sql::createSql($entity->getAdapter())
+                ->delete($entity->getTableName())
+                ->where(
+                    ["{$fkField} = :id" => [':id' => $event->getTarget()->$pmk]]
+                );
+
+            $sql->execute();
+        }
     }
 }

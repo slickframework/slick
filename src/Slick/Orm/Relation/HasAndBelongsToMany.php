@@ -1,159 +1,223 @@
 <?php
 
 /**
- * HasAndBelongsToMany
+ * Has And Belongs To Many relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Annotation;
-use Slick\Common\Inspector\AnnotationsList;
-use Slick\Common\Inspector\Tag;
-use Slick\Common\Inspector\TagValues;
-use Slick\Database\RecordList;
 use Slick\Orm\Entity;
-use Slick\Orm\EntityInterface;
+use Slick\Database\Sql;
+use Slick\Orm\Events\Save;
+use Slick\Utility\Text;
+use Slick\Orm\Events\Delete;
+use Slick\Database\RecordList;
+use Slick\Orm\RelationInterface;
+use Slick\Database\Sql\Select\Join;
+use Zend\EventManager\SharedEventManager;
 
 /**
- * HasAndBelongsToMany
+ * Has And Belongs To Many relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $relatedForeignKey The related table foreign key
+ * @property string $relationTable The relation table name
+ *
+ * @method HasAndBelongsToMany setRelatedForeignKey($foreignKey) Sets the
+ * related foreign key for this relation
+ * @method HasAndBelongsToMany setRelationTable($relationTbl) Sets the name
+ * of the table that holds the many to many relation foreign keys
  */
-class HasAndBelongsToMany extends AbstractMultipleEntityRelation
+class HasAndBelongsToMany extends AbstractMultipleRelation implements
+    RelationInterface
 {
-
-    /**
-     * @readwrite
-     * @var string The related foreign key name
-     */
-    protected $_associationFk;
 
     /**
      * @readwrite
      * @var string
      */
-    protected $_joinTable;
+    protected $_relatedForeignKey;
 
     /**
-     * Returns foreign key name
+     * @readwrite
+     * @var string
+     */
+    protected $_relationTable;
+
+    /**
+     * Returns related foreign key. If its not set tries to infer it from
+     * related table name.
      *
      * @return string
      */
-    public function getForeignKey()
+    public function getRelatedForeignKey()
     {
-        if (is_null($this->_foreignKey)) {
-            $this->_foreignKey = strtolower($this->_entity->getAlias()) .
-                "_id";
+        if (is_null($this->_relatedForeignKey)) {
+            $tblName = Entity\Manager::getInstance()
+                ->get($this->_relatedEntity)
+                ->getEntity()->getTableName();
+            $name = Text::singular($tblName);
+            $this->setRelatedForeignKey("{$name}_id");
         }
-        return $this->_foreignKey;
+        return $this->_relatedForeignKey;
     }
 
     /**
-     * Returns the associations foreign key name
+     * Returns relation table name. If its not set tries to infer it from
+     * related table names.
+     *
      * @return string
      */
-    public function getAssociationFk()
+    public function getRelationTable()
     {
-        if (is_null($this->_associationFk)) {
-            $this->_associationFk =
-                strtolower($this->getRelated()->getAlias()) . "_id";
-        }
-        return $this->_associationFk;
-    }
-
-    /**
-     * Returns the join table name for this association
-     * @return string
-     */
-    public function getJoinTable()
-    {
-        if (is_null($this->_joinTable)) {
-            $names = array(
-                $this->getRelated()->getTable(),
-                $this->getEntity()->getTable()
-            );
+        if (is_null($this->_relationTable)) {
+            $names = [
+                $this->getEntity()->getTableName(),
+                Entity\Manager::getInstance()
+                    ->get($this->_relatedEntity)
+                    ->getEntity()->getTableName()
+            ];
             asort($names);
-            $this->_joinTable = implode('_', $names);
+            $this->setRelationTable(implode('_', $names));
         }
-        return $this->_joinTable;
+        return $this->_relationTable;
     }
 
     /**
-     * Creates a relation from notation tag
+     * Tries to guess the foreign key for this relation
      *
-     * @param Annotation $tag
-     * @param Entity $entity
-     * @param $property
-     *
-     * @return RelationInterface
+     * @return string
      */
-    public static function create(Annotation $tag, Entity &$entity, $property)
+    protected function _guessForeignKey()
     {
-
-        $className = null;
-        $options = array();
-
-        $className = $tag->getValue();
-
-        $options['foreignKey'] = $tag->getParameter('foreignKey');
-        $options['associationFk'] = $tag->getParameter('associationForeignKey');
-        $options['joinTable'] = $tag->getParameter('joinTable');
-        $options['dependent'] = $tag->getParameter('dependent');
-        $options['limit'] = $tag->getParameter('limit');
-
-        $options['entity'] = $entity;
-        $options['related'] = $className;
-
-        $relation = new HasAndBelongsToMany($options);
-        return $relation;
+        $tblName = $this->getEntity()->getTableName();
+        $name = Text::singular($tblName);
+        return "{$name}_id";
     }
 
     /**
      * Lazy loading of relations callback method
      *
-     * @param EntityInterface $entity
+     * @param Entity $entity
      *
-     * @return Entity|RecordList
+     * @return RecordList
      */
-    public function load(EntityInterface $entity)
+    public function load(Entity $entity)
     {
-
-        $related = $this->getRelated();
-        $className = get_class($this->getRelated());
-        $relTable = $related->getTable();
-        $joiTable = $this->getJoinTable();
-        $assFrKey = $this->getAssociationFk();
-        $frKey = $this->getForeignKey();
-        /** @var Entity $entity */
-        $primaryKey = $entity->primaryKey;
-        $joinClause = "{$joiTable}.{$assFrKey} = " .
-            "{$relTable}.{$related->primaryKey}";
-        $rows = $related->query()
-            ->select($related->getTable())
-            ->join($this->getJoinTable(), $joinClause)
+        $sql = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity())
+            ->getEntity()->find();
+        $relEnt = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity())
+            ->getEntity();
+        $relationTable = $this->getRelationTable();
+        $relPrk = $relEnt->getPrimaryKey();
+        $relFnk = $this->getRelatedForeignKey();
+        $relTblName = $relEnt->getTableName();
+        $entFnk = $this->getForeignKey();
+        $entPrk = $entity->getPrimaryKey();
+        $clause = "{$relationTable}.{$relFnk} = {$relTblName}.{$relPrk}";
+        $sql->join($relationTable, $clause, null, null, Join::JOIN_RIGHT)
             ->where(
                 [
-                    "{$joiTable}.{$frKey} = ?" => $entity->$primaryKey
+                    "{$relationTable}.{$entFnk} = :id" => [
+                        ':id' => $entity->$entPrk
+                    ]
                 ]
             )
-            ->limit($this->getLimit())
-            ->all();
+            ->limit($this->getLimit());
 
-        $result = new RecordList();
-        if ($rows && is_a($rows, '\ArrayObject')) {
-            foreach ($rows as $row) {
-                $result->append(new $className($row));
-            }
-        }
-
-        return $result;
+        return $sql->all();
     }
 
+    /**
+     * Sets the entity that defines the relation. Sets the triggers
+     * for before delete event.
+     *
+     * @param Entity $entity
+     *
+     * @return self
+     */
+    public function setEntity(Entity $entity)
+    {
+        /** @var SharedEventManager $events */
+        $events = $this->getContainer()->get('sharedEventManager');
+        $name = $entity->getClassName();
+        $events->attach(
+            $name,
+            Delete::BEFORE_DELETE,
+            [$this, 'beforeDelete']
+        );
+        $events->attach(
+            $name,
+            Save::AFTER_SAVE,
+            [$this, 'afterSave']
+        );
+        $this->getContainer()->set('sharedEventManager', $events);
+        return parent::setEntity($entity);
+    }
+
+    /**
+     * Deletes all relational data on deleting entity
+     *
+     * @param Delete $event
+     */
+    public function beforeDelete(Delete $event)
+    {
+        $pmkVal = $event->primaryKey;
+        $entFrk = $this->getForeignKey();
+        Sql::createSql($this->getEntity()->getAdapter())
+            ->delete($this->getRelationTable())
+            ->where(
+                [
+                    "{$entFrk} = :id" => [
+                        ":id" => $pmkVal
+                    ]
+                ]
+            )
+            ->execute();
+    }
+
+    /**
+     * Handles the after save event
+     *
+     * @param Save $event
+     */
+    public function afterSave(Save $event)
+    {
+        /** @var Entity $entity */
+        $entity = $event->getTarget();
+        $entity->loadRelations = false;
+        $prop = $this->getPropertyName();
+        $relPrk = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getPrimaryKey();
+        $entPrk = $entity->getPrimaryKey();
+        if (isset($entity->$prop) && is_array($entity->$prop)) {
+            $this->beforeDelete(new Delete(['primaryKey' => $entity->$entPrk]));
+            foreach ($entity->$prop as $object) {
+                $relVal = $object;
+                if ($object instanceof Entity) {
+                    $relVal = $object->$relPrk;
+                }
+                Sql::createSql($entity->getAdapter())
+                    ->insert($this->getRelationTable())
+                    ->set(
+                        [
+                            $this->getForeignKey() => $entity->$entPrk,
+                            $this->getRelatedForeignKey() => $relVal
+                        ]
+                    )
+                    ->execute();
+            }
+        }
+        $entity->loadRelations = true;
+    }
 }

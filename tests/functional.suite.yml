@@ -9,6 +9,12 @@
 class_name: TestGuy
 modules:
     enabled: [Filesystem, TestHelper, Db, Slick]
+    config:
+        Db:
+            dsn: 'mysql:host=localhost;dbname=slick_tests'
+            user: 'travis'
+            populate: false
+            cleanup: false
 coverage:
     enabled: true
     include:

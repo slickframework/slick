@@ -1,24 +1,21 @@
 <?php
 
 /**
- * ORM Exception
+ * Database configuration file
  *
- * @package   Slick\Orm
+ * @package   Test\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.1.0
  */
 
-namespace Slick\Orm;
+return [
 
-/**
- * ORM Exception
- *
- * @package   Slick\Orm
- * @author    Filipe Silva <silvam.filipe@gmail.com>
- */
-interface Exception
-{
-
-}
+    'unit-test' => [
+        'driver' => 'Sqlite',
+        'options' => [
+            'file' => 'tmp.db'
+        ]
+    ]
+];

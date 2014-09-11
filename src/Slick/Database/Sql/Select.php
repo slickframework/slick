@@ -39,7 +39,7 @@ class Select extends AbstractSql implements
     /**
      * @var string|string[]
      */
-    private $_fields;
+    protected $_fields;
 
     /**
      * @var Join[]

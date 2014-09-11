@@ -74,7 +74,6 @@ class Annotation implements AnnotationInterface
     public function getName()
     {
         return $this->_name;
-
     }
 
     /**
@@ -99,6 +98,16 @@ class Annotation implements AnnotationInterface
             return $this->_parameters[$name];
         }
         return null;
+    }
+
+    /**
+     * Returns the parameters set in this annotation
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->_parameters;
     }
 
     /**

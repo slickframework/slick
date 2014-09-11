@@ -1,27 +1,26 @@
 <?php
 
 /**
- * Invalid argument exception
+ * Relation annotation interface
  *
- * @package   Slick\Orm\Exception
+ * @package   Slick\Orm\Annotation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.1.0
  */
 
-namespace Slick\Orm\Exception;
+namespace Slick\Orm\Annotation;
 
-use LogicException;
-use Slick\Orm\Exception;
+use Slick\Common\Inspector\AnnotationInterface;
 
 /**
- * Invalid argument exception
+ * Relation annotation interface
  *
- * @package   Slick\Orm\Exception
+ * @package   Slick\Orm\Annotation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class InvalidArgumentException extends LogicException implements Exception
+interface RelationInterface extends AnnotationInterface
 {
 
 }
