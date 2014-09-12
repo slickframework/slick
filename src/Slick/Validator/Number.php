@@ -41,6 +41,6 @@ class Number extends AbstractValidator implements ValidatorInterface
         if (!$result) {
             $this->addMessage('number');
         }
-        return filter_var($value, FILTER_VALIDATE_INT);
+        return ($result === false) ? false : true;
     }
 }
