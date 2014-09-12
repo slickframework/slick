@@ -20,7 +20,8 @@
         "zendframework/zend-i18n": ">=2.2.5",
         "zendframework/zend-servicemanager": "2.2.5",
         "symfony/console": ">=2.3.0",
-        "myclabs/php-enum": "1.*"
+        "myclabs/php-enum": "1.*",
+        "altorouter/altorouter": ">1.0"
 	},
     "require-dev": {
         "codeception/codeception": "1.8.*@dev",
@@ -33,7 +34,8 @@
 		"slick/database" : "self.version",
 		"slick/utility" : "self.version",
 		"slick/log" : "self.version",
-		"slick/template" : "self.version"
+		"slick/template" : "self.version",
+		"slick/mvc" : "self.version"
 	},
 	"autoload" : {
 		"psr-0" : {

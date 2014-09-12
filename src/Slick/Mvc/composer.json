@@ -10,14 +10,24 @@
     },
     "target-dir": "Slick/Mvc",
     "require": {
-        "slick/Common": "self.version",
-        "slick/Orm": "self.version",
-        "slick/Configuration": "self.version",
+        "slick/common": "self.version",
+        "slick/orm": "self.version",
+        "slick/configuration": "self.version",
         "slick/Cache": "self.version",
-        "slick/Log": "self.version",
-        "slick/Session": "self.version",
-        "slick/Template": "self.version",
-        "slick/Utility": "self.version"
-
+        "slick/di": "self.version",
+        "slick/log": "self.version",
+        "slick/session": "self.version",
+        "slick/filter": "self.version",
+        "slick/template": "self.version",
+        "slick/validator": "self.version",
+        "slick/form": "self.version",
+        "slick/version": "self.version",
+        "altorouter/altorouter": ">1.0",
+        "zendframework/zend-eventmanager": ">=2.2.5",
+        "zendframework/zend-uri" : ">=2.2.5",
+        "zendframework/zend-http": ">=2.2.5",
+        "zendframework/zend-i18n": ">=2.2.5",
+        "zendframework/zend-servicemanager": "2.2.5",
+        "symfony/console": ">=2.3.0"
     }
 }
