@@ -114,10 +114,21 @@ class Entity extends AbstractEntity
         $entity = new static();
         $options = array_merge($entity->_options, $options);
 
-        return $entity->query()
+        $rows = $entity->query()
             ->select($entity->table)
-            ->where($options['conditions'])
-            ->count();
+            ->where($options['conditions']);
+
+
+        $entity->getEventManager()->trigger(
+            'beforeSelect',
+            $entity,
+            [
+                'query' => &$rows,
+                'action' => 'count'
+            ]
+        );
+
+        return $rows->count();
     }
 
     /**
