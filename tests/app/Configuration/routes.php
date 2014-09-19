@@ -6,3 +6,5 @@
  */
 
 $GLOBALS['routeTest'] = true;
+
+$router->map('[:controller]?/?[:action]?', [], 'default');

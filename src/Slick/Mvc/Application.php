@@ -33,11 +33,14 @@ use Slick\Configuration\Driver\DriverInterface;
  * @property Router $router HTTP request router
  * @property string $configFileName Configuration file name
  * @property string $configType Configuration driver type
+ * @property Dispatcher $dispatcher Request dispatcher
  *
  * @method Application setResponse(Response $response) Sets the HTTP response
  * @method Application setRequest(Request $request) Sets the HTTP request
  * @method Application setContainer(Container $container) Sets the dependency
  * container object
+ * @method Application setDispatcher(Dispatcher $dispatcher) Sets the
+ * request dispatcher
  */
 final class Application extends Base
 {
@@ -70,6 +73,12 @@ final class Application extends Base
      * @var Container
      */
     protected $_container;
+
+    /**
+     * @readwrite
+     * @var Dispatcher
+     */
+    protected $_dispatcher;
 
     /**
      * @readwrite
@@ -118,7 +127,8 @@ final class Application extends Base
      */
     public function run()
     {
-
+        $routeInfo = $this->getRouter()->filter();
+        return $this->dispatcher->dispatch($routeInfo);
     }
 
     /**
@@ -191,5 +201,18 @@ final class Application extends Base
             $this->_configuration = $config;
         }
         return $this->_configuration;
+    }
+
+    /**
+     * Returns the request dispatcher
+     *
+     * @return Dispatcher
+     */
+    public function getDispatcher()
+    {
+        if (is_null($this->_dispatcher)) {
+            $this->setDispatcher(new Dispatcher(['application' => $this]));
+        }
+        return $this->_dispatcher;
     }
 }

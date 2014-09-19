@@ -26,8 +26,7 @@
     "require-dev": {
         "codeception/codeception": "1.8.*@dev",
         "satooshi/php-coveralls": "dev-master",
-        "apigen/apigen": "~2.8.0",
-        "nette/nette": "~2.1.3"
+        "apigen/apigen": "~2.8.0"
     },
 	"replace" : {
 		"slick/common" : "self.version",
