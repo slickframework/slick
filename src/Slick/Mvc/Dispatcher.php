@@ -50,6 +50,18 @@ class Dispatcher extends Base
     protected $_controller;
 
     /**
+     * @readwrite
+     * @var View
+     */
+    protected $_view;
+
+    /**
+     * @readwrite
+     * @var View
+     */
+    protected $_layout;
+
+    /**
      * Dispatches the routed request
      *
      * @param RouteInfo $routeInfo
@@ -153,6 +165,11 @@ class Dispatcher extends Base
         return $this->_controller;
     }
 
+    /**
+     * Render the view and layout templates with controller data
+     *
+     * @return Response
+     */
     protected function _render()
     {
         $response = $this->_application->response;
@@ -160,10 +177,72 @@ class Dispatcher extends Base
         $this->_controller->set(
             'flashMessages', $this->_controller->flashMessages
         );
+        $data = $this->_controller->getViewVars();
 
+        $doLayout = $this->_controller->renderLayout && $this->getLayout();
+        $doView = $this->_controller->renderView && $this->getView();
 
+        try {
 
-        return $response->setContent('Home page');
+            if ($doView) {
+                $body = $this->getView()
+                    ->set($data)
+                    ->render();
+            }
+
+            if ($doLayout) {
+                $body = $this->getLayout()
+                    ->set('layoutData', $body)
+                    ->set($data)
+                    ->render();
+            }
+
+        } catch (\Exception $exp) {
+            throw new Exception\RenderingErrorException(
+                "Error while rendering view: " . $exp->getMessage()
+            );
+        }
+
+        return $response->setContent($body);
     }
 
-} 
+    /**
+     * Returns the view for current request
+     *
+     * @return View
+     */
+    public function getView()
+    {
+        if (is_null($this->_view)) {
+            $controller = $this->_routeInfo->controllerName;
+            $name = $this->_routeInfo->action;
+            $ext = $this->_routeInfo->getExtension();
+            $template = "{$controller}/{$name}.{$ext}.twig";
+            if (!is_null($this->_controller->view)) {
+                $template = "{$this->_controller->view}.{$ext}.twig";
+            }
+            $this->_view = new View(['file' => $template]);
+        }
+        return $this->_view;
+    }
+
+
+    /**
+     * Returns the layout for current request
+     *
+     * @return View
+     */
+    public function getLayout()
+    {
+        if (is_null($this->_layout)) {
+            $default = 'layouts/default';
+            $ext = $this->_routeInfo->getExtension();
+            $file = "{$default}.{$ext}.twig";
+            if (!is_null($this->_controller->layout)) {
+                $file = "{$this->_controller->layout}.{$ext}.twig";
+            }
+            $this->_layout = new View(['file' => $file]);
+        }
+        return $this->_layout;
+    }
+}

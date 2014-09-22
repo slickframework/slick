@@ -164,7 +164,7 @@ class View extends Base
     {
         if (!is_string($key)) {
             throw new Exception\InvalidArgumentException(
-                "Key must be a string or a number"
+                "Key must be a string or a number: '$key' given"
             );
         }
         $this->_data[$key] = $value;

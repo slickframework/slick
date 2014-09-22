@@ -7,4 +7,4 @@
 
 $GLOBALS['routeTest'] = true;
 
-$router->map('[:controller]?/?[:action]?', [], 'default');
+$router->map('[:controller]?/?[:action]?/?[**:trailing]?', [], 'default');

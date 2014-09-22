@@ -51,6 +51,7 @@ class RouterTest extends \Codeception\TestCase\Test
             ['action' => 'show', 'controller' => 'articles']
         );
         $info = $router->filter();
+        $this->assertEquals('pages', $info->getControllerName());
         $this->assertEquals('Controllers\\Pages', $info->controller);
 
         $_GET['url'] = '/article/some-title-here/edit';

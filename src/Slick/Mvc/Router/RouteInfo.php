@@ -31,6 +31,7 @@ use Slick\Configuration\Driver\DriverInterface;
  * @property-read string $namespace
  * @property-read array $arguments
  * @property-read string $extension
+ * @property-read string $controllerName
  *
  * @method DriverInterface|null getConfiguration()
  * @method string getExtension()
@@ -93,6 +94,12 @@ class RouteInfo extends Base
     protected $_extension;
 
     /**
+     * @read
+     * @var string
+     */
+    protected $_controllerName;
+
+    /**
      * Sets configuration driver
      *
      * @param DriverInterface $driver
@@ -121,6 +128,7 @@ class RouteInfo extends Base
             if (isset($this->_params['controller'])) {
                 $controller = $this->_params['controller'];
             }
+            $this->_controllerName = $controller;
             $this->_controller = trim(
                 "{$this->namespace}\\". ucfirst($controller),
                 '\\'
@@ -210,5 +218,18 @@ class RouteInfo extends Base
             $this->_params = array_merge($this->_params, $target);
         }
         $this->_target = $target;
+    }
+
+    /**
+     * Returns the controller name for use with views
+     *
+     * @return string
+     */
+    public function getControllerName()
+    {
+        if (is_null($this->_controllerName)) {
+            $this->getController();
+        }
+        return $this->_controllerName;
     }
 }
