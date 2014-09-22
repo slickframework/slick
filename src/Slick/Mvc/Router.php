@@ -14,6 +14,7 @@ namespace Slick\Mvc;
 
 use AltoRouter;
 use Slick\Common\Base;
+use Slick\Mvc\Events\Route;
 use Slick\Mvc\Router\RouteInfo;
 use Slick\Mvc\Exception\RouterException;
 use Slick\Mvc\Exception\InvalidArgumentException;
@@ -116,6 +117,13 @@ class Router extends Base
     {
         $requestUrl = $this->application->request->getQuery('url', '/');
         $requestMethod = $this->application->request->getMethod();
+        $event = new Route([
+            'router' => $this,
+            'application' => $this->application,
+            'request' => $this->application->request
+        ]);
+        $this->_application->getEventManager()
+            ->trigger(Route::BEFORE_ROUTE, $this, $event);
         $options = $this->getService()->match($requestUrl, $requestMethod);
         if ($options == false) {
             throw new RouterException(
@@ -131,7 +139,9 @@ class Router extends Base
             ->setTarget($options['target']);
         $routerInfo->extension =  $this->application->getRequest()
             ->getQuery('extension', $extension);
-
-        return $routerInfo;
+        $event->routeInfo = $routerInfo;
+        $this->_application->getEventManager()
+            ->trigger(Route::AFTER_ROUTE, $this, $event);
+        return $event->routeInfo;
     }
 }

@@ -12,10 +12,10 @@
 
 namespace Mvc;
 
-use Slick\Mvc\Exception\ActionNotFoundException;
-use Slick\Mvc\Exception\ControllerNotFoundException;
-use Slick\Mvc\Exception\RenderingErrorException;
 use TestGuy;
+use Slick\Mvc\Exception\ActionNotFoundException;
+use Slick\Mvc\Exception\RenderingErrorException;
+use Slick\Mvc\Exception\ControllerNotFoundException;
 
 /**
  * MVC application
@@ -88,5 +88,4 @@ class ApplicationCest
         $I->click('Submit');
         $I->see('this is a test');
     }
-
 }

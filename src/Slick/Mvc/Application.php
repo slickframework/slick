@@ -15,8 +15,12 @@ namespace Slick\Mvc;
 use Slick\Common\Base;
 use Slick\Di\Container;
 use Slick\Di\Definition;
+use Slick\Mvc\Events\Bootstrap;
+use Slick\Mvc\Events\Dispatch;
 use Slick\Template\Template;
 use Slick\Di\ContainerBuilder;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
 use Slick\Configuration\Configuration;
@@ -93,6 +97,12 @@ final class Application extends Base
     protected $_configType = 'php';
 
     /**
+     * @readwrite
+     * @var EventManagerInterface
+     */
+    protected $_events;
+
+    /**
      * Bootstrap the application
      *
      * @returns Application
@@ -102,6 +112,13 @@ final class Application extends Base
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
         $router = $this->getRouter();
+
+        $event = new Bootstrap([
+            'router' => $router,
+            'application' => $this
+        ]);
+        $this->getEventManager()
+            ->trigger(Bootstrap::BEFORE_BOOTSTRAP, $this, $event);
 
         Template::addPath(
             getcwd() .'/'. $this->getConfiguration()
@@ -118,6 +135,8 @@ final class Application extends Base
                 include("{$path}/{$routesFile}");
             }
         }
+        $this->getEventManager()
+            ->trigger(Bootstrap::AFTER_BOOTSTRAP, $this, $event);
     }
 
     /**
@@ -128,7 +147,17 @@ final class Application extends Base
     public function run()
     {
         $routeInfo = $this->getRouter()->filter();
-        return $this->dispatcher->dispatch($routeInfo);
+        $event = new Dispatch([
+            'application' => $this,
+            'routeInfo' => $routeInfo
+        ]);
+        $this->getEventManager()
+            ->trigger(Dispatch::BEFORE_DISPATCH, $this, $event);
+        $response = $this->dispatcher->dispatch($routeInfo);
+        $event->response = $response;
+        $this->getEventManager()
+            ->trigger(Dispatch::AFTER_DISPATCH, $this, $event);
+        return $event->response;
     }
 
     /**
@@ -182,11 +211,47 @@ final class Application extends Base
                 'configuration' => Definition::factory(
                     ['Slick\Configuration\Configuration', 'get'],
                     [$this->configFileName, $this->configType]
+                ),
+                'sharedEventManager' => Definition::object(
+                    'Zend\EventManager\SharedEventManager'
                 )
             ];
             $this->setContainer(ContainerBuilder::buildContainer($def));
         }
         return $this->_container;
+    }
+
+    /**
+     * Sets event manager
+     *
+     * @param EventManagerInterface $events
+     *
+     * @return self
+     */
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            __CLASS__,
+            get_class($this)
+        ));
+        $events->setSharedManager(
+            $this->getContainer()->get("sharedEventManager")
+        );
+        $this->_events = $events;
+        return $this;
+    }
+
+    /**
+     * Returns the event manager
+     *
+     * @return mixed|EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (!$this->_events) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->_events;
     }
 
     /**
