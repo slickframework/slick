@@ -12,14 +12,16 @@
 
 namespace Slick\Database\Adapter;
 
-use Slick\Common\Base,
-    Slick\Database\RecordList,
-    Slick\Database\Sql\SqlInterface,
-    Slick\Database\Exception\ServiceException,
-    Slick\Database\Exception\SqlQueryException,
-    Slick\Database\Exception\InvalidArgumentException;
 use PDO;
+use Slick\Log\Log;
+use Slick\Common\Base;
+use Psr\Log\LoggerInterface;
+use Slick\Database\RecordList;
 use Slick\Database\Sql\Dialect;
+use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Exception\ServiceException;
+use Slick\Database\Exception\SqlQueryException;
+use Slick\Database\Exception\InvalidArgumentException;
 
 /**
  * Abstract database adapter
@@ -30,6 +32,9 @@ use Slick\Database\Sql\Dialect;
  * @property      PDO $handler
  * @property-read int $affectedRows
  * @property      int $fetchMode
+ * @property LoggerInterface $logger PSR-3 Logger
+ *
+ * @method AbstractAdapter setLogger(LoggerInterface $logger) Sets PSR-3 Logger
  */
 abstract class AbstractAdapter extends Base implements AdapterInterface
 {
@@ -75,6 +80,11 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      * @var string
      */
     protected $_dialect = Dialect::STANDARD;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $_logger;
 
     /**
      * Auto connects if the auto connect flag is set to true
@@ -292,6 +302,19 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      * @return string
      */
     abstract public function getSchemaName();
+
+    /**
+     * Returns the logger for this query
+     *
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        if (is_null($this->_logger)) {
+            $this->_logger = Log::logger('Database');
+        }
+        return $this->_logger;
+    }
 
     /**
      * Check if the service is valid and its connected

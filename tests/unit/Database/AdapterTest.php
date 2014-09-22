@@ -73,6 +73,9 @@ class AdapterTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('Database\MyAdapter', $object);
 
         $this->assertSame($object, $adapter->initialize());
+
+        $logger = $adapter->getLogger();
+        $this->assertInstanceOf('Psr\Log\LoggerInterface', $logger);
     }
 
     /**

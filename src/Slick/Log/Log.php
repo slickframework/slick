@@ -12,17 +12,19 @@
 
 namespace Slick\Log;
 
+use Monolog\Logger;
 use Slick\Common\Base;
-use Monolog\Logger,
-    Monolog\Handler\SyslogHandler;
+use Slick\Log\Handler\NullHandler;
 
 /**
  * Factory for a Monolog logger.
  *
- * The default handler is Syslog
+ * The default handler is SysLog
  *
  * @package   Slick\Log
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $defaultLogger The default logger name
  */
 class Log extends Base
 {
@@ -48,20 +50,20 @@ class Log extends Base
     /**
      * Gets the logger for the channel with the provided name.
      * 
-     * @param string $name The loggers's channel name to retreive.
+     * @param string $name The loggers channel name to retrieve.
      * 
      * @return \Monolog\Logger The logger object for the given channel name.
      */
     public static function logger($name = null)
     {
-        $log = new Static();
+        $log = new static();
         return $log->getLogger($name);
     }
 
     /**
      * Gets the logger for the channel with the provided name.
      * 
-     * @param string $name The loggers's channel name to retreive.
+     * @param string $name The loggers channel name to retrieve.
      * 
      * @return \Monolog\Logger The logger object for the given channel name.
      */
@@ -78,12 +80,12 @@ class Log extends Base
     /**
      * Adds the default log handlers to the provided logger.
      * 
-     * @param MonologLogger $logger The logger object to add the handlers.
+     * @param Logger $logger The logger object to add the handlers.
      */
-    protected function _setDefaultHandlers(\Monolog\Logger $logger)
+    protected function _setDefaultHandlers(Logger $logger)
     {
         if (empty($this->_handlers)) {
-            $socketHandler = new SyslogHandler('myfacility', 'local6');
+            $socketHandler = new NullHandler();
             array_push($this->_handlers, $socketHandler);
         }
 

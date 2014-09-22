@@ -15,15 +15,17 @@ namespace Slick\Mvc;
 use Slick\Common\Base;
 use Slick\Di\Container;
 use Slick\Di\Definition;
-use Slick\Mvc\Events\Bootstrap;
-use Slick\Mvc\Events\Dispatch;
+use Psr\Log\LoggerInterface;
+use Slick\Log\Log;
 use Slick\Template\Template;
 use Slick\Di\ContainerBuilder;
+use Slick\Mvc\Events\Dispatch;
+use Slick\Mvc\Events\Bootstrap;
 use Zend\EventManager\EventManager;
-use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
 use Slick\Configuration\Configuration;
+use Zend\EventManager\EventManagerInterface;
 use Slick\Configuration\Driver\DriverInterface;
 
 /**
@@ -38,6 +40,7 @@ use Slick\Configuration\Driver\DriverInterface;
  * @property string $configFileName Configuration file name
  * @property string $configType Configuration driver type
  * @property Dispatcher $dispatcher Request dispatcher
+ * @property LoggerInterface $logger PSR-3 logger
  *
  * @method Application setResponse(Response $response) Sets the HTTP response
  * @method Application setRequest(Request $request) Sets the HTTP request
@@ -45,6 +48,7 @@ use Slick\Configuration\Driver\DriverInterface;
  * container object
  * @method Application setDispatcher(Dispatcher $dispatcher) Sets the
  * request dispatcher
+ * @method Application setLogger(LoggerInterface $logger) Sets a PSR-3 logger
  */
 final class Application extends Base
 {
@@ -101,6 +105,11 @@ final class Application extends Base
      * @var EventManagerInterface
      */
     protected $_events;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $_logger;
 
     /**
      * Bootstrap the application
@@ -279,5 +288,16 @@ final class Application extends Base
             $this->setDispatcher(new Dispatcher(['application' => $this]));
         }
         return $this->_dispatcher;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        if (is_null($this->_logger)) {
+            $this->_logger = Log::logger('Slick-Application');
+        }
+        return $this->_logger;
     }
 }

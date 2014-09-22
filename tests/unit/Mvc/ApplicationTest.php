@@ -67,6 +67,8 @@ class ApplicationTest extends \Codeception\TestCase\Test
             'Slick\Configuration\Driver\DriverInterface',
             $application->getConfiguration()
         );
+        $logger = $application->getLogger();
+        $this->assertInstanceOf('Psr\Log\LoggerInterface', $logger);
     }
 
     /**

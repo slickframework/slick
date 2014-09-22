@@ -21,7 +21,8 @@
         "zendframework/zend-servicemanager": "2.2.5",
         "symfony/console": ">=2.3.0",
         "myclabs/php-enum": "1.*",
-        "altorouter/altorouter": ">1.0"
+        "altorouter/altorouter": ">1.0",
+        "psr/log": "*"
 	},
     "require-dev": {
         "codeception/codeception": "1.8.*@dev",
