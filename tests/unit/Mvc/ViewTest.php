@@ -7,13 +7,14 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Mvc;
-use Codeception\Util\Stub;
+
 use Slick\Mvc\View;
 use Slick\Template\Template;
+use Codeception\TestCase\Test;
 
 /**
  * View test case
@@ -21,27 +22,42 @@ use Slick\Template\Template;
  * @package   Test\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class ViewTest extends \Codeception\TestCase\Test
+class ViewTest extends Test
 {
+   /**
+    * @var \CodeGuy
+    */
+    protected $codeGuy;
 
     /**
-     * Create a normal view
+     * Create a view object
      * @test
-     * @expectedException \Slick\Mvc\View\Exception\InvalidDataKeyException
+     * @expectedException \Slick\Mvc\Exception\InvalidArgumentException
      */
     public function createView()
     {
         Template::addPath(__DIR__);
-        $view = new View(['file' => 'test.html.twig']);
-        $view->set('foo', 'foo');
-        $bar = 'bar'; $baz = 'baz';
-        $view->set(compact('bar', 'baz'));
-        $this->assertEquals('foo', $view->data['foo']);
-        $view->erase('bar');
-        $this->assertFalse(isset($view->data['bar']));
-        $this->assertEquals('baz', $view->get('baz'));
-        $this->assertNull($view->get('other', null));
-        $this->assertEquals('<text>foo</text>', $view->render());
-        $view->set(1, 1);
+        $view = new View();
+
+        $engine = $view->engine;
+        $this->assertInstanceOf('Slick\Template\EngineInterface', $engine);
+        $this->assertEmpty($view->data);
+
+        $this->assertInstanceOf('Slick\Mvc\View', $view->setEngineOptions([
+            'engine' => 'twig'
+        ]));
+        $this->assertNotSame($engine, $view->getEngine());
+
+        $this->assertNull($view->get('key', null));
+        $this->assertInstanceOf('Slick\Mvc\View', $view->set('key', 'value'));
+        $expected = [
+            'key' => 'value',
+            'one' => '1'
+        ];
+        $view->set(['one' => '1', 'two' => '2']);
+        $this->assertEquals(2, $view->get('two'));
+        $this->assertInstanceOf('Slick\Mvc\View', $view->erase('two'));
+        $this->assertEquals($expected, $view->data);
+        $view->set(true, false);
     }
 }

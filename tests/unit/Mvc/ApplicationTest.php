@@ -7,17 +7,19 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Mvc;
 
-use Codeception\Util\Stub;
-use Slick\Configuration\Configuration;
+use Slick\Mvc\Router;
+use Slick\Di\Container;
+use Slick\Di\Definition;
 use Slick\Mvc\Application;
-use Slick\Mvc\Controller;
-use Slick\Mvc\MvcEvent;
-use Slick\Template\Template;
+use Slick\Di\ContainerBuilder;
+use Slick\Mvc\Events\Bootstrap;
+use Slick\Configuration\Configuration;
+use Zend\EventManager\SharedEventManager;
 
 /**
  * Application test case
@@ -27,68 +29,101 @@ use Slick\Template\Template;
  */
 class ApplicationTest extends \Codeception\TestCase\Test
 {
-
-    protected $_bootstrap = false;
+   /**
+    * @var \CodeGuy
+    */
+    protected $codeGuy;
 
     /**
-     * Create an application
+     * @var int
+     */
+    private $_beforeBootstrap = 0;
+
+    private $_afterBootstrap = 0;
+
+    /**
+     * @var Container
+     */
+    private $_container;
+
+    protected function _before()
+    {
+        parent::_before();
+        Configuration::addPath(dirname(dirname(__DIR__)) .'/app/Configuration');
+    }
+
+    /**
+     * Create an MVC application
      * @test
      */
-    public function createApplication()
+    public function startApplication()
     {
-        Template::addPath(__DIR__);
-        Configuration::addPath(dirname(dirname(__DIR__)).'/app/Configuration');
-        $config = Configuration::get('config');
+        $application = new Application();
+        $request = $application->request;
+        $this->assertInstanceOf('Zend\Http\PhpEnvironment\Request', $request);
+        $response = $application->response;
+        $this->assertInstanceOf('Zend\Http\PhpEnvironment\Response', $response);
+        $this->assertInstanceOf(
+            'Slick\Configuration\Driver\DriverInterface',
+            $application->getConfiguration()
+        );
+    }
 
-        $app = new Application();
-        $config = $app->getConfiguration('config');
-        $config->set('router', ['namespace' => 'Mvc']);
-        $app->configuration = $config;
-        $_GET['url'] = 'appTests/run';
-        $router = $app->getRouter();
-        $router->setConfiguration($config);
-        $app->router = $router;
-
-        $app->getEventManager()->attach(
-            MvcEvent::EVENT_BOOTSTRAP,
-            function($event) {
-                $this->_bootstrap = true;
-                $this->assertInstanceOf('Slick\Mvc\MvcEvent', $event);
-
-                $this->assertInstanceOf(
-                    'Zend\Http\PhpEnvironment\Response',
-                    $event->getResponse()
-                );
-
-                $this->assertInstanceOf(
-                    'Zend\Http\PhpEnvironment\Request',
-                    $event->getRequest()
-                );
-
-                $this->assertInstanceOf(
-                    'Slick\Mvc\Router',
-                    $event->getRouter()
-                );
+    /**
+     * Trigger the application Bootstrap events
+     *
+     * @test
+     */
+    public function triggerBootstrapEvents()
+    {
+        /** @var SharedEventManager $shared */
+        $shared = $this->getContainer()->get('sharedEventManager');
+        $shared->attach(
+            'Slick\Mvc\Application',
+            Bootstrap::BEFORE_BOOTSTRAP,
+            function(Bootstrap $event){
+                $this->_beforeBootstrap = 1;
+                $this->assertInstanceOf('Slick\Mvc\Events\Bootstrap', $event);
+                $this->assertInstanceOf('Slick\Mvc\Router', $event->getRouter());
+                $this->assertInstanceOf('Slick\Mvc\Application', $event->getApplication());
             }
         );
+        $shared->attach(
+            'Slick\Mvc\Application',
+            Bootstrap::AFTER_BOOTSTRAP,
+            function (Bootstrap $event) {
+                $this->_afterBootstrap = 1;
+                $this->assertInstanceOf('Slick\Mvc\Router', $event->getRouter());
+                $this->assertInstanceOf('Slick\Mvc\Application', $event->getApplication());
+            }
+        );
+        $this->getContainer()->set('sharedEventManager', $shared);
 
+        $app = new Application();
         $app->bootstrap();
-        $this->assertTrue($GLOBALS['bootstrapTest']);
-        $this->assertTrue($GLOBALS['routeTest']);
-
-        $app->run();
-
-        $this->assertEquals('<p>Hello test</p>', $app->getResponse()->getContent());
-        unset($_GET['url']);
+        $this->assertEquals(1, $this->_beforeBootstrap);
+        $this->assertEquals(1, $this->_afterBootstrap);
     }
-}
 
-class AppTests extends Controller
-{
-
-    public function run()
+    /**
+     * Returns the internal dependency injector container
+     *
+     * @return Container The dependency injector
+     */
+    private function getContainer()
     {
-        $this->renderLayout = false;
-        $this->set('name', 'test');
+        if (is_null($this->_container)) {
+            $def = [
+                'configuration' => Definition::factory(
+                    ['Slick\Configuration\Configuration', 'get'],
+                    ['config', 'php']
+                ),
+                'sharedEventManager' => Definition::object(
+                    'Zend\EventManager\SharedEventManager'
+                )
+            ];
+            $this->_container = ContainerBuilder::buildContainer($def);
+        }
+        return $this->_container;
     }
 }

@@ -1,29 +1,30 @@
 <?php
 
 /**
- * Application
+ * MVC Application
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
 use Slick\Common\Base;
-use Slick\Configuration\Configuration;
-use Slick\Configuration\Driver\DriverInterface;
-use Slick\Di\ContainerBuilder;
+use Slick\Di\Container;
 use Slick\Di\Definition;
-use Slick\I18n\Translator;
+use Slick\Mvc\Events\Bootstrap;
+use Slick\Mvc\Events\Dispatch;
 use Slick\Template\Template;
+use Slick\Di\ContainerBuilder;
 use Zend\EventManager\EventManager;
-use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
+use Slick\Configuration\Configuration;
+use Slick\Configuration\Driver\DriverInterface;
 
 /**
  * MVC Application
@@ -31,35 +32,39 @@ use Zend\Http\PhpEnvironment\Response;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property Translator $translator
+ * @property Response $response HTTP response object
+ * @property Request $request HTTP request object
+ * @property Router $router HTTP request router
+ * @property string $configFileName Configuration file name
+ * @property string $configType Configuration driver type
+ * @property Dispatcher $dispatcher Request dispatcher
+ *
+ * @method Application setResponse(Response $response) Sets the HTTP response
+ * @method Application setRequest(Request $request) Sets the HTTP request
+ * @method Application setContainer(Container $container) Sets the dependency
+ * container object
+ * @method Application setDispatcher(Dispatcher $dispatcher) Sets the
+ * request dispatcher
  */
-class Application extends Base implements EventManagerAwareInterface
+final class Application extends Base
 {
-
-    /**
-     * @readwrite
-     * @var Router Application router
-     */
-    protected $_router;
-
-    /**
-     * @readwrite
-     * @var EventManagerInterface Event manager
-     */
-    protected $_events;
-
-    /**
-     * @readwrite
-     *
-     * @var Response
-     */
-    protected $_response;
-
     /**
      * @readwrite
      * @var Request
      */
     protected $_request;
+
+    /**
+     * @readwrite
+     * @var Response
+     */
+    protected $_response;
+
+    /**
+     * @read
+     * @var Router
+     */
+    protected $_router;
 
     /**
      * @readwrite
@@ -69,15 +74,33 @@ class Application extends Base implements EventManagerAwareInterface
 
     /**
      * @readwrite
-     * @var MvcEvent
+     * @var Container
      */
-    protected $_event;
+    protected $_container;
 
     /**
      * @readwrite
-     * @var Translator
+     * @var Dispatcher
      */
-    protected $_translator;
+    protected $_dispatcher;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_configFileName = 'config';
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_configType = 'php';
+
+    /**
+     * @readwrite
+     * @var EventManagerInterface
+     */
+    protected $_events;
 
     /**
      * Bootstrap the application
@@ -86,27 +109,22 @@ class Application extends Base implements EventManagerAwareInterface
      */
     public function bootstrap()
     {
-        set_exception_handler(['\Slick\Mvc\Exception\Handler', 'handle']);
-        set_error_handler(['\Slick\Mvc\Exception\Handler', 'handleError']);
-        $router = $this->getRouter();
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
-        $event = new MvcEvent('MvcEvent');
-        $event->setRouter($router)
-            ->setRequest($this->getRequest())
-            ->setResponse($this->getResponse())
-            ->setTarget($this);
-        $this->_event = $event;
+        $router = $this->getRouter();
+
+        $event = new Bootstrap([
+            'router' => $router,
+            'application' => $this
+        ]);
+        $this->getEventManager()
+            ->trigger(Bootstrap::BEFORE_BOOTSTRAP, $this, $event);
 
         Template::addPath(
-            getcwd() .'/'. $this->getConfiguration()->get('paths.views', 'Views')
+            getcwd() .'/'. $this->getConfiguration()
+                ->get('paths.views', 'Views')
         );
         Template::appendPath(__DIR__ . '/Views');
-
-        $this->getEventManager()
-            ->trigger(MvcEvent::EVENT_BOOTSTRAP, $event);
-
-        $this->translator = Translator::getInstance();
 
         foreach (Configuration::getPathList() as $path) {
             if (is_file("{$path}/{$bootstrap}")) {
@@ -117,7 +135,8 @@ class Application extends Base implements EventManagerAwareInterface
                 include("{$path}/{$routesFile}");
             }
         }
-
+        $this->getEventManager()
+            ->trigger(Bootstrap::AFTER_BOOTSTRAP, $this, $event);
     }
 
     /**
@@ -127,60 +146,18 @@ class Application extends Base implements EventManagerAwareInterface
      */
     public function run()
     {
-        $this->getRouter()->filter();
-        $this->_event->setRouter($this->getRouter());
-
+        $routeInfo = $this->getRouter()->filter();
+        $event = new Dispatch([
+            'application' => $this,
+            'routeInfo' => $routeInfo
+        ]);
         $this->getEventManager()
-            ->trigger(MvcEvent::EVENT_ROUTE, $this->_event);
-
+            ->trigger(Dispatch::BEFORE_DISPATCH, $this, $event);
+        $response = $this->dispatcher->dispatch($routeInfo);
+        $event->response = $response;
         $this->getEventManager()
-            ->trigger(MvcEvent::EVENT_DISPATCH, $this->_event);
-
-        $this->_response = $this->_router->dispatch($this);
-    }
-
-    /**
-     * Inject an EventManager instance
-     *
-     * @param  EventManagerInterface $eventManager
-     *
-     * @return Application
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $eventManager->setIdentifiers(
-            array(
-                __CLASS__,
-                get_class($this),
-            )
-        );
-        $this->_events = $eventManager;
-        return $this;
-    }
-
-    /**
-     * Retrieve the event manager
-     *
-     * Lazy-loads an EventManager instance if none registered.
-     *
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        if (is_null($this->_events)) {
-            $container = ContainerBuilder::buildContainer(
-                [
-                    'DefaultEventManager' => Definition::object(
-                            'Zend\EventManager\SharedEventManager'
-                        )
-                ]
-            );
-            $sharedEvents = $container->get('DefaultEventManager');
-            $events = new EventManager();
-            $events->setSharedManager($sharedEvents);
-            $this->setEventManager($events);
-        }
-        return $this->_events;
+            ->trigger(Dispatch::AFTER_DISPATCH, $this, $event);
+        return $event->response;
     }
 
     /**
@@ -210,28 +187,97 @@ class Application extends Base implements EventManagerAwareInterface
     }
 
     /**
-     * Lazy loads the configuration driver
-     *
-     * @return DriverInterface
-     */
-    public function getConfiguration()
-    {
-        if (is_null($this->_configuration)) {
-            $this->_configuration = Configuration::get('config');
-        }
-        return $this->_configuration;
-    }
-
-    /**
-     * Lazy load of MVC application router
+     *  Lazy loads the router object
      *
      * @return Router
      */
     public function getRouter()
     {
         if (is_null($this->_router)) {
-            $this->_router = new Router(['request' => $this->getRequest()]);
+            $this->_router = new Router($this);
         }
         return $this->_router;
+    }
+
+    /**
+     * Returns the internal dependency injector container
+     *
+     * @return Container The dependency injector
+     */
+    public function getContainer()
+    {
+        if (is_null($this->_container)) {
+            $def = [
+                'configuration' => Definition::factory(
+                    ['Slick\Configuration\Configuration', 'get'],
+                    [$this->configFileName, $this->configType]
+                ),
+                'sharedEventManager' => Definition::object(
+                    'Zend\EventManager\SharedEventManager'
+                )
+            ];
+            $this->setContainer(ContainerBuilder::buildContainer($def));
+        }
+        return $this->_container;
+    }
+
+    /**
+     * Sets event manager
+     *
+     * @param EventManagerInterface $events
+     *
+     * @return self
+     */
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            __CLASS__,
+            get_class($this)
+        ));
+        $events->setSharedManager(
+            $this->getContainer()->get("sharedEventManager")
+        );
+        $this->_events = $events;
+        return $this;
+    }
+
+    /**
+     * Returns the event manager
+     *
+     * @return mixed|EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (!$this->_events) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->_events;
+    }
+
+    /**
+     * Returns the configuration settings
+     *
+     * @return DriverInterface
+     */
+    public function getConfiguration()
+    {
+        if (is_null($this->_configuration)) {
+            $config = $this->getContainer()->get('configuration');
+            $this->_configuration = $config;
+        }
+        return $this->_configuration;
+    }
+
+    /**
+     * Returns the request dispatcher
+     *
+     * @return Dispatcher
+     */
+    public function getDispatcher()
+    {
+        if (is_null($this->_dispatcher)) {
+            $this->setDispatcher(new Dispatcher(['application' => $this]));
+        }
+        return $this->_dispatcher;
     }
 }

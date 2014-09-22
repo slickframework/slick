@@ -7,103 +7,94 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Mvc;
 
 use Slick\Mvc\Controller;
+use Codeception\TestCase\Test;
+use Slick\Mvc\Libs\Session\FlashMessages;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
 
 /**
- * Controller test case
- *
- * @package   Test\Mvc
- * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * Class ControllerTest
+ * @package Mvc
  */
-class ControllerTest extends \Codeception\TestCase\Test
+class ControllerTest extends Test
 {
+   /**
+    * @var \CodeGuy
+    */
+    protected $codeGuy;
 
     /**
-     * Create controller an check the default values
+     * Assign/retrieve/erase values to render
      * @test
-     * @expectedException \Slick\Mvc\View\Exception\InvalidDataKeyException
+     * @expectedException \Slick\Mvc\Exception\InvalidArgumentException
      */
-    public function createController()
+    public function addingValuesToRender()
     {
-        $controller = new MyController();
-        $this->assertEquals('html', $controller->extension);
-        $controller->request = new Request();
-        $controller->response = new Response();
-        $this->assertInstanceOf(
-            'Zend\EventManager\EventManagerInterface',
-            $controller->getEventManager()
-        );
-
-        $controller->set('foo', 'bar');
-        $this->assertEquals('bar', $controller->viewVars['foo']);
-        $one = 1; $two = 2;
-        $controller->set(compact('one', 'two'));
-        $this->assertEquals(2, $controller->viewVars['two']);
-        $controller->set(1, 3);
-    }
-
-    /**
-     * check disable rendering
-     * @test
-     */
-    public function checkDisableRendering()
-    {
-        $controller = new MyController();
-        $this->assertTrue($controller->renderLayout);
-        $this->assertTrue($controller->renderView);
-
-        $controller->disableRendering();
+        $controller = new Controller();
+        $this->assertNull($controller->get('key', null));
+        $this->assertInstanceOf('Slick\Mvc\Controller', $controller->set('key', 'value'));
+        $this->assertInstanceOf('Slick\Mvc\Controller', $controller->set([
+            'one' => 1,
+            'two' => 2
+        ]));
+        $this->assertInstanceOf('Slick\Mvc\Controller', $controller->erase('two'));
+        $this->assertEquals(['key' => 'value', 'one' => 1], $controller->getViewVars());
+        $this->assertEquals(1, $controller->get('one'));
+        $controller->set(true, false);
+        $this->assertInstanceOf('Slick\Mvc\Controller', $controller->disableRendering());
         $this->assertFalse($controller->renderLayout);
         $this->assertFalse($controller->renderView);
     }
 
     /**
-     * Check the redirect action on controller
+     * Redirect controller flow
      * @test
      */
-    public function controllerRedirect()
+    public function redirectFlow()
     {
-        $controller = new MyController();
-        $controller->request = new Request();
-        $controller->response = new Response();
-        $controller->redirect('test');
-        $this->assertEquals(302, $controller->response->getStatusCode());
 
+        $controller = new Controller(
+            [
+                'response' => new Response(),
+                'request' => new Request(),
+            ]
+        );
+        $controller->redirect('home');
+        $this->assertEquals(302, $controller->getResponse()->getStatusCode());
+        $headers = $controller->getResponse()->getHeaders();
+        $this->assertEquals('/home', $headers->get('Location')->getFieldValue());
     }
 
     /**
-     * Testing the render method on controller
+     * Settings flash messages
      * @test
-     * @expectedException \Slick\Mvc\View\Exception\RenderingErrorException
      */
-    public function controllerRendering()
+    public function addingFlashMessages()
     {
-        $controller = new MyController();
-        $layout = $controller->getLayout();
-        $this->assertInstanceOf('Slick\Mvc\View', $layout);
-        $this->assertEquals('layouts/default.html.twig', $layout->file);
-        $controller->setLayout('testLayout');
-        $this->assertEquals('testLayout.html.twig', $controller->getLayout()->file);
-        $controller->setView('test');
-        $controller->set('foo', 'bar');
-        $result = $controller->render();
-        $this->assertEquals('<text>bar</text>', $result);
-        $controller->renderLayout = true;
-        $controller->renderView = true;
-        $controller->setView('error');
-        $controller->render();
+        $controller = new Controller();
+        $fm = $controller->flashMessages;
+        $controller->addInfoMessage('Test info')
+            ->addSuccessMessage("Test success")
+            ->addErrorMessage('Test error')
+            ->addWarningMessage('Test warning')
+            ->setMessage(FlashMessages::TYPE_INFO, 'Other');
+        $this->assertEquals(
+            [
+                FlashMessages::TYPE_INFO => ['Test info', 'Other'],
+                FlashMessages::TYPE_SUCCESS => ['Test success'],
+                FlashMessages::TYPE_ERROR => ['Test error'],
+                FlashMessages::TYPE_WARNING => ['Test warning'],
+            ],
+            $fm->get()
+        );
+        $fm->flush();
+
     }
-
-}
-
-class MyController extends Controller
-{
 
 }

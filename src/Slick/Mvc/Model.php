@@ -7,16 +7,15 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
-use Slick\Common\Inspector;
-use Slick\Mvc\Libs\Utils\ModelData;
 use Slick\Orm\Entity;
-use Slick\Orm\EntityInterface;
-use Slick\Orm\Relation\BelongsTo;
+use Slick\Database\Sql;
+use Slick\Mvc\Model\Manager;
+use Slick\Orm\Entity\Manager as EntityManager;
 
 /**
  * MVC Model
@@ -24,34 +23,10 @@ use Slick\Orm\Relation\BelongsTo;
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property ModelData $modelData
+ * @property-read Model\Descriptor $descriptor The descriptor object
  */
-abstract class Model extends Entity implements EntityInterface
+class Model extends Entity
 {
-
-    /**
-     * @readwrite
-     * @var string Name of the display field
-     */
-    protected $_displayField;
-
-    /**
-     * @read
-     * @var ModelData
-     */
-    protected $_modelData;
-
-    /**
-     * Returns the value of the provided column name
-     *
-     * @param string $name Column name
-     *
-     * @return mixed
-     */
-    public function getValue($name)
-    {
-        return $this->$name;
-    }
 
     /**
      * Returns the primary key value
@@ -62,43 +37,6 @@ abstract class Model extends Entity implements EntityInterface
     {
         $prmKey = $this->primaryKey;
         return $this->$prmKey;
-    }
-
-    /**
-     * Returns editable data from this model
-     * @return array
-     */
-    public function getData()
-    {
-        $data = [];
-        $properties = $this->modelData->getPropertyList();
-        foreach ($properties as $property => $meta) {
-            $name = trim($property, '_');
-            /** @var Inspector\AnnotationsList $meta*/
-            if ($meta->hasAnnotation('@belongsTo')) {
-                /** @var BelongsTo $field */
-                $fk = $this->getRelationsManager()
-                    ->getRelation($property)
-                    ->getRelated()->primaryKey;
-                $data[$name] =  $this->$property->$fk;
-            } else if ($meta->hasAnnotation('@column')) {
-                $data[$name] = $this->$property;
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * Return metadata about this model
-     *
-     * @return ModelData
-     */
-    public function getModelData()
-    {
-        if (is_null($this->_modelData)) {
-            $this->_modelData = new ModelData($this);
-        }
-        return $this->_modelData;
     }
 
     /**
@@ -116,7 +54,18 @@ abstract class Model extends Entity implements EntityInterface
      */
     public function getDisplayField()
     {
-        return $this->modelData->getDisplayField();
+        return $this->getDescriptor()->getDisplayField();
+    }
+
+    /**
+     * Returns the model descriptor for this model class
+     *
+     * @return Model\Descriptor
+     */
+    public function getDescriptor()
+    {
+        $entityDescriptor = EntityManager::getInstance()->get($this);
+        return Manager::getInstance()->get($entityDescriptor);
     }
 
     /**
@@ -141,16 +90,21 @@ abstract class Model extends Entity implements EntityInterface
     {
         /** @var Model $model */
         $model = new static();
-        $key = $model->primaryKey;
-        $value = $model->getDisplayField();
-        $list = static::all([
-            'fields' => [$key, $value]
-        ]);
-        $result = [];
-        foreach ($list as $inst) {
-            $result[$inst->$key] = $inst->$value;
+        $fields = [
+            trim($model->getPrimaryKey(), '_'),
+            trim($model->getDisplayField(), '_')
+        ];
+        $rows = Sql::createSql($model->getAdapter())
+            ->select($model->getTableName(), $fields)
+            ->limit(null)
+            ->all();
+        $list = [];
+        list($id, $value) = $fields;
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                $list[$row[$id]] = $row[$value];
+            }
         }
-        return $result;
+        return $list;
     }
-
-} 
+}
