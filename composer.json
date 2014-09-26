@@ -22,7 +22,8 @@
         "symfony/console": ">=2.3.0",
         "myclabs/php-enum": "1.*",
         "altorouter/altorouter": ">1.0",
-        "psr/log": "*"
+        "psr/log": "*",
+        "filp/whoops": "~1.0"
 	},
     "require-dev": {
         "codeception/codeception": "1.8.*@dev",

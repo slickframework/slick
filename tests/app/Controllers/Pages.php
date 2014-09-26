@@ -5,7 +5,9 @@
  */
 
 namespace Controllers;
+
 use Slick\Mvc\Controller;
+use Exception as BaseException;
 
 /**
  * Class Pages
@@ -73,4 +75,11 @@ class Pages extends Controller
         $runs = $this->get('once', 0);
         $this->set('once', ++$runs);
     }
-} 
+
+    public function errorHandler()
+    {
+        throw new Exception("Something broke!");
+    }
+}
+
+class Exception extends BaseException {}

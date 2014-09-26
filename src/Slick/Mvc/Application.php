@@ -21,6 +21,8 @@ use Slick\Template\Template;
 use Slick\Di\ContainerBuilder;
 use Slick\Mvc\Events\Dispatch;
 use Slick\Mvc\Events\Bootstrap;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
 use Zend\EventManager\EventManager;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Http\PhpEnvironment\Response;
@@ -41,6 +43,7 @@ use Slick\Configuration\Driver\DriverInterface;
  * @property string $configType Configuration driver type
  * @property Dispatcher $dispatcher Request dispatcher
  * @property LoggerInterface $logger PSR-3 logger
+ * @property Run $whoops Error handler
  *
  * @method Application setResponse(Response $response) Sets the HTTP response
  * @method Application setRequest(Request $request) Sets the HTTP request
@@ -112,14 +115,23 @@ final class Application extends Base
     protected $_logger;
 
     /**
+     * @read
+     * @var Run
+     */
+    protected $_whoops;
+
+    /**
      * Bootstrap the application
      *
      * @returns Application
      */
     public function bootstrap()
     {
+        $this->_startErrorHandler();
+
         $routesFile = "routes.php";
         $bootstrap = "bootstrap.php";
+
         $router = $this->getRouter();
 
         $event = new Bootstrap([
@@ -133,6 +145,7 @@ final class Application extends Base
             getcwd() .'/'. $this->getConfiguration()
                 ->get('paths.views', 'Views')
         );
+
         Template::appendPath(__DIR__ . '/Views');
 
         foreach (Configuration::getPathList() as $path) {
@@ -299,5 +312,25 @@ final class Application extends Base
             $this->_logger = Log::logger('Slick-Application');
         }
         return $this->_logger;
+    }
+
+    /**
+     * Starts and registers the error handler
+     *
+     * @return self
+     */
+    protected function _startErrorHandler()
+    {
+        $this->_whoops = new Run();
+        $environment = $this->getConfiguration()
+            ->get('environment', 'production');
+
+        if ($environment != 'production') {
+            $handler = new PrettyPageHandler();
+            $this->_whoops->pushHandler($handler);
+        }
+
+        $this->_whoops->register();
+        return $this;
     }
 }

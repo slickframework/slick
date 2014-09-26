@@ -5,6 +5,8 @@
  */
 
 return [
+    // On of production, testing, development
+    'environment' => 'development',
     // Router default values
     'router' => [
         'controller' => 'pages',

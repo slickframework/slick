@@ -52,7 +52,7 @@ class SlickConnector extends Client
 
         // Create application
         Configuration::addPath($path . '/Configuration');
-        Template::addPath($path . '/View');
+        Template::addPath($path . '/Views');
 
         $uri = str_replace('http://localhost/', '', $request->getUri());
         preg_match('/^([a-zA-Z0-9\/\-_]+).?([a-zA-Z0-9\-_]*)\??([a-zA-Z0-9\-_\=]*)/i', $uri, $matches);
