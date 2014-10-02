@@ -81,6 +81,10 @@ EOT;
         $joins = $this->_sql->getJoins();
         $fields = $this->_sql->getFields();
 
+        if (!is_array($fields)) {
+            return $fields;
+        }
+
         if (count($joins) > 0 && $this->_sql->prefixTableName) {
             $table = $this->_sql->getTableName();
             foreach ($fields as $key => $field) {
@@ -104,11 +108,15 @@ EOT;
 
         if (count($joins) > 0) {
             foreach ($joins as $join) {
+
                 $tmpJoin = array();
                 foreach ($join['fields'] as $field) {
                     $tmpJoin[] = "{$join['table']}.{$field}";
                 }
-                $tmpFields[] = implode(', ', $tmpJoin);
+                $str = implode(', ', $tmpJoin);
+                if (strlen($str) > 1) {
+                    $tmpFields[] = implode(', ', $tmpJoin);
+                }
             }
             $fields = ', '. implode(', ', $tmpFields);
             if (trim($fields) == ',') $fields = null;
