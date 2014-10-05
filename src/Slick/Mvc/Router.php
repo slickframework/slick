@@ -132,13 +132,20 @@ class Router extends Base
         }
         // Route match, add the extension
         $cfg = $this->application->getContainer()->get('configuration');
-        $extension = $cfg->get('router.extension', 'html');
+
 
         $routerInfo = new RouteInfo($options);
         $routerInfo->setConfiguration($cfg)
             ->setTarget($options['target']);
-        $routerInfo->extension =  $this->application->getRequest()
-            ->getQuery('extension', $extension);
+
+        $extension = $this->application->getRequest()
+            ->getQuery('extension');
+
+        if (strlen($extension < 1)) {
+            $extension = $cfg->get('router.extension', 'html');
+        }
+        $routerInfo->extension = $extension;
+
         $event->routeInfo = $routerInfo;
         $this->_application->getEventManager()
             ->trigger(Route::AFTER_ROUTE, $this, $event);
