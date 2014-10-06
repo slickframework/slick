@@ -38,6 +38,11 @@ use Slick\Database\Exception\InvalidArgumentException;
  */
 abstract class AbstractAdapter extends Base implements AdapterInterface
 {
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_connectionName = 'unknown connection name';
 
     /**
      * @readwrite
@@ -155,9 +160,20 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
 
         try {
             $statement = $this->_handler->prepare($query);
+            $start = microtime(true);
             $statement->execute($parameters);
+            $end = microtime(true);
+            $time = $end - $start;
             $result = $statement->fetchAll($this->_fetchMode);
-
+            $this->getLogger()->info(
+                "Query ({$this->connectionName}): {$query}",
+                [
+                    'query' => $query,
+                    'params' => $query,
+                    'time' => number_format($time, 3),
+                    'affected' => $statement->rowCount()
+                ]
+            );
         } catch (\PDOException $exp) {
             throw new SqlQueryException(
                 "An error occurred when querying the database service." .
@@ -205,9 +221,21 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
         }
 
         try {
+            $start = microtime(true);
             $statement = $this->_handler->prepare($query);
             $statement->execute($parameters);
+            $end = microtime(true);
+            $time = $end -$start;
             $this->_affectedRows = $statement->rowCount();
+            $this->getLogger()->info(
+                "Query ({$this->connectionName}): {$query}",
+                [
+                    'query' => $query,
+                    'params' => $query,
+                    'time' => number_format($time, 3),
+                    'affected' => $statement->rowCount()
+                ]
+            );
         } catch (\PDOException $exp) {
             throw new SqlQueryException(
                 "An error occurred when querying the database service." .
