@@ -96,9 +96,11 @@ class HasOne extends AbstractSingleRelation implements RelationInterface
             []
         );
         $pmk = $this->getEntity()->getPrimaryKey();
+        $table = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getTableName();
         $sql->where(
             [
-                "{$this->getForeignKey()} = :id" => [
+                "{$table}.{$this->getForeignKey()} = :id" => [
                     ':id' => $this->getEntity()->$pmk
                 ]
             ]

@@ -60,10 +60,11 @@ class BelongsTo extends AbstractSingleRelation implements RelationInterface
         );
         $pmk = Entity\Manager::getInstance()->get($this->getRelatedEntity())
             ->getEntity()->getPrimaryKey();
-
+        $table = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getTableName();
         $sql-> where(
             [
-                "{$pmk} = :id" => [
+                "{$table}.{$pmk} = :id" => [
                     ':id' => $entity->getRawData()[$this->getForeignKey()]
                 ]
             ]
