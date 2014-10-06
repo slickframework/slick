@@ -136,7 +136,7 @@ class Select extends AbstractSql implements SelectInterface
         $this->_joins = $copyJoins; 
         $this->_limit  = $limit;
         $this->_offset = $offset;
-        return $result[0]['totalRows'];
+        return (isset($result[0]['totalRows'])) ? $result[0]['totalRows'] : 0;
     }
 
     /**
