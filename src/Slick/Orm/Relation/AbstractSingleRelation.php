@@ -103,27 +103,29 @@ abstract class AbstractSingleRelation extends AbstractRelation
         $relatedTable = $related->getEntity()->getTableName();
         $class = $related->getEntity()->getClassName();
         foreach ($data as $key => $row) {
+
             $pmk =  $this->getEntity()->getPrimaryKey();
             if (isset($row[$pmk]) && is_array($row[$pmk])) {
                 $data[$key][$pmk] = reset($row[$pmk]);
             }
             $options = [];
-            foreach ($row as $column => $value) {
-                if (preg_match('/'.$relatedTable.'_(.*)/i', $column)) {
-                    unset($data[$key][$column]);
-                    $name = str_replace($relatedTable.'_', '', $column);
-                    $options[$name] = $value;
+            if (is_array($row)) {
+                foreach ($row as $column => $value) {
+                    if (preg_match('/' . $relatedTable . '_(.*)/i', $column)) {
+                        unset($data[$key][$column]);
+                        $name = str_replace($relatedTable . '_', '', $column);
+                        $options[$name] = $value;
+                    }
                 }
             }
-
             $data[$key][$this->getPropertyName()] = new $class($options);
         }
 
         if ($multiple) {
             $event->data = $data;
         } else {
-
-        }$event->data = reset($data);
+            $event->data = reset($data);
+        }
     }
 
 }

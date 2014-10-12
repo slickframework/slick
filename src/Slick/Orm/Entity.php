@@ -12,6 +12,7 @@
 
 namespace Slick\Orm;
 
+use Slick\Database\RecordList;
 use Slick\Database\Sql;
 use Slick\Orm\Events\Delete;
 use Slick\Orm\Events\Save;
@@ -113,6 +114,9 @@ class Entity extends AbstractEntity
     public static function find($fields = '*')
     {
         $entity = new static();
+        if ($fields == '*') {
+            $fields = $entity->getTableName() .'.*';
+        }
         Entity\Manager::getInstance()->get($entity)->refreshRelations();
         $select = new \Slick\Orm\Sql\Select($entity, $fields);
         return $select;
@@ -258,5 +262,70 @@ class Entity extends AbstractEntity
         }
 
         return $data;
+    }
+
+    /**
+     * Recursively returns this entity as an array. Used in json and
+     * serialization processes.
+     *
+     * @return array
+     */
+    public function asArray()
+    {
+        $data = [];
+        $columns = Manager::getInstance()->get($this)->getColumns();
+        foreach(array_keys($columns) as $field) {
+            $data[trim($field, '_')] = $this->$field;
+        }
+        $relations = Manager::getInstance()->get($this)->getRelations();
+        foreach(array_keys($relations) as $field) {
+            if ($this->$field instanceof Entity) {
+                $data[trim($field, '_')] = $this->$field->asArray();
+            } elseif ($this->$field instanceof RecordList) {
+                $values = [];
+                foreach ($this->$field as $entity) {
+                    $values[] = $entity->asArray();
+                }
+                $data[trim($field, '_')] = $values;
+            } else {
+                $data[trim($field, '_')] = $this->$field;
+            }
+        }
+        return $data;
+
+    }
+
+    /**
+     * Serializes this entity
+     *
+     * @return string
+     */
+    public function serialize()
+    {
+        $data = $this->asArray();
+        $serialize = serialize($data);
+        return $serialize;
+    }
+
+    /**
+     * Unserialize callback handle
+     *
+     * @param string $data
+     * @return self
+     */
+    public function unserialize($data)
+    {
+        $this->_createObject(unserialize($data));
+        return $this;
+    }
+
+    /**
+     * Returns this entity in JSON format
+     *
+     * @return string
+     */
+    public function asJason()
+    {
+        return json_encode($this->asArray());
     }
 }

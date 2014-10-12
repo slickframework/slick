@@ -11,9 +11,6 @@ env:
 services:
   - memcached
 
-install:
-  - sudo apt-get install -y --force-yes apache2 libapache2-mod-php5 php5-curl php5-intl
-
 before_script:
   - phpenv config-add custom.ini
   - composer self-update

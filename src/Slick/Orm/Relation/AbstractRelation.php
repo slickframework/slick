@@ -17,6 +17,7 @@ use Slick\Common\Base;
 use Slick\Di\Container;
 use Slick\Di\Definition;
 use Slick\Di\ContainerBuilder;
+use Slick\Orm\Exception\InvalidArgumentException;
 use Slick\Orm\RelationInterface;
 use Slick\Common\Inspector\Annotation;
 
@@ -119,7 +120,13 @@ abstract class AbstractRelation extends Base implements RelationInterface
      */
     public function setRelatedEntity($entity)
     {
+        if (!class_exists($entity)) {
+            throw new InvalidArgumentException(
+                "The entity class '{$entity}' does not exists."
+            );
+        }
         $this->_relatedEntity = $entity;
+        return $this;
     }
 
     /**
@@ -234,10 +241,20 @@ abstract class AbstractRelation extends Base implements RelationInterface
         $parameters = $annotation->getParameters();
         unset ($parameters['_raw']);
 
+        $related = $annotation->getValue();
+        if (!class_exists($related)) {
+            $parentClass = $entity->getClassName();
+            throw new InvalidArgumentException(
+                "Unknown class defined in {$parentClass}::_{$property}. ".
+                "Class {$related} does not exists."
+            );
+        }
+
         /** @var BelongsTo $relation */
         $relation = new static($parameters);
         $relation->setEntity($entity)->setPropertyName($property);
-        $relation->setRelatedEntity($annotation->getValue());
+
+        $relation->setRelatedEntity($related);
         return $relation;
     }
 }
