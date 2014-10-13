@@ -31,6 +31,7 @@ use Slick\Mvc\Libs\Session\FlashMessageMethods;
  * @property bool $renderView Flag for view rendering
  * @property string $layout Layout file name
  * @property string $view View file name
+ * @property bool $scaffold
  *
  * @property-read array $viewVars A key/value pair of data for view rendering
  *
@@ -39,6 +40,7 @@ use Slick\Mvc\Libs\Session\FlashMessageMethods;
  * @method Controller setRequest(Request $request) Sets the HTTP request object
  * @method Response getResponse() Returns the HTTP response object
  * @method Controller setResponse(Response $response) Sets HTTP response object
+ * @method bool isScaffold() Returns true if controller is scaffolding
  */
 class Controller extends Base
 {

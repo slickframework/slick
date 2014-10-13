@@ -53,7 +53,7 @@ use Slick\Configuration\Driver\DriverInterface;
  * request dispatcher
  * @method Application setLogger(LoggerInterface $logger) Sets a PSR-3 logger
  */
-final class Application extends Base
+class Application extends Base
 {
     /**
      * @readwrite

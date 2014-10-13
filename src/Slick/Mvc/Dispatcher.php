@@ -160,7 +160,13 @@ class Dispatcher extends Base
             );
 
             /** @var Controller $instance */
-            $this->_controller = new $className($options);
+            $instance = new $className($options);
+            $this->_controller = $instance;
+            if ($instance->isScaffold()) {
+                $this->_controller = Scaffold::getScaffoldController(
+                    $instance
+                );
+            }
         }
         return $this->_controller;
     }

@@ -1,0 +1,23 @@
+{% import "elements/table-record.actions.html.twig" as tableRecord %}
+<div class="entity-index">
+    <h2 class="section-header">
+        <i class="icon-list-alt"></i>
+        {{ modelPlural|capitalize }}
+    </h2>
+
+    <div class="panel panel-default">
+        {% include 'elements/panel-heading.twig' %}
+        <div class="panel-body">
+            {% if records|length > 0 %}
+            {% else %}
+                There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(modelPlural~"/add")}}">Add {{ modelSingular }}</a> button to add a new {{ modelSingular }}.
+            {% endif %}
+        </div>
+        <div class="panel-footer">
+            {% include "elements/pagination.html.twig" %}
+        </div>
+    </div>
+</div>
+{% for record in records %}
+    {{ tableRecord.createDialog(record, modelPlural, modelSingular) }}
+{% endfor %}
