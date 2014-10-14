@@ -12,9 +12,13 @@
 
 namespace Slick\Mvc;
 
-use Slick\Orm\Entity\Manager;
-use Slick\Template\Template;
 use Slick\Utility\Text;
+use Slick\Orm\Sql\Select;
+use Slick\Template\Template;
+use Slick\Orm\Entity\Manager;
+use Slick\Filter\StaticFilter;
+use Slick\Mvc\Model\Descriptor;
+use Slick\Mvc\Libs\Utils\Pagination;
 
 /**
  * Scaffold controller
@@ -25,6 +29,7 @@ use Slick\Utility\Text;
  * @property Controller $controller
  * @property string $scaffoldControllerName
  * @property string $modelName
+ * @property Descriptor $descriptor
  *
  * @method Controller getController() Returns the controller being scaffold
  */
@@ -48,6 +53,12 @@ class Scaffold extends Controller
      * @var string
      */
     protected $_scaffoldControllerName;
+
+    /**
+     * @readwrite
+     * @var Descriptor
+     */
+    protected $_descriptor;
 
     /**
      * Set common variables for views
@@ -91,7 +102,12 @@ class Scaffold extends Controller
     {
         if (is_null($this->_modelName)) {
             $this->setModelName('Models\\' .
-                Text::singular($this->_scaffoldControllerName));
+                ucfirst(
+                    Text::singular(
+                        strtolower($this->_scaffoldControllerName)
+                    )
+                )
+            );
         }
         return $this->_modelName;
     }
@@ -107,18 +123,63 @@ class Scaffold extends Controller
     {
         $this->_modelName = $name;
         $nameParts = explode("\\", $name);
-        $this->set('modelPlural', strtolower(Text::plural(end($nameParts))));
+        $controllerName = strtolower(end($nameParts));
+        $this->set('modelPlural', strtolower(Text::plural($controllerName)));
         $this->set(
             'modelSingular',
-            strtolower(Text::singular(end($nameParts)))
+            strtolower(Text::singular($controllerName))
         );
         return $this;
     }
 
+    /**
+     * Returns model descriptor
+     *
+     * @return Descriptor
+     */
+    public function getDescriptor()
+    {
+        if (is_null($this->_descriptor)) {
+            $this->_descriptor = new Descriptor(
+                [
+                    'descriptor' => Manager::getInstance()
+                        ->get($this->getModelName())
+                ]
+            );
+        }
+        return $this->_descriptor;
+    }
+
+    /**
+     * Handles the request to display index page
+     */
     public function index()
     {
+        $pagination = new Pagination();
+        $pattern = StaticFilter::filter(
+            'text',
+            $this->getController()->request->getQuery('pattern', null)
+        );
         $this->view = 'scaffold/index';
-        $this->set('descriptor', Manager::getInstance()->get($this->_modelName));
-        
+        $descriptor =  $this->getDescriptor();
+
+        /** @var Select $query */
+        $query = call_user_func_array([$this->getModelName(), 'find'], []);
+        $field = $descriptor->getDisplayField();
+        $tableName = $descriptor->getDescriptor()->getEntity()->getTableName();
+        $query->where(
+            [
+                "{$tableName}.{$field} LIKE :pattern" => [
+                    ':pattern' => "%{$pattern}%"
+                ]
+            ]
+        );
+        $pagination->setTotal($query->count());
+        $query->limit(
+            $pagination->rowsPerPage,
+            $pagination->offset
+        );
+        $records = $query->all();
+        $this->set(compact('pagination', 'records', 'pattern', 'descriptor'));
     }
 }

@@ -13,6 +13,7 @@
 namespace Slick\Mvc\Model;
 
 use Slick\Common\Base;
+use Slick\Orm\Annotation\Column;
 use Slick\Orm\Entity\Descriptor as SlickOrmDescriptor;
 
 /**
@@ -75,5 +76,15 @@ class Descriptor extends Base
         }
         return $this->_displayField;
 
+    }
+
+    /**
+     * Returns the list of entity columns
+     *
+     * @return Column[]
+     */
+    public function getColumns()
+    {
+        return $this->getDescriptor()->getColumns();
     }
 }

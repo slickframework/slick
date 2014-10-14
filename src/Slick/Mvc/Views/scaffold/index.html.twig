@@ -5,10 +5,52 @@
         {{ modelPlural|capitalize }}
     </h2>
 
+    <div class="btn-group hidden-xs quick-access">
+        <a class="btn btn-default" href="{{ url('') }}">
+            <span class="glyphicon glyphicon-home"></span>
+            Home
+        </a>
+        <a class="btn btn-default active" href="{{ url(modelPlural) }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            Manage {{ modelPlural }}
+        </a>
+        <a class="btn btn-default" href="{{ url(modelPlural~"/add") }}">
+            <span class="glyphicon glyphicon-plus"></span>
+            Add {{ modelSingular }}
+        </a>
+    </div>
+    <br>&nbsp;
+
     <div class="panel panel-default">
         {% include 'elements/panel-heading.twig' %}
         <div class="panel-body">
             {% if records|length > 0 %}
+            <table class="table table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                            <td>
+                                {{ column.field|capitalize }}
+                            </td>
+                        {% endfor %}
+                        <td class="table-actions">
+                            Actions
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                        <td>
+                            {{ attribute(record, column.field) }}
+                        </td>
+                        {% endfor %}
+                        <td class="table-actions">{{ tableRecord.getActions(record, modelPlural, modelSingular) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% else %}
                 There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(modelPlural~"/add")}}">Add {{ modelSingular }}</a> button to add a new {{ modelSingular }}.
             {% endif %}

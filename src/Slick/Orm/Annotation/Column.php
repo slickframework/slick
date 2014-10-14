@@ -20,10 +20,17 @@ use Slick\Common\Inspector\Annotation;
  * @package   Slick\Orm\Annotation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $field
  */
 class Column extends Annotation
 {
 
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_field;
     /**
      * Creates an annotation with provided data
      *
