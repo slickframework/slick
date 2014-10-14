@@ -38,7 +38,7 @@
                         {% endif %}
                     {% endfor %}
                     <li class="disabled "><a href="#">...</a></li>
-                    {% for i in range(pagination.pages -2, pagination.pages) %}
+                    {% for i in range((pagination.pages - 2), pagination.pages) %}
                         <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
                     {% endfor %}
                     <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
@@ -48,7 +48,7 @@
                         <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
                     {% endfor %}
                     <li class="disabled "><a href="#">...</a></li>
-                    {% for i in range(pagination.pages -6, pagination.pages) %}
+                    {% for i in range(pagination.pages - 6, pagination.pages) %}
                         {% if i == pagination.getCurrent %}
                             <li class="active "><span>{{ i }} <span class="sr-only">(current)</span></span></li>
                         {% else %}
@@ -66,7 +66,7 @@
                         <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
                     {% endfor %}
                     <li class="disabled "><a href="#">...</a></li>
-                    {% for i in range(pagination.current -1, pagination.current +2) %}
+                    {% for i in range(pagination.current - 1, pagination.current + 2) %}
                         {% if i == pagination.getCurrent %}
                             <li class="active "><span>{{ i }} <span class="sr-only">(current)</span></span></li>
                         {% else %}
@@ -74,7 +74,7 @@
                         {% endif %}
                     {% endfor %}
                     <li class="disabled "><a href="#">...</a></li>
-                    {% for i in range(pagination.pages -2, pagination.pages) %}
+                    {% for i in range(pagination.pages - 2, pagination.pages) %}
                         <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
                     {% endfor %}
                     <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
@@ -89,14 +89,14 @@
     {% if pagination and pagination.getPages > 1 %}
         <ul class="pager">
             {% if pagination.current > 1 %}
-            <li class="previous"><a href="{{ pagination.pageUrl(pagination.current -1) }}">{{ translate('Previous') }}</a></li>
+            <li class="previous"><a href="{{ pagination.pageUrl(pagination.current - 1) }}">{{ translate('Previous') }}</a></li>
             {% else %}
             <li class="previous disabled"><a href="#">{{ translate('Previous') }}</a></li>
             {% endif %}
             {% if pagination.getCurrent >= pagination.getPages %}
                 <li class="next disabled"><a href="#">{{ translate('Next') }}</a></li>
             {% else %}
-                <li class="next"><a href="{{ pagination.pageUrl(pagination.current +1) }}">{{ translate('Next') }}</a></li>
+                <li class="next"><a href="{{ pagination.pageUrl(pagination.current + 1) }}">{{ translate('Next') }}</a></li>
             {% endif %}
         </ul>
     {% else %}

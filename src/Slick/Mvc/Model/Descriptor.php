@@ -44,15 +44,15 @@ class Descriptor extends Base
 
     /**
      * @readwrite
-     * @var string
+     * @var array
      */
-    protected $_modelPlural;
+    protected $_modelPlural = [];
 
     /**
      * @readwrite
-     * @var string
+     * @var array
      */
-    protected $_modelSingular;
+    protected $_modelSingular = [];
 
     /**
      * @readwrite
@@ -140,12 +140,12 @@ class Descriptor extends Base
      */
     public function modelPlural(RelationInterface $relation)
     {
-        if (is_null($this->_modelPlural)) {
+        if (!isset($this->_modelPlural[$relation->getPropertyName()])) {
             $parts = explode('\\', $relation->getRelatedEntity());
             $name = strtolower(end($parts));
-            $this->_modelPlural = Text::plural($name);
+            $this->_modelPlural[$relation->getPropertyName()] = Text::plural($name);
         }
-        return $this->_modelPlural;
+        return $this->_modelPlural[$relation->getPropertyName()];
     }
 
     /**
@@ -157,11 +157,11 @@ class Descriptor extends Base
      */
     public function modelSingular(RelationInterface $relation)
     {
-        if (is_null($this->_modelSingular)) {
+        if (!isset($this->_modelSingular[$relation->getPropertyName()])) {
             $parts = explode('\\', $relation->getRelatedEntity());
-            $this->_modelSingular = strtolower(end($parts));
+            $this->_modelSingular[$relation->getPropertyName()] = strtolower(end($parts));
         }
-        return $this->_modelSingular;
+        return $this->_modelSingular[$relation->getPropertyName()];
     }
 
     /**

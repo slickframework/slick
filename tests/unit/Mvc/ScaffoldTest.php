@@ -69,7 +69,7 @@ class ScaffoldTest extends Test
             $scaffold->getController()
         );
 
-        $this->assertEquals('Models\MyScaffoldController', $scaffold->modelName);
+        $this->assertEquals('Models\Myscaffoldcontroller', $scaffold->modelName);
         $this->assertEquals('myscaffoldcontrollers', $scaffold->get('modelPlural'));
         $this->assertEquals('myscaffoldcontroller', $scaffold->get('modelSingular'));
         $scaffold->setModelName("Models\\User");

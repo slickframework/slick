@@ -218,4 +218,37 @@ class Scaffold extends Controller
         $descriptor =  $this->getDescriptor();
         $this->set(compact('record', 'descriptor'));
     }
+
+    /**
+     * Handles the request to delete a record
+     */
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            $recordId = StaticFilter::filter(
+                'text',
+                $this->request->getPost('id')
+            );
+
+            $record = call_user_func_array(
+                [$this->getModelName(), 'get'],
+                [$recordId]
+            );
+
+            if (is_null($record)) {
+                $this->addWarningMessage(
+                    "The {$this->get('modelSingular')} with the provided key ".
+                    "does not exists."
+                );
+            } else {
+                if ($record->delete()) {
+                    $this->addSuccessMessage(
+                        "The {$this->get('modelSingular')} was successfully " .
+                        "deleted."
+                    );
+                }
+            }
+        }
+        return $this->redirect($this->get('modelPlural'));
+    }
 }

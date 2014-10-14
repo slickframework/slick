@@ -42,12 +42,12 @@
                         {% if loop.first %}
                         <td>
                             <a href="{{ url(modelPlural~'/show/'~attribute(record, descriptor.getPrimaryKey)) }}">
-                            {{ attribute(record, column.field) }}
+                            {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw}}
                             </a>
                         </td>
                         {% else %}
                         <td class="hidden-xs">
-                            {{ attribute(record, column.field) }}
+                            {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw }}
                         </td>
                         {% endif %}
                         {% endfor %}

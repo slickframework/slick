@@ -12,7 +12,7 @@
                 <dl class="dl-horizontal">
                     {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
                     <dt>{{ column.field|capitalize }}:</dt>
-                    <dd>{{ attribute(record, column.field) }}</dd>
+                    <dd>{{ attribute(record, column.field)|wordwrap(80, '<br>')|raw }}</dd>
                     {% endfor %}
                 </dl>
             </div>
@@ -40,8 +40,8 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs">
                 {% for relation in descriptor.getRelations %}
-                <li class="active">
-                    {% if relation.isSingle %}
+                <li class="{{ loop.first ? 'active' }}">
+                    {% if relation.isSingleResult %}
                     <a href="#tab-{{ descriptor.modelSingular(relation) }}" data-toggle="tab">
                         {{ descriptor.modelSingular(relation)|capitalize }}
                     </a>
@@ -59,7 +59,7 @@
                 {% for relation in descriptor.getRelations %}
                     {% set object = attribute(record, relation.getPropertyName) %}
                     {% if relation.isSingleResult %}
-                        <div class="tab-pane active" id="tab-{{ descriptor.modelSingular(relation) }}">
+                        <div class="tab-pane {{ loop.first ? 'active' }}" id="tab-{{ descriptor.modelSingular(relation) }}">
                             <br />
                             <div class="entity-data">
                                 <dl class="dl-horizontal">
@@ -82,9 +82,66 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="tab-pane active" id="tab-{{ descriptor.modelPlural(relation) }}">
+                        <div class="tab-pane {{ loop.first ? 'active' }}" id="tab-{{ descriptor.modelPlural(relation) }}">
                             <br />
-                            ----
+                            {% set records = attribute(record, relation.getPropertyName) %}
+                            {% if records|length > 0 %}
+                            <table class="table table-bordered table-condensed table-hover">
+                                <thead>
+                                <tr>
+                                    {% for column in descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey')%}
+                                        {% if loop.first %}
+                                            <th>
+                                                {{ column.field|capitalize }}
+                                            </th>
+                                        {% else %}
+                                            <th class="hidden-xs">
+                                                {{ column.field|capitalize }}
+                                            </th>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for relation in descriptor.getRelationDescriptor(relation).getRelations if relation.isSingleResult %}
+                                        <th class="hidden-xs">
+                                            {{ relation.getPropertyName|capitalize }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for record in records %}
+                                    <tr>
+                                        {% for column in descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey')%}
+                                            {% if loop.first %}
+                                                <td>
+                                                    <a href="{{ url(descriptor.modelPlural(relation)~'/show/'~attribute(record, descriptor.getRelationDescriptor(relation).getPrimaryKey)) }}">
+                                                        {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw }}
+                                                    </a>
+                                                </td>
+                                            {% else %}
+                                                <td class="hidden-xs">
+                                                    {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw }}
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for relation in descriptor.getRelationDescriptor(relation).getRelations if relation.isSingleResult %}
+                                            <td class="hidden-xs">
+                                                {{ attribute(record, relation.getPropertyName)|truncate(150) }}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                                <hr>
+                                <div class="show-actions">
+                                    <a href="{{ url(descriptor.modelPlural(relation)) }}" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-list-alt"></span>
+                                        &nbsp;Manage {{ descriptor.modelPlural(relation) }}</a>
+                                    &nbsp;
+                                </div>
+                            {% else %}
+                                There are no {{ descriptor.modelPlural(relation) }} to show up here.
+                            {% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}
