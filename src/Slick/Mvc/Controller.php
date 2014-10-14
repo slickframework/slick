@@ -107,6 +107,8 @@ class Controller extends Base
      * Sends a redirection header and exits execution.
      *
      * @param array|string $url The url to redirect to.
+     *
+     * @return self
      */
     public function redirect($url)
     {
@@ -115,7 +117,7 @@ class Controller extends Base
         $this->_response->setStatusCode(302);
         $header = new GenericHeader('Location', $location);
         $this->_response->getHeaders()->addHeader($header);
-        $this->disableRendering();
+        return $this->disableRendering();
     }
 
     /**

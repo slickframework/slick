@@ -89,7 +89,15 @@ class Scaffold extends Controller
     public static function getScaffoldController(
         Controller $instance, $options = [])
     {
-        $options = array_merge(['controller' => $instance], $options);
+
+        $options = array_merge(
+            [
+                'controller' => $instance,
+                'request' => $instance->request,
+                'response' => $instance->response
+            ],
+            $options
+        );
         return new static($options);
     }
 
@@ -181,5 +189,33 @@ class Scaffold extends Controller
         );
         $records = $query->all();
         $this->set(compact('pagination', 'records', 'pattern', 'descriptor'));
+    }
+
+    /**
+     * Handles the request to display show page
+     *
+     * @param int $recordId
+     */
+    public function show($recordId = 0)
+    {
+        $this->view = 'scaffold/show';
+        $recordId = StaticFilter::filter('number', $recordId);
+
+        $record = call_user_func_array(
+            [$this->getModelName(), 'get'],
+            [$recordId]
+        );
+
+        if (is_null($record)) {
+            $this->addWarningMessage(
+                    "The {$this->get('modelSingular')} with the provided key ".
+                    "does not exists."
+                );
+
+            $this->redirect($this->get('modelPlural'));
+            return;
+        }
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('record', 'descriptor'));
     }
 }

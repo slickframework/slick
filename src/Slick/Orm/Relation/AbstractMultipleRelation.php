@@ -28,6 +28,12 @@ abstract class AbstractMultipleRelation extends AbstractRelation
     protected $_limit = 100;
 
     /**
+     * @readwrite
+     * @var bool
+     */
+    protected $_singleResult = false;
+
+    /**
      * Returns the limit rows retrieved with this relation
      *
      * @return int

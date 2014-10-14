@@ -129,8 +129,8 @@ class Dispatcher extends Base
                 $controller,
                 $method
             ),
-            is_array($this->_routeInfo->params) ?
-                $this->_routeInfo->params : []
+            is_array($this->_routeInfo->getArguments()) ?
+                $this->_routeInfo->getArguments() : []
         );
 
         $hooks($methodMeta, "@after");
@@ -179,7 +179,7 @@ class Dispatcher extends Base
     protected function _render()
     {
         $response = $this->_application->response;
-        $body = '';
+        $body = null;
         $this->_controller->set(
             'flashMessages', $this->_controller->flashMessages
         );

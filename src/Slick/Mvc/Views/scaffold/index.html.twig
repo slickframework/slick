@@ -5,21 +5,7 @@
         {{ modelPlural|capitalize }}
     </h2>
 
-    <div class="btn-group hidden-xs quick-access">
-        <a class="btn btn-default" href="{{ url('') }}">
-            <span class="glyphicon glyphicon-home"></span>
-            Home
-        </a>
-        <a class="btn btn-default active" href="{{ url(modelPlural) }}">
-            <span class="glyphicon glyphicon-list-alt"></span>
-            Manage {{ modelPlural }}
-        </a>
-        <a class="btn btn-default" href="{{ url(modelPlural~"/add") }}">
-            <span class="glyphicon glyphicon-plus"></span>
-            Add {{ modelSingular }}
-        </a>
-    </div>
-    <br>&nbsp;
+    {% include 'scaffold/quick-links.twig' with {"page": "index"} %}
 
     <div class="panel panel-default">
         {% include 'elements/panel-heading.twig' %}
@@ -29,21 +15,45 @@
                 <thead>
                     <tr>
                         {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
-                            <td>
+                            {% if loop.first %}
+                            <th>
                                 {{ column.field|capitalize }}
-                            </td>
+                            </th>
+                            {% else %}
+                            <th class="hidden-xs">
+                                {{ column.field|capitalize }}
+                            </th>
+                            {% endif %}
                         {% endfor %}
-                        <td class="table-actions">
+                        {% for relation in descriptor.getRelations if relation.isSingleResult %}
+                            <th class="hidden-xs">
+                                {{ relation.getPropertyName|capitalize }}
+                            </th>
+                        {% endfor %}
+                        <th class="table-actions">
                             Actions
-                        </td>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in records %}
                     <tr>
                         {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                        {% if loop.first %}
                         <td>
+                            <a href="{{ url(modelPlural~'/show/'~attribute(record, descriptor.getPrimaryKey)) }}">
                             {{ attribute(record, column.field) }}
+                            </a>
+                        </td>
+                        {% else %}
+                        <td class="hidden-xs">
+                            {{ attribute(record, column.field) }}
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                        {% for relation in descriptor.getRelations if relation.isSingleResult %}
+                        <td class="hidden-xs">
+                            {{ attribute(record, relation.getPropertyName) }}
                         </td>
                         {% endfor %}
                         <td class="table-actions">{{ tableRecord.getActions(record, modelPlural, modelSingular) }}</td>

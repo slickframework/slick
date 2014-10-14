@@ -28,7 +28,10 @@ use Slick\Common\Inspector\Annotation;
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property string|array $conditions Extra load conditions.
+ * @property bool $singleResult
  *
+ * @method bool isSingleResult() Returns true if this relation returns
+ * a single result
  * @method AbstractRelation setContainer(Container $container)
  * Sets dependency container
  * @method AbstractRelation setConditions($conditions) Sets an extra
@@ -78,6 +81,12 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * @var string|array
      */
     protected $_conditions;
+
+    /**
+     * @readwrite
+     * @var bool
+     */
+    protected $_singleResult = true;
 
     /**
      * Returns the entity that defines the relation

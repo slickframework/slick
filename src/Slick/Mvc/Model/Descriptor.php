@@ -15,6 +15,8 @@ namespace Slick\Mvc\Model;
 use Slick\Common\Base;
 use Slick\Orm\Annotation\Column;
 use Slick\Orm\Entity\Descriptor as SlickOrmDescriptor;
+use Slick\Orm\RelationInterface;
+use Slick\Utility\Text;
 
 /**
  * MVC Model descriptor
@@ -39,6 +41,24 @@ class Descriptor extends Base
      * @var SlickOrmDescriptor
      */
     protected $_descriptor;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_modelPlural;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_modelSingular;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_primaryKey;
 
     /**
      * Returns the display field name
@@ -86,5 +106,94 @@ class Descriptor extends Base
     public function getColumns()
     {
         return $this->getDescriptor()->getColumns();
+    }
+
+    /**
+     * Returns the list of relations of current entity
+     *
+     * @return RelationInterface[]
+     */
+    public function getRelations()
+    {
+        return $this->getDescriptor()->getRelations();
+    }
+
+    /**
+     * Returns the relation defined in the provided property name, or false
+     * if there is no relation defined with that name.
+     *
+     * @param string $name
+     *
+     * @return bool|RelationInterface
+     */
+    public function getRelation($name)
+    {
+        return $this->getDescriptor()->getRelation($name);
+    }
+
+    /**
+     * Returns the plural form of the class name
+     *
+     * @param RelationInterface $relation
+     *
+     * @return string
+     */
+    public function modelPlural(RelationInterface $relation)
+    {
+        if (is_null($this->_modelPlural)) {
+            $parts = explode('\\', $relation->getRelatedEntity());
+            $name = strtolower(end($parts));
+            $this->_modelPlural = Text::plural($name);
+        }
+        return $this->_modelPlural;
+    }
+
+    /**
+     * Returns the singular form of the class name
+     *
+     * @param RelationInterface $relation
+     *
+     * @return string
+     */
+    public function modelSingular(RelationInterface $relation)
+    {
+        if (is_null($this->_modelSingular)) {
+            $parts = explode('\\', $relation->getRelatedEntity());
+            $this->_modelSingular = strtolower(end($parts));
+        }
+        return $this->_modelSingular;
+    }
+
+    /**
+     * Returns model primary key name
+     *
+     * @return string
+     */
+    public function getPrimaryKey()
+    {
+        if (is_null($this->_primaryKey)) {
+            $this->_primaryKey = $this->getDescriptor()
+                ->getEntity()->getPrimaryKey();
+        }
+        return $this->_primaryKey;
+    }
+
+    /**
+     * Returns the column of a given relation
+     *
+     * @param RelationInterface $relation
+     *
+     * @return Descriptor
+     */
+    public function getRelationDescriptor(RelationInterface $relation)
+    {
+        return Manager::getInstance()
+            ->get(
+                new SlickOrmDescriptor(
+                    [
+                        'entity' => $relation->getRelatedEntity()
+                    ]
+                )
+            );
     }
 }

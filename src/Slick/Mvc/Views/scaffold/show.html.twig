@@ -1,0 +1,95 @@
+{% import "elements/table-record.actions.html.twig" as tableRecord %}
+<div class="entity-show">
+    <h2 class="section-header">
+        View {{ record }}
+    </h2>
+
+    {% include 'scaffold/quick-links.twig' with {"page": "show"} %}
+
+    <div class="entity panel panel-default">
+        <div class="panel-body">
+            <div class="entity-data">
+                <dl class="dl-horizontal">
+                    {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                    <dt>{{ column.field|capitalize }}:</dt>
+                    <dd>{{ attribute(record, column.field) }}</dd>
+                    {% endfor %}
+                </dl>
+            </div>
+            <hr>
+            <div class="show-actions">
+                <a href="{{ url(modelPlural ~"/edit/" ~ attribute(record, descriptor.getPrimaryKey)) }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    &nbsp;Edit {{ modelSingular }}</a>
+
+                &nbsp;
+                <a href=".delete{{ attribute(record, descriptor.getPrimaryKey) }}" class="btn btn-warning" data-toggle="modal">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    &nbsp;Delete {{ modelSingular }}
+                </a>
+
+                {{ tableRecord.createDialog(record, modelPlural, modelSingular) }}
+
+            </div>
+        </div>
+    </div>
+
+    {% if descriptor.getRelations|length > 0 %}
+    <div class="entity-related-data panel panel-default">
+        <div class="panel-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+                {% for relation in descriptor.getRelations %}
+                <li class="active">
+                    {% if relation.isSingle %}
+                    <a href="#tab-{{ descriptor.modelSingular(relation) }}" data-toggle="tab">
+                        {{ descriptor.modelSingular(relation)|capitalize }}
+                    </a>
+                    {% else %}
+                    <a href="#tab-{{ descriptor.modelPlural(relation) }}" data-toggle="tab">
+                        {{ descriptor.modelPlural(relation)|capitalize }}
+                    </a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                {% for relation in descriptor.getRelations %}
+                    {% set object = attribute(record, relation.getPropertyName) %}
+                    {% if relation.isSingleResult %}
+                        <div class="tab-pane active" id="tab-{{ descriptor.modelSingular(relation) }}">
+                            <br />
+                            <div class="entity-data">
+                                <dl class="dl-horizontal">
+                                    {% for column in descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey')%}
+                                        <dt>{{ column.field|capitalize }}:</dt>
+                                        <dd>{{ attribute(object, column.field) }}</dd>
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                            <hr>
+                            <div class="show-actions">
+                                <a href="{{ url(descriptor.modelPlural(relation) ~"/show/" ~ attribute(object, descriptor.getRelationDescriptor(relation).getPrimaryKey)) }}" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                    &nbsp;View {{ descriptor.modelSingular(relation) }}</a>
+                                &nbsp;
+                                <a href="{{ url(descriptor.modelPlural(relation) ~"/edit/" ~ attribute(object, descriptor.getRelationDescriptor(relation).getPrimaryKey)) }}" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                    &nbsp;Edit {{ descriptor.modelSingular(relation) }}</a>
+
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="tab-pane active" id="tab-{{ descriptor.modelPlural(relation) }}">
+                            <br />
+                            ----
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

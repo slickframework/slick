@@ -67,7 +67,7 @@ class Select extends DatabaseSelect
         $events->trigger(SelectEvent::AFTER_SELECT, $this->_entity, $event);
         $class = $this->_entity->getClassName();
         $recordList = new RecordList();
-        foreach ($result as $row) {
+        foreach ($event->data as $row) {
             $recordList[] = new $class($row);
         }
         return $recordList;
