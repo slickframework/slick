@@ -1,0 +1,50 @@
+{{ '<?php'|raw }}
+
+/**
+ * {{ command.getControllerSimpleName }}
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace {{ command.getNamespace }};
+
+use {{ command.getModelName|raw }};
+use Slick\Database\Exception;
+use Slick\Filter\StaticFilter;
+use Slick\Mvc\Libs\Utils\Pagination;
+
+/**
+ * {{ command.getControllerSimpleName }} controller
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ */
+class {{ command.getControllerSimpleName  }} extends Controller
+{
+
+{% block body %}
+    /**
+     * Handles the request to display index page
+     */
+    public function index()
+    {
+        $pagination = new Pagination();
+        $pattern = StaticFilter::filter(
+            'text',
+            $this->request->getQuery('pattern', null)
+        );
+
+        $query = {{ command.getModelSimpleName }}::find()
+            ->where(
+                [
+                    "{$tableName}.{$field} LIKE :pattern" => [
+                        ':pattern' => "%{$pattern}%"
+                    ]
+                ]
+            );
+    }
+
+{% endblock %}
+}
