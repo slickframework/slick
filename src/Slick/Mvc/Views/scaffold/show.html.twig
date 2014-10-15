@@ -12,7 +12,7 @@
                 <dl class="dl-horizontal">
                     {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
                     <dt>{{ column.field|capitalize }}:</dt>
-                    <dd>{{ attribute(record, column.field)|wordwrap(80, '<br>')|raw }}</dd>
+                    <dd>{{ attribute(record, column.field)|wordwrap(80, '<br>')|raw|nl2br }}</dd>
                     {% endfor %}
                 </dl>
             </div>
@@ -74,11 +74,6 @@
                                 <a href="{{ url(descriptor.modelPlural(relation) ~"/show/" ~ attribute(object, descriptor.getRelationDescriptor(relation).getPrimaryKey)) }}" class="btn btn-default">
                                     <span class="glyphicon glyphicon-eye-open"></span>
                                     &nbsp;View {{ descriptor.modelSingular(relation) }}</a>
-                                &nbsp;
-                                <a href="{{ url(descriptor.modelPlural(relation) ~"/edit/" ~ attribute(object, descriptor.getRelationDescriptor(relation).getPrimaryKey)) }}" class="btn btn-primary">
-                                    <span class="glyphicon glyphicon-pencil"></span>
-                                    &nbsp;Edit {{ descriptor.modelSingular(relation) }}</a>
-
                             </div>
                         </div>
                     {% else %}

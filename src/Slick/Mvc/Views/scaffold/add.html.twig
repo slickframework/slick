@@ -1,0 +1,11 @@
+<div class="add-{{ modelSingular }}">
+    <h2 class="section-header">
+        Add new {{ modelSingular }}
+    </h2>
+
+    {% include 'scaffold/quick-links.twig' with {"page": "add"} %}
+
+    <div class="form-wrapper">
+        {{ form.render|raw }}
+    </div>
+</div>

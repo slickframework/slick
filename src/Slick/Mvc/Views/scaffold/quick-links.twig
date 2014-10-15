@@ -8,7 +8,7 @@
             <span class="glyphicon glyphicon-list-alt"></span>
             Manage {{ modelPlural }}
         </a>
-        <a class="btn btn-default {{ page == 'index' ? 'add' }}" href="{{ url(modelPlural~"/add") }}">
+        <a class="btn btn-default {{ page == 'add' ? 'active' }}" href="{{ url(modelPlural~"/add") }}">
             <span class="glyphicon glyphicon-plus"></span>
             Add {{ modelSingular }}
         </a>

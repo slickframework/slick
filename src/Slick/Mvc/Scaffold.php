@@ -12,9 +12,11 @@
 
 namespace Slick\Mvc;
 
+use Slick\Mvc\Scaffold\Form;
 use Slick\Utility\Text;
 use Slick\Orm\Sql\Select;
 use Slick\Template\Template;
+use Slick\Database\Exception;
 use Slick\Orm\Entity\Manager;
 use Slick\Filter\StaticFilter;
 use Slick\Mvc\Model\Descriptor;
@@ -217,6 +219,47 @@ class Scaffold extends Controller
         }
         $descriptor =  $this->getDescriptor();
         $this->set(compact('record', 'descriptor'));
+    }
+
+    /**
+     * Handles the request to add page
+     */
+    public function add()
+    {
+        $this->view = 'scaffold/add';
+        $form = new Form(
+            "add-{$this->get('modelSingular')}", $this->getDescriptor()
+        );
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                try {
+                    $modelClass = $this->getModelName();
+                    /** @var Model $model */
+                    $model = new $modelClass($form->getValues());
+                    $model->save();
+                    $name = ucfirst($this->get('modelSingular'));
+                    $this->addSuccessMessage(
+                        "{$name} successfully created."
+                    );
+                    $pmk = $model->getPrimaryKey();
+                    return $this->redirect(
+                        $this->get('modelPlural').'/show/'.$model->$pmk
+                    );
+                } catch (Exception $exp) {
+                    $this->addErrorMessage(
+                        "Error while saving {$this->get('modelSingular')}} " .
+                        "data: {$exp->getMessage()}"
+                    );
+                }
+            } else {
+                $this->addErrorMessage(
+                    "Cannot save {$this->get('modelSingular')}}. " .
+                    "Please correct the errors bellow."
+                );
+            }
+        }
+        $this->set(compact('form'));
     }
 
     /**
