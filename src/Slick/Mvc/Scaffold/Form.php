@@ -13,16 +13,14 @@
 namespace Slick\Mvc\Scaffold;
 
 use Slick\Common\Inspector;
-use Slick\Form\Element\Text;
-use Slick\Form\Element\Area;
-use Slick\Form\Element\Hidden;
 use Slick\Form\Element\Submit;
+use Slick\Orm\Relation\HasMany;
+use Slick\Orm\Relation\HasOne;
 use Slick\Mvc\Model\Descriptor;
-use Slick\Form\Element\DateTime;
-use Slick\Form\Element\Checkbox;
 use Slick\Orm\Annotation\Column;
 use Slick\Orm\RelationInterface;
 use Slick\Form\Form as SlickFrom;
+use Slick\Orm\Relation\HasAndBelongsToMany;
 
 /**
  * Form
@@ -60,6 +58,20 @@ class Form extends SlickFrom
     private $_inspector;
 
     /**
+     * @var array
+     */
+    private $_validations = [
+        'notEmpty', 'email', 'url', 'number', 'alphaNumeric'
+    ];
+
+    /**
+     * @var array
+     */
+    private $_filters = [
+        'text', 'htmlEntities', 'number', 'url'
+    ];
+
+    /**
      * Add elements to the form based on the model notations
      *
      * @param string $name
@@ -70,8 +82,10 @@ class Form extends SlickFrom
         $this->_descriptor = $descriptor;
         $this->_columns = $this->_descriptor->getColumns();
         $this->_relations = $this->_descriptor->getRelations();
-        $inspector = new Inspector($this->_descriptor->getDescriptor()->getEntity());
-        $this->_properties = $inspector->getClassProperties();
+        $this->_inspector = new Inspector(
+            $this->_descriptor->getDescriptor()->getEntity()
+        );
+        $this->_properties = $this->_inspector->getClassProperties();
         parent::__construct($name);
     }
 
@@ -83,7 +97,7 @@ class Form extends SlickFrom
         foreach ($this->_properties as $property) {
             $element = $this->_createElement($property);
             if ($element) {
-                $this->add($element);
+                $this->addElement($element['name'], $element);
             }
         }
         $this->add(
@@ -101,6 +115,12 @@ class Form extends SlickFrom
                 $this->_columns[$property]
             );
         }
+        if (isset($this->_relations[$property])) {
+            return $this->_createFromRelation(
+                $property,
+                $this->_relations[$property]
+            );
+        }
         return false;
     }
 
@@ -109,21 +129,61 @@ class Form extends SlickFrom
         $name = trim($property, '_');
         $options = [
             'name' => $name,
-            'label' => ucfirst($name)
+            'label' => ucfirst($name),
+            'type' => 'text'
         ];
-        $element = new Text($options);
+        $this->_addValidateOptions($property, $options);
         if ($column->getParameter('primaryKey')) {
-            $element = new Hidden($options);
+            $options['type'] = 'hidden';
         }
         if ($column->getParameter('size') == 'big') {
-            $element = new Area($options);
+            $options['type'] = 'area';
         }
         if ($column->getParameter('type') == 'boolean') {
-            $element = new Checkbox($options);
+            $options['type'] = 'checkbox';
         }
         if ($column->getParameter('type') == 'datetime') {
-            $element = new DateTime($options);
+            $options['type'] = 'dateTime';
         }
-        return $element;
+        return $options;
+    }
+
+    protected function _createFromRelation(
+        $property, RelationInterface $relation)
+    {
+        if (($relation instanceof HasOne) || ($relation instanceof HasMany)) {
+            return false;
+        }
+        $name = trim($property, '_');
+        $options = [
+            'name' => $name,
+            'label' => ucfirst($name),
+            'type' => 'select'
+        ];
+        if ($relation instanceof HasAndBelongsToMany) {
+            $options['type'] = 'selectMultiple';
+        }
+        $this->_addValidateOptions($property, $options);
+        $optionsList = call_user_func(
+            [$relation->getRelatedEntity(), 'getList']
+        );
+        $options['options'] = $optionsList;
+
+        return $options;
+    }
+
+    protected function _addValidateOptions($property, array &$options)
+    {
+        $metaData = $this->_inspector->getPropertyAnnotations($property);
+        if ($metaData->hasAnnotation('@validate')) {
+            /** @var Inspector\Annotation $annotation */
+            $annotation = $metaData->getAnnotation('@validate');
+            $validators = $annotation->allValues();
+            foreach ($validators as $validator) {
+                if (in_array($validator, $this->_validations)) {
+                    $options['validate'][] = $validator;
+                }
+            }
+        }
     }
 }

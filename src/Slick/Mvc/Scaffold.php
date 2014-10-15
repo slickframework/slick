@@ -243,9 +243,10 @@ class Scaffold extends Controller
                         "{$name} successfully created."
                     );
                     $pmk = $model->getPrimaryKey();
-                    return $this->redirect(
+                    $this->redirect(
                         $this->get('modelPlural').'/show/'.$model->$pmk
                     );
+                    return;
                 } catch (Exception $exp) {
                     $this->addErrorMessage(
                         "Error while saving {$this->get('modelSingular')}} " .
@@ -254,12 +255,74 @@ class Scaffold extends Controller
                 }
             } else {
                 $this->addErrorMessage(
-                    "Cannot save {$this->get('modelSingular')}}. " .
+                    "Cannot save {$this->get('modelSingular')}. " .
                     "Please correct the errors bellow."
                 );
             }
         }
-        $this->set(compact('form'));
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('form', 'descriptor'));
+    }
+
+    public function edit($recordId = 0)
+    {
+        $this->view = 'scaffold/edit';
+        $recordId = StaticFilter::filter('number', $recordId);
+
+        /** @var Model $record */
+        $record = call_user_func_array(
+            [$this->getModelName(), 'get'],
+            [$recordId]
+        );
+
+        if (is_null($record)) {
+            $this->addWarningMessage(
+                "The {$this->get('modelSingular')} with the provided key ".
+                "does not exists."
+            );
+
+            $this->redirect($this->get('modelPlural'));
+            return;
+        }
+
+        $form = new Form(
+            "edit-{$this->get('modelSingular')}", $this->getDescriptor()
+        );
+
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                try {
+                    $modelClass = $this->getModelName();
+                    /** @var Model $model */
+                    $model = new $modelClass($form->getValues());
+                    $model->save();
+                    $name = ucfirst($this->get('modelSingular'));
+                    $this->addSuccessMessage(
+                        "{$name} successfully updated."
+                    );
+                    $pmk = $model->getPrimaryKey();
+                    $this->redirect(
+                        $this->get('modelPlural').'/show/'.$model->$pmk
+                    );
+                    return;
+                } catch (Exception $exp) {
+                    $this->addErrorMessage(
+                        "Error while saving {$this->get('modelSingular')}} " .
+                        "data: {$exp->getMessage()}"
+                    );
+                }
+            } else {
+                $this->addErrorMessage(
+                    "Cannot save {$this->get('modelSingular')}. " .
+                    "Please correct the errors bellow."
+                );
+            }
+        } else {
+            $form->setData($record->asArray());
+        }
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('form', 'record', 'descriptor'));
     }
 
     /**

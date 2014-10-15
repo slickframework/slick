@@ -278,6 +278,10 @@ abstract class AbstractElement extends Base implements ElementInterface
 
         $parts = [];
         foreach ($this->_attributes as $key => $value) {
+            if (is_numeric($key)) {
+                $parts[] = $value;
+                continue;
+            }
             $parts[] = "{$key} = \"{$value}\"";
         }
         return implode(' ', $parts);

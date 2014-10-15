@@ -37,6 +37,7 @@ class Factory extends Base
         'select' => 'Slick\Form\Element\Select',
         'area' => 'Slick\Form\Element\Area',
         'checkbox' => 'Slick\Form\Element\Checkbox',
+        'selectMultiple' => 'Slick\Form\Element\SelectMultiple',
     ];
 
     /**
