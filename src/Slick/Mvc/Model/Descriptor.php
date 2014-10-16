@@ -61,6 +61,12 @@ class Descriptor extends Base
     protected $_primaryKey;
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $_tableName;
+
+    /**
      * Returns the display field name
      *
      * The display field is used to print out the model instance name
@@ -195,5 +201,19 @@ class Descriptor extends Base
                     ]
                 )
             );
+    }
+
+    /**
+     * Returns model table name
+     *
+     * @return string
+     */
+    public function getTableName()
+    {
+        if (is_null($this->_tableName)) {
+            $this->_tableName = $this->getDescriptor()->getEntity()
+                ->getTableName();
+        }
+        return $this->_tableName;
     }
 }

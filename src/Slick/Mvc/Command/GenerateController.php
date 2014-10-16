@@ -13,6 +13,7 @@
 namespace Slick\Mvc\Command;
 
 use Slick\Mvc\Command\Task\GenerateScaffoldController;
+use Slick\Mvc\Command\Task\GenerateController as GenerateControllerTask;
 use Slick\Mvc\Command\Utils\ControllerData;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -105,6 +106,15 @@ class GenerateController extends Command
 
         if ($input->getOption('scaffold')) {
             $task = new GenerateScaffoldController(
+                [
+                    'command' => $this,
+                    'controllerData' => $controllerData,
+                    'path' => $path
+                ]
+            );
+            $task->run($input, $output);
+        } else {
+            $task = new GenerateControllerTask(
                 [
                     'command' => $this,
                     'controllerData' => $controllerData,

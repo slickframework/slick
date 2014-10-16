@@ -11,6 +11,7 @@
 namespace {{ command.getNamespace }};
 
 use {{ command.getModelName|raw }};
+use Slick\Mvc\Controller;
 use Slick\Database\Exception;
 use Slick\Filter\StaticFilter;
 use Slick\Mvc\Libs\Utils\Pagination;
@@ -39,11 +40,80 @@ class {{ command.getControllerSimpleName  }} extends Controller
         $query = {{ command.getModelSimpleName }}::find()
             ->where(
                 [
-                    "{$tableName}.{$field} LIKE :pattern" => [
+                    "{{ command.descriptor.tableName }}.{{ command.descriptor.displayField }} LIKE :pattern" => [
                         ':pattern' => "%{$pattern}%"
                     ]
                 ]
             );
+
+        $pagination->setTotal($query->count());
+        $query->limit(
+            $pagination->rowsPerPage,
+            $pagination->offset
+        );
+
+        ${{ command.getModelPlural }} = $query->all();
+        $this->set(compact('pagination', '{{ command.getModelPlural }}', 'pattern'));
+    }
+
+    /**
+     * Handles the request to display show page
+     *
+     * @param int ${{ command.getModelSingular }}Id
+     */
+    public function show(${{ command.getModelSingular }}Id = 0)
+    {
+        ${{ command.getModelSingular }}Id = StaticFilter::filter('number', ${{ command.getModelSingular }}Id);
+        ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get(${{ command.getModelSingular }}Id);
+
+        if (is_null(${{ command.getModelSingular }})) {
+            $this->addWarningMessage(
+                $this->translate(
+                    "The {{ command.getModelSingular }} with the provided key does not exists."
+                )
+            );
+            $this->redirect('{{ command.getModelPlural }}');
+            return;
+        }
+        $this->set(compact('{{ command.getModelSingular }}'));
+    }
+
+    /**
+     * Handles the request to add page
+     */
+    public function add()
+    {
+        $form = new Forms\{{ command.getModelSimpleName }}Form('add-{{ command.getModelSimpleName }}');
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                try {
+                    ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getValues());
+                    ${{ command.getModelSingular }}->save();
+                    $this->addSuccessMessage(
+                        $this->translate(
+                            "{{ command.getModelSingular|capitalize }} successfully created."
+                        )
+                    );
+                    $this->redirect('{{ command.getModelSingular }}/show/' . ${{ command.getModelSingular }}->{{ command.descriptor.primaryKey }});
+                    return;
+                } catch (Exception $exp) {
+                    $this->addErrorMessage(
+                        $this->translate(
+                            "Error while saving {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                        )
+                    );
+                }
+            } else {
+                $this->addErrorMessage(
+                    $this->translate(
+                        "Cannot save {{ command.getModelSingular }}. Please correct the errors bellow."
+                    )
+                );
+            }
+        }
+
+        $this->set(compact('form'));
     }
 
 {% endblock %}

@@ -13,6 +13,8 @@
 namespace Slick\Mvc\Command\Utils;
 
 use Slick\Common\Base;
+use Slick\Mvc\Model\Descriptor;
+use Slick\Orm\Entity\Manager;
 use Slick\Utility\Text;
 
 /**
@@ -24,6 +26,8 @@ use Slick\Utility\Text;
  * @property string $modelName
  * @property string $nameSpace
  * @property string $controllerName
+ *
+ * @method string getModelName()
  */
 class ControllerData extends Base
 {
@@ -44,6 +48,12 @@ class ControllerData extends Base
      * @var string
      */
     protected $_modelName;
+
+    /**
+     * @readwrite
+     * @var Descriptor
+     */
+    protected $_descriptor;
 
     /**
      * Sets controller namespace
@@ -133,5 +143,23 @@ class ControllerData extends Base
     public function getFormName()
     {
         return $this->getModelSimpleName() .'Form';
+    }
+
+    /**
+     * Returns the model descriptor object
+     *
+     * @return Descriptor
+     */
+    public function getDescriptor()
+    {
+        if (is_null($this->_descriptor)) {
+            $this->_descriptor = new Descriptor(
+                [
+                    'descriptor' => Manager::getInstance()
+                        ->get($this->getModelName())
+                ]
+            );
+        }
+        return $this->_descriptor;
     }
 }
