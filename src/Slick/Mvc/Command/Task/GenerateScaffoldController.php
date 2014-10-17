@@ -26,6 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package   Slick\Mvc\Command\Utils
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @method string getPath() Returns the file path
  */
 class GenerateScaffoldController extends Base implements TaskInterface
 {
@@ -55,6 +57,11 @@ class GenerateScaffoldController extends Base implements TaskInterface
     protected $_command;
 
     /**
+     * @var string
+     */
+    protected $_objectType = 'Controller';
+
+    /**
      * Set template path
      *
      * @param array $options
@@ -81,8 +88,8 @@ class GenerateScaffoldController extends Base implements TaskInterface
         $data = ['command' => $this->_controllerData];
         $content = $template->parse($this->_template)->process($data);
 
-        $fileName = $this->_controllerData->getControllerSimpleName() .'.php';
-        $folder = new Folder(['name' => $this->_path]);
+        $fileName = $this->_getFileName();
+        $folder = new Folder(['name' => $this->getPath()]);
 
         /** @var DialogHelper $dialog */
         $dialog = $this->_command->getHelperSet()->get('dialog');
@@ -103,9 +110,20 @@ class GenerateScaffoldController extends Base implements TaskInterface
         if ($save) {
             $folder->addFile($fileName)
                 ->write($content);
-            $output->writeln("<info>Controller file generated successfully!</info>");
+            $output->writeln("<info>{$this->_objectType} file generated successfully!</info>");
         } else {
-            $output->writeln("<comment>Controller file was not created.</comment>");
+            $output->writeln("<comment>{$this->_objectType} file was not created.</comment>");
         }
+        $output->writeln('');
+    }
+
+    /**
+     * Returns the file name to output
+     *
+     * @return string
+     */
+    protected function _getFileName()
+    {
+        return $this->_controllerData->getControllerSimpleName() .'.php';
     }
 }

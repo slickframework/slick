@@ -12,11 +12,11 @@
 
 namespace Slick\Mvc;
 
+use Slick\Database;
 use Slick\Mvc\Scaffold\Form;
 use Slick\Utility\Text;
 use Slick\Orm\Sql\Select;
 use Slick\Template\Template;
-use Slick\Database\Exception;
 use Slick\Orm\Entity\Manager;
 use Slick\Filter\StaticFilter;
 use Slick\Mvc\Model\Descriptor;
@@ -247,7 +247,7 @@ class Scaffold extends Controller
                         $this->get('modelPlural').'/show/'.$model->$pmk
                     );
                     return;
-                } catch (Exception $exp) {
+                } catch (Database\Exception $exp) {
                     $this->addErrorMessage(
                         "Error while saving {$this->get('modelSingular')}} " .
                         "data: {$exp->getMessage()}"
@@ -264,6 +264,11 @@ class Scaffold extends Controller
         $this->set(compact('form', 'descriptor'));
     }
 
+    /**
+     * Handles the request to edit page
+     *
+     * @param int $recordId
+     */
     public function edit($recordId = 0)
     {
         $this->view = 'scaffold/edit';
@@ -306,7 +311,7 @@ class Scaffold extends Controller
                         $this->get('modelPlural').'/show/'.$model->$pmk
                     );
                     return;
-                } catch (Exception $exp) {
+                } catch (Database\Exception $exp) {
                     $this->addErrorMessage(
                         "Error while saving {$this->get('modelSingular')}} " .
                         "data: {$exp->getMessage()}"
