@@ -72,7 +72,7 @@ class Log extends Base
         $name = is_null($name) ? $this->defaultLogger : $name;
         if (!isset(static::$_loggers[$name])) {
             static::$_loggers[$name] = new Logger($name);
-            $this->_setDefaultHandlers(static::$_loggers);
+            $this->_setDefaultHandlers(static::$_loggers[$name]);
         }
         return static::$_loggers[$name];
     }
