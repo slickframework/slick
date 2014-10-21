@@ -63,6 +63,6 @@ class Server extends Driver
      */
     public function __destruct()
     {
-        session_commit();
+        //session_commit();
     }
 }

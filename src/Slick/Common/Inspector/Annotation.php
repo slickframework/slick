@@ -12,6 +12,8 @@
 
 namespace Slick\Common\Inspector;
 
+use Slick\Utility\ArrayMethods;
+
 /**
  * Annotation
  *
@@ -108,6 +110,19 @@ class Annotation implements AnnotationInterface
     public function getParameters()
     {
         return $this->_parameters;
+    }
+
+    /**
+     * Returns the values as an array
+     *
+     * @return array
+     */
+    public function allValues()
+    {
+        $raw = $this->_parameters['_raw'];
+        $values = explode(',', $raw);
+        $result = ArrayMethods::trim($values);
+        return $result;
     }
 
     /**

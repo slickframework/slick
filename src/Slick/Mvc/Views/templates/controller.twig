@@ -1,0 +1,209 @@
+{{ '<?php'|raw }}
+
+/**
+ * {{ command.getControllerSimpleName }}
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace {{ command.getNamespace }};
+
+use {{ command.getModelName|raw }};
+use Slick\Database;
+use Slick\Mvc\Controller;
+use Slick\Filter\StaticFilter;
+use Slick\Mvc\Libs\Utils\Pagination;
+
+/**
+ * {{ command.getControllerSimpleName }} controller
+ *
+ * @package {{ command.getNamespace|raw }}
+ * @author  Your Name {{ '<your.name@email.com>'|raw }}
+ */
+class {{ command.getControllerSimpleName  }} extends Controller
+{
+
+{% block body %}
+    /**
+     * Handles the request to display index page
+     */
+    public function index()
+    {
+        $pagination = new Pagination();
+        $pattern = StaticFilter::filter(
+            'text',
+            $this->request->getQuery('pattern', null)
+        );
+
+        $query = {{ command.getModelSimpleName }}::find()
+            ->where(
+                [
+                    "{{ command.descriptor.tableName }}.{{ command.descriptor.displayField }} LIKE :pattern" => [
+                        ':pattern' => "%{$pattern}%"
+                    ]
+                ]
+            );
+
+        $pagination->setTotal($query->count());
+        $query->limit(
+            $pagination->rowsPerPage,
+            $pagination->offset
+        );
+
+        ${{ command.getModelPlural }} = $query->all();
+        $this->set(compact('pagination', '{{ command.getModelPlural }}', 'pattern'));
+    }
+
+    /**
+     * Handles the request to display show page
+     *
+     * @param int ${{ command.getModelSingular }}Id
+     */
+    public function show(${{ command.getModelSingular }}Id = 0)
+    {
+        ${{ command.getModelSingular }}Id = StaticFilter::filter('number', ${{ command.getModelSingular }}Id);
+        ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get(${{ command.getModelSingular }}Id);
+
+        if (is_null(${{ command.getModelSingular }})) {
+            $this->addWarningMessage(
+                $this->translate(
+                    "The {{ command.getModelSingular }} with the provided key does not exists."
+                )
+            );
+            $this->redirect('{{ command.getModelPlural }}');
+            return;
+        }
+        $this->set(compact('{{ command.getModelSingular }}'));
+    }
+
+    /**
+     * Handles the request to add page
+     */
+    public function add()
+    {
+        $form = new Forms\{{ command.getModelSimpleName }}Form('add-{{ command.getModelSimpleName }}');
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                try {
+                    ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getValues());
+                    ${{ command.getModelSingular }}->save();
+                    $this->addSuccessMessage(
+                        $this->translate(
+                            "{{ command.getModelSingular|capitalize }} successfully created."
+                        )
+                    );
+                    $this->redirect('{{ command.getModelPlural }}/show/' . ${{ command.getModelSingular }}->{{ command.descriptor.primaryKey }});
+                    return;
+                } catch (Database\Exception $exp) {
+                    $this->addErrorMessage(
+                        $this->translate(
+                            "Error while saving {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                        )
+                    );
+                }
+            } else {
+                $this->addErrorMessage(
+                    $this->translate(
+                        "Cannot save {{ command.getModelSingular }}. Please correct the errors bellow."
+                    )
+                );
+            }
+        }
+        $this->set(compact('form'));
+    }
+
+    /**
+     * Handles the request to edit page
+     *
+     * @param int ${{ command.getModelSingular }}Id
+     */
+    public function edit(${{ command.getModelSingular }}Id = 0)
+    {
+        ${{ command.getModelSingular }}Id = StaticFilter::filter('number', ${{ command.getModelSingular }}Id);
+        ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get(${{ command.getModelSingular }}Id);
+
+        if (is_null(${{ command.getModelSingular }})) {
+            $this->addWarningMessage(
+                $this->translate(
+                    "The {{ command.getModelSingular }} with the provided key does not exists."
+                )
+            );
+            $this->redirect('{{ command.getModelPlural }}');
+            return;
+        }
+
+        $form = new Forms\{{ command.getModelSimpleName }}Form('edit-{{ command.getModelSimpleName }}');
+
+        if ($this->request->isPost()) {
+            $form->setData($this->request->getPost());
+            if ($form->isValid()) {
+                try {
+                    ${{ command.getModelSingular }} = new {{ command.getModelSimpleName }}($form->getValues());
+                    ${{ command.getModelSingular }}->save();
+                    $this->addSuccessMessage(
+                        $this->translate(
+                            "{{ command.getModelSingular|capitalize }} successfully created."
+                        )
+                    );
+                    $this->redirect('{{ command.getModelPlural }}/show/' . ${{ command.getModelSingular }}->{{ command.descriptor.primaryKey }});
+                    return;
+                } catch (Database\Exception $exp) {
+                    $this->addErrorMessage(
+                        $this->translate(
+                            "Error while saving {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                        )
+                    );
+                }
+            } else {
+                $this->addErrorMessage(
+                    $this->translate(
+                        "Cannot update {{ command.getModelSingular }}. Please correct the errors bellow."
+                    )
+                );
+            }
+        } else {
+            $form->setData(${{ command.getModelSingular }}->asArray());
+        }
+
+        $this->set(compact('form', '{{ command.getModelSingular }}'));
+    }
+
+    /**
+     * Handles the request to delete a record
+     */
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            ${{ command.getModelSingular }}Id = StaticFilter::filter(
+                'number',
+                $this->request->getPost('id', 0)
+            );
+
+            ${{ command.getModelSingular }} = {{ command.getModelSimpleName }}::get(${{ command.getModelSingular }}Id);
+
+            if (is_null(${{ command.getModelSingular }})) {
+                $this->addWarningMessage(
+                    $this->translate(
+                        "The {{ command.getModelSingular }} with the provided key does not exists."
+                    )
+                );
+            } else {
+                try {
+                    ${{ command.getModelSingular }}->delete();
+                    $this->addSuccessMessage(
+                        "The {{ command.getModelSingular }} was successfully deleted."
+                    );
+                } catch (Database\Exception $exp) {
+                    $this->translate(
+                        "Error while deleting {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                    );
+                }
+            }
+        }
+        return $this->redirect('{{ command.getModelPlural }}');
+    }
+{% endblock %}
+}

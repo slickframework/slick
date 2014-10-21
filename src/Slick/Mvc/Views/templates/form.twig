@@ -1,0 +1,24 @@
+{{ '<?php'|raw }}
+
+/**
+ * {{ command.getModelSingular|capitalize }}Form
+ *
+ * @package {{ command.getNamespace|raw }}\Forms
+ * @author Your Name {{ '<your.name@email.com>'|raw }}
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace {{ command.getNamespace|raw }}\Forms;
+
+use Slick\Form\Element;
+use Slick\Form\Form as SlickFrom;
+
+/**
+ * {{ command.getModelSingular|capitalize }}Form
+ *
+ * @package {{ command.getNamespace|raw }}\Forms
+ * @author Your Name {{ '<your.name@email.com>'|raw }}
+ */
+class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
+{
+}

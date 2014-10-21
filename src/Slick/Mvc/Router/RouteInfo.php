@@ -73,7 +73,7 @@ class RouteInfo extends Base
      * @read
      * @var array
      */
-    protected $_arguments;
+    protected $_arguments = [];
 
     /**
      * @read
@@ -180,14 +180,20 @@ class RouteInfo extends Base
      */
     public function getArguments()
     {
-        if (is_null($this->_arguments)) {
-            $names = ['controller', 'action', 'namespace'];
+        if (empty($this->_arguments)) {
+            $base = [];
+            if (isset($this->_params['trailing'])) {
+                $base = explode('/', $this->_params['trailing']);
+            }
+            $names = ['controller', 'action', 'namespace', 'trailing'];
             foreach ($this->_params as $key => $value) {
                 if (in_array($key, $names)) {
                     continue;
                 }
                 $this->_arguments[$key] = $value;
             }
+
+            $this->_arguments = array_merge($base, $this->_arguments);
         }
         return $this->_arguments;
     }

@@ -77,11 +77,11 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
             array($this->getRelatedEntity(), 'find'),
             []
         );
-        $pmk = $this->getEntity()->getPrimaryKey();
+        $pmk = $entity->getPrimaryKey();
         $sql->where(
             [
                 "{$this->getForeignKey()} = :id" => [
-                    ':id' => $this->getEntity()->$pmk
+                    ':id' => $entity->$pmk
                 ]
             ]
         );

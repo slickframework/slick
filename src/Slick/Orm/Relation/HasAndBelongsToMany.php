@@ -200,6 +200,7 @@ class HasAndBelongsToMany extends AbstractMultipleRelation implements
         $relPrk = Entity\Manager::getInstance()->get($this->getRelatedEntity())
             ->getEntity()->getPrimaryKey();
         $entPrk = $entity->getPrimaryKey();
+        
         if (isset($entity->$prop) && is_array($entity->$prop)) {
             $this->beforeDelete(new Delete(['primaryKey' => $entity->$entPrk]));
             foreach ($entity->$prop as $object) {
@@ -207,6 +208,7 @@ class HasAndBelongsToMany extends AbstractMultipleRelation implements
                 if ($object instanceof Entity) {
                     $relVal = $object->$relPrk;
                 }
+
                 Sql::createSql($entity->getAdapter())
                     ->insert($this->getRelationTable())
                     ->set(

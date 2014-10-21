@@ -1,0 +1,27 @@
+<div class="hidden-xs">
+    <div class="btn-group quick-access">
+        <a class="btn btn-default" href="{{ url('') }}">
+            <span class="glyphicon glyphicon-home"></span>
+            Home
+        </a>
+        <a class="btn btn-default {{ page == 'index' ? 'active' }}" href="{{ url(modelPlural) }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            Manage {{ modelPlural }}
+        </a>
+        <a class="btn btn-default {{ page == 'add' ? 'active' }}" href="{{ url(modelPlural~"/add") }}">
+            <span class="glyphicon glyphicon-plus"></span>
+            Add {{ modelSingular }}
+        </a>
+        {% for relation in descriptor.getRelations %}
+            <a class="btn btn-default" href="{{ url(descriptor.modelPlural(relation)) }}">
+                <span class="glyphicon glyphicon-list-alt"></span>
+                Manage {{ descriptor.modelPlural(relation) }}
+            </a>
+            <a class="btn btn-default" href="{{ url(descriptor.modelPlural(relation)~"/add") }}">
+                <span class="glyphicon glyphicon-plus"></span>
+                Add {{ descriptor.modelSingular(relation) }}
+            </a>
+        {% endfor %}
+    </div>
+    <br>&nbsp;
+</div>

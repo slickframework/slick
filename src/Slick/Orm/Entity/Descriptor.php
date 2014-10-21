@@ -78,6 +78,7 @@ class Descriptor extends Base
                 if ($annotations->hasAnnotation('column')) {
                     $this->_columns[$property] =
                         $annotations->getAnnotation('column');
+                    $this->_columns[$property]->field = trim($property, '_');
                 }
             }
         }

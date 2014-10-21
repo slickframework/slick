@@ -31,6 +31,7 @@ use Slick\Mvc\Libs\Session\FlashMessageMethods;
  * @property bool $renderView Flag for view rendering
  * @property string $layout Layout file name
  * @property string $view View file name
+ * @property bool $scaffold
  *
  * @property-read array $viewVars A key/value pair of data for view rendering
  *
@@ -39,6 +40,7 @@ use Slick\Mvc\Libs\Session\FlashMessageMethods;
  * @method Controller setRequest(Request $request) Sets the HTTP request object
  * @method Response getResponse() Returns the HTTP response object
  * @method Controller setResponse(Response $response) Sets HTTP response object
+ * @method bool isScaffold() Returns true if controller is scaffolding
  */
 class Controller extends Base
 {
@@ -105,6 +107,8 @@ class Controller extends Base
      * Sends a redirection header and exits execution.
      *
      * @param array|string $url The url to redirect to.
+     *
+     * @return self
      */
     public function redirect($url)
     {
@@ -113,7 +117,7 @@ class Controller extends Base
         $this->_response->setStatusCode(302);
         $header = new GenericHeader('Location', $location);
         $this->_response->getHeaders()->addHeader($header);
-        $this->disableRendering();
+        return $this->disableRendering();
     }
 
     /**

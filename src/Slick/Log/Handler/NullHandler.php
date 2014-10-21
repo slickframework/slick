@@ -30,6 +30,6 @@ class NullHandler extends BaseHandler
      */
     public function __construct($level = Logger::DEBUG)
     {
-        parent::__construct($level, true);
+        parent::__construct($level, false);
     }
 }
