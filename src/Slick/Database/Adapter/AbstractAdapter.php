@@ -166,10 +166,10 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
             $time = $end - $start;
             $result = $statement->fetchAll($this->_fetchMode);
             $this->getLogger()->info(
-                "Query ({$this->connectionName}): {$query}",
+                "Query ({$this->connectionName}): Query with results",
                 [
                     'query' => $query,
-                    'params' => $query,
+                    'params' => $parameters,
                     'time' => number_format($time, 3),
                     'affected' => $statement->rowCount()
                 ]
@@ -228,10 +228,10 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
             $time = $end -$start;
             $this->_affectedRows = $statement->rowCount();
             $this->getLogger()->info(
-                "Query ({$this->connectionName}): {$query}",
+                "Query ({$this->connectionName}): Query executed without results",
                 [
                     'query' => $query,
-                    'params' => $query,
+                    'params' => $parameters,
                     'time' => number_format($time, 3),
                     'affected' => $statement->rowCount()
                 ]

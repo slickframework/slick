@@ -14,6 +14,7 @@ namespace Slick\Log;
 
 use Monolog\Logger;
 use Slick\Common\Base;
+use Slick\Configuration\Configuration;
 use Slick\Log\Handler\NullHandler;
 
 /**
@@ -48,6 +49,12 @@ class Log extends Base
     protected $_defaultLogger = 'general';
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $_prefix = '';
+
+    /**
      * Gets the logger for the channel with the provided name.
      *
      * @param string $name The loggers channel name to retrieve.
@@ -70,6 +77,7 @@ class Log extends Base
     public function getLogger($name = null)
     {
         $name = is_null($name) ? $this->defaultLogger : $name;
+        $name = "{$this->getPrefix()}$name";
         if (!isset(static::$_loggers[$name])) {
             static::$_loggers[$name] = new Logger($name);
             $this->_setDefaultHandlers(static::$_loggers[$name]);
@@ -92,5 +100,20 @@ class Log extends Base
         foreach ($this->_handlers as $handler) {
             $logger->pushHandler($handler);
         }
+    }
+
+    /**
+     * Returns the logger prefix to use
+     *
+     * @return mixed|string
+     */
+    public function getPrefix()
+    {
+        if (is_null($this->_prefix)) {
+            $hostName = gethostname();
+            $this->_prefix = Configuration::get('config')
+                ->get('logger.prefix', $hostName);
+        }
+        return $this->_prefix;
     }
 }
