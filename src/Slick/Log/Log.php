@@ -33,7 +33,7 @@ class Log extends Base
      * @read
      * @var array A list of available loggers.
      */
-    protected $_loggers = array();
+    protected static $_loggers = array();
 
     /**
      * @read
@@ -49,9 +49,9 @@ class Log extends Base
 
     /**
      * Gets the logger for the channel with the provided name.
-     * 
+     *
      * @param string $name The loggers channel name to retrieve.
-     * 
+     *
      * @return \Monolog\Logger The logger object for the given channel name.
      */
     public static function logger($name = null)
@@ -62,27 +62,27 @@ class Log extends Base
 
     /**
      * Gets the logger for the channel with the provided name.
-     * 
+     *
      * @param string $name The loggers channel name to retrieve.
-     * 
+     *
      * @return \Monolog\Logger The logger object for the given channel name.
      */
     public function getLogger($name = null)
     {
         $name = is_null($name) ? $this->defaultLogger : $name;
-        if (!isset($this->_loggers[$name])) {
-            $this->_loggers[$name] = new Logger($name);
-            $this->_setDefaultHandlers($this->_loggers[$name]);
+        if (!isset(static::$_loggers[$name])) {
+            static::$_loggers[$name] = new Logger($name);
+            $this->_setDefaultHandlers(static::$_loggers);
         }
-        return $this->_loggers[$name];
+        return static::$_loggers[$name];
     }
 
     /**
      * Adds the default log handlers to the provided logger.
-     * 
+     *
      * @param Logger $logger The logger object to add the handlers.
      */
-    protected function _setDefaultHandlers(Logger $logger)
+    protected function _setDefaultHandlers(Logger &$logger)
     {
         if (empty($this->_handlers)) {
             $socketHandler = new NullHandler();
