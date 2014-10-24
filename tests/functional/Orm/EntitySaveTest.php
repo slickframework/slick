@@ -86,8 +86,7 @@ class EntitySaveTest extends \Codeception\TestCase\Test
             } else {
                 $this->assertEquals([
                     'name' => 'Filipe Silva',
-                    'email' => 'filipe@example.com',
-                    'id' => '1'
+                    'email' => 'filipe@example.com'
                 ], $event->data);
             }
         });

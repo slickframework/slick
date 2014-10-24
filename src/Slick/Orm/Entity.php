@@ -220,6 +220,7 @@ class Entity extends AbstractEntity
     {
         $data = $this->_setData($data);
         $pmk = $this->getPrimaryKey();
+        unset($data[$pmk]);
         $sql = Sql::createSql($this->getAdapter())->update($this->getTableName());
         $event = new Save([
             'action' => Save::UPDATE,
