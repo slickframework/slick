@@ -98,6 +98,9 @@ abstract class AbstractSingleRelation extends AbstractRelation
         } else {
             $data = [$data];
         }
+        if (empty($data)) {
+            return;
+        }
         $related = Entity\Manager::getInstance()
             ->get($this->getRelatedEntity());
         $relatedTable = $related->getEntity()->getTableName();

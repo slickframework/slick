@@ -53,6 +53,10 @@ class BelongsTo extends AbstractSingleRelation implements RelationInterface
      */
     public function load(Entity $entity)
     {
+        $data = $entity->getRawData();
+        if (!is_array($data)) {
+            return null;
+        }
         /** @var Select $sql */
         $sql = call_user_func_array(
             [$this->getRelatedEntity(), 'find'],
@@ -65,7 +69,7 @@ class BelongsTo extends AbstractSingleRelation implements RelationInterface
         $sql-> where(
             [
                 "{$table}.{$pmk} = :id" => [
-                    ':id' => $entity->getRawData()[$this->getForeignKey()]
+                    ':id' => $data[$this->getForeignKey()]
                 ]
             ]
         );
