@@ -148,8 +148,12 @@ class Descriptor extends Base
     {
         if (!isset($this->_modelPlural[$relation->getPropertyName()])) {
             $parts = explode('\\', $relation->getRelatedEntity());
-            $name = strtolower(end($parts));
-            $this->_modelPlural[$relation->getPropertyName()] = Text::plural($name);
+            $name = Text::camelCaseToSeparator(end($parts), '#');
+            $name = explode('#', $name);
+            $final = ucfirst(Text::plural(strtolower(array_pop($name))));
+            $name[] = $final;
+            $this->_modelPlural[$relation->getPropertyName()] =
+                lcfirst(implode('', $name));
         }
         return $this->_modelPlural[$relation->getPropertyName()];
     }
@@ -165,7 +169,7 @@ class Descriptor extends Base
     {
         if (!isset($this->_modelSingular[$relation->getPropertyName()])) {
             $parts = explode('\\', $relation->getRelatedEntity());
-            $this->_modelSingular[$relation->getPropertyName()] = strtolower(end($parts));
+            $this->_modelSingular[$relation->getPropertyName()] = lcfirst(end($parts));
         }
         return $this->_modelSingular[$relation->getPropertyName()];
     }

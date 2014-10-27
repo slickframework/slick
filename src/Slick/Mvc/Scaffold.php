@@ -72,11 +72,17 @@ class Scaffold extends Controller
         parent::__construct($options);
         $nameParts = explode("\\", get_class($this->_controller));
         $this->_scaffoldControllerName = end($nameParts);
-        $this->set('modelPlural', strtolower(end($nameParts)));
-        $this->set(
-            'modelSingular',
-            Text::singular(strtolower(end($nameParts)))
-        );
+
+        $name = Text::camelCaseToSeparator(end($nameParts));
+        $name = explode(' ', $name);
+
+        $singular = ucfirst(Text::singular(strtolower(end($name))));
+        array_pop($name);
+        $name[] = $singular;
+        $name = implode('', $name);
+
+        $this->set('modelPlural', end($nameParts));
+        $this->set('modelSingular', lcfirst($name));
         Template::appendPath(__DIR__ . '/Views');
     }
 
@@ -112,11 +118,7 @@ class Scaffold extends Controller
     {
         if (is_null($this->_modelName)) {
             $this->setModelName('Models\\' .
-                ucfirst(
-                    Text::singular(
-                        strtolower($this->_scaffoldControllerName)
-                    )
-                )
+                ucfirst($this->get('modelSingular'))
             );
         }
         return $this->_modelName;
@@ -133,12 +135,14 @@ class Scaffold extends Controller
     {
         $this->_modelName = $name;
         $nameParts = explode("\\", $name);
-        $controllerName = strtolower(end($nameParts));
-        $this->set('modelPlural', strtolower(Text::plural($controllerName)));
-        $this->set(
-            'modelSingular',
-            strtolower(Text::singular($controllerName))
-        );
+        $controllerName = end($nameParts);
+        $nameParts = Text::camelCaseToSeparator($controllerName, '#');
+        $nameParts = explode('#', $nameParts);
+
+        $final = Text::plural(strtolower(array_pop($nameParts)));
+        $nameParts[] = ucfirst($final);
+        $this->set('modelPlural', lcfirst(implode('', $nameParts)));
+        $this->set('modelSingular', lcfirst($controllerName));
         return $this;
     }
 
@@ -210,9 +214,9 @@ class Scaffold extends Controller
 
         if (is_null($record)) {
             $this->addWarningMessage(
-                    "The {$this->get('modelSingular')} with the provided key ".
-                    "does not exists."
-                );
+                "The {$this->get('modelSingular')} with the provided key ".
+                "does not exists."
+            );
 
             $this->redirect($this->get('modelPlural'));
             return;

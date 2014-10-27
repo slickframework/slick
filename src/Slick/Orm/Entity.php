@@ -231,7 +231,7 @@ class Entity extends AbstractEntity
         if ($event->abort) {
             return false;
         }
-        $sql->set($data)
+        $sql->set($event->data)
             ->where(["{$pmk} = :id" => [':id' => $this->$pmk]])
             ->execute();
         $this->getEventManager()->trigger(Save::AFTER_SAVE, $this, $event);
