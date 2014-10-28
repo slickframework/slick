@@ -54,7 +54,7 @@ class BelongsTo extends AbstractSingleRelation implements RelationInterface
     public function load(Entity $entity)
     {
         $data = $entity->getRawData();
-        if (!is_array($data)) {
+        if (!is_array($data) || !isset($data[$this->getForeignKey()])) {
             return null;
         }
         /** @var Select $sql */
