@@ -70,8 +70,8 @@ class Dispatcher extends Base
     public function dispatch(RouteInfo $routeInfo)
     {
         $this->setRouteInfo($routeInfo);
-        $controller = $this->getController();
         $method = $this->_routeInfo->getAction();
+        $controller = $this->getController($method);
         $inspector = new Inspector($controller);
         $methodExists = $inspector->hasMethod($method);
 
@@ -142,9 +142,10 @@ class Dispatcher extends Base
     /**
      * Loads the controller
      *
+     * @param string $method
      * @return Controller
      */
-    public function getController()
+    public function getController($method)
     {
         if (is_null($this->_controller)) {
             $className = $this->_routeInfo->getController();
@@ -161,8 +162,9 @@ class Dispatcher extends Base
 
             /** @var Controller $instance */
             $instance = new $className($options);
+            $methodExists = method_exists($instance,$method);
             $this->_controller = $instance;
-            if ($instance->isScaffold()) {
+            if (!$methodExists && $instance->isScaffold()) {
                 $this->_controller = Scaffold::getScaffoldController(
                     $instance
                 );

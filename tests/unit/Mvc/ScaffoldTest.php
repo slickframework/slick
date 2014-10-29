@@ -62,7 +62,7 @@ class ScaffoldTest extends Test
             ]
         );
         /** @var Scaffold $scaffold */
-        $scaffold = $dispatcher->getController();
+        $scaffold = $dispatcher->getController('index');
         $this->assertInstanceOf('Slick\Mvc\Scaffold', $scaffold);
         $this->assertInstanceOf(
             'Mvc\MyScaffoldController',
