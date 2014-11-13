@@ -32,6 +32,7 @@ use Slick\Mvc\Libs\Session\FlashMessageMethods;
  * @property string $layout Layout file name
  * @property string $view View file name
  * @property bool $scaffold
+ * @property string $basePath
  *
  * @property-read array $viewVars A key/value pair of data for view rendering
  *
@@ -92,6 +93,12 @@ class Controller extends Base
      * @var View
      */
     protected $_view;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_basePath;
 
     /**
      * Adds translate methods to this class

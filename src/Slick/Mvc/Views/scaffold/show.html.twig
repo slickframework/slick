@@ -18,7 +18,7 @@
             </div>
             <hr>
             <div class="show-actions">
-                <a href="{{ url(modelPlural ~"/edit/" ~ attribute(record, descriptor.getPrimaryKey)) }}" class="btn btn-primary">
+                <a href="{{ url(basePath~'/'~modelPlural ~"/edit/" ~ attribute(record, descriptor.getPrimaryKey)) }}" class="btn btn-primary">
                     <span class="glyphicon glyphicon-pencil"></span>
                     &nbsp;Edit {{ modelSingular }}</a>
 
@@ -28,7 +28,7 @@
                     &nbsp;Delete {{ modelSingular }}
                 </a>
 
-                {{ tableRecord.createDialog(record, modelPlural, modelSingular) }}
+                {{ tableRecord.createDialog(record, basePath~'/'~modelPlural, modelSingular) }}
 
             </div>
         </div>

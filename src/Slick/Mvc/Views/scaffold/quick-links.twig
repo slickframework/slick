@@ -1,23 +1,23 @@
 <div class="hidden-xs">
     <div class="btn-group quick-access">
-        <a class="btn btn-default" href="{{ url('') }}">
+        <a class="btn btn-default" href="{{ url(basePath~ '') }}">
             <span class="glyphicon glyphicon-home"></span>
             Home
         </a>
-        <a class="btn btn-default {{ page == 'index' ? 'active' }}" href="{{ url(modelPlural) }}">
+        <a class="btn btn-default {{ page == 'index' ? 'active' }}" href="{{ url(basePath~'/'~modelPlural) }}">
             <span class="glyphicon glyphicon-list-alt"></span>
             Manage {{ modelPlural }}
         </a>
-        <a class="btn btn-default {{ page == 'add' ? 'active' }}" href="{{ url(modelPlural~"/add") }}">
+        <a class="btn btn-default {{ page == 'add' ? 'active' }}" href="{{ url(basePath~'/'~modelPlural~"/add") }}">
             <span class="glyphicon glyphicon-plus"></span>
             Add {{ modelSingular }}
         </a>
         {% for relation in descriptor.getRelations %}
-            <a class="btn btn-default" href="{{ url(descriptor.modelPlural(relation)) }}">
+            <a class="btn btn-default" href="{{ url(basePath~'/'~descriptor.modelPlural(relation)) }}">
                 <span class="glyphicon glyphicon-list-alt"></span>
                 Manage {{ descriptor.modelPlural(relation) }}
             </a>
-            <a class="btn btn-default" href="{{ url(descriptor.modelPlural(relation)~"/add") }}">
+            <a class="btn btn-default" href="{{ url(basePath~'/'~descriptor.modelPlural(relation)~"/add") }}">
                 <span class="glyphicon glyphicon-plus"></span>
                 Add {{ descriptor.modelSingular(relation) }}
             </a>

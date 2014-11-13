@@ -63,6 +63,12 @@ class Scaffold extends Controller
     protected $_descriptor;
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $_basePath;
+
+    /**
      * Set common variables for views
      *
      * @param array $options
@@ -83,6 +89,7 @@ class Scaffold extends Controller
 
         $this->set('modelPlural', end($nameParts));
         $this->set('modelSingular', lcfirst($name));
+        $this->set('basePath', $this->_basePath);
         Template::appendPath(__DIR__ . '/Views');
     }
 
@@ -102,7 +109,10 @@ class Scaffold extends Controller
             [
                 'controller' => $instance,
                 'request' => $instance->request,
-                'response' => $instance->response
+                'response' => $instance->response,
+                'view' => $instance->view,
+                'layout' => $instance->layout,
+                'basePath' => $instance->basePath
             ],
             $options
         );
@@ -248,6 +258,7 @@ class Scaffold extends Controller
                     );
                     $pmk = $model->getPrimaryKey();
                     $this->redirect(
+                        $this->_basePath .'/'.
                         $this->get('modelPlural').'/show/'.$model->$pmk
                     );
                     return;
@@ -290,7 +301,7 @@ class Scaffold extends Controller
                 "does not exists."
             );
 
-            $this->redirect($this->get('modelPlural'));
+            $this->redirect($this->_basePath .'/'.$this->get('modelPlural'));
             return;
         }
 
@@ -312,6 +323,7 @@ class Scaffold extends Controller
                     );
                     $pmk = $model->getPrimaryKey();
                     $this->redirect(
+                        $this->_basePath .'/'.
                         $this->get('modelPlural').'/show/'.$model->$pmk
                     );
                     return;
@@ -364,6 +376,6 @@ class Scaffold extends Controller
                 }
             }
         }
-        return $this->redirect($this->get('modelPlural'));
+        return $this->redirect($this->_basePath .'/'.$this->get('modelPlural'));
     }
 }

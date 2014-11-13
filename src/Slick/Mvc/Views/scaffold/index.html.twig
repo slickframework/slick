@@ -41,7 +41,7 @@
                         {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
                         {% if loop.first %}
                         <td>
-                            <a href="{{ url(modelPlural~'/show/'~attribute(record, descriptor.getPrimaryKey)) }}">
+                            <a href="{{ url(basePath~'/'~modelPlural~'/show/'~attribute(record, descriptor.getPrimaryKey)) }}">
                             {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw}}
                             </a>
                         </td>
@@ -56,13 +56,13 @@
                             {{ attribute(record, relation.getPropertyName) }}
                         </td>
                         {% endfor %}
-                        <td class="table-actions">{{ tableRecord.getActions(record, modelPlural, modelSingular) }}</td>
+                        <td class="table-actions">{{ tableRecord.getActions(record, basePath~'/'~modelPlural, modelSingular) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
-                There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(modelPlural~"/add")}}">Add {{ modelSingular }}</a> button to add a new {{ modelSingular }}.
+                There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(basePath~'/'~modelPlural~"/add")}}">Add {{ modelSingular }}</a> button to add a new {{ modelSingular }}.
             {% endif %}
         </div>
         <div class="panel-footer">
@@ -71,5 +71,5 @@
     </div>
 </div>
 {% for record in records %}
-    {{ tableRecord.createDialog(record, modelPlural, modelSingular) }}
+    {{ tableRecord.createDialog(record, basePath~'/'~modelPlural, modelSingular) }}
 {% endfor %}
