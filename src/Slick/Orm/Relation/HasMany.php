@@ -72,15 +72,19 @@ class HasMany extends AbstractMultipleRelation implements RelationInterface
      */
     public function load(Entity $entity)
     {
+        $class = $this->getRelatedEntity();
+        /** @var Entity $relatedEntity */
+        $relatedEntity = new $class();
         /** @var Select $sql */
         $sql = call_user_func_array(
-            array($this->getRelatedEntity(), 'find'),
+            array($relatedEntity, 'find'),
             []
         );
         $pmk = $entity->getPrimaryKey();
+        $tableName = $relatedEntity->getTableName();
         $sql->where(
             [
-                "{$this->getForeignKey()} = :id" => [
+                "{$tableName}.{$this->getForeignKey()} = :id" => [
                     ':id' => $entity->$pmk
                 ]
             ]

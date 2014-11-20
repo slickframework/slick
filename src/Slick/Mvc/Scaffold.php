@@ -78,6 +78,10 @@ class Scaffold extends Controller
         parent::__construct($options);
         $nameParts = explode("\\", get_class($this->_controller));
         $this->_scaffoldControllerName = end($nameParts);
+        $this->_viewVars = array_merge(
+            $this->viewVars,
+            $this->_controller->viewVars
+        );
 
         $name = Text::camelCaseToSeparator(end($nameParts));
         $name = explode(' ', $name);
