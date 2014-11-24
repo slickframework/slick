@@ -123,14 +123,16 @@ class Dispatcher extends Base
         };
 
         $hooks($methodMeta, "@before");
+        $arguments = is_array($this->_routeInfo->getArguments()) ?
+            $this->_routeInfo->getArguments() : [];
 
+        $controller->arguments = $arguments;
         call_user_func_array(
             array(
                 $controller,
                 $method
             ),
-            is_array($this->_routeInfo->getArguments()) ?
-                $this->_routeInfo->getArguments() : []
+            $arguments
         );
 
         $hooks($methodMeta, "@after");

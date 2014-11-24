@@ -101,6 +101,12 @@ class Controller extends Base
     protected $_basePath;
 
     /**
+     * @readwrite
+     * @var array
+     */
+    protected $_arguments = [];
+
+    /**
      * Adds translate methods to this class
      */
     use TranslateMethods;

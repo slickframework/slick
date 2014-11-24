@@ -193,7 +193,7 @@ class RouteInfo extends Base
                 $this->_arguments[$key] = $value;
             }
 
-            $this->_arguments = array_merge($base, $this->_arguments);
+            $this->_arguments = array_merge($this->_arguments, $base);
         }
         return $this->_arguments;
     }

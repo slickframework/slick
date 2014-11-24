@@ -112,8 +112,7 @@ abstract class AbstractEntity extends Base implements
      */
     public function __construct($options = [])
     {
-        $this->_rawData = $options;
-        $this->_createObject($options);
+        $this->setData($options);
     }
 
     // @codingStandardsIgnoreStart
@@ -272,5 +271,18 @@ abstract class AbstractEntity extends Base implements
 
         // Not a relation, back to normal behavior
         return parent::__get($name);
+    }
+
+    /**
+     * Sets model data
+     *
+     * @param array $data
+     * @return self
+     */
+    public function setData($data)
+    {
+        $this->_rawData = $data;
+        $this->_createObject($data);
+        return $this;
     }
 }

@@ -79,9 +79,9 @@ class Entity extends AbstractEntity
             ->where(
                 [
                     "{$entity->getTableName()}.{$entity->_primaryKey} = :id" =>
-                    [
-                        ':id' => $id
-                    ]
+                        [
+                            ':id' => $id
+                        ]
                 ]
             );
         $events = $entity->getEventManager();
