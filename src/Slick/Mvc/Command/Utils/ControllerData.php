@@ -78,7 +78,7 @@ class ControllerData extends Base
     public function setControllerName($modelName)
     {
         $name = end(explode('/', $modelName));
-        $this->_controllerName = ucfirst(Text::plural($name));
+        $this->_controllerName = ucfirst(Text::plural(lcfirst($name)));
         return $this;
     }
 
