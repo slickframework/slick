@@ -12,6 +12,7 @@
 
 namespace Slick\Mvc\Command;
 
+use Slick\Mvc\Command\Utils\ControllerData;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -90,5 +91,13 @@ class GenerateViews extends Command
             $input->getArgument('modelName')
         );
         $output->writeln("");
+
+        $controllerData = new ControllerData(
+            [
+                'controllerName' => $input->getArgument('modelName'),
+                'namespace' => $input->getOption('out'),
+                'modelName' => $input->getArgument('modelName')
+            ]
+        );
     }
 } 
