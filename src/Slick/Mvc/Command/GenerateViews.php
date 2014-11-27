@@ -12,6 +12,7 @@
 
 namespace Slick\Mvc\Command;
 
+use Slick\Mvc\Command\Task\GenerateIndexView;
 use Slick\Mvc\Command\Utils\ControllerData;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -99,5 +100,15 @@ class GenerateViews extends Command
                 'modelName' => $input->getArgument('modelName')
             ]
         );
+
+        $path = $input->getOption('path');
+        $path .= '/'. $input->getOption('out');
+
+        $task = new \Slick\Mvc\Command\Task\GenerateViews([
+            'command' => $this,
+            'controllerData' => $controllerData,
+            'path' => $path
+        ]);
+        $task->run($input, $output);
     }
 } 

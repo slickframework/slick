@@ -122,7 +122,7 @@ class ControllerData extends Base
      */
     public function getModelPlural()
     {
-        return strtolower(Text::plural($this->getModelSimpleName()));
+        return strtolower(Text::plural(lcfirst($this->getModelSimpleName())));
     }
 
     /**

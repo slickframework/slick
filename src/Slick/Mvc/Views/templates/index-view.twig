@@ -1,0 +1,24 @@
+{% import "elements/table-record.actions.html.twig" as tableRecord %}
+<div class="entity-index">
+    <h2 class="section-header">
+        <i class="fa fa-list-alt"></i>
+        {{ ('{{ translate("'~command.modelPlural|capitalize~'") }}')|raw }}
+    </h2>
+
+    {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "index"} %}')|raw }}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {{ ('{% if '~command.modelPlural~'|length > 0 %}')|raw }}
+            <table class="table table-bordered table-condensed table-hover">
+
+            </table>
+            {{ ('{% else %}')|raw }}
+                {{ ('{{ translate(\'There are no '~command.modelPlural~' to show up here. Click the <a href="%link">Add '~command.modelSingular~'</a> button to add a new '~command.modelSingular~'.\')|replace({"%link": url(basePath~"'~command.modelPlural~'/add")})|raw }}')|raw }}
+            {{ ('{% endif %}')|raw }}
+        </div>
+        <div class="panel-footer">
+            {{ ('{% include "elements/pagination.html.twig" %}')|raw }}
+        </div>
+    </div>
+</div>

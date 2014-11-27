@@ -1,0 +1,28 @@
+<div class="hidden-xs">
+    <div class="btn-group quick-access">
+        <a class="btn btn-default" href="{{ "{{ url(basePath) }}"|raw }}">
+            <span class="glyphicon glyphicon-home"></span>
+            {{ '{{ translate("Home") }}'|raw }}
+        </a>
+        <a class="btn btn-default {{ ("{{ page == 'index' ? 'active' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'\') }}')|raw }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            {{ ('{{ translate("Manage '~command.modelPlural~'") }}')|raw }}
+        </a>
+        <a class="btn btn-default {{ ("{{ page == 'index' ? 'add' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'/add\') }}')|raw }}">
+            <span class="glyphicon glyphicon-plus"></span>
+            {{ ('{{ translate("Add '~command.modelSingular~'") }}')|raw }}
+        </a>
+        {% for relation in command.descriptor.getRelations %}
+
+        <a class="btn btn-default" href="{{ ('{{ url(basePath~\''~command.descriptor.modelPlural(relation)~'\') }}')|raw }}">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            {{ ('{{ translate("Manage '~command.descriptor.modelPlural(relation)~'") }}')|raw }}
+        </a>
+        <a class="btn btn-default" href="{{ ('{{ url(basePath~\''~command.descriptor.modelPlural(relation)~'/add\') }}')|raw }}">
+            <span class="glyphicon glyphicon-plus"></span>
+            {{ ('{{ translate("Manage '~command.descriptor.modelSingular(relation)~'") }}')|raw }}
+        </a>
+        {% endfor %}
+    </div>
+    <br>&nbsp;
+</div>

@@ -1,39 +1,32 @@
 <?php
 
 /**
- * Generate scaffold controller content
- *
- * @package   Slick\Mvc\Command\Utils
- * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
- * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.1.0
+ * Created by PhpStorm.
+ * User: fsilva
+ * Date: 27-11-2014
+ * Time: 10:32
  */
 
 namespace Slick\Mvc\Command\Task;
 
 use Slick\Common\Base;
 use Slick\FileSystem\Folder;
-use Slick\Mvc\Command\Utils\ControllerData;
 use Slick\Template\Template;
+use Slick\Mvc\Command\Utils\ControllerData;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * Generate scaffold controller content
- *
- * @package   Slick\Mvc\Command\Utils
- * @author    Filipe Silva <silvam.filipe@gmail.com>
+ * Class GenerateViewTask
+ * @package Slick\Mvc\Command\Task
  *
  * @method string getPath() Returns the file path
  */
-class GenerateScaffoldController extends Base implements TaskInterface
+abstract class GenerateViewTask extends Base implements TaskInterface
 {
-
     /**
      * @readwrite
      * @var ControllerData
@@ -44,7 +37,7 @@ class GenerateScaffoldController extends Base implements TaskInterface
      * @readwrite
      * @var string
      */
-    protected $_template = 'templates/scaffold-controller.twig';
+    protected $_template = 'templates/index-view.twig';
 
     /**
      * @readwrite
@@ -61,18 +54,7 @@ class GenerateScaffoldController extends Base implements TaskInterface
     /**
      * @var string
      */
-    protected $_objectType = 'Controller';
-
-    /**
-     * Set template path
-     *
-     * @param array $options
-     */
-    public function __construct(array $options = [])
-    {
-        parent::__construct($options);
-        Template::addPath(dirname(dirname(__DIR__)) .'/Views');
-    }
+    protected $_objectType = 'View';
 
     /**
      * Runs the task
@@ -92,6 +74,15 @@ class GenerateScaffoldController extends Base implements TaskInterface
 
         $fileName = $this->_getFileName();
         $folder = new Folder(['name' => $this->getPath()]);
+        if (
+            !$folder->hasFolder(
+                lcfirst($this->_controllerData->getControllerSimpleName())
+            )
+        ) {
+            $folder->addFolder(
+                lcfirst($this->_controllerData->getControllerSimpleName())
+            );
+        }
 
         /** @var QuestionHelper $dialog */
         $dialog = $this->_command->getHelperSet()->get('question');
@@ -124,8 +115,5 @@ class GenerateScaffoldController extends Base implements TaskInterface
      *
      * @return string
      */
-    protected function _getFileName()
-    {
-        return $this->_controllerData->getControllerSimpleName() .'.php';
-    }
+    abstract protected function _getFileName();
 }
