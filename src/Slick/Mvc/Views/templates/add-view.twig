@@ -1,0 +1,11 @@
+<div class="add-{{ command.modelSingular }}">
+    <h2 class="section-header">
+        {{ ('{{ translate("Add new '~command.modelSingular~'") }}')|raw }}
+    </h2>
+
+    {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "add"} %}')|raw }}
+
+    <div class="form-wrapper">
+        {{ ('{{ form.render|raw }}')|raw }}
+    </div>
+</div>

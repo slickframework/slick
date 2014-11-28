@@ -182,4 +182,14 @@ class Factory extends Base
             $element->getInput()->allowEmpty = false;
         }
     }
+
+    /**
+     * Returns the element alias names
+     *
+     * @return array
+     */
+    public static function getElementAlias()
+    {
+        return static::$_elementAlias;
+    }
 } 

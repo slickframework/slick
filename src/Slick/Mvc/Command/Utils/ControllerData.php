@@ -14,6 +14,7 @@ namespace Slick\Mvc\Command\Utils;
 
 use Slick\Common\Base;
 use Slick\Mvc\Model\Descriptor;
+use Slick\Mvc\Scaffold\Form;
 use Slick\Orm\Entity\Manager;
 use Slick\Utility\Text;
 
@@ -54,6 +55,12 @@ class ControllerData extends Base
      * @var Descriptor
      */
     protected $_descriptor;
+
+    /**
+     * @readwrite
+     * @var Form
+     */
+    protected $_form;
 
     /**
      * Sets controller namespace
@@ -161,5 +168,18 @@ class ControllerData extends Base
             );
         }
         return $this->_descriptor;
+    }
+
+    /**
+     * Returns the default form for current controller
+     *
+     * @return int|Form|string
+     */
+    public function getForm()
+    {
+        if (is_null($this->_form)) {
+            $this->_form = new Form("scaffold", $this->getDescriptor());
+        }
+        return $this->_form;
     }
 }

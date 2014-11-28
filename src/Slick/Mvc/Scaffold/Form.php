@@ -13,7 +13,9 @@
 namespace Slick\Mvc\Scaffold;
 
 use Slick\Common\Inspector;
+use Slick\Form\Element;
 use Slick\Form\Element\Submit;
+use Slick\Form\Factory;
 use Slick\Orm\Relation\HasMany;
 use Slick\Orm\Relation\HasOne;
 use Slick\Mvc\Model\Descriptor;
@@ -105,6 +107,21 @@ class Form extends SlickFrom
                 ['value' => 'Save']
             )
         );
+    }
+
+    /**
+     * Returns
+     * @param Element $element
+     * @return int|string
+     */
+    public function getType(Element $element)
+    {
+        foreach (Factory::getElementAlias() as $type => $name) {
+            if ($name == get_class($element)) {
+                return $type;
+            }
+        }
+        return 'hidden';
     }
 
     protected function _createElement($property)

@@ -8,7 +8,7 @@
             <span class="glyphicon glyphicon-list-alt"></span>
             {{ ('{{ translate("Manage '~command.modelPlural~'") }}')|raw }}
         </a>
-        <a class="btn btn-default {{ ("{{ page == 'index' ? 'add' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'/add\') }}')|raw }}">
+        <a class="btn btn-default {{ ("{{ page == 'add' ? 'active' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'/add\') }}')|raw }}">
             <span class="glyphicon glyphicon-plus"></span>
             {{ ('{{ translate("Add '~command.modelSingular~'") }}')|raw }}
         </a>

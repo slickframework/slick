@@ -48,23 +48,38 @@ class GenerateViews extends Base implements TaskInterface
     public function run(InputInterface $input, OutputInterface $output)
     {
         Template::addPath(dirname(dirname(__DIR__)) .'/Views');
-        $task = new GenerateQuickLinks([
+        $data = [
             'command' => $this->_command,
             'controllerData' => $this->_controllerData,
             'path' => $this->_path
-        ]);
-        $task->run($input, $output);
-        $this->generateIndex($input, $output);
+        ];
+        $links = new GenerateQuickLinks($data);
+        $links->run($input, $output);
+        $panel = new GenerateHeaderPanel($data);
+        $panel->run($input, $output);
+        $this->generateAll($input, $output);
     }
 
     public function generateAll(InputInterface $input, OutputInterface $output) {
         $this->generateIndex($input, $output);
+        $this->generateAdd($input, $output);
         return $this;
     }
 
     public function generateIndex(InputInterface $input, OutputInterface $output)
     {
         $task = new GenerateIndexView([
+            'command' => $this->_command,
+            'controllerData' => $this->_controllerData,
+            'path' => $this->_path
+        ]);
+        $task->run($input, $output);
+        return $this;
+    }
+
+    public function generateAdd(InputInterface $input, OutputInterface $output)
+    {
+        $task = new GenerateAddView([
             'command' => $this->_command,
             'controllerData' => $this->_controllerData,
             'path' => $this->_path

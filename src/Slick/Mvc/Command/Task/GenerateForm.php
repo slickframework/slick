@@ -49,6 +49,7 @@ class GenerateForm extends GenerateScaffoldController
      */
     protected function _getFileName()
     {
-        return "{$this->_controllerData->getControllerSimpleName()}Form.php";
+        $name = ucfirst($this->_controllerData->getModelSingular());
+        return "{$name}Form.php";
     }
 } 

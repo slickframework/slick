@@ -21,4 +21,28 @@ use Slick\Form\Form as SlickFrom;
  */
 class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
 {
+
+    /**
+     * Form setup callback handle
+     */
+    protected function _setup()
+    {
+        {% for element in command.getForm().getElements() -%}
+        $this->addElement('{{ element.name }}', [
+            'type' => '{{ command.getForm().getType(element) }}',
+            {% if command.getForm().getType(element) != 'hidden' -%}
+            'label' => $this->translate("{{ element.label }}"),
+        {% endif -%}
+            {% if command.getForm().getType(element) == 'selectMultiple' -%}
+            'options' => {{ element.label }}::getList()
+        {% endif -%}
+        ]);
+        {% endfor %}
+
+        $this->add(
+            new Element\Submit(
+                ['value' => $this->translate('Save {{ command.getModelSingular }}')]
+            )
+        );
+    }
 }

@@ -30,7 +30,7 @@
                                 {{ relation.getPropertyName|capitalize }}
                             </th>
                         {% endfor %}
-                        <th class="table-actions">
+                        <th class="table-actions-column">
                             Actions
                         </th>
                     </tr>
@@ -56,7 +56,7 @@
                             {{ attribute(record, relation.getPropertyName) }}
                         </td>
                         {% endfor %}
-                        <td class="table-actions">{{ tableRecord.getActions(record, basePath~'/'~modelPlural, modelSingular) }}</td>
+                        <td class="table-actions-column">{{ tableRecord.getActions(record, basePath~'/'~modelPlural, modelSingular) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
