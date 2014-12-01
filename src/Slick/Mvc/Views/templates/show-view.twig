@@ -1,0 +1,155 @@
+{{ ('{% import "elements/table-record.actions.html.twig" as tableRecord %}')|raw }}
+<div class="entity-show">
+    <h2 class="section-header">
+        {{ ('{{ translate("View \\"%model\\"")|replace({"%model": '~command.modelSingular~'}) }}')|raw }}
+    </h2>
+
+    {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "edit"} %}')|raw }}
+
+    <div class="entity panel panel-default">
+        <div class="panel-body">
+            <div class="entity-data">
+                <dl class="dl-horizontal">
+                    {% for column in command.descriptor.getColumns if not column.getParameter('primaryKey') -%}
+                    <dt>{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}:</dt>
+                    <dd>{{ ('{{ '~command.modelSingular~'.'~column.field~'|wordwrap(80, "<br>")|raw|nl2br }}')|raw }}</dd>
+                    {% endfor %}
+
+                </dl>
+            </div>
+            <hr>
+            <div class="show-actions">
+                <a href="{{ ('{{ url(basePath~"'~command.modelPlural ~'/edit/" ~'~command.modelSingular~'.'~command.descriptor.getPrimaryKey~') }}')|raw }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    &nbsp;{{ ('{{ translate("Edit '~command.modelSingular~'") }}')|raw }}</a>
+
+                &nbsp;
+                <a href=".delete{{ ('{{ '~command.modelSingular~'.'~command.descriptor.getPrimaryKey~' }}')|raw }}" class="btn btn-warning" data-toggle="modal">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    &nbsp;{{ ('{{ translate("Delete '~command.modelSingular~'") }}')|raw }}
+                </a>
+
+                {{ ('{{ tableRecord.createDialog('~command.modelSingular~', basePath~"'~command.modelPlural ~'", "'~command.modelSingular~'") }}')|raw }}
+
+            </div>
+        </div>
+    </div>
+
+    {% if command.descriptor.getRelations|length > 0 -%}
+        <div class="entity-related-data panel panel-default">
+        <div class="panel-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+                {% for relation in command.descriptor.getRelations -%}
+                <li class="{{ loop.first ? 'active' }}">
+                    {% if relation.isSingleResult -%}
+                    <a href="#tab-{{ command.descriptor.modelSingular(relation) }}" data-toggle="tab">
+                        {{ ('{{ translate("'~command.descriptor.modelSingular(relation)|capitalize~'") }}')|raw }}
+                    </a>
+                    {%- else -%}
+                    <a href="#tab-{{ command.descriptor.modelPlural(relation) }}" data-toggle="tab">
+                        {{ ('{{ translate("'~command.descriptor.modelPlural(relation)|capitalize~'") }}')|raw }}
+                    </a>
+                    {%- endif %}
+
+                </li>
+                {%- endfor %}
+
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                {%- for relation in command.descriptor.getRelations %}
+
+                {% if relation.isSingleResult -%}
+                {{ ('{% set object = '~command.modelSingular~'.'~relation.getPropertyName~' %}')|raw -}}
+
+                <div class="tab-pane {{ loop.first ? 'active' }}" id="tab-{{ command.descriptor.modelSingular(relation) }}">
+                    <br />
+                    <div class="entity-data">
+                        <dl class="dl-horizontal">
+                            {% for column in command.descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey')%}
+                                <dt>{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}:</dt>
+                                <dd>{{ ('{{ object.'~column.field~' }}')|raw }}</dd>
+                            {% endfor %}
+                        </dl>
+                    </div>
+                    <hr>
+                    <div class="show-actions">
+                        <a href="{{ ('{{ url(basePath~"'~command.descriptor.modelPlural(relation) ~'/show/"~object.' ~ command.descriptor.getRelationDescriptor(relation).getPrimaryKey~') }}')|raw }}" class="btn btn-default">
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                            &nbsp;{{ ('{{ translate("View '~command.descriptor.modelSingular(relation)~'") }}')|raw }}</a>
+                    </div>
+                </div>
+                {%- else %}
+
+                <div class="tab-pane {{ loop.first ? 'active' }}" id="tab-{{ command.descriptor.modelPlural(relation) }}">
+                    <br />
+                    {{ ('{% set records = '~command.modelSingular~'.'~relation.getPropertyName~' %}')|raw }}
+                    {{ ('{% if records|length > 0 %}')|raw }}
+                        <table class="table table-bordered table-condensed table-hover">
+                            <thead>
+                                <tr>
+                                    {% for column in command.descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey') -%}
+                                    {% if loop.first -%}
+                                    <th>{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}</th>
+                                {%- else %}
+
+                                    <th class="hidden-xs">{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}</th>
+                                {%- endif %}
+                                {% endfor %}
+                                {% for relation in command.descriptor.getRelationDescriptor(relation).getRelations if relation.isSingleResult %}
+
+                                    <th class="hidden-xs">{{ ('{{ translate("'~relation.getPropertyName|capitalize~'") }}')|raw }}</th>
+                                {%- endfor %}
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {{ ('{% for record in records %}')|raw }}
+                                <tr>
+                                    {% for column in command.descriptor.getRelationDescriptor(relation).getColumns if not column.getParameter('primaryKey') -%}
+                                    {% if loop.first -%}
+                                    <td>
+                                        <a href="{{ ('{{ url(basePath~"'~command.descriptor.modelPlural(relation)~'/show/"~record.'~command.descriptor.getRelationDescriptor(relation).getPrimaryKey~') }}')|raw }}">
+                                            {{ ('{{ record.'~column.field~'|truncate(150, true)|wordwrap(80, "<br>")|raw }}')|raw }}
+                                        </a>
+                                    </td>
+                                {%- else %}
+
+                                    <td class="hidden-xs">
+                                        {{ ('{{ record.'~column.field~'|truncate(150, true)|wordwrap(80, "<br>")|raw }}')|raw }}
+                                    </td>
+                                {%- endif %}
+                                {% endfor %}
+                                {%- for relation in command.descriptor.getRelationDescriptor(relation).getRelations if relation.isSingleResult %}
+
+                                    <td class="hidden-xs">
+                                        {{ ('{{ record.'~relation.getPropertyName~'|truncate(150) }}')|raw }}
+                                    </td>
+                                {%- endfor %}
+
+                                </tr>
+                            {{ ('{% endfor %}')|raw }}
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="show-actions">
+                            <a href="{{ ('{{ url(basePath~\''~command.descriptor.modelPlural(relation)~'\') }}')|raw }}" class="btn btn-default">
+                                <span class="glyphicon glyphicon-list-alt"></span>
+                                &nbsp;{{ ('{{ translate("Manage '~command.descriptor.modelPlural(relation)~'") }}')|raw }}</a>
+                            &nbsp;
+                        </div>
+                    {{ ('{% else %}')|raw }}
+                        {{ ('{{ translate("There are no '~command.descriptor.modelPlural(relation)~' to show up here.") }}')|raw }}
+                    {{ ('{% endif %}')|raw }}
+                </div>
+                    {% endif %}
+                {%- endfor %}
+
+            </div>
+        </div>
+        </div>
+    {% endif %}
+
+</div>

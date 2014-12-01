@@ -13,6 +13,7 @@
 namespace Slick\Mvc\Command\Task;
 
 use Slick\Common\Base;
+use Slick\Configuration\Configuration;
 use Slick\FileSystem\Folder;
 use Slick\Mvc\Command\Utils\ControllerData;
 use Slick\Template\Template;
@@ -72,6 +73,7 @@ class GenerateScaffoldController extends Base implements TaskInterface
     {
         parent::__construct($options);
         Template::addPath(dirname(dirname(__DIR__)) .'/Views');
+        Configuration::addPath(dirname($this->_path) .'/Configuration');
     }
 
     /**

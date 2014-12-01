@@ -22,7 +22,7 @@
                         {% endif -%}
                         {%- endfor -%}
                         {%- for relation in command.descriptor.getRelations if relation.isSingleResult -%}
-                        <th class="hidden-xs">{{ ('{{ translate("'~relation.getPropertyName|capitalize~'")')|raw }}</th>
+                        <th class="hidden-xs">{{ ('{{ translate("'~relation.getPropertyName|capitalize~'") }}')|raw }}</th>
                         {%- endfor -%}
                         <th class="table-actions-column">{{ ('{{ translate("Actions") }}')|raw }}</th>
                     </tr>
@@ -43,7 +43,7 @@
                         </td>
                         {% endif -%}
                         {%- endfor -%}
-                        {%- for relation in descriptor.getRelations if relation.isSingleResult %}
+                        {%- for relation in command.descriptor.getRelations if relation.isSingleResult %}
                         <td class="hidden-xs">
                             {{ ('{{ '~command.modelSingular~'.'~relation.getPropertyName~' }}')|raw }}
                         </td>

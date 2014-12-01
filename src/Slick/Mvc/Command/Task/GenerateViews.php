@@ -63,6 +63,8 @@ class GenerateViews extends Base implements TaskInterface
     public function generateAll(InputInterface $input, OutputInterface $output) {
         $this->generateIndex($input, $output);
         $this->generateAdd($input, $output);
+        $this->generateEdit($input, $output);
+        $this->generateShow($input, $output);
         return $this;
     }
 
@@ -80,6 +82,28 @@ class GenerateViews extends Base implements TaskInterface
     public function generateAdd(InputInterface $input, OutputInterface $output)
     {
         $task = new GenerateAddView([
+            'command' => $this->_command,
+            'controllerData' => $this->_controllerData,
+            'path' => $this->_path
+        ]);
+        $task->run($input, $output);
+        return $this;
+    }
+
+    public function generateEdit(InputInterface $input, OutputInterface $output)
+    {
+        $task = new GenerateEditView([
+            'command' => $this->_command,
+            'controllerData' => $this->_controllerData,
+            'path' => $this->_path
+        ]);
+        $task->run($input, $output);
+        return $this;
+    }
+
+    public function generateShow(InputInterface $input, OutputInterface $output)
+    {
+        $task = new GenerateShowView([
             'command' => $this->_command,
             'controllerData' => $this->_controllerData,
             'path' => $this->_path
