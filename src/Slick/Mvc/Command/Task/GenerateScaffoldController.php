@@ -73,7 +73,7 @@ class GenerateScaffoldController extends Base implements TaskInterface
     {
         parent::__construct($options);
         Template::addPath(dirname(dirname(__DIR__)) .'/Views');
-        Configuration::addPath(dirname($this->_path) .'/Configuration');
+        Configuration::addPath(getcwd() .'/Configuration');
     }
 
     /**
