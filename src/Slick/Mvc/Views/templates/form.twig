@@ -1,7 +1,7 @@
 {{ '<?php'|raw }}
 
 /**
- * {{ command.getModelSingular|capitalize }}Form
+ * {{ command.getModelSimpleName }}Form
  *
  * @package {{ command.getNamespace|raw }}\Forms
  * @author Your Name {{ '<your.name@email.com>'|raw }}
@@ -14,12 +14,12 @@ use Slick\Form\Element;
 use Slick\Form\Form as SlickFrom;
 
 /**
- * {{ command.getModelSingular|capitalize }}Form
+ * {{ command.getModelSimpleName }}Form
  *
  * @package {{ command.getNamespace|raw }}\Forms
  * @author Your Name {{ '<your.name@email.com>'|raw }}
  */
-class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
+class {{ command.getModelSimpleName }}Form extends SlickFrom
 {
 
     /**
@@ -41,7 +41,7 @@ class {{ command.getModelSingular|capitalize }}Form extends SlickFrom
 
         $this->add(
             new Element\Submit(
-                ['value' => $this->translate('Save {{ command.getModelSingular }}')]
+                ['value' => $this->translate('Save {{ command.getModelHumanName|lower }}')]
             )
         );
     }

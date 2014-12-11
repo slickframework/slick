@@ -63,6 +63,12 @@ class ControllerData extends Base
     protected $_form;
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $_modelPlural;
+
+    /**
      * Sets controller namespace
      *
      * @param string $namespace
@@ -109,6 +115,7 @@ class ControllerData extends Base
      */
     public function getControllerSimpleName()
     {
+
         return end(explode('\\', $this->controllerName));
     }
 
@@ -129,7 +136,15 @@ class ControllerData extends Base
      */
     public function getModelPlural()
     {
-        return strtolower(Text::plural(lcfirst($this->getModelSimpleName())));
+        if (is_null($this->_modelPlural)) {
+            $name = $this->getModelSimpleName();
+            $names = Text::camelCaseToSeparator($name, '#');
+            $names = explode('#', $names);
+            $last = ucfirst(Text::plural(strtolower(array_pop($names))));
+            $names[] = $last;
+            $this->_modelPlural = lcfirst(implode('', $names));
+        }
+        return $this->_modelPlural;
     }
 
     /**
@@ -139,7 +154,7 @@ class ControllerData extends Base
      */
     public function getModelSingular()
     {
-        return strtolower($this->getModelSimpleName());
+        return lcfirst($this->getModelSimpleName());
     }
 
     /**
@@ -181,5 +196,22 @@ class ControllerData extends Base
             $this->_form = new Form("scaffold", $this->getDescriptor());
         }
         return $this->_form;
+    }
+
+    /**
+     * Returns the model human name
+     *
+     * @return string
+     */
+    public function getModelHumanName()
+    {
+        $name = $this->getModelSimpleName();
+        return ucfirst(strtolower(Text::camelCaseToSeparator($name, ' ')));
+    }
+
+    public function getModelHumanNamePlural()
+    {
+        $name = $this->getModelPlural();
+        return ucfirst(strtolower(Text::camelCaseToSeparator($name, ' ')));
     }
 }

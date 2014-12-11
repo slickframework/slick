@@ -2,7 +2,7 @@
 <div class="entity-index">
     <h2 class="section-header">
         <i class="fa fa-list-alt"></i>
-        {{ ('{{ translate("'~command.modelPlural|capitalize~'") }}')|raw }}
+        {{ ('{{ translate("'~command.getModelHumanNamePlural~'") }}')|raw }}
     </h2>
 
     {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "index"} %}')|raw }}
@@ -49,14 +49,14 @@
                         </td>
                         {%- endfor -%}
                         <td class="table-actions-column">
-                            {{ ('{{ tableRecord.getActions('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.modelSingular~'") }}')|raw }}
+                            {{ ('{{ tableRecord.getActions('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.getModelHumanNamePlural|lower~'") }}')|raw }}
                         </td>
                     </tr>
                 {{ ('{% endfor %}')|raw }}
                 </tbody>
             </table>
             {{ ('{% else %}')|raw }}
-                {{ ('{{ translate(\'There are no '~command.modelPlural~' to show up here. Click the <a href="%link">Add '~command.modelSingular~'</a> button to add a new '~command.modelSingular~'.\')|replace({"%link": url(basePath~"'~command.modelPlural~'/add")})|raw }}')|raw }}
+                {{ ('{{ translate(\'There are no '~command.getModelHumanNamePlural|lower~' to show up here. Click the <a href="%link">Add '~command.getModelHumanName|lower~'</a> button to add a new '~command.getModelHumanName|lower~'.\')|replace({"%link": url(basePath~"'~command.modelPlural~'/add")})|raw }}')|raw }}
             {{ ('{% endif %}')|raw }}
         </div>
         <div class="panel-footer">
@@ -65,5 +65,5 @@
     </div>
 </div>
 {{ ('{% for '~command.modelSingular~' in '~command.modelPlural~' %}')|raw }}
-    {{ ('{{ tableRecord.createDialog('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.modelSingular~'") }}')|raw }}
+    {{ ('{{ tableRecord.createDialog('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.getModelHumanName|lower~'") }}')|raw }}
 {{ ('{% endfor %}')|raw }}

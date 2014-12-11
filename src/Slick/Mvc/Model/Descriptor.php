@@ -152,8 +152,13 @@ class Descriptor extends Base
             $name = explode('#', $name);
             $final = ucfirst(Text::plural(strtolower(array_pop($name))));
             $name[] = $final;
+            $modelName = '';
+            foreach ($name as $part) {
+                $modelName .= ucfirst($part);
+            }
+
             $this->_modelPlural[$relation->getPropertyName()] =
-                lcfirst(implode('', $name));
+                lcfirst($modelName);
         }
         return $this->_modelPlural[$relation->getPropertyName()];
     }

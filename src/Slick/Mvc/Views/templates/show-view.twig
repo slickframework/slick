@@ -21,12 +21,12 @@
             <div class="show-actions">
                 <a href="{{ ('{{ url(basePath~"'~command.modelPlural ~'/edit/" ~'~command.modelSingular~'.'~command.descriptor.getPrimaryKey~') }}')|raw }}" class="btn btn-primary">
                     <span class="glyphicon glyphicon-pencil"></span>
-                    &nbsp;{{ ('{{ translate("Edit '~command.modelSingular~'") }}')|raw }}</a>
+                    &nbsp;{{ ('{{ translate("Edit '~command.getModelHumanName|lower~'") }}')|raw }}</a>
 
                 &nbsp;
                 <a href=".delete{{ ('{{ '~command.modelSingular~'.'~command.descriptor.getPrimaryKey~' }}')|raw }}" class="btn btn-warning" data-toggle="modal">
                     <span class="glyphicon glyphicon-trash"></span>
-                    &nbsp;{{ ('{{ translate("Delete '~command.modelSingular~'") }}')|raw }}
+                    &nbsp;{{ ('{{ translate("Delete '~command.getModelHumanName|lower~'") }}')|raw }}
                 </a>
 
                 {{ ('{{ tableRecord.createDialog('~command.modelSingular~', basePath~"'~command.modelPlural ~'", "'~command.modelSingular~'") }}')|raw }}

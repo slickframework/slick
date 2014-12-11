@@ -4,10 +4,10 @@
             <form class="form-inline" role="form" method="get">
                 <div class="form-group has-feedback">
                     <label class="sr-only" for="search-pattern">
-                        {{  ('{{ translate("Search '~command.modelPlural~'") }}')|raw }}
+                        {{  ('{{ translate("Search '~command.getModelHumanNamePlural|lower~'") }}')|raw }}
                     </label>
                     <input type="text" class="form-control " id="search-pattern"
-                           placeholder="{{  ('{{ translate("Search '~command.modelPlural~'") }}')|raw }}"
+                           placeholder="{{  ('{{ translate("Search '~command.getModelHumanNamePlural|lower~'") }}')|raw }}"
                            name="pattern" value="{{  ('{{ pattern }}')|raw }}" >
                     <span class="glyphicon glyphicon-search form-control-feedback"></span>
                 </div>
@@ -17,7 +17,7 @@
         <div class="table-search col-xs-6 col-sm-6 col-md-6 col-lg-6">
             <a href="{{ ('{{ url(basePath~\''~command.modelPlural~'/add\') }}')|raw }}" class="btn btn-primary pull-right">
                 <span class="glyphicon glyphicon-plus"></span>
-                {{ ('{{ translate("Add '~command.modelSingular~'") }}')|raw }}
+                {{ ('{{ translate("Add '~command.getModelHumanName|lower~'") }}')|raw }}
             </a>
         </div>
         <span class="clearfix"></span>

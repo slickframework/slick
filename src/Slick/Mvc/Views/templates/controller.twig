@@ -69,7 +69,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
         if (is_null(${{ command.getModelSingular }})) {
             $this->addWarningMessage(
                 $this->translate(
-                    "The {{ command.getModelSingular }} with the provided key does not exists."
+                    "The {{ command.getModelHumanName|lower }} with the provided key does not exists."
                 )
             );
             $this->redirect('{{ command.getModelPlural }}');
@@ -92,7 +92,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
                     ${{ command.getModelSingular }}->save();
                     $this->addSuccessMessage(
                         $this->translate(
-                            "{{ command.getModelSingular|capitalize }} successfully created."
+                            "{{ command.getModelHumanName }} successfully created."
                         )
                     );
                     $this->redirect('{{ command.getModelPlural }}/show/' . ${{ command.getModelSingular }}->{{ command.descriptor.primaryKey }});
@@ -100,14 +100,14 @@ class {{ command.getControllerSimpleName  }} extends Controller
                 } catch (Database\Exception $exp) {
                     $this->addErrorMessage(
                         $this->translate(
-                            "Error while saving {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                            "Error while saving {{ command.getModelHumanName|lower }} data: {$exp->getMessage()}."
                         )
                     );
                 }
             } else {
                 $this->addErrorMessage(
                     $this->translate(
-                        "Cannot save {{ command.getModelSingular }}. Please correct the errors bellow."
+                        "Cannot save {{ command.getModelHumanName|lower }}. Please correct the errors bellow."
                     )
                 );
             }
@@ -128,7 +128,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
         if (is_null(${{ command.getModelSingular }})) {
             $this->addWarningMessage(
                 $this->translate(
-                    "The {{ command.getModelSingular }} with the provided key does not exists."
+                    "The {{ command.getModelHumanName|lower }} with the provided key does not exists."
                 )
             );
             $this->redirect('{{ command.getModelPlural }}');
@@ -145,7 +145,7 @@ class {{ command.getControllerSimpleName  }} extends Controller
                     ${{ command.getModelSingular }}->save();
                     $this->addSuccessMessage(
                         $this->translate(
-                            "{{ command.getModelSingular|capitalize }} successfully created."
+                            "{{ command.getModelHumanName }} successfully created."
                         )
                     );
                     $this->redirect('{{ command.getModelPlural }}/show/' . ${{ command.getModelSingular }}->{{ command.descriptor.primaryKey }});
@@ -153,14 +153,14 @@ class {{ command.getControllerSimpleName  }} extends Controller
                 } catch (Database\Exception $exp) {
                     $this->addErrorMessage(
                         $this->translate(
-                            "Error while saving {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                            "Error while saving {{ command.getModelHumanName|lower }} data: {$exp->getMessage()}."
                         )
                     );
                 }
             } else {
                 $this->addErrorMessage(
                     $this->translate(
-                        "Cannot update {{ command.getModelSingular }}. Please correct the errors bellow."
+                        "Cannot update {{ command.getModelHumanName|lower }}. Please correct the errors bellow."
                     )
                 );
             }
@@ -187,18 +187,18 @@ class {{ command.getControllerSimpleName  }} extends Controller
             if (is_null(${{ command.getModelSingular }})) {
                 $this->addWarningMessage(
                     $this->translate(
-                        "The {{ command.getModelSingular }} with the provided key does not exists."
+                        "The {{ command.getModelHumanName|lower }} with the provided key does not exists."
                     )
                 );
             } else {
                 try {
                     ${{ command.getModelSingular }}->delete();
                     $this->addSuccessMessage(
-                        "The {{ command.getModelSingular }} was successfully deleted."
+                        "The {{ command.getModelHumanName|lower }} was successfully deleted."
                     );
                 } catch (Database\Exception $exp) {
                     $this->translate(
-                        "Error while deleting {{ command.getModelSingular }} data: {$exp->getMessage()}."
+                        "Error while deleting {{ command.getModelHumanName|lower }} data: {$exp->getMessage()}."
                     );
                 }
             }

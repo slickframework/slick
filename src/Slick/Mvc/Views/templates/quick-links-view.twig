@@ -6,11 +6,11 @@
         </a>
         <a class="btn btn-default {{ ("{{ page == 'index' ? 'active' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'\') }}')|raw }}">
             <span class="glyphicon glyphicon-list-alt"></span>
-            {{ ('{{ translate("Manage '~command.modelPlural~'") }}')|raw }}
+            {{ ('{{ translate("Manage '~command.getModelHumanNamePlural|lower~'") }}')|raw }}
         </a>
         <a class="btn btn-default {{ ("{{ page == 'add' ? 'active' }}")|raw }}" href="{{ ('{{ url(basePath~\''~command.modelPlural~'/add\') }}')|raw }}">
             <span class="glyphicon glyphicon-plus"></span>
-            {{ ('{{ translate("Add '~command.modelSingular~'") }}')|raw }}
+            {{ ('{{ translate("Add '~command.getModelHumanName|lower~'") }}')|raw }}
         </a>
         {% for relation in command.descriptor.getRelations %}
 
