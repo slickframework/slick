@@ -105,7 +105,8 @@ abstract class AbstractSingleRelation extends AbstractRelation
             ->get($this->getRelatedEntity());
         $relatedTable = $related->getEntity()->getTableName();
         $class = $related->getEntity()->getClassName();
-        foreach ($data as $key => $row) {
+        $dataCopy = $data;
+        foreach ($dataCopy as $key => $row) {
 
             $pmk =  $this->getEntity()->getPrimaryKey();
             if (isset($row[$pmk]) && is_array($row[$pmk])) {
@@ -114,7 +115,7 @@ abstract class AbstractSingleRelation extends AbstractRelation
             $options = [];
             if (is_array($row)) {
                 foreach ($row as $column => $value) {
-                    if (preg_match('/' . $relatedTable . '_(.*)/i', $column)) {
+                    if (preg_match('/^' . $relatedTable . '_(.*)/', $column)) {
                         unset($data[$key][$column]);
                         $name = str_replace($relatedTable . '_', '', $column);
                         $options[$name] = $value;
