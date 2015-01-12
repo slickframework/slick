@@ -126,7 +126,7 @@ abstract class AbstractSingleRelation extends AbstractRelation
         }
 
         if ($multiple) {
-            $event->data = $data;
+            $event->data = new RecordList(['data' => $data]);
         } else {
             $event->data = reset($data);
         }
