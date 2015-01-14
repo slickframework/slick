@@ -93,7 +93,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
         if (!in_array($key, $keys)) {
             array_push($keys, $key);
         }
-        $this->set('__stored_keys__', $keys);
+        $this->set('__stored_keys__', $keys, 24*60*60);
         return $this;
     }
 

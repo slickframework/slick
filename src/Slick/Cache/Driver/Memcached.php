@@ -203,7 +203,7 @@ class Memcached extends AbstractDriver
         }
 
         $keys = $this->getKeys($pattern);
-
+        $this->getService()->delete($this->_prefix.$pattern);
         foreach ($keys as $key) {
             $this->getService()->delete($this->_prefix.$key);
             $this->_removeKey($key);
