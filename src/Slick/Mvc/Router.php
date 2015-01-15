@@ -141,7 +141,7 @@ class Router extends Base
         $extension = $this->application->getRequest()
             ->getQuery('extension');
 
-        if (strlen($extension < 1)) {
+        if (strlen($extension) < 1) {
             $extension = $cfg->get('router.extension', 'html');
         }
         $routerInfo->extension = $extension;
