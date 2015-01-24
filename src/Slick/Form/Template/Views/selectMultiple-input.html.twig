@@ -3,7 +3,13 @@
 {% block inputElement %}
     <select name="{{ element.getName }}[]" id="{{ element.getName() }}-input" {{ element.getHtmlAttributes|raw }}>
         {% for key, value in element.getOptions() %}
-            {% if key == element.getValue() %}
+            {% set selected = false %}
+            {% for val in  element.getValue() %}
+                {% if key == val %}
+                    {% set selected = true %}
+                {% endif %}
+            {% endfor %}
+            {% if selected %}
                 <option selected="selected" value="{{ key }}">{{ value }}</option>
             {% else %}
                 <option value="{{ key }}">{{ value }}</option>
