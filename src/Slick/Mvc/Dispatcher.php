@@ -14,6 +14,7 @@ namespace Slick\Mvc;
 
 use Slick\Common\Base;
 use Slick\Common\Inspector;
+use Slick\Mvc\Events\Filter;
 use Slick\Mvc\Router\RouteInfo;
 use Zend\Http\PhpEnvironment\Response;
 
@@ -127,15 +128,29 @@ class Dispatcher extends Base
             $this->_routeInfo->getArguments() : [];
 
         $controller->arguments = $arguments;
+        $filterEvent = new Filter(
+            [
+                'controller' => $controller,
+                'routeInfo' => $this->_routeInfo
+            ],
+            'FilterEvent'
+        );
+        $this->_application->getEventManager()
+            ->trigger(Filter::BEFORE_FILTER, $this, $filterEvent);
+
         call_user_func_array(
             array(
-                $controller,
+                $filterEvent->controller,
                 $method
             ),
             $arguments
         );
 
+
         $hooks($methodMeta, "@after");
+        $this->_application->getEventManager()
+            ->trigger(Filter::AFTER_FILTER, $this, $filterEvent);
+
         $this->_controller = $controller;
 
         return $this->_render();
