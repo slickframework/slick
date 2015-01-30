@@ -17,3 +17,5 @@
 /.idea
 *.php.old
 /src/Slick/*.old
+/composer.phar
+*.DS_Store
