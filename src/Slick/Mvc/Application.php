@@ -17,6 +17,7 @@ use Slick\Di\Container;
 use Slick\Di\Definition;
 use Psr\Log\LoggerInterface;
 use Slick\Log\Log;
+use Slick\Mvc\Whoops\Handler\Production;
 use Slick\Template\Template;
 use Slick\Di\ContainerBuilder;
 use Slick\Mvc\Events\Dispatch;
@@ -325,10 +326,17 @@ class Application extends Base
         $environment = $this->getConfiguration()
             ->get('environment', 'production');
 
-        if ($environment != 'production') {
-            $handler = new PrettyPageHandler();
-            $this->_whoops->pushHandler($handler);
+        switch ($environment) {
+            case 'production':
+                $handler = new Production();
+                $handler->setApplication($this);
+                break;
+
+            default:
+                $handler = new PrettyPageHandler();
         }
+
+        $this->_whoops->pushHandler($handler);
 
         $this->_whoops->register();
         return $this;

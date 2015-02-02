@@ -13,9 +13,11 @@
 namespace Slick\Log;
 
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Slick\Common\Base;
 use Slick\Configuration\Configuration;
 use Slick\Log\Handler\NullHandler;
+use Slick\Configuration\Exception\FileNotFoundException;
 
 /**
  * Factory for a Monolog logger.
@@ -52,14 +54,14 @@ class Log extends Base
      * @readwrite
      * @var string
      */
-    protected $_prefix = '';
+    protected $_prefix;
 
     /**
      * Gets the logger for the channel with the provided name.
      *
      * @param string $name The loggers channel name to retrieve.
      *
-     * @return \Monolog\Logger The logger object for the given channel name.
+     * @return \Monolog\Logger|LoggerInterface The logger object for the given channel name.
      */
     public static function logger($name = null)
     {
@@ -111,8 +113,13 @@ class Log extends Base
     {
         if (is_null($this->_prefix)) {
             $hostName = gethostname();
-            $this->_prefix = Configuration::get('config')
-                ->get('logger.prefix', $hostName);
+            try {
+                $this->_prefix = Configuration::get('config')
+                    ->get('logger.prefix', $hostName);
+            } catch(FileNotFoundException $exp) {
+                $this->_prefix = $hostName;
+            }
+
         }
         return $this->_prefix;
     }
