@@ -5,15 +5,14 @@
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
 namespace Slick\Cache\Driver;
 
-use Slick\Common\Base,
-    Slick\Cache\DriverInterface;
+use Slick\Common\Base;
+use Slick\Cache\DriverInterface;
 
 /**
  * Wrapper for common properties and methods among cache drivers

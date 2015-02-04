@@ -5,15 +5,14 @@
     "keywords": ["slick", "cache", "memcached"],
     "autoload": {
         "psr-0": {
-            "Slick\\Cache\\": ""
+            "Slick\\Cache\\": "src/"
         }
     },
-    "target-dir": "Slick/Cache",
     "require": {
         "slick/common": "self.version",
         "slick/filesystem": "self.version"
     },
     "suggest": {
-        "ext-memcache": "For a better performance cache"
+        "ext-memcached": "For a better performance cache"
     }
 }

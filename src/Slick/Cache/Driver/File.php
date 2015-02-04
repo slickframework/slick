@@ -5,22 +5,24 @@
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
 namespace Slick\Cache\Driver;
 
-use Slick\Cache\DriverInterface;
-use Slick\FileSystem\Folder;
 use Slick\FileSystem\Node;
+use Slick\FileSystem\Folder;
 
 /**
  * Uses file system to store cache data
  *
  * @package   Slick\Cache\Driver
  * @author    Filcipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $path Default files path
+ * @property string $dirName The directory name for cache files
+ * @property Folder $folder Folder to handle the cache files
  */
 class File extends AbstractDriver
 {
@@ -141,7 +143,7 @@ class File extends AbstractDriver
     /**
      * Flushes all values controlled by this cache driver
      *
-     * @return DriverInterface A self instance for chaining method calls.
+     * @return File A self instance for chaining method calls.
      */
     public function flush()
     {

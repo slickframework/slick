@@ -5,7 +5,6 @@
  *
  * @package   Slick\Cache
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
@@ -39,7 +38,7 @@ interface DriverInterface
      * @param mixed   $value    The value to store.
      * @param integer $duration The live time of cache in seconds.
      * 
-     * @return DriverInterface A self instance for chaining method calls.
+     * @return self A self instance for chaining method calls.
      */
     public function set($key, $value, $duration = -1);
 
@@ -52,17 +51,15 @@ interface DriverInterface
      *
      * @param String $key The key under witch value was stored.
      * 
-     * @return DriverInterface A self instance for chaining method calls.
+     * @return self A self instance for chaining method calls.
      */
     public function erase($key);
 
     /**
      * Flushes all values controlled by this cache driver
      *
-     * @return DriverInterface A self instance for chaining method calls.
+     * @return self A self instance for chaining method calls.
      */
     public function flush();
-
-
 
 }
