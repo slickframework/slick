@@ -85,7 +85,7 @@ class Memcached extends AbstractDriver
         $this->_service = new SplMemcached();
         $this->_service->addServer($this->_host, $this->_port);
         $stats = $this->_service->getStats();
-        if (isset($statuses[$this->_host.":".$this->_port])) {
+        if (isset($stats[$this->_host.":".$this->_port])) {
             $this->_connected = true;
         } else {
             throw new ServiceException(
