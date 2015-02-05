@@ -5,7 +5,6 @@
  *
  * @package    Slick\Common
  * @author     Filipe Silva <silvam.filipe@gmail.com>
- * @copyright  2014 Filipe Silva
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @since      Version 1.1.0
  */
@@ -13,10 +12,10 @@
 namespace Slick\Common;
 
 use ReflectionClass;
-use Slick\Common\Exception\InvalidArgumentException;
-use Slick\Common\Inspector\AnnotationInterface;
 use Slick\Common\Inspector\AnnotationsList;
 use Slick\Common\Inspector\AnnotationParser;
+use Slick\Common\Inspector\AnnotationInterface;
+use Slick\Common\Exception\InvalidArgumentException;
 
 /**
  * Inspector uses PHP reflection to inspect classes or objects.

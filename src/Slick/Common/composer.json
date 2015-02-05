@@ -5,13 +5,16 @@
     "keywords": ["slick", "common"],
     "autoload": {
         "psr-0": {
-            "Slick\\Common\\": ""
+            "Slick\\Common\\": "src/"
         }
     },
-    "target-dir": "Slick/Common",
     "require": {
-        "slick/Utility": "self.version",
-        "slick/Di": "self.version",
-        "zeptech/annotations": "dev-master"
+        "slick/Utility": "self.version"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev",
+            "dev-develop": "1.1-dev"
+        }
     }
 }

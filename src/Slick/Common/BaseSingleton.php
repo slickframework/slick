@@ -5,14 +5,11 @@
  * 
  * @package   Slick\Common
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
 namespace Slick\Common;
-
-use Slick\Utility\Text;
 
 /**
  * Base singleton variation
@@ -26,7 +23,7 @@ use Slick\Utility\Text;
  * only with some properties defined by passing an array (with those values)
  * or an object as argument.
  * Slick framework uses it in almost every class so it is important that
- * you understand how it works and the beneficts of using it.
+ * you understand how it works and the benefits of using it.
  *
  * @package   Slick\Common
  * @author    Filipe Silva <silvam.filipe@gmail.com>
