@@ -152,84 +152,82 @@ class SlickTwigExtension extends Twig_Extension
     }
 }
 
-if (function_exists('mb_get_info')) {
-    function truncateFilter(
-        Twig_Environment $env, $value, $length = 30, $preserve = false,
-        $separator = '...')
-    {
-        if (mb_strlen($value, $env->getCharset()) > $length) {
-            if ($preserve) {
-                // If breakpoint is on the last word, return the
-                // value without separator.
-                if (
-                    false === (
-                        $breakpoint = mb_strpos(
-                            $value,
-                            ' ',
-                            $length,
-                            $env->getCharset()
-                        )
-                    )
-                ) {
-                    return $value;
-                }
+function wordwrapFilter(
+    Twig_Environment $env, $value, $length = 80, $separator = "\n",
+    $preserve = false)
+{
+    return wordwrap($value, $length, $separator, !$preserve);
+}
 
+function truncateFilter(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (function_exists('mb_get_info')) {
+        return truncateFilterMbInfo(
+            $env,
+            $value,
+            $length,
+            $preserve,
+            $separator
+        );
+    }
+
+    return truncateFilterNoMbInfo(
+        $env,
+        $value,
+        $length,
+        $preserve,
+        $separator
+    );
+}
+
+function truncateFilterMbInfo(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (mb_strlen($value, $env->getCharset()) > $length) {
+        if ($preserve) {
+            // If breakpoint is on the last word, return the
+            // value without separator.
+            if (
+                false === (
+                $breakpoint = mb_strpos(
+                    $value,
+                    ' ',
+                    $length,
+                    $env->getCharset()
+                )
+                )
+            ) {
+                return $value;
+            }
+
+            $length = $breakpoint;
+        }
+
+        return rtrim(
+            mb_substr($value, 0, $length, $env->getCharset())
+        ) . $separator;
+    }
+
+    return $value;
+}
+
+function truncateFilterNoMbInfo(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (strlen($value) > $length) {
+        if ($preserve) {
+            if (false !== ($breakpoint = strpos($value, ' ', $length))) {
                 $length = $breakpoint;
             }
-
-            return rtrim(
-                mb_substr($value, 0, $length, $env->getCharset())
-            ) . $separator;
         }
 
-        return $value;
+        return rtrim(substr($value, 0, $length)) . $separator;
     }
 
-    function wordwrapFilter(
-        Twig_Environment $env, $value, $length = 80, $separator = "\n",
-        $preserve = false)
-    {
-        $sentences = array();
-
-        $previous = mb_regex_encoding();
-        mb_regex_encoding($env->getCharset());
-
-        $pieces = mb_split($separator, $value);
-        mb_regex_encoding($previous);
-
-        foreach ($pieces as $piece) {
-            while(!$preserve && mb_strlen($piece, $env->getCharset()) > $length) {
-                $sentences[] = mb_substr($piece, 0, $length, $env->getCharset());
-                $piece = mb_substr($piece, $length, 2048, $env->getCharset());
-            }
-
-            $sentences[] = $piece;
-        }
-
-        return implode($separator, $sentences);
-    }
-} else {
-    function truncateFilter(
-        Twig_Environment $env, $value, $length = 30, $preserve = false,
-        $separator = '...')
-    {
-        if (strlen($value) > $length) {
-            if ($preserve) {
-                if (false !== ($breakpoint = strpos($value, ' ', $length))) {
-                    $length = $breakpoint;
-                }
-            }
-
-            return rtrim(substr($value, 0, $length)) . $separator;
-        }
-
-        return $value;
-    }
-
-    function wordwrapFilter(
-        Twig_Environment $env, $value, $length = 80, $separator = "\n",
-        $preserve = false)
-    {
-        return wordwrap($value, $length, $separator, !$preserve);
-    }
+    return $value;
 }
+
