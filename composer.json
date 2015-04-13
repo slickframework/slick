@@ -1,52 +1,43 @@
 {
-	"name" : "slick/slick",
-	"description" : "The Slick Framework project.",
-	"keywords" : [
-		"framework",
-		"slick"
-	],
-	"license" : "MIT",
-	"authors" : [{
-			"name" : "Filipe Silva",
-			"email" : "silvam.filipe@gmail.com"
-		}
-	],
-	"require" : {
-		"monolog/monolog" : "~1.4",
-        "twig/twig": "*",
-        "zendframework/zend-eventmanager": ">=2.2.5",
-        "zendframework/zend-uri" : ">=2.2.5",
-        "zendframework/zend-http": ">=2.2.5",
-        "zendframework/zend-i18n": ">=2.2.5",
-        "zendframework/zend-servicemanager": "2.2.5",
-        "symfony/console": ">=2.3.0",
-        "myclabs/php-enum": "1.*",
-        "altorouter/altorouter": ">1.0",
-        "psr/log": "*",
-        "filp/whoops": "~1.0"
-	},
-    "require-dev": {
-        "codeception/codeception": "1.8.*@dev",
-        "satooshi/php-coveralls": "dev-master"
-    },
-	"replace" : {
-		"slick/common" : "self.version",
-		"slick/database" : "self.version",
-		"slick/utility" : "self.version",
-		"slick/log" : "self.version",
-		"slick/template" : "self.version",
-		"slick/mvc" : "self.version"
-	},
-	"autoload" : {
-		"psr-0" : {
-			"Slick\\" : "src/"
-		}
-	},
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev",
-            "dev-develop": "1.1-dev"
-        }
-    },
-    "bin": ["bin/slick"]
+  "name" : "slick/slick",
+  "description" : "The Slick Framework project.",
+  "keywords" : [
+    "framework",
+    "slick"
+  ],
+  "version": "1.2.0",
+  "license" : "MIT",
+  "authors" : [{
+    "name" : "Filipe Silva",
+    "email" : "silvam.filipe@gmail.com",
+    "role": "Developer"
+  }
+  ],
+  "require" : {
+    "php" : ">=5.4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit" : "4.*",
+    "scrutinizer/ocular": "~1.1"
+  },
+  "replace" : {
+    "slick/common" : "self.version"
+  },
+  "autoload" : {
+    "psr-4" : {
+      "Slick\\" : "library/Slick"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Slick\\Test\\": "tests"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.1-dev",
+      "dev-develop": "1.2-dev"
+    }
+  },
+  "bin": ["bin/slick"]
 }

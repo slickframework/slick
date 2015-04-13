@@ -1,9 +1,0 @@
-<div class="edit-{{ command.modelSingular }}">
-    <h2 class="section-header">{{ ('{{ translate("Edit \\"%model\\"")|replace({"%model": '~command.modelSingular~'}) }}')|raw }}</h2>
-
-    {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "edit"} %}')|raw }}
-
-    <div class="form-wrapper">
-        {{ ('{{ form.render|raw }}')|raw }}
-    </div>
-</div>

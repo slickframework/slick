@@ -1,6 +1,0 @@
-{% extends "default-input.html.twig" %}
-
-{% block inputElement %}
-    <textarea name="{{ element.getName }}" id="{{ element.getName() }}-input"
-            {{ element.getHtmlAttributes|raw }}>{{- element.getValue() -}}</textarea>
-{% endblock %}

@@ -1,72 +1,49 @@
-Slick Framework
-===============
+# Slick Framework
 
-Slick is a PHP 5.4+ MVC framework and tool set that aim to be simple
-robust and cool to work with. The goal was to create a PHP framework
-that could be used to develop web applications with agile methodologies
-like SCRUM or KANBAN in mind.
+[![Latest Version](https://img.shields.io/github/release/slickframework/slick.svg?style=flat-square)](https://github.com/slickframework/slick/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/slickframework/slick/master.svg?style=flat-square)](https://travis-ci.org/slickframework/slick)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick)
+[![Total Downloads](https://img.shields.io/packagist/dt/slick/slick.svg?style=flat-square)](https://packagist.org/packages/slick/slick)
 
-**Current build status**
+Slick is a PHP 5.4+ MVC framework and tool set that aim to be simple robust and cool to work with.
+The goal is to create a PHP tool set that can be used to develop applications with agile methodologies in mind.
 
-[![Build Status](https://travis-ci.org/slickframework/slick.svg?branch=feature/dba)](https://travis-ci.org/slickframework/slick)
-[![Coverage Status](https://coveralls.io/repos/slickframework/slick/badge.png?branch=feature%2Fdba)](https://coveralls.io/r/slickframework/slick?branch=feature%2Fdba)[![Latest Stable Version](https://poser.pugx.org/slick/slick/v/stable.svg)](https://packagist.org/packages/slick/slick)
-[![Total Downloads](https://poser.pugx.org/slick/slick/downloads.svg)](https://packagist.org/packages/slick/slick)
-[![Latest Unstable Version](https://poser.pugx.org/slick/slick/v/unstable.svg)](https://packagist.org/packages/slick/slick)
-[![License](https://poser.pugx.org/slick/slick/license.svg)](https://packagist.org/packages/slick/slick)
+This library is compliant with PSR-2 code standards and PSR-4 autoload standards. It
+also applies the [semantic version 2.0.0](http://semver.org) specification.
 
-**Features**
+## Install
 
-> -   Cache management
-> -   Easy configuration
-> -   Dependency Injection container
-> -   Session handling
-> -   Form building (and rendering)
-> -   Simple ORM that uses PDO for data access
-> -   Data filters and validators
-> -   Uses [Twig][] for a robust template engine
-> -   Behavior/test driven development (with [Codeception][])
-> -   A a lot of interfaces for easy implementations of your own needs.
+Via Composer
 
-**Installation**
+``` bash
+$ composer require slick/slick
+```
 
-The best way to get started with Slick framework is using composer. We
-have created a template that get you with a base web application files
-and directory structure. To start a project using our web application
-template run
+## Usage
 
-    $ composer create-project slick/webapp <your-app-name>
 
-If you wat to use a Slick module in your existing project just add the
-corespondent module name your project `composer.json` file. Lets have an
-example. Adding the `slick/template` Slick module to your project is as
-simple as adding the following line to your project’s `composer.json`
-file:
 
-    {
-        "require": {
-            "slick/template": "1.0.*@dev",
-            ...
-        }
-    }
+## Testing
 
-Then you need to run:
+``` bash
+$ phpunit
+```
 
-    $ composer update
+## Contributing
 
-to be able to add the specified library to your vendor directory.
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-**Contribute**
+## Security
 
--   Issue Tracker: <https://github.com/slickframework/slick/issues>
--   Source Code: <https://github.com/slickframework/slick>
+If you discover any security related issues, please email silvam.filipe@gmnail.com instead of using the issue tracker.
 
-**Support**
+## Credits
 
-If you are having issues, please let us know.
+- [Slick Framework](https://github.com/slickframework)
+- [All Contributors](../../contributors)
 
-**License**
+## License
 
-The project is licensed under the MIT License (MIT)
-
-  [Twig]: http://twig.sensiolabs.org/
-  [Codeception]: http://codeception.com/
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

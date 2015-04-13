@@ -1,5 +1,0 @@
-<form id="{{ element.getName() }}" role="form" {{ element.getHtmlAttributes|raw }} >
-{% for elm in element.getElements() %}
-    {{ elm.render()|raw }}
-{% endfor %}
-</form>
