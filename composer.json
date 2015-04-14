@@ -30,7 +30,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Slick\\Test\\": "tests"
+      "Slick\\Tests\\": "tests"
     }
   },
   "extra": {
