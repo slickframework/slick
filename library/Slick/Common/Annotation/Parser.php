@@ -61,6 +61,11 @@ class Parser
             $name = $tag[1];        // Annotation name
             $value = true;          // Default annotation value
 
+            if (isset($tag[2])) {
+                $value = $this->parseParameters($tag[2]);
+                $value['raw'] = $tag[2];
+            }
+
             $annotationData[$name] = $value;
         }
         return $annotationData;
@@ -101,5 +106,52 @@ class Parser
         $this->comment = $comment;
         $this->tags = null;
         return $this;
+    }
+
+    /**
+     * Parses the parameter part of the tag to retrieve an associative array
+     * with key/value pairs of annotation properties
+     *
+     * @param string $parameters The parameters part of a tag
+     *
+     * @return array An associative array with key/value pairs
+     */
+    private function parseParameters($parameters)
+    {
+        $value = [];
+        $canBeParsed = preg_match_all(
+            static::ANNOTATION_PARAMETERS_REGEX,
+            $parameters,
+            $result
+        );
+
+        if ($canBeParsed) {
+            foreach ($result[0] as $part) {
+                $param = $this->getKeyValuePair($part);
+                $value[$param['name']] = $param['value'];
+            }
+        }
+        return $value;
+    }
+
+    /**
+     * Splits the parameter using the first equal "=" sign
+     *
+     * @param string $part The parameter string to analyse
+     *
+     * @return array
+     */
+    private function getKeyValuePair($part)
+    {
+        $parts = explode("=", $part, 2);
+        $pair = ['name' => $parts[0], 'value' => true];
+        if (isset($parts[1])) {
+            $value = new ParameterValue($parts[1]);
+            $pair = [
+                'name' => $parts[0],
+                'value'=> $value->getRealValue()
+            ];
+        }
+        return $pair;
     }
 }

@@ -3,5 +3,4 @@ composer.phar
 .idea
 build
 composer.lock
-docs
 vendor
