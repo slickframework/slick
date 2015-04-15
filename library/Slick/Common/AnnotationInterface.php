@@ -17,7 +17,7 @@ namespace Slick\Common;
 interface AnnotationInterface
 {
     /**
-     * Returns the annotations name
+     * Returns the annotation name
      *
      * @return string
      */

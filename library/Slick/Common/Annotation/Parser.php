@@ -32,7 +32,7 @@ class Parser
     private $comment;
 
     /**
-     * @var string[] A list of comment tags
+     * @var null|string[] A list of comment tags
      */
     private $tags;
 

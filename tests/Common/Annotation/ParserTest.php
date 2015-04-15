@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Slick\Tests\Common;
+namespace Slick\tests\Common\Annotation;
 
 use Slick\Common\Annotation\Parser;
 use PHPUnit_Framework_TestCase as TestCase;
@@ -15,7 +15,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 /**
  * Comment parser test case
  *
- * @package Slick\Tests\Common
+ * @package Slick\tests\Common\Annotation
  */
 class ParserTest extends TestCase
 {

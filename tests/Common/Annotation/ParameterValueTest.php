@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Slick\Tests\Common;
+namespace Slick\tests\Common\Annotation;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Slick\Common\Annotation\ParameterValue;
@@ -17,8 +17,9 @@ use Slick\Common\Annotation\ParameterValue;
  *
  * @package Slick\Tests\Common
  */
-class ParameterValueTest extends TestCase 
+class ParameterValueTest extends TestCase
 {
+
     /**
      * @dataProvider
      * @return array
@@ -56,6 +57,4 @@ class ParameterValueTest extends TestCase
             $this->assertNull($value->getRealValue());
         }
     }
-
-
 }
