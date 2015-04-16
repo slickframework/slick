@@ -146,12 +146,12 @@ class CommonContext extends AbstractContext implements
     {
         switch ($type) {
             case 'methods':
-                $list =  $this->methods;
+                $list = $this->methods;
                 break;
 
             case 'properties':
             default:
-                $list =  $this->properties;
+                $list = $this->properties;
         }
 
         PhpUnit::assertTrue(is_array($list));
@@ -177,7 +177,7 @@ class CommonContext extends AbstractContext implements
 
             case 'class':
             default:
-                $annotations =  $this->classAnnotations;
+                $annotations = $this->classAnnotations;
         }
 
         return $annotations;
