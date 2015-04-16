@@ -1,0 +1,9 @@
+# Behat configuration file
+default:
+  suites:
+    common_features:
+      contexts:
+        - FeatureContext
+        - Common\CommonContext
+      paths:
+        - %paths.base%/features/Common
