@@ -191,17 +191,22 @@ class CommonContext extends AbstractContext implements
      */
     public function classImplements($className)
     {
-        throw new PendingException();
+        \PHPUnit_Framework_Assert::assertTrue(
+            class_exists($className),
+            "Class {$className} does not exists."
+        );
     }
 
     /**
-     * @Given /^class "([^"]*)" has dock block with "@Common\\CustomAnnotation"$/
+     * @Given /^class "([^"]*)" has dock block with "([^"]*)"$/
      *
      * @param string $className
      */
-    public function classHasDockBlockWith($className)
+    public function classHasDockBlockWith($className, $tag)
     {
-        throw new PendingException();
+        $classReflection = new \ReflectionClass($className);
+        $comment = $classReflection->getDocComment();
+        
     }
 
     /**
