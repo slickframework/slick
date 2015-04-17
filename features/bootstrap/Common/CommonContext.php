@@ -12,6 +12,7 @@ namespace Common;
 use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Behat\Tester\Exception\PendingException;
 use PHPUnit_Framework_Assert as PhpUnit;
 use Slick\Common\Annotation\AnnotationList;
 use Slick\Common\Inspector;
@@ -181,5 +182,44 @@ class CommonContext extends AbstractContext implements
         }
 
         return $annotations;
+    }
+
+    /**
+     * @Given /^class "([^"]*)" implements "AnnotationInterface"$/
+     *
+     * @param string $className
+     */
+    public function classImplements($className)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given /^class "([^"]*)" has dock block with "@Common\\CustomAnnotation"$/
+     *
+     * @param string $className
+     */
+    public function classHasDockBlockWith($className)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @When /^I inspect "([^"]*)" class annotations$/
+     *
+     * @param string $className
+     */
+    public function iInspectClassAnnotations($className)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     *  @Then /^I should have a annotations list with "([^"]*)" object$/
+     * @param $className
+     */
+    public function iShouldHaveAAnnotationsListWithObject($className)
+    {
+        throw new PendingException();
     }
 }
