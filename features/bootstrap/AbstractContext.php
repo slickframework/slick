@@ -7,12 +7,14 @@
  * file that was distributed with this source code.
  */
 
+use Behat\Behat\Context\Context;
+use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 /**
  * Base class for custom context classes
  */
-abstract class AbstractContext
+abstract class AbstractContext implements Context, SnippetAcceptingContext
 {
 
     /**
