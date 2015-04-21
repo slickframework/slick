@@ -20,7 +20,7 @@ class Parser
      * @var string Annotation related regular expression
      * @codingStandardsIgnoreStart
      */
-    const ANNOTATION_REGEX = '/@(\w+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/';
+    const ANNOTATION_REGEX = '/@([\w,\\\\]+)(?:\s*(?:\(\s*)?(.*?)(?:\s*\))?)??\s*(?:\n|\*\/)/i';
     const ANNOTATION_PARAMETERS_REGEX = '/([\w]+\s*=\s*[\[\{"]{1}[\w,\\\\\s:\."\{\[\]\}]+[\}\]""]{1})|([\w]+\s*=\s*[\\\\\w\.]+)|([\\\\\w]+)/i';
     /**#@-*/
     // @codingStandardsIgnoreEnd

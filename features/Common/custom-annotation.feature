@@ -5,8 +5,8 @@
     I want to create custom annotation classes
 
     @current
-  Scenario: Retrieve custom annotation form class
+  Scenario: Retrieve custom annotation form class (FQNS)
     Given class "Common\Fixtures\CustomAnnotation" implements "AnnotationInterface"
-    And class "AnnotationTest" has dock block with "@Common\CustomAnnotation"
-    When I inspect "AnnotationTest" class annotations
-    Then I should have a annotations list with "CustomAnnotation" object
+    And class "Common\Fixtures\AnnotationTest" has dock block with "@Common\Fixtures\CustomAnnotation"
+    When I inspect "Common\Fixtures\AnnotationTest" class annotations
+    Then I should have a annotations list with "@Common\Fixtures\CustomAnnotation" object

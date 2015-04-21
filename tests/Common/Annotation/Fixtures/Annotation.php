@@ -7,15 +7,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Common\Fixtures;
+namespace Slick\Tests\Common\Annotation\Fixtures;
 
+use Slick\Common\Annotation\Basic;
 
 /**
- * Class Common\Fixtures\AnnotationTest
+ * Custom annotation class for tests
  *
- * @Common\Fixtures\CustomAnnotation test
+ * @package Slick\Tests\Common\Annotation\Fixtures
  */
-class AnnotationTest
+class Annotation extends Basic
 {
 
 }

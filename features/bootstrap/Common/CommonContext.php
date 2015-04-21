@@ -206,7 +206,15 @@ class CommonContext extends AbstractContext implements
     {
         $classReflection = new \ReflectionClass($className);
         $comment = $classReflection->getDocComment();
-        
+        $expected = <<<EOC
+/**
+ * Class $className
+ *
+ * $tag test
+ */
+EOC;
+        \PHPUnit_Framework_Assert::assertEquals($expected, $comment);
+
     }
 
     /**
@@ -216,7 +224,7 @@ class CommonContext extends AbstractContext implements
      */
     public function iInspectClassAnnotations($className)
     {
-        throw new PendingException();
+        $this->inspector = Inspector::forClass($className);
     }
 
     /**
@@ -225,6 +233,7 @@ class CommonContext extends AbstractContext implements
      */
     public function iShouldHaveAAnnotationsListWithObject($className)
     {
-        throw new PendingException();
+        $annotations = $this->inspector->getClassAnnotations();
+        \PHPUnit_Framework_Assert::assertTrue($annotations->hasAnnotation($className));
     }
 }
