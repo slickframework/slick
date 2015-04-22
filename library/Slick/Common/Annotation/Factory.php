@@ -9,9 +9,10 @@
 
 namespace Slick\Common\Annotation;
 
+use Doctrine\Common\Annotations\PhpParser;
 use ReflectionClass;
+use Slick\Common\AnnotationInterface;
 use Slick\Common\Exception\InvalidAnnotationClassException;
-use Slick\Common\Exception\InvalidArgumentException;
 
 /**
  * Creates annotations from comment texts
@@ -30,6 +31,11 @@ class Factory
      * @var ReflectionClass
      */
     private $reflection;
+
+    /**
+     * @var PhpParser
+     */
+    private $phpParser;
 
     /**
      * @var string The default annotation class for factory
@@ -93,11 +99,23 @@ class Factory
         return $this;
     }
 
+    /**
+     * Create the annotation with the provided name and parsed value
+     *
+     * @param string $tag    The tag name
+     * @param mixed  $parsed The metadata nest to tag name
+     *
+     * @return AnnotationInterface
+     */
     private function createAnnotationFor($tag, $parsed)
     {
         $class = $this->getClassName($tag);
         $reflection = new ReflectionClass($class);
-        if (!$reflection->implementsInterface("Slick\\Common\\AnnotationInterface")) {
+        if (
+            !$reflection->implementsInterface(
+                "Slick\\Common\\AnnotationInterface"
+            )
+        ) {
             throw new InvalidAnnotationClassException(
                 "$tag does not implement AnnotationInterface."
             );
@@ -106,18 +124,72 @@ class Factory
         return new $class($tag, $parsed);
     }
 
+    /**
+     * Returns class name for given tag name
+     *
+     * If the tag in not a FQN class the it will pass control to the
+     * Factory::getClassAlasName().
+     *
+     * @param string $tag The tag name
+     *
+     * @return string
+     */
     private function getClassName($tag)
     {
-        if (class_exists($tag)) {
-            return $tag;
+        $className = $tag;
+        if (!class_exists($tag)) {
+            $className = $this->getClassAliasName($tag);
         }
-
-        return $this->getDefaultClass();
+        return $className;
     }
 
+    /**
+     * Check namespaces and alias for the class with the given tag name
+     *
+     * @param string $tag The tag name
+     *
+     * @return string
+     */
+    private function getClassAliasName($tag)
+    {
+        $imports = $this->getPhpParser()
+            ->parseClass($this->reflection);
+        $class = $this->getDefaultClass();
+
+        foreach ($imports as $alias => $namespace) {
+            $regExp = "/($alias){1}/i";
+            $name = preg_replace($regExp, $namespace, $tag);
+
+            if (class_exists($name)) {
+                $class = $name;
+                break;
+            }
+        }
+
+        return $class;
+    }
+
+    /**
+     * Returns the static default annotation class name
+     *
+     * @return string
+     */
     private function getDefaultClass()
     {
         return self::$defaultClass;
+    }
+
+    /**
+     * Returns the parser for PHP file contents
+     *
+     * @return PhpParser
+     */
+    private function getPhpParser()
+    {
+        if (is_null($this->phpParser)) {
+            $this->phpParser = new PhpParser();
+        }
+        return $this->phpParser;
     }
 
 }

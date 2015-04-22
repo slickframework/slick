@@ -23,6 +23,12 @@ class Basic implements AnnotationInterface
      * @var string
      */
     protected $name;
+
+    /**
+     * @var string
+     */
+    protected $alias;
+
     /**
      * @var mixed
      */
@@ -47,7 +53,7 @@ class Basic implements AnnotationInterface
      */
     public function __construct($name, $parsedData)
     {
-        $this->name = $name;
+        $this->alias = $name;
         $this->value = $parsedData;
         if (is_array($parsedData)) {
             $first = reset($parsedData);
@@ -67,6 +73,13 @@ class Basic implements AnnotationInterface
      */
     public function getName()
     {
+        if (is_null($this->name)) {
+            $className = get_class($this);
+            $this->name = $className;
+            if ($className == "Slick\\Common\\Annotation\\Basic") {
+                $this->name = $this->alias;
+            }
+        }
         return $this->name;
     }
 

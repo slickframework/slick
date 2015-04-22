@@ -23,6 +23,11 @@ class AnnotationList extends ArrayObject
 {
 
     /**
+     * @var int
+     */
+    private $pointer;
+
+    /**
      * Appends an annotation to the current list
      *
      * @param AnnotationInterface $annotation
@@ -52,9 +57,7 @@ class AnnotationList extends ArrayObject
                 "Only annotation objects can be added to an AnnotationsList."
             );
         }
-
-        $offset = $value->getName();
-        parent::offsetSet($offset, $value);
+        parent::offsetSet(null, $value);
     }
     /**
      * Checks if current list contains an annotation with the provided name
@@ -67,9 +70,10 @@ class AnnotationList extends ArrayObject
     public function hasAnnotation($name)
     {
         $name = str_replace('@', '', $name);
-        foreach ($this as $annotation) {
+        foreach ($this as $index => $annotation) {
             /** @var AnnotationInterface $annotation */
             if ($annotation->getName() == $name) {
+                $this->pointer = $index;
                 return true;
             }
         }
@@ -93,6 +97,6 @@ class AnnotationList extends ArrayObject
             );
         }
         $name = str_replace('@', '', $name);
-        return $this[$name];
+        return $this[$this->pointer];
     }
 }

@@ -11,6 +11,7 @@ namespace Slick\Tests\Common\Annotation;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Slick\Common\Annotation\Factory;
+use Slick\Tests\Common\Annotation\Fixtures\Annotation as TestAnnotation;
 
 /**
  * FactoryTest test case
@@ -31,7 +32,9 @@ class FactoryTest extends TestCase
     protected function setup()
     {
         parent::setup();
+        $reflection = new \ReflectionClass('stdClass');
         $this->factory = new Factory();
+        $this->factory->setReflection($reflection);
     }
 
     /**
@@ -96,5 +99,30 @@ EOC;
             "Slick\\Common\\Exception\\InvalidAnnotationClassException"
         );
         $annotations = $this->factory->getAnnotationsFor($comment);
+    }
+
+    /**
+     * A class with use statements that loads the annotations evaluating
+     * the namespaces and alias
+     */
+    public function testGetCustomClassFromAlias()
+    {
+        $comment = <<<EOC
+/**
+ * Test
+ *
+ * @TestAnnotation
+ */
+EOC;
+        $this->factory->setReflection(new \ReflectionClass($this));
+        $annotations = $this->factory->getAnnotationsFor($comment);
+        $annotation = $annotations->getAnnotation(
+            'Slick\Tests\Common\Annotation\Fixtures\Annotation'
+        );
+        $this->assertInstanceOf(
+            "Slick\\Common\\Annotation\\Basic",
+            $annotation
+        );
+
     }
 }
