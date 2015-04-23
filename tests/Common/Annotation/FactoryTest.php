@@ -125,4 +125,27 @@ EOC;
         );
 
     }
+
+    public function testGetCustomClassFromNamespace()
+    {
+        $comment = <<<EOC
+/**
+ * Test
+ *
+ * @Annotation
+ */
+EOC;
+        $this->factory->setReflection(new \ReflectionClass(
+            "Slick\\Tests\\Common\\Annotation\\Fixtures\\Annotation"
+        ));
+
+        $annotations = $this->factory->getAnnotationsFor($comment);
+        $annotation = $annotations->getAnnotation(
+            'Slick\Tests\Common\Annotation\Fixtures\Annotation'
+        );
+        $this->assertInstanceOf(
+            "Slick\\Common\\Annotation\\Basic",
+            $annotation
+        );
+    }
 }

@@ -138,9 +138,27 @@ class Factory
     {
         $className = $tag;
         if (!class_exists($tag)) {
-            $className = $this->getClassAliasName($tag);
+            $className = $this->getClassInNamespace($tag);
         }
         return $className;
+    }
+
+    /**
+     * Check containing class namespace for annotation class with
+     * given tag name
+     *
+     * @param string $tag The tag name
+     *
+     * @return string
+     */
+    private function getClassInNamespace($tag)
+    {
+        $namespace = $this->reflection->getNamespaceName();
+        $className = "{$namespace}\\{$tag}";
+
+        return class_exists($className)
+            ? $className
+            : $this->getClassAliasName($tag);
     }
 
     /**

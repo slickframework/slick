@@ -5,7 +5,11 @@ All Notable changes to `Slick` will be documented in this file
 ## NEXT - YYYY-MM-DD
 
 ### Added
-- Nothing
+- Annotations now make use of class namespace and use statements to
+  be imported
+- `Slick\Common\Inspector` now manages a list of class metadata for better
+  performance. The static `Slick\Common\Inspector::forClass()` method should
+  now be used to get class information and annotations
 
 ### Deprecated
 - Nothing
@@ -15,6 +19,8 @@ All Notable changes to `Slick` will be documented in this file
 
 ### Removed
 - Codeception support
+- `Slick\Common\Inspector::__construct()` cannot be used anymore
+- `Slick\Utility` module was removes and is now on `Slick\Common\Utils` namespace
 
 ### Security
 - Nothing

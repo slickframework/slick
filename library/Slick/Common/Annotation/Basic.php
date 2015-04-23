@@ -53,17 +53,7 @@ class Basic implements AnnotationInterface
      */
     public function __construct($name, $parsedData)
     {
-        $this->alias = $name;
-        $this->value = $parsedData;
-        if (is_array($parsedData)) {
-            $first = reset($parsedData);
-            if ($first === true) {
-                $this->value = key($parsedData);
-                array_shift($parsedData);
-            }
-            $this->parameters = array_merge($this->parameters, $parsedData);
-        }
-        $this->checkCommonTags();
+        $this->process($name, $parsedData);
     }
 
     /**
@@ -115,5 +105,28 @@ class Basic implements AnnotationInterface
         if (in_array($this->getName(), $this->commonTags)) {
             $this->value = $this->parameters['raw'];
         }
+    }
+
+    /**
+     * Annotation factory handler for property assignment
+     *
+     * @param string $alias The alias used in the comment as a tag
+     * @param array|mixed $parameters The Metadata from the tag
+     *
+     * @return AnnotationInterface
+     */
+    public function process($alias, $parameters)
+    {
+        $this->alias = $alias;
+        $this->value = $parameters;
+        if (is_array($parameters)) {
+            $first = reset($parameters);
+            if ($first === true) {
+                $this->value = key($parameters);
+                array_shift($parameters);
+            }
+            $this->parameters = array_merge($this->parameters, $parameters);
+        }
+        $this->checkCommonTags();
     }
 }

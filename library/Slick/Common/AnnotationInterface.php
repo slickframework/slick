@@ -37,4 +37,14 @@ interface AnnotationInterface
      * @return mixed
      */
     public function getParameter($name);
+
+    /**
+     * Annotation factory handler for property assignment
+     *
+     * @param string       $alias      The alias used in the comment as a tag
+     * @param array|mixed  $parameters The Metadata from the tag
+     *
+     * @return AnnotationInterface
+     */
+    public function process($alias, $parameters);
 }
