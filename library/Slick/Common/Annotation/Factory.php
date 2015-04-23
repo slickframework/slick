@@ -66,7 +66,7 @@ class Factory
      *
      * @param Parser $parser
      *
-     * @return AnnotationList
+     * @return Factory
      */
     public function setParser(Parser $parser)
     {

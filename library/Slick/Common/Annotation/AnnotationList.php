@@ -9,9 +9,9 @@
 
 namespace Slick\Common\Annotation;
 
+use Slick\Common\AnnotationInterface;
 use Slick\Common\Exception;
 use Slick\Common\Utils\ArrayObject;
-use Slick\Common\AnnotationInterface;
 
 /**
  * Class AnnotationList
@@ -23,7 +23,7 @@ class AnnotationList extends ArrayObject
 {
 
     /**
-     * @var int
+     * @var int|string
      */
     private $pointer;
 
@@ -45,7 +45,7 @@ class AnnotationList extends ArrayObject
      * instance of annotation interface
      *
      * @param mixed $offset
-     * @param mixed $value
+     * @param AnnotationInterface $value
      *
      * @throws \Slick\Common\Exception\InvalidArgumentException if the value
      * provided is not an instance of annotation interface
@@ -96,7 +96,6 @@ class AnnotationList extends ArrayObject
                 "Annotation {$name} is not found in this list."
             );
         }
-        $name = str_replace('@', '', $name);
         return $this[$this->pointer];
     }
 }

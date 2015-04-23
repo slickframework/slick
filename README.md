@@ -2,7 +2,8 @@
 
 [![Latest Version](https://img.shields.io/github/release/slickframework/slick.svg?style=flat-square)](https://github.com/slickframework/slick/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://travis-ci.org/slickframework/slick.svg?branch=feature%2F1.2.x)](https://travis-ci.org/slickframework/slick)[![Coverage Status] (https://img.shields.io/scrutinizer/coverage/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick/code-structure) 
+[![Build Status](https://img.shields.io/travis/slickframework/slick.svg?branch=feature%2F1.2.x)](https://travis-ci.org/slickframework/slick)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick)
 [![Total Downloads](https://img.shields.io/packagist/dt/slick/slick.svg?style=flat-square)](https://packagist.org/packages/slick/slick)
 

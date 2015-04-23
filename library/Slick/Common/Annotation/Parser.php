@@ -58,8 +58,8 @@ class Parser
         $tags = $this->getTags();
         $annotationData = [];
         foreach ($tags as $tag) {
-            $name = $tag[1];        // Annotation name
-            $value = true;          // Default annotation value
+            $name = $tag[1]; // Annotation name
+            $value = true; // Default annotation value
 
             if (isset($tag[2])) {
                 $value = $this->parseParameters($tag[2]);

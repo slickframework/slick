@@ -39,11 +39,11 @@ class PhpParser
 
         $namespace = preg_quote($class->getNamespaceName());
         $content = preg_replace(
-            '/^.*?(\bnamespace\s+' . $namespace . '\s*[;{].*)$/s',
+            '/^.*?(\bnamespace\s+'.$namespace.'\s*[;{].*)$/s',
             '\\1',
             $content
         );
-        $tokenizer = new TokenParser('<?php ' . $content);
+        $tokenizer = new TokenParser('<?php '.$content);
         return $tokenizer->parseUseStatements($class->getNamespaceName());
     }
 
