@@ -228,7 +228,7 @@ class Inspector
      *
      * @return ReflectionClass
      */
-    private function getReflection()
+    public function getReflection()
     {
         if (is_null($this->reflection)) {
             $this->reflection = new ReflectionClass($this->getClass());

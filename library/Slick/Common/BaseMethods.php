@@ -93,7 +93,11 @@ trait BaseMethods
             );
         }
 
-        return $this->$method($matches, $arguments);
+        $value = isset($arguments[0])
+            ? $arguments[0]
+            : null;
+
+        return $this->$method($matches, $value);
     }
 
     /**
@@ -269,6 +273,7 @@ trait BaseMethods
             if (sizeof($matches) > 0) {
                 $method = $methodName;
                 $matches = $matches[0];
+                break;
             }
         }
 
