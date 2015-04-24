@@ -9,7 +9,6 @@
 
 namespace Slick\Common\Annotation;
 
-use Doctrine\Common\Annotations\PhpParser;
 use ReflectionClass;
 use Slick\Common\AnnotationInterface;
 use Slick\Common\Exception\InvalidAnnotationClassException;

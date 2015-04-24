@@ -37,14 +37,22 @@ class PhpParser
             $class->getStartLine()
         );
 
-        $namespace = preg_quote($class->getNamespaceName());
-        $content = preg_replace(
-            '/^.*?(\bnamespace\s+'.$namespace.'\s*[;{].*)$/s',
-            '\\1',
-            $content
-        );
-        $tokenizer = new TokenParser('<?php '.$content);
-        return $tokenizer->parseUseStatements($class->getNamespaceName());
+        $statements  = [];
+        if ($content !== null) {
+            $namespace = preg_quote($class->getNamespaceName());
+            $content = preg_replace(
+                '/^.*?(\bnamespace\s+'.$namespace.'\s*[;{].*)$/s',
+                '\\1',
+                $content
+            );
+            $tokenizer = new TokenParser('<?php '.$content);
+            $statements = $tokenizer->parseUseStatements(
+                $class->getNamespaceName()
+            );
+        }
+
+        return $statements;
+
     }
 
     /**
@@ -57,14 +65,17 @@ class PhpParser
      */
     private function getFileContent($filename, $lineNumber)
     {
-        $content = '';
-        $lineCnt = 0;
-        $file = new SplFileObject($filename);
-        while (!$file->eof()) {
-            if ($lineCnt++ == $lineNumber) {
-                break;
+        $content = null;
+        if (false !== $filename) {
+            $content = '';
+            $lineCnt = 0;
+            $file = new SplFileObject($filename);
+            while (!$file->eof()) {
+                if ($lineCnt++ == $lineNumber) {
+                    break;
+                }
+                $content .= $file->fgets();
             }
-            $content .= $file->fgets();
         }
         return $content;
     }
