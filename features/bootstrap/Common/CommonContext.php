@@ -13,6 +13,7 @@ use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Behat\Tester\Exception\PendingException;
+use Common\Fixtures\BaseTest;
 use PHPUnit_Framework_Assert as PhpUnit;
 use Slick\Common\Annotation\AnnotationList;
 use Slick\Common\Inspector;
@@ -54,6 +55,16 @@ class CommonContext extends AbstractContext implements
      * @var AnnotationList
      */
     protected $methodAnnotations;
+
+    /**
+     * @var BaseTest
+     */
+    protected $base;
+
+    /**
+     * @var mixed
+     */
+    protected $selectedValue;
 
     /**
      * @Given a class with comment blocks
@@ -235,5 +246,47 @@ EOC;
     {
         $annotations = $this->inspector->getClassAnnotations();
         \PHPUnit_Framework_Assert::assertTrue($annotations->hasAnnotation($className));
+    }
+
+    /**
+     * @Given /^I coded a class extending ([^"]*)$/
+     */
+    public function iCodedAClassExtendingSlickCommonBase($className)
+    {
+        $this->base = new BaseTest();
+        \PHPUnit_Framework_Assert::assertInstanceOf($className, $this->base);
+    }
+
+    /**
+     * @Given /^class has property "([^"]*)" with "([^"]*)" annotation$/
+     */
+    public function classHasPropertyWithAnnotation($property, $tag)
+    {
+        $propertyExists = Inspector::forClass($this->base)
+            ->getReflection()
+            ->hasProperty($property);
+
+        \PHPUnit_Framework_Assert::assertTrue($propertyExists);
+        $annotations = Inspector::forClass($this->base)
+            ->getPropertyAnnotations($property);
+
+        \PHPUnit_Framework_Assert::assertTrue($annotations->hasAnnotation($tag));
+
+    }
+
+    /**
+     * @When /^I retrieve "([^"]*)" property$/
+     */
+    public function iRetrieveProperty($property)
+    {
+        $this->selectedValue = $this->base->$property;
+    }
+
+    /**
+     * @Then /^I should get "([^"]*)" value$/
+     */
+    public function iShouldGetValue($expected)
+    {
+        \PHPUnit_Framework_Assert::assertEquals($expected, $this->selectedValue);
     }
 }
