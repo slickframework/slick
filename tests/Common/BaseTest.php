@@ -51,4 +51,64 @@ class BaseTest extends TestCase
         $this->base->mail = 'Other mail';
         $this->assertEquals('Other mail', $this->base->getMail());
     }
+
+    public function testExceptionOnUnknownMethod()
+    {
+        $this->setExpectedException(
+            "Slick\\Common\\Exception\\UnimplementedMethodCallException"
+        );
+        $this->base->foo();
+    }
+
+    public function testCheckPropertyExistence()
+    {
+        $this->assertTrue(isset($this->base->name));
+    }
+
+    public function testUnExistentPropertyReturnNull()
+    {
+        $this->assertNull($this->base->foo);
+    }
+
+    public function testExceptionOnReadWriteOnlyProperty()
+    {
+        $this->setExpectedException(
+            "Slick\\Common\\Exception\\WriteOnlyException"
+        );
+        $this->base->state;
+    }
+
+    public function testExceptionOnWriteReadOnlyProperty()
+    {
+        $this->setExpectedException(
+            "Slick\\Common\\Exception\\ReadOnlyException"
+        );
+        $this->base->fullName = 'Hey';
+    }
+
+    public function testExceptionOnWriteTOUnknownProperty()
+    {
+        $this->setExpectedException(
+            "Slick\\Common\\Exception\\UndefinedPropertyException"
+        );
+        $this->base->foo = 'Hey';
+    }
+
+    public function testIsCheckerReturnsBoolean()
+    {
+        $this->assertTrue(is_bool($this->base->isName()));
+    }
+
+    public function testIsCheckerExceptionOnWriteOnlyProp()
+    {
+        $this->setExpectedException(
+            "Slick\\Common\\Exception\\WriteOnlyException"
+        );
+        $this->base->isState();
+    }
+
+    public function testIsCheckerFalseOnUnknown()
+    {
+        $this->assertTrue(false === $this->base->isFoo());
+    }
 }

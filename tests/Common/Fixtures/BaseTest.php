@@ -20,6 +20,10 @@ use Slick\Common\Base;
  * @property string $name
  * @property string $mail
  *
+ * @property-write string $state
+ *
+ * @property-read string $fullName
+ *
  * @method string getMail()
  */
 class BaseTest extends Base
@@ -36,4 +40,16 @@ class BaseTest extends Base
      * @var string
      */
     protected $mail;
+
+    /**
+     * @write
+     * @var string
+     */
+    protected $state;
+
+    /**
+     * @read
+     * @var string
+     */
+    protected $fullName;
 }
