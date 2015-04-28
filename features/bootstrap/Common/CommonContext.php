@@ -289,4 +289,20 @@ EOC;
     {
         \PHPUnit_Framework_Assert::assertEquals($expected, $this->selectedValue);
     }
+
+    /**
+     * @When /^I set property "([^"]*)" equals to "([^"]*)"$/
+     */
+    public function iSetPropertyEqualsTo($property, $value)
+    {
+        $this->base->$property = $value;
+    }
+
+    /**
+     * @When /^I call "([^"]*)" method$/
+     */
+    public function iCallMethod($method)
+    {
+        $this->selectedValue = $this->base->$method();
+    }
 }
