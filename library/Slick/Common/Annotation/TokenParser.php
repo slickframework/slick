@@ -99,18 +99,22 @@ class TokenParser
      */
     public function next()
     {
+        $token = null;
         for ($i = $this->pointer; $i < $this->numTokens; $i++) {
             $this->pointer++;
-            if (
+            $ignoreToken = (
                 $this->tokens[$i][0] === T_WHITESPACE ||
                 $this->tokens[$i][0] === T_COMMENT ||
                 $this->tokens[$i][0] === T_DOC_COMMENT
-            ) {
+            );
+
+            if ($ignoreToken) {
                 continue;
             }
-            return $this->tokens[$i];
+            $token = $this->tokens[$i];
+            break;
         }
-        return null;
+        return $token;
     }
 
     /**
