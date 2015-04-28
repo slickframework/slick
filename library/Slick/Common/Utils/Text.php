@@ -63,7 +63,7 @@ class Text
      */
     private static function normalize($pattern)
     {
-        return self::$delimiter . trim($pattern, self::$delimiter)
+        return self::$delimiter.trim($pattern, self::$delimiter)
         . self::$delimiter;
     }
 }
