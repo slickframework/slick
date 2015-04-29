@@ -23,4 +23,15 @@
     When I call "getName" method
     Then I should get "Test" value
 
-  #Scenario: Set protected property through set[<Property>]() magic method
+  Scenario: Set protected property through set[<Property>]() magic method
+    Given I coded a class extending Slick\Common\Base
+    And class has property "name" with "@readwrite" annotation
+    When I call "setName" method with "myTest"
+    And I retrieve "name" property
+    Then I should get "myTest" value
+
+  Scenario: Check protected property boolean value through is[<Property>]() magic method
+    Given I coded a class extending Slick\Common\Base
+    And class has property "name" with "@readwrite" annotation
+    When I call "isAdult" method
+    Then I should get true boolean value

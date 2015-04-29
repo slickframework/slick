@@ -11,6 +11,7 @@ namespace Slick\Common\Annotation;
 
 use Slick\Common\Annotation\TokenParser\TokenList;
 use Slick\Common\Annotation\TokenParser\Token;
+use Slick\Common\Annotation\TokenParser\UseStatementFactory;
 
 /**
  * Class TokenParser
@@ -62,22 +63,14 @@ class TokenParser
     public function parseUseStatements($namespaceName)
     {
         $statements = array();
-        while (($token = $this->next())) {
+        while ($token = $this->next()) {
             if ($token->is(T_USE)) {
                 $statements = array_merge(
                     $statements, $this->parseUseStatement()
                 );
                 continue;
             }
-
-            if ($this->checkNamespaceName($token, $namespaceName)) {
-                continue;
-            }
-            // Get fresh array for new namespace. This is to prevent the parser
-            // to collect the use statements for a previous namespace with the
-            // same name. This is the case if a namespace is defined twice or
-            // if a namespace with the same name is commented out.
-            $statements = array();
+            $this->checkNamespaceName($token, $namespaceName, $statements);
         }
         return $statements;
     }
@@ -108,32 +101,14 @@ class TokenParser
      */
     public function parseUseStatement()
     {
-        $class = '';
-        $alias = '';
-        $statements = array();
-        $explicitAlias = false;
+        $statement = new UseStatementFactory();
         while ($token = $this->next()) {
-            $isNameToken = $token->is([T_STRING, T_NS_SEPARATOR]);
-
-            if (!$explicitAlias && $isNameToken) {
-                $class .= $token->getValue();
-                $alias = $token->getValue();
-            } else if ($explicitAlias && $isNameToken) {
-                $alias .= $token->getValue();
-            } else if ($token->is(T_AS)) {
-                $explicitAlias = true;
-                $alias = '';
-            } else if ($token->getValue() === ',') {
-                $statements[$alias] = $class;
-                $class = '';
-                $alias = '';
-                $explicitAlias = false;
-            } else if ($token->getValue() === ';') {
-                $statements[$alias] = $class;
+            $statement->addToken($token);
+            if ($statement->isDone()) {
                 break;
             }
         }
-        return $statements;
+        return $statement->getList();
     }
 
     /**
@@ -158,14 +133,25 @@ class TokenParser
      *
      * @param Token $token
      * @param string $namespaceName
+     * @param array $statements
      *
-     * @return bool
+     * @return self
      */
-    private function checkNamespaceName(Token $token, $namespaceName)
+    private function checkNamespaceName(
+        Token $token, $namespaceName, &$statements)
     {
-        return (
+        $isDifferent = (
             ! $token->is(T_NAMESPACE) ||
             $this->parseNamespace() != $namespaceName
         );
+
+        if (!$isDifferent) {
+            // Get fresh array for new namespace. This is to prevent the parser
+            // to collect the use statements for a previous namespace with the
+            // same name. This is the case if a namespace is defined twice or
+            // if a namespace with the same name is commented out.
+            $statements = array();
+        }
+        return $this;
     }
 }

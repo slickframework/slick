@@ -305,4 +305,24 @@ EOC;
     {
         $this->selectedValue = $this->base->$method();
     }
+
+    /**
+     * @When /^I call "([^"]*)" method with "([^"]*)"$/
+     */
+    public function iCallMethodWith($method, $argument)
+    {
+        $this->base = $this->base->$method($argument);
+    }
+
+    /**
+     * @Then /^I should get (true|false) boolean value$/i
+     */
+    public function iShouldGetBooleanValue($value)
+    {
+        if ($value == 'true') {
+            \PHPUnit_Framework_Assert::assertTrue($this->selectedValue);
+        } else {
+            \PHPUnit_Framework_Assert::assertFalse($this->selectedValue);
+        }
+    }
 }

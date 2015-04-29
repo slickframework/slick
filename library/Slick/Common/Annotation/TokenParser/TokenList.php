@@ -10,7 +10,6 @@
 namespace Slick\Common\Annotation\TokenParser;
 
 use ArrayIterator;
-use CallbackFilterIterator;
 use Countable;
 use IteratorAggregate;
 use Traversable;
