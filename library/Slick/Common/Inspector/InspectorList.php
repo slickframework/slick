@@ -9,9 +9,9 @@
 
 namespace Slick\Common\Inspector;
 
+use Slick\Common\Exception\InvalidArgumentException;
 use Slick\Common\Inspector;
 use Slick\Common\Utils\ArrayObject;
-use Slick\Common\Exception\InvalidArgumentException;
 
 /**
  * Holds current session class inspector object to be reused
@@ -21,7 +21,7 @@ use Slick\Common\Exception\InvalidArgumentException;
  *
  * @package Slick\Common\Inspector
  */
-class InspectorList
+final class InspectorList
 {
     /**
      * @var ArrayObject
@@ -93,7 +93,7 @@ class InspectorList
      *
      * @param string|object $object
      *
-     * @return string
+     * @return string|object
      */
     private function className($object)
     {

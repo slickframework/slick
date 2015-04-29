@@ -10,10 +10,10 @@
 namespace Slick\Common;
 
 use ReflectionClass;
-use Slick\Common\Annotation\Factory;
-use Slick\Common\Inspector\InspectorList;
 use Slick\Common\Annotation\AnnotationList;
+use Slick\Common\Annotation\Factory;
 use Slick\Common\Exception\InvalidArgumentException;
+use Slick\Common\Inspector\InspectorList;
 
 /**
  * Inspector uses PHP reflection to inspect classes or objects.
@@ -23,7 +23,7 @@ use Slick\Common\Exception\InvalidArgumentException;
  *
  * @package Slick\Common
  */
-class Inspector
+final class Inspector
 {
 
     /**
@@ -170,7 +170,7 @@ class Inspector
     /**
      * Retrieves the list of class properties.
      *
-     * @return \ArrayIterator An array with property names.
+     * @return string[] An array with property names.
      */
     public function getClassProperties()
     {
@@ -186,7 +186,7 @@ class Inspector
     /**
      * Retrieves the list of class methods
      *
-     * @return array An array with method names.
+     * @return string[] An array with method names.
      */
     public function getClassMethods()
     {
@@ -237,7 +237,9 @@ class Inspector
     }
 
     /**
-     * @return Factory
+     * Returns the annotations factory for this inspection
+     *
+     * @return Factory|null
      */
     public function getFactory()
     {
@@ -259,8 +261,4 @@ class Inspector
         $this->factory = $factory;
         return $this;
     }
-
-
-
-
 }

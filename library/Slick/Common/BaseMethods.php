@@ -47,7 +47,8 @@ trait BaseMethods
      * @param array|object $data An associative array or object where to
      *                           extract the property values from.
      *
-     * @return self The object instance it self for method call chaining
+     * @return self|BaseMethods The object instance it self for method
+     *                          call chaining.
      */
     protected function hydrate($data)
     {
@@ -58,6 +59,7 @@ trait BaseMethods
                 $this->$method($value);
             }
         }
+        return $this;
     }
 
     /**
@@ -299,7 +301,7 @@ trait BaseMethods
      *
      * @param string $name
      *
-     * @return bool|mixed
+     * @return string|false
      */
     private function getProperty($name)
     {

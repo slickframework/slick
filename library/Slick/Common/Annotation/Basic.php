@@ -113,7 +113,7 @@ class Basic implements AnnotationInterface
      * @param string $alias The alias used in the comment as a tag
      * @param array|mixed $parameters The Metadata from the tag
      *
-     * @return AnnotationInterface
+     * @return Basic
      */
     public function process($alias, $parameters)
     {
@@ -128,5 +128,6 @@ class Basic implements AnnotationInterface
             $this->parameters = array_merge($this->parameters, $parameters);
         }
         $this->checkCommonTags();
+        return $this;
     }
 }

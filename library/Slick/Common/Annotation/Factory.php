@@ -76,7 +76,7 @@ class Factory
     /**
      * Retrieves current parser comment parser
      *
-     * @return Parser
+     * @return Parser|null
      */
     public function getParser()
     {

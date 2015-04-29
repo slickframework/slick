@@ -39,7 +39,7 @@ class Parser
     /**
      * Creates a parser for provided comment
      *
-     * @param string $comment The comment to be parsed
+     * @param string|null $comment The comment to be parsed
      */
     public function __construct($comment = null)
     {

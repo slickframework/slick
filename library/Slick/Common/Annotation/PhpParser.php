@@ -61,7 +61,7 @@ class PhpParser
      * @param string  $filename   The name of the file to load.
      * @param integer $lineNumber The number of lines to read from file.
      *
-     * @return string The content of the file.
+     * @return string|null The content of the file.
      */
     private function getFileContent($filename, $lineNumber)
     {
