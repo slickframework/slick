@@ -9,29 +9,30 @@
 
 namespace Slick\Common\Annotation;
 
+use Slick\Common\Annotation\TokenParser\TokenList;
+use Slick\Common\Annotation\TokenParser\Token;
+
 /**
  * Class TokenParser
  *
- * Code from doctrine/annotations package
+ * Base on code from doctrine/annotations package
  * @see https://github.com/doctrine/annotations
  *
  * @package Slick\Common\Annotation
- *
- * @author Fabien Potencier <fabien@symfony.com>
- * @author Christian Kaps <christian.kaps@mohiva.com>
+ * @author Filipe Silva <silvam.filipe@gmail.com>
  */
 class TokenParser
 {
 
     /**
-     * @var array The token list.
+     * @var TokenList|Token[] The token list.
      */
     private $tokens;
 
     /**
      * @var int The number of tokens.
      */
-    private $numTokens;
+    private $numTokens = 0;
 
     /**
      * @var int The current array pointer.
@@ -43,19 +44,11 @@ class TokenParser
      */
     public function __construct($contents)
     {
-        $this->tokens = token_get_all($contents);
-        // The PHP parser sets internal compiler globals for certain things.
-        // Annoyingly, the last doc block comment it saw gets stored in
-        // doc_comment. When it comes to compile the next thing to be
-        // include()d this stored doc_comment becomes owned by the first thing
-        // the compiler sees in the file that it considers might have a
-        // doc block. If the first thing in the file is a class without a doc
-        // block this would cause calls to
-        // getDocBlock() on said class to return our long lost doc_comment.
-        // Argh. To workaround, cause the parser to parse an empty doc block.
-        // Sure getDocBlock() will return this, but at least  it's harmless
-        // to us.
-        token_get_all("<?php\n/**\n *\n */");
+        $this->tokens = new TokenList($contents);
+        $this->tokens = iterator_to_array(
+            $this->tokens->getIterator(),
+            false
+        );
         $this->numTokens = count($this->tokens);
     }
 
@@ -70,17 +63,14 @@ class TokenParser
     {
         $statements = array();
         while (($token = $this->next())) {
-            if ($token[0] === T_USE) {
+            if ($token->is(T_USE)) {
                 $statements = array_merge(
                     $statements, $this->parseUseStatement()
                 );
                 continue;
             }
 
-            if (
-                $token[0] !== T_NAMESPACE ||
-                $this->parseNamespace() != $namespaceName
-            ) {
+            if ($this->checkNamespaceName($token, $namespaceName)) {
                 continue;
             }
             // Get fresh array for new namespace. This is to prevent the parser
@@ -95,20 +85,14 @@ class TokenParser
     /**
      * Gets the next non whitespace and non comment token.
      *
-     * @return array|null The token if exists, null otherwise.
+     * @return null|Token
      */
     public function next()
     {
         $token = null;
         for ($i = $this->pointer; $i < $this->numTokens; $i++) {
             $this->pointer++;
-            $ignoreToken = (
-                $this->tokens[$i][0] === T_WHITESPACE ||
-                $this->tokens[$i][0] === T_COMMENT ||
-                $this->tokens[$i][0] === T_DOC_COMMENT
-            );
-
-            if ($ignoreToken) {
+            if ($this->tokens[$i]->isWhiteSpaceOrComment()) {
                 continue;
             }
             $token = $this->tokens[$i];
@@ -129,24 +113,22 @@ class TokenParser
         $statements = array();
         $explicitAlias = false;
         while ($token = $this->next()) {
-            $isNameToken = (
-                $token[0] === T_STRING ||
-                $token[0] === T_NS_SEPARATOR
-            );
+            $isNameToken = $token->is([T_STRING, T_NS_SEPARATOR]);
+
             if (!$explicitAlias && $isNameToken) {
-                $class .= $token[1];
-                $alias = $token[1];
+                $class .= $token->getValue();
+                $alias = $token->getValue();
             } else if ($explicitAlias && $isNameToken) {
-                $alias .= $token[1];
-            } else if ($token[0] === T_AS) {
+                $alias .= $token->getValue();
+            } else if ($token->is(T_AS)) {
                 $explicitAlias = true;
                 $alias = '';
-            } else if ($token === ',') {
+            } else if ($token->getValue() === ',') {
                 $statements[$alias] = $class;
                 $class = '';
                 $alias = '';
                 $explicitAlias = false;
-            } else if ($token === ';') {
+            } else if ($token->getValue() === ';') {
                 $statements[$alias] = $class;
                 break;
             }
@@ -164,10 +146,26 @@ class TokenParser
         $name = '';
         while (
             ($token = $this->next()) &&
-            ($token[0] === T_STRING || $token[0] === T_NS_SEPARATOR)
+            ($token->is([T_STRING, T_NS_SEPARATOR]))
         ) {
-            $name .= $token[1];
+            $name .= $token->getValue();
         }
         return $name;
+    }
+
+    /**
+     * Check if the provided namespace name is from different namespace class
+     *
+     * @param Token $token
+     * @param string $namespaceName
+     *
+     * @return bool
+     */
+    private function checkNamespaceName(Token $token, $namespaceName)
+    {
+        return (
+            ! $token->is(T_NAMESPACE) ||
+            $this->parseNamespace() != $namespaceName
+        );
     }
 }
