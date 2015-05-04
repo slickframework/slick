@@ -110,22 +110,7 @@ final class Inspector
      */
     public function getPropertyAnnotations($property)
     {
-        if (!$this->hasProperty($property)) {
-            $name = $this->getReflection()->getName();
-            throw new InvalidArgumentException(
-                "The class {$name} doesn't have a property called {$property}"
-            );
-        }
-
-        if (!isset($this->annotations['properties'][$property])) {
-            $comment = $this->getReflection()
-                ->getProperty($property)
-                ->getDocComment();
-            $this->annotations['properties'][$property] = $this->getFactory()
-                ->getAnnotationsFor($comment);
-        }
-
-        return $this->annotations['properties'][$property];
+        return $this->getAnnotations('property', $property);
     }
 
     /**
@@ -138,23 +123,7 @@ final class Inspector
      */
     public function getMethodAnnotations($method)
     {
-        if (!$this->hasMethod($method)) {
-            $name = $this->getReflection()->getName();
-            throw new InvalidArgumentException(
-                "The class {$name} doesn't have a method called {$method}"
-            );
-        }
-
-        if (!isset($this->annotations['methods'][$method])) {
-            $comment = $this->getReflection()
-                ->getMethod($method)
-                ->getDocComment();
-
-            $this->annotations['methods'][$method] = $this->getFactory()
-                ->getAnnotationsFor($comment);
-        }
-
-        return $this->annotations['methods'][$method];
+        return $this->getAnnotations('method', $method);
     }
 
     /**
@@ -260,5 +229,36 @@ final class Inspector
     {
         $this->factory = $factory;
         return $this;
+    }
+
+    /**
+     * Retrieve the annotations list for a given class member
+     *
+     * @param string $type One of 'method' or 'property'
+     * @param string $name The class member name
+     *
+     * @return AnnotationList
+     */
+    private function getAnnotations($type, $name)
+    {
+        $key = ['property' => 'properties', 'method' => 'methods'];
+        $checker = 'has'.ucfirst($type);
+        if (!$this->$checker($name)) {
+            $className = $this->getReflection()->getName();
+            throw new InvalidArgumentException(
+                "The class {$className} doesn't have a {$type} called {$name}"
+            );
+        }
+
+        if (!isset($this->annotations[$key[$type]][$name])) {
+            $getter = "get{$type}";
+            $comment = $this->getReflection()
+                ->$getter($name)
+                ->getDocComment();
+            $this->annotations[$key[$type]][$name] = $this->getFactory()
+                ->getAnnotationsFor($comment);
+        }
+
+        return $this->annotations[$key[$type]][$name];
     }
 }
