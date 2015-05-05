@@ -7,7 +7,7 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/slickframework/slick.svg?style=flat-square)](https://scrutinizer-ci.com/g/slickframework/slick)
 [![Total Downloads](https://img.shields.io/packagist/dt/slick/slick.svg?style=flat-square)](https://packagist.org/packages/slick/slick)
 
-Slick is a PHP 5.4+ MVC framework and tool set that aim to be simple robust and cool to work with.
+Slick is a PHP 5.4+ MVC tool set that aim to be simple robust and cool to work with.
 The goal is to create a PHP tool set that can be used to develop applications with agile methodologies in mind.
 
 This library is compliant with PSR-2 code standards and PSR-4 autoload standards. It

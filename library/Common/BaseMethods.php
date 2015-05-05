@@ -49,7 +49,7 @@ trait BaseMethods
      *
      * @return self The object instance it self for method call chaining.
      */
-    protected function hydrate($data)
+    public function hydrate($data)
     {
         if (is_array($data) || is_object($data)) {
             foreach ($data as $key => $value) {
