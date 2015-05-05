@@ -64,11 +64,11 @@ abstract class AbstractVersion
             if ($data) {
                 $apiResponse = json_decode($data, true);
                 // Simplify the API response into a simple array of version numbers
-                $tags = array_map(function ($tag) {
+                $tags = array_map(function($tag) {
                     return substr($tag['ref'], 11);
                 }, $apiResponse);
                 // Fetch the latest version number from the array
-                static::$latestVersion = array_reduce($tags, function ($a, $b) {
+                static::$latestVersion = array_reduce($tags, function($a, $b) {
                     return version_compare($a, $b, '>') ? $a : $b;
                 });
             }

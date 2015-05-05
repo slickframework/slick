@@ -56,7 +56,7 @@ class UseStatementFactory
     /**
      * Returns the parsed use statements associative array
      *
-     * @return array<string, string> Associative array with alias/class pairs
+     * @return string[] Associative array with alias/class pairs
      */
     public function getList()
     {
