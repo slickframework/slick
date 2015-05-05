@@ -286,7 +286,7 @@ trait BaseMethods
      *
      * @return Inspector
      */
-    private function getInspector()
+    public function getInspector()
     {
         return Inspector::forClass($this);
     }

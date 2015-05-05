@@ -63,14 +63,20 @@ abstract class AbstractVersion
             $data = self::getRepositoryTags();
             if ($data) {
                 $apiResponse = json_decode($data, true);
-                // Simplify the API response into a simple array of version numbers
+                // Simplify the API response into a simple array of version
+                // numbers
                 $tags = array_map(function($tag) {
                     return substr($tag['ref'], 11);
                 }, $apiResponse);
                 // Fetch the latest version number from the array
-                static::$latestVersion = array_reduce($tags, function($a, $b) {
-                    return version_compare($a, $b, '>') ? $a : $b;
-                });
+                static::$latestVersion = array_reduce(
+                    $tags,
+                    function($first, $second) {
+                        return version_compare($first, $second, '>')
+                            ? $first
+                            : $second;
+                    }
+                );
             }
         }
         return static::$latestVersion;
