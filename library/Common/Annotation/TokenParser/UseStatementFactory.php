@@ -70,33 +70,6 @@ class UseStatementFactory
      * the class name and sets the alias with it.
      *
      * Otherwise it passes the parsing responsibility to alias name parsing
-     * method UseStatementFactory::parseAliasName()
-     *
-     * @see UseStatementFactory::parseAliasName()
-     *
-     * @param Token $token Current parsing token
-     *
-     * @return UseStatementFactory A self instance for method calls chaining
-     */
-    public function addToken(Token $token)
-    {
-        $isNameToken = $token->is([T_STRING, T_NS_SEPARATOR]);
-        if (!$this->explicitAlias && $isNameToken) {
-            $this->class .= $token->getValue();
-            $this->alias = $token->getValue();
-            return $this;
-        }
-
-        return $this->parseAliasName($token);
-    }
-
-    /**
-     * Parse token to check alias name usage
-     *
-     * If previous token was an "as" (T_AS) explicit alias token then this
-     * method sets the alias name to the token value.
-     *
-     * Otherwise it passes the parsing responsibility to alias token checking
      * method UseStatementFactory::checkExplicitAlias()
      *
      * @see UseStatementFactory::checkExplicitAlias()
@@ -105,11 +78,15 @@ class UseStatementFactory
      *
      * @return UseStatementFactory A self instance for method calls chaining
      */
-    private function parseAliasName(Token $token)
+    public function addToken(Token $token)
     {
-        $isNameToken = $token->is([T_STRING, T_NS_SEPARATOR]);
-        if ($this->explicitAlias && $isNameToken) {
-            $this->alias .= $token->getValue();
+        if ($token->is([T_STRING, T_NS_SEPARATOR])) {
+            if ($this->explicitAlias) {
+                $this->alias .= $token->getValue();
+                return $this;
+            }
+            $this->class .= $token->getValue();
+            $this->alias = $token->getValue();
             return $this;
         }
 
