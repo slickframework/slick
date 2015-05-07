@@ -10,9 +10,12 @@ All Notable changes to `Slick` will be documented in this file
 - `Slick\Common\Inspector` now manages a list of class metadata for better
   performance. The static `Slick\Common\Inspector::forClass()` method should
   now be used to get class information and annotations
+- `Slick\Database\RecordList::asArray()` To retrieve the record list data
+  as an array
 
 ### Deprecated
-- Nothing
+- `Slick\Database\RecordList::getArrayCopy()` you should use
+  `Slick\Database\RecordList::asArray()`
 
 ### Fixed
 - Nothing
