@@ -9,6 +9,7 @@
 
 namespace Slick\Database\Adapter;
 
+use Slick\Database\Exception\NoActiveTransactionException;
 use Slick\Database\Exception\ServiceException;
 use Slick\Database\Exception\SqlQueryException;
 use Slick\Database\RecordList;
@@ -115,4 +116,28 @@ interface AdapterInterface
      * @return string
      */
     public function getSchemaName();
+
+    /**
+     * Initiates a transaction a database transaction
+     *
+     * @return bool TRUE on success or FALSE on failure.
+     */
+    public function beginTransaction();
+
+    /**
+     * Commits a transaction
+     *
+     * @return bool TRUE on success or FALSE on failure.
+     */
+    public function commit();
+
+    /**
+     * Rolls back a transaction
+     *
+     * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws NoActiveTransactionException If no transaction is active.
+     */
+    public function rollBack();
+
 }

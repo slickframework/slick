@@ -12,6 +12,8 @@ All Notable changes to `Slick` will be documented in this file
   now be used to get class information and annotations
 - `Slick\Database\RecordList::asArray()` To retrieve the record list data
   as an array
+- Support for transaction in database adapters. Adapter API exposes
+  `beginTransaction()`, `commit()` and `rollback()` methods directly.
 
 ### Deprecated
 - `Slick\Database\RecordList::getArrayCopy()` you should use
