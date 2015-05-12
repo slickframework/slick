@@ -34,6 +34,7 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @var string
      */
     protected $host = 'localhost';
+
     /**
      * @readwrite
      * @var int
@@ -44,23 +45,27 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
      * @var string
      */
     protected $database;
+
     /**
      * @readwrite
      * @var string
      */
     protected $charset = 'utf8';
+
     /**
      * @readwrite
      * @var string
      */
     protected $username;
+
     /**
      * @readwrite
      * @var string
      */
     protected $password;
+
     /**
-     * @write
+     * @read
      * @var string
      */
     protected $dialect = Dialect::MYSQL;
@@ -77,9 +82,10 @@ class MysqlAdapter extends AbstractAdapter implements AdapterInterface
     {
         $dsn = "mysql:host={$this->host};port={$this->port};" .
             "dbname={$this->database};charset={$this->charset}";
+        $className = $this->handleClassName;
         try {
 
-            $this->handler = new PDO(
+            $this->handler = new $className(
                 $dsn,
                 $this->username,
                 $this->password,

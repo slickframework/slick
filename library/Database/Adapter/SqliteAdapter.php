@@ -43,8 +43,9 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
     public function connect()
     {
         $dsn = "sqlite:{$this->file}";
+        $class = $this->handleClassName;
         try {
-            $this->handler = new PDO($dsn);
+            $this->handler = new $class($dsn);
             $this->handler->setAttribute(
                 PDO::ATTR_ERRMODE,
                 PDO::ERRMODE_EXCEPTION

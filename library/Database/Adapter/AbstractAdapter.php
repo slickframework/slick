@@ -92,6 +92,12 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     protected $logger;
 
     /**
+     * @write
+     * @var string
+     */
+    protected $handleClassName = '\PDO';
+
+    /**
      * Auto connects if the auto connect flag is set to true
      *
      * @param array|object $options The properties for the object
@@ -205,6 +211,19 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     }
 
     /**
+     * Sets adapter handler
+     *
+     * @param PDO $handler A PDO object or other object extended from PDO
+     *
+     * @return AbstractAdapter
+     */
+    public function setHandler(PDO $handler)
+    {
+        $this->handler = $handler;
+        return $this;
+    }
+
+    /**
      * Returns the database specific handler used by this adapter
      *
      * This can be the PDO or Mysqli objects for example.
@@ -252,7 +271,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     public function commit()
     {
         $this->checkConnection();
-        $this->handler->commit();
+        return $this->handler->commit();
     }
 
     /**
@@ -265,7 +284,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     public function rollBack()
     {
         $this->checkConnection();
-        $this->handler->rollBack();
+        return $this->handler->rollBack();
     }
 
     /**
@@ -371,7 +390,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
                     'query' => $query,
                     'params' => $parameters,
                     'time' => number_format($time, 3),
-                    'affected' => $statement->rowCount()
+                    'affected' => $this->affectedRows
                 ]
             );
         } catch (\PDOException $exp) {
