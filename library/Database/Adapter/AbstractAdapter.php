@@ -14,7 +14,6 @@ use Psr\Log\LoggerInterface;
 use Slick\Common\Base;
 use Slick\Common\Log;
 use Slick\Database\Exception\InvalidArgumentException;
-use Slick\Database\Exception\NoActiveTransactionException;
 use Slick\Database\Exception\ServiceException;
 use Slick\Database\Exception\SqlQueryException;
 use Slick\Database\RecordList;
@@ -110,16 +109,6 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
             $this->connect();
         }
     }
-
-    /**
-     * Connects to the database service
-     *
-     * @return AbstractAdapter The current adapter to chain method calls
-     *
-     * @throws ServiceException If any error occurs while trying to
-     *  connect to the database service
-     */
-    abstract public function connect();
 
     /**
      * Disconnects from the database service
@@ -243,48 +232,6 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     public function getDialect()
     {
         return $this->dialect;
-    }
-
-    /**
-     * Returns the schema name for this adapter
-     *
-     * @return string
-     */
-    abstract public function getSchemaName();
-
-    /**
-     * Initiates a transaction a database transaction
-     *
-     * @return bool TRUE on success or FALSE on failure.
-     */
-    public function beginTransaction()
-    {
-        $this->checkConnection();
-        return $this->handler->beginTransaction();
-    }
-
-    /**
-     * Commits a transaction
-     *
-     * @return bool TRUE on success or FALSE on failure.
-     */
-    public function commit()
-    {
-        $this->checkConnection();
-        return $this->handler->commit();
-    }
-
-    /**
-     * Rolls back a transaction
-     *
-     * @return bool TRUE on success or FALSE on failure.
-     *
-     * @throws NoActiveTransactionException If no transaction is active.
-     */
-    public function rollBack()
-    {
-        $this->checkConnection();
-        return $this->handler->rollBack();
     }
 
     /**

@@ -75,6 +75,12 @@ class MysqlAdapterTest extends TestCase
         $this->setExpectedException(
             'Slick\Database\Exception\ServiceException'
         );
-        new MysqlAdapter();
+        new MysqlAdapter(
+            [
+                'host' => 'someware',
+                'port' => 90922,
+                'username' => 'test'
+            ]
+        );
     }
 }

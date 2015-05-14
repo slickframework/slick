@@ -11,6 +11,7 @@ namespace Slick\Tests\Database\Fixtures;
 
 
 use Slick\Database\Adapter\AbstractAdapter;
+use Slick\Database\Adapter\TransactionalAdapter;
 use Slick\Database\Exception\ServiceException;
 
 /**
@@ -19,7 +20,7 @@ use Slick\Database\Exception\ServiceException;
  * @package Slick\Tests\Database\Fixtures
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class CustomAdapter extends AbstractAdapter
+class CustomAdapter extends TransactionalAdapter
 {
 
     /**

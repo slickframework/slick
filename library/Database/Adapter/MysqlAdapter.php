@@ -26,7 +26,8 @@ use Slick\Database\Sql\Dialect;
  * @property string $username
  * @property string $password
  */
-class MysqlAdapter extends AbstractAdapter implements AdapterInterface
+class MysqlAdapter extends TransactionalAdapter implements
+    AdapterInterface, TransactionsAwareInterface
 {
 
     /**
