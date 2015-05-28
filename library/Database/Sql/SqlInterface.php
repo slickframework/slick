@@ -24,4 +24,11 @@ interface SqlInterface
      * @return string
      */
     public function getQueryString();
+
+    /**
+     * Returns the parameters to be bound to query string by adapter
+     *
+     * @return array
+     */
+    public function getParameters();
 }

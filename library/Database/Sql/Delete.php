@@ -7,18 +7,27 @@
  * file that was distributed with this source code.
  */
 
-namespace Slick\Tests\Database\Fixtures;
-
-use Slick\Database\Sql\SqlInterface;
+namespace Slick\Database\Sql;
 
 /**
- * Class Custom Query
+ * Delete SQL statement
  *
- * @package Slick\Tests\Database\Fixtures
+ * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class CustomQuery implements SqlInterface
+class Delete extends AbstractSql
 {
+
+    /**
+     * Use where clause related methods
+     */
+    use WhereMethods;
+
+    /**
+     * Use query execution methods
+     */
+    use ExecuteMethods;
+
 
     /**
      * Returns the string version of this query
@@ -27,16 +36,8 @@ class CustomQuery implements SqlInterface
      */
     public function getQueryString()
     {
-        return "This is a test";
+        $dialect = Dialect::create($this->adapter->getDialect(), $this);
+        return $dialect->getSqlStatement();
     }
 
-    /**
-     * Returns the parameters to be bound to query string by adapter
-     *
-     * @return array
-     */
-    public function getParameters()
-    {
-        return [];
-    }
 }
