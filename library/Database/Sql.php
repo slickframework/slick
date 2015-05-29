@@ -51,11 +51,12 @@ final class Sql
         $sql = new Sql($adapter);
         return $sql;
     }
+
     /**
      * Creates a Select statement object
      *
      * @param string $tableName
-     * @param array|string $fields
+     * @param string|string[] $fields
      *
      * @return Select
      */

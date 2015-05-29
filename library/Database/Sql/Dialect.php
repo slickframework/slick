@@ -63,7 +63,7 @@ final class Dialect
      */
     public static function create($dialect, SqlInterface $sql)
     {
-        if (array_key_exists($dialect, static::$map)) {
+        if (array_key_exists($dialect, self::$map)) {
             $dialect = self::$map[$dialect];
         }
 

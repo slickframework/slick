@@ -10,7 +10,6 @@
 namespace Slick\Common\Log\Handler;
 
 use Monolog\Handler\NullHandler as BaseHandler;
-use Monolog\Logger;
 
 /**
  * Class NullHandler
@@ -20,12 +19,5 @@ use Monolog\Logger;
  */
 class NullHandler extends BaseHandler
 {
-    /**
-     * @param integer $level The minimum logging level at which this handler
-     * will be triggered
-     */
-    public function __construct($level = Logger::DEBUG)
-    {
-        parent::__construct($level, false);
-    }
+
 }

@@ -9,6 +9,8 @@
 
 namespace Slick\Database\Sql;
 
+use Slick\Database\Adapter\AdapterInterface;
+
 /**
  * Sql execute methods
  *
@@ -19,6 +21,12 @@ trait ExecuteMethods
 {
 
     /**
+     * @readwrite
+     * @var AdapterInterface The Database adapter
+     */
+    protected $adapter;
+
+    /**
      * Executes an SQL or DDL query and returns the number of affected rows
      *
      * @return integer The number of affected rows by executing the
@@ -26,10 +34,13 @@ trait ExecuteMethods
      */
     public function execute()
     {
-        $params = [];
-        if (method_exists($this, 'getParameters')) {
-            $params = $this->getParameters();
-        }
-        return $this->adapter->execute($this, $params);
+        return $this->adapter->execute($this, $this->getParameters());
     }
+
+    /**
+     * Returns the parameters entered in set data
+     *
+     * @return array
+     */
+    abstract public function getParameters();
 }
