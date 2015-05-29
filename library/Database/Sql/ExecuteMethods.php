@@ -21,12 +21,6 @@ trait ExecuteMethods
 {
 
     /**
-     * @readwrite
-     * @var AdapterInterface The Database adapter
-     */
-    protected $adapter;
-
-    /**
      * Executes an SQL or DDL query and returns the number of affected rows
      *
      * @return integer The number of affected rows by executing the
@@ -34,7 +28,7 @@ trait ExecuteMethods
      */
     public function execute()
     {
-        return $this->adapter->execute($this, $this->getParameters());
+        return $this->getAdapter()->execute($this, $this->getParameters());
     }
 
     /**
@@ -43,4 +37,9 @@ trait ExecuteMethods
      * @return array
      */
     abstract public function getParameters();
+
+    /**
+     * @return AdapterInterface
+     */
+    abstract public function getAdapter();
 }

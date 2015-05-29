@@ -10,39 +10,27 @@
 namespace Slick\Database\Sql\Dialect\Standard;
 
 use Slick\Database\Sql\Dialect\FieldListAwareInterface;
-use Slick\Database\Sql\Insert;
 use Slick\Database\Sql\SqlInterface;
 
 /**
- * Standard Insert SQL template
+ * Standard Drop Table SQL template
  *
  * @package Slick\Database\Sql\Dialect\Standard
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class InsertSqlTemplate extends AbstractSqlTemplate
+class DropTableSqlTemplate extends AbstractSqlTemplate
 {
-
-    /**
-     * @var SqlInterface|FieldListAwareInterface|Insert
-     */
-    protected $sql;
 
     /**
      * Processes the SQL object and returns the SQL statement
      *
-     * @param SqlInterface|FieldListAwareInterface|Insert $sql
+     * @param SqlInterface|FieldListAwareInterface $sql
      *
      * @return string
      */
     public function processSql(SqlInterface $sql)
     {
-        $this->sql = $sql;
-        $template = "INSERT INTO %s (%s) VALUES (%s)";
-        return sprintf(
-            $template,
-            $this->sql->getTable(),
-            $this->sql->getFieldList(),
-            $this->sql->getPlaceholderList()
-        );
+        $tableName = $sql->getTable();
+        return "DROP TABLE {$tableName}";
     }
 }

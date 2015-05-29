@@ -8,6 +8,7 @@
  */
 
 namespace Slick\Database\Sql\Dialect;
+use Slick\Database\Sql\SqlInterface;
 
 /**
  * Field list aware interface
