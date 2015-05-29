@@ -74,12 +74,12 @@ final class Dialect
             }
 
             throw new InvalidArgumentException(
-                "The class {$dialect} does not implements the " .
+                "The class {$dialect} does not implements the ".
                 "{$interface} interface."
             );
         }
         throw new InvalidArgumentException(
-            "Trying to create an unknown dialect. '{$dialect}' is" .
+            "Trying to create an unknown dialect. '{$dialect}' is".
             " not recognized."
         );
     }

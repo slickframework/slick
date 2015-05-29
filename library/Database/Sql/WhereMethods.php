@@ -112,8 +112,7 @@ trait WhereMethods
             }
             $this->where[] = [
                 'condition' => count($conditions) > 1 ?
-                    '('. implode(' AND ', $conditions) .')' :
-                    $conditions[0],
+                    '('.implode(' AND ', $conditions).')' : $conditions[0],
                 'operation' => $operation
             ];
         }
