@@ -53,7 +53,7 @@ class SqliteAdapter extends AbstractAdapter implements AdapterInterface
             $this->connected = true;
         } catch (\Exception $exp) {
             throw new ServiceException(
-                "An error occurred when trying to connect to database " .
+                "An error occurred when trying to connect to database ".
                 "service. Error: {$exp->getMessage()}"
             );
         }

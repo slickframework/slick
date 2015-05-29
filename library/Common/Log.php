@@ -85,7 +85,7 @@ class Log extends Base
      *
      * @param Logger $logger The logger object to add the handlers.
      */
-    protected function setDefaultHandlers(Logger &$logger)
+    protected function setDefaultHandlers(Logger $logger)
     {
         if (empty($this->handlers)) {
             $socketHandler = new NullHandler();

@@ -141,7 +141,7 @@ class TokenParser
         Token $token, $namespaceName, &$statements)
     {
         $isDifferent = (
-            ! $token->is(T_NAMESPACE) ||
+            !$token->is(T_NAMESPACE) ||
             $this->parseNamespace() != $namespaceName
         );
 

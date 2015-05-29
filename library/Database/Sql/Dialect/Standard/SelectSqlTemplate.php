@@ -90,19 +90,29 @@ class SelectSqlTemplate extends AbstractSqlTemplate
         $fieldsStr = $fields;
 
         if (is_array($fields)) {
-            $fieldsStr =  $this->getFieldsWithAlias($object);
+            $fieldsStr = $this->getFieldsWithAlias(
+                $fields,
+                $object->getAlias()
+            );
         }
         return (is_null($fields)) ? false : $fieldsStr;
     }
 
-    protected function getFieldsWithAlias(FieldListAwareInterface $object)
+    /**
+     * Returns the field names with provided alias ready to be used in query
+     *
+     * @param array $fields
+     * @param string $alias
+     *
+     * @return string
+     */
+    protected function getFieldsWithAlias($fields, $alias)
     {
-        $alias = $object->getAlias();
-        $fields = [];
-        foreach ($object->getFields() as $field) {
-            $fields[] = "{$alias}.{$field}";
+        $fieldList = [];
+        foreach ($fields as $field) {
+            $fieldList[] = "{$alias}.{$field}";
         }
-        return implode(', ', $fields);
+        return implode(', ', $fieldList);
     }
 
     /**
@@ -177,7 +187,7 @@ class SelectSqlTemplate extends AbstractSqlTemplate
      *
      * @return string
      */
-    protected function createJoinStatement(Select\Join $join )
+    protected function createJoinStatement(Select\Join $join)
     {
         $template = " %s JOIN %s%s ON %s";
         $alias = (is_null($join->getAlias())) ?

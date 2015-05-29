@@ -81,7 +81,7 @@ class MysqlAdapter extends TransactionalAdapter implements
      */
     public function connect()
     {
-        $dsn = "mysql:host={$this->host};port={$this->port};" .
+        $dsn = "mysql:host={$this->host};port={$this->port};".
             "dbname={$this->database};charset={$this->charset}";
         $className = $this->handleClassName;
         try {
@@ -96,7 +96,7 @@ class MysqlAdapter extends TransactionalAdapter implements
             $this->connected = true;
         } catch (\Exception $exp) {
             throw new ServiceException(
-                "An error occurred when trying to connect to database " .
+                "An error occurred when trying to connect to database ".
                 "service. Error: {$exp->getMessage()}"
             );
         }

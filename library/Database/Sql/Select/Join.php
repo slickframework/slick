@@ -1,18 +1,22 @@
 <?php
- /**
- * Join
+
+/**
+ * This file is part of slick/database package
  *
- * @package Slick\Database\Sql\Select
- * @author    Filipe Silva <filipe.silva@sata.pt>
- * @copyright 2014-2015 Grupo SATA
- * @since     v0.0.0
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Slick\Database\Sql\Select;
 
-
 use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 
+/**
+ * SQL select Join
+ *
+ * @package Slick\Database\Sql\Select
+ * @author  Filipe Silva <silvam.filipe@gmail.com>
+ */
 class Join implements FieldListAwareInterface
 {
 
@@ -66,6 +70,7 @@ class Join implements FieldListAwareInterface
         $this->fields = $fields;
         $this->type = $type;
     }
+
     /**
      * Returns the join type
      *
@@ -75,6 +80,7 @@ class Join implements FieldListAwareInterface
     {
         return $this->type;
     }
+
     /**
      * Gets the join condition
      *
@@ -84,6 +90,7 @@ class Join implements FieldListAwareInterface
     {
         return $this->onClause;
     }
+
     /**
      * Get join table fields to select
      *
@@ -93,6 +100,7 @@ class Join implements FieldListAwareInterface
     {
         return $this->fields;
     }
+
     /**
      * Returns the join table name
      *
@@ -102,6 +110,7 @@ class Join implements FieldListAwareInterface
     {
         return $this->table;
     }
+
     /**
      * Sets the join table alias
      *
@@ -113,6 +122,7 @@ class Join implements FieldListAwareInterface
         $this->alias = $alias;
         return $this;
     }
+
     /**
      * Returns the join table alias
      *
@@ -122,6 +132,7 @@ class Join implements FieldListAwareInterface
     {
         return $this->alias;
     }
+
     /**
      * Sets join fields to include in select statement
      *

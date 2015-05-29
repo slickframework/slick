@@ -62,7 +62,7 @@ class Select extends AbstractSql implements
      * Creates the sql with the table name and fields
      *
      * @param string $tableName
-     * @param string $fields
+     * @param string|string[] $fields
      */
     public function __construct($tableName, $fields = '*')
     {

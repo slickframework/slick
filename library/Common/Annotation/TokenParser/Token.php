@@ -83,7 +83,7 @@ class Token
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getLineNumber()
     {

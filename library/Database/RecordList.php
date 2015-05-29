@@ -147,7 +147,7 @@ class RecordList extends Base implements Countable, ArrayAccess,
         if (!$isTraversable && !$isIterator) {
             // The provided class is not an iterator or traversable
             throw new InvalidArgumentException(
-                "The class {$class} does not implement Traversable or " .
+                "The class {$class} does not implement Traversable or ".
                 "Iterator interfaces"
             );
         }

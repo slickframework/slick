@@ -174,7 +174,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
     public function getLastInsertId()
     {
         $this->checkConnection();
-        return $this->handler->lastInsertId();
+        return (int) $this->handler->lastInsertId();
     }
 
     /**
@@ -217,7 +217,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      *
      * This can be the PDO or Mysqli objects for example.
      *
-     * @return mixed
+     * @return PDO
      */
     public function getHandler()
     {
@@ -296,17 +296,18 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
      */
     protected function getSql($sql)
     {
-        $query = $sql;
-        if (is_object($sql)) {
-            if (!($sql instanceof SqlInterface)) {
-                throw new InvalidArgumentException(
-                    "The SQL provided is not a string or does not implements" .
-                    " the Slick\\Database\\Sql\\SqlInterface interface."
-                );
-            }
-            $query = $sql->getQueryString();
+        if (is_string($sql)) {
+            return $sql;
         }
-        return $query;
+
+        if (!($sql instanceof SqlInterface)) {
+            throw new InvalidArgumentException(
+                "The SQL provided is not a string or does not implements".
+                " the Slick\\Database\\Sql\\SqlInterface interface."
+            );
+        }
+
+        return $sql->getQueryString();
     }
 
     /**
@@ -342,7 +343,7 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
             );
         } catch (\PDOException $exp) {
             throw new SqlQueryException(
-                "An error occurred when querying the database service." .
+                "An error occurred when querying the database service.".
                 "SQL: {$query} " .
                 "Error: {$exp->getMessage()} " .
                 "Database error: {$this->getLastError()}"

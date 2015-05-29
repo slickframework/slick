@@ -80,7 +80,9 @@ class Standard extends AbstractDialect
             foreach ($this->map as $template => $sqlClass) {
                 $templateClass = $this->namespace."\\".$template;
                 if ($this->sql instanceof $sqlClass) {
-                    $this->template = new $templateClass();
+                    /** @var SqlTemplateInterface $template */
+                    $template = new $templateClass();
+                    $this->template = $template;
                     break;
                 }
             }

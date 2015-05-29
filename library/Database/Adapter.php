@@ -140,7 +140,7 @@ final class Adapter extends Base
     {
         if (!class_exists($this->driverClass)) {
             throw new InvalidArgumentException(
-                "The class '{$this->driverClass}' does not " .
+                "The class '{$this->driverClass}' does not ".
                 "exists."
             );
         }
@@ -148,11 +148,11 @@ final class Adapter extends Base
         $inspector = Inspector::forClass($this->driverClass);
 
         if (
-            ! $inspector->getReflection()
+            !$inspector->getReflection()
                 ->implementsInterface($this->interface)
         ) {
             throw new InvalidArgumentException(
-                "The class '{$this->driverClass}' does not " .
+                "The class '{$this->driverClass}' does not ".
                 "implements '{$this->interface}'."
             );
         }

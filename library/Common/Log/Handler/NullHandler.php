@@ -9,8 +9,8 @@
 
 namespace Slick\Common\Log\Handler;
 
-use Monolog\Logger;
 use Monolog\Handler\NullHandler as BaseHandler;
+use Monolog\Logger;
 
 /**
  * Class NullHandler
