@@ -43,6 +43,12 @@ class AbstractSqlTest extends TestCase
         $this->sut = $this->getMockBuilder('Slick\Database\Sql\AbstractSql')
             ->setConstructorArgs(['tasks'])
             ->getMockForAbstractClass();
+        $this->sut->expects($this->any())
+            ->method('getQueryString')
+            ->willReturn(null);
+        $this->sut->expects($this->any())
+            ->method('getParameters')
+            ->willReturn([]);
     }
 
     protected function tearDown()
