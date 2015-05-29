@@ -17,10 +17,6 @@ namespace Slick\Database\Sql;
  */
 trait WhereMethods
 {
-    /**
-     * @var array List of parameters
-     */
-    protected $parameters = [];
 
     /**
      * @var array List of where conditions

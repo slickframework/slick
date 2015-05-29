@@ -22,6 +22,11 @@ abstract class AbstractSql implements SqlInterface
 {
 
     /**
+     * @var array List of parameters
+     */
+    protected $parameters = [];
+
+    /**
      * @readwrite
      * @var AdapterInterface|TransactionsAwareInterface The Database adapter
      */
@@ -73,5 +78,15 @@ abstract class AbstractSql implements SqlInterface
     public function getTable()
     {
         return $this->table;
+    }
+
+    /**
+     * Returns the parameters to be bound to query string by adapter
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
     }
 }

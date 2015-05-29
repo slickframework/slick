@@ -19,7 +19,7 @@ use Slick\Database\Sql\Select\Join;
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
 class Select extends AbstractSql implements
-    SqlInterface,
+    ConditionsAwareInterface,
     FieldListAwareInterface
 {
 

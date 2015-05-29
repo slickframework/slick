@@ -24,9 +24,15 @@ class Insert extends AbstractSql
     use SetDataMethods;
 
     /**
-     * Use query execution methods
+     * Executes an SQL or DDL query and returns the number of affected rows
+     *
+     * @return integer The number of affected rows by executing the
+     *  query
      */
-    use ExecuteMethods;
+    public function execute()
+    {
+        return $this->getAdapter()->execute($this, $this->getParameters());
+    }
 
     /**
      * Returns the string version of this query

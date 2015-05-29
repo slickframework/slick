@@ -24,14 +24,15 @@ class DropTable extends AbstractSql
 {
 
     /**
-     * Use where clause related methods
+     * Executes an SQL or DDL query and returns the number of affected rows
+     *
+     * @return integer The number of affected rows by executing the
+     *  query
      */
-    use WhereMethods;
-
-    /**
-     * Use query execution methods
-     */
-    use ExecuteMethods;
+    public function execute()
+    {
+        return $this->getAdapter()->execute($this, $this->getParameters());
+    }
 
     /**
      * Returns the string version of this query
