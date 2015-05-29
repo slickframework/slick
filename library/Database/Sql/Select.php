@@ -232,7 +232,7 @@ class Select extends AbstractSql implements
         $sql = clone($this);
         $sql->limit(1);
         $result = $this->adapter->query($sql, $sql->getParameters());
-        return  (count($result) > 0) ? $result[0]: null;
+        return  (count($result) > 0) ? $result[0] : null;
     }
 
     /**
@@ -258,7 +258,7 @@ class Select extends AbstractSql implements
     /**
      * Returns object SQL alias name
      *
-     * @return string|null
+     * @return string
      */
     public function getAlias()
     {

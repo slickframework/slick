@@ -63,7 +63,7 @@ class Join implements FieldListAwareInterface
      * @param string       $type
      */
     public function __construct(
-        $table, $onClause, $fields=['*'], $type = self::JOIN_LEFT)
+        $table, $onClause, $fields = ['*'], $type = self::JOIN_LEFT)
     {
         $this->table = $table;
         $this->onClause = $onClause;
