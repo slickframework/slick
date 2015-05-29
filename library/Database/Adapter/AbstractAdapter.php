@@ -344,8 +344,8 @@ abstract class AbstractAdapter extends Base implements AdapterInterface
         } catch (\PDOException $exp) {
             throw new SqlQueryException(
                 "An error occurred when querying the database service.".
-                "SQL: {$query} " .
-                "Error: {$exp->getMessage()} " .
+                "SQL: {$query} ".
+                "Error: {$exp->getMessage()} ".
                 "Database error: {$this->getLastError()}"
             );
         }
