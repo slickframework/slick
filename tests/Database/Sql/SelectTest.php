@@ -70,4 +70,22 @@ class SelectTest extends TestCase
         $this->select->limit(10, 2);
         $this->assertEquals($expected, $this->select->getQueryString());
     }
+
+    public function testJoins()
+    {
+        $expected  = 'SELECT * FROM tasks ';
+        $expected .= 'LEFT JOIN users ON tasks.user_id = users.id';
+        $this->select->join('users', 'tasks.user_id = users.id', null);
+        $this->assertEquals($expected, $this->select->getQueryString());
+    }
+
+    public function testSelectWithFields()
+    {
+        $this->select = new Select('tasks', ['id', 'name']);
+        $this->select->setAdapter(new CustomAdapter());
+        $expected  = 'SELECT tasks.id, tasks.name, U.mail FROM tasks ';
+        $expected .= 'LEFT JOIN users AS U ON tasks.user_id = U.id';
+        $this->select->join('users', 'tasks.user_id = U.id', ['mail'], 'U');
+        $this->assertEquals($expected, $this->select->getQueryString());
+    }
 }

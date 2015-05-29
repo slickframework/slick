@@ -64,13 +64,13 @@ final class Dialect
     public static function create($dialect, SqlInterface $sql)
     {
         if (array_key_exists($dialect, static::$map)) {
-            $dialect = static::$map[$dialect];
+            $dialect = self::$map[$dialect];
         }
 
         if (class_exists($dialect)) {
-            $interface = static::DIALECT_INTERFACE;
+            $interface = self::DIALECT_INTERFACE;
             if (in_array($interface, class_implements($dialect))) {
-                return static::createDialect($dialect, $sql);
+                return self::createDialect($dialect, $sql);
             }
 
             throw new InvalidArgumentException(

@@ -82,24 +82,29 @@ class SelectSqlTemplate extends AbstractSqlTemplate
      * Retrieve a field list from a FieldListAwareInterface object
      *
      * @param FieldListAwareInterface $object
-     * @return bool|string|string[]
+     * @return bool|string
      */
     protected function getFieldsFor(FieldListAwareInterface $object)
     {
-        if (is_null($object->getFields())) {
-            return false;
+        $fields = $object->getFields();
+        $fieldsStr = $fields;
+
+        if (is_array($fields)) {
+            $fieldsStr =  $this->getFieldsWithAlias($object);
         }
-        if (is_string($object->getFields())) {
-            return $object->getFields();
-        }
-        $alias = (is_null($object->getAlias())) ?
-            $object->getTable() : $object->getAlias();
+        return (is_null($fields)) ? false : $fieldsStr;
+    }
+
+    protected function getFieldsWithAlias(FieldListAwareInterface $object)
+    {
+        $alias = $object->getAlias();
         $fields = [];
         foreach ($object->getFields() as $field) {
             $fields[] = "{$alias}.{$field}";
         }
         return implode(', ', $fields);
     }
+
     /**
      * Sets the joins for this select statement
      *
