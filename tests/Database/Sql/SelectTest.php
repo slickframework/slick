@@ -88,4 +88,55 @@ class SelectTest extends TestCase
         $this->select->join('users', 'tasks.user_id = U.id', ['mail'], 'U');
         $this->assertEquals($expected, $this->select->getQueryString());
     }
+
+    public function testSelectAll()
+    {
+        $adapter = $this->getMockBuilder(
+            'Slick\Tests\Database\Fixtures\CustomAdapter'
+        )->getMock();
+        $adapter->expects($this->once())
+            ->method('query')
+            ->with(
+                $this->identicalTo($this->select),
+                $this->identicalTo($this->select->getParameters())
+            )
+            ->willReturn(1);
+        $this->select->setAdapter($adapter);
+        $this->assertEquals(1, $this->select->all());
+    }
+
+    public function testGetFirstRow()
+    {
+        $adapter = $this->getMockBuilder(
+            'Slick\Tests\Database\Fixtures\CustomAdapter'
+        )->getMock();
+        $adapter->expects($this->once())
+            ->method('query')
+            ->with(
+                $this->anything(),
+                $this->identicalTo($this->select->getParameters())
+            )
+            ->willReturn([]);
+        $this->select->setAdapter($adapter);
+        $this->assertNull($this->select->first());
+    }
+
+    public function testGetCount()
+    {
+        $adapter = $this->getMockBuilder(
+            'Slick\Tests\Database\Fixtures\CustomAdapter'
+        )->getMock();
+        $adapter->expects($this->once())
+            ->method('query')
+            ->with(
+                $this->anything(),
+                $this->identicalTo($this->select->getParameters())
+            )
+            ->willReturn([
+                ['total' => 2]
+            ]);
+        $this->select->join('users', 'tasks.user_id = users.id', null);
+        $this->select->setAdapter($adapter);
+        $this->assertEquals(2, $this->select->count());
+    }
 }

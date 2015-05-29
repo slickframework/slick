@@ -66,7 +66,7 @@ abstract class AbstractVersion
                 // Simplify the API response into a simple array of version
                 // numbers
                 $tags = array_map(function($tag) {
-                    return substr($tag['ref'], 11);
+                    return isset($tag['ref']) ? substr($tag['ref'], 11) : null;
                 }, $apiResponse);
                 // Fetch the latest version number from the array
                 static::$latestVersion = array_reduce(
