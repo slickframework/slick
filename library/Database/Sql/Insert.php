@@ -15,24 +15,13 @@ namespace Slick\Database\Sql;
  * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class Insert extends AbstractSql
+class Insert extends AbstractExecutionOnlySql
 {
 
     /**
      * Use the data assigning methods
      */
     use SetDataMethods;
-
-    /**
-     * Executes an SQL or DDL query and returns the number of affected rows
-     *
-     * @return integer The number of affected rows by executing the
-     *  query
-     */
-    public function execute()
-    {
-        return $this->getAdapter()->execute($this, $this->getParameters());
-    }
 
     /**
      * Returns the string version of this query

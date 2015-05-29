@@ -15,25 +15,14 @@ namespace Slick\Database\Sql;
  * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class Delete extends AbstractSql implements ConditionsAwareInterface
+class Delete extends AbstractExecutionOnlySql implements
+    ConditionsAwareInterface
 {
 
     /**
      * Use where clause related methods
      */
     use WhereMethods;
-
-    /**
-     * Executes an SQL or DDL query and returns the number of affected rows
-     *
-     * @return integer The number of affected rows by executing the
-     *  query
-     */
-    public function execute()
-    {
-        return $this->getAdapter()->execute($this, $this->getParameters());
-    }
-
 
     /**
      * Returns the string version of this query

@@ -62,4 +62,9 @@ class AbstractSqlTest extends TestCase
     {
         $this->assertEquals('tasks', $this->sut->getTable());
     }
+
+    public function testGetParameters()
+    {
+        $this->assertEquals([], $this->sut->getParameters());
+    }
 }

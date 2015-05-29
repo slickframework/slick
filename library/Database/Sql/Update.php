@@ -15,7 +15,8 @@ namespace Slick\Database\Sql;
  * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class Update extends AbstractSql implements ConditionsAwareInterface
+class Update extends AbstractExecutionOnlySql implements
+    ConditionsAwareInterface
 {
 
     /**
@@ -30,17 +31,6 @@ class Update extends AbstractSql implements ConditionsAwareInterface
      */
     use WhereMethods {
         WhereMethods::getParameters as whereParameters;
-    }
-
-    /**
-     * Executes an SQL or DDL query and returns the number of affected rows
-     *
-     * @return integer The number of affected rows by executing the
-     *  query
-     */
-    public function execute()
-    {
-        return $this->getAdapter()->execute($this, $this->getParameters());
     }
 
     /**

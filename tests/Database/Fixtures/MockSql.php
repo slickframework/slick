@@ -25,14 +25,4 @@ class MockSql extends AbstractSql
     {
         return null;
     }
-
-    /**
-     * Returns the parameters to be bound to query string by adapter
-     *
-     * @return array
-     */
-    public function getParameters()
-    {
-        return [];
-    }
 }

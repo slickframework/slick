@@ -13,13 +13,40 @@ use Slick\Database\Sql\AbstractExecutionOnlySql;
 use Slick\Database\Sql\Dialect;
 
 /**
- * Drop Table SQL statement
+ * Drop table index SQL statement
  *
  * @package Slick\Database\Sql\Ddl
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class DropTable extends AbstractExecutionOnlySql
+class DropIndex extends AbstractExecutionOnlySql
 {
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * Creates the sql with the table name
+     *
+     * @param string $name
+     * @param string $tableName
+     */
+    public function __construct($name, $tableName)
+    {
+        $this->name = $name;
+        $this->table = $tableName;
+    }
+
+    /**
+     * Returns index name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
     /**
      * Returns the string version of this query
