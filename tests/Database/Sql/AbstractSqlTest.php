@@ -13,6 +13,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Slick\Database\Adapter;
 use Slick\Database\Adapter\AdapterInterface;
 use Slick\Database\Sql\AbstractSql;
+use Slick\Tests\Database\Fixtures\MockSql;
 
 /**
  * Abstract Sql Test case
@@ -40,15 +41,7 @@ class AbstractSqlTest extends TestCase
             'driver' => 'Slick\Tests\Database\Fixtures\CustomAdapter'
             ]
         );
-        $this->sut = $this->getMockBuilder('Slick\Database\Sql\AbstractSql')
-            ->setConstructorArgs(['tasks'])
-            ->getMockForAbstractClass();
-        $this->sut->expects($this->any())
-            ->method('getQueryString')
-            ->willReturn(null);
-        $this->sut->expects($this->any())
-            ->method('getParameters')
-            ->willReturn([]);
+        $this->sut = new MockSql('tasks');
     }
 
     protected function tearDown()
