@@ -10,6 +10,6 @@ default:
     database_features:
       contexts:
         - FeatureContext
-        - database\DatabaseContext
+        - Database\DatabaseContext
       paths:
         - %paths.base%/features/Database
