@@ -7,3 +7,9 @@ default:
         - Common\CommonContext
       paths:
         - %paths.base%/features/Common
+    database_features:
+      contexts:
+        - FeatureContext
+        - database\DatabaseContext
+      paths:
+        - %paths.base%/features/Database
