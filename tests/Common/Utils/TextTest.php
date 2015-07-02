@@ -32,4 +32,27 @@ class TextTest extends \PHPUnit_Framework_TestCase {
         $this->assertNull(Text::match('test', 'differen'));
     }
 
+    /**
+     * Check camel case split
+     *
+     * @test
+     */
+    public function camelCaseSplit()
+    {
+        $string = "thisIsACamelCaseString";
+        $expected = "this Is A Camel Case String";
+        $this->assertEquals($expected, Text::camelCaseToSeparator($string));
+        $obj = new \stdClass();
+        $this->assertEquals($obj, Text::camelCaseToSeparator($obj));
+        if (Text::$hasPcreUnicodeSupport) {
+            Text::$hasPcreUnicodeSupport = false;
+            // Not so important as PCRE is installed on newer systems
+            $this->assertEquals(
+                'this Is ACamel Case String',
+                Text::camelCaseToSeparator($string)
+            );
+            Text::$hasPcreUnicodeSupport = true;
+        }
+    }
+
 }

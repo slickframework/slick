@@ -16,6 +16,11 @@ namespace Slick\Common\Utils;
  */
 class Text
 {
+    /**
+     * PCRE Unicode support flag
+     * @var boolean
+     */
+    public static $hasPcreUnicodeSupport;
 
     /**
      * @var string Pattern delimiter character
@@ -49,6 +54,48 @@ class Text
             return $matches[0];
         }
         return null;
+    }
+
+    /**
+     * Is PCRE compiled with Unicode support?
+     *
+     * @return bool
+     */
+    public static function hasPcreUnicodeSupport()
+    {
+        if (static::$hasPcreUnicodeSupport === null) {
+            static::$hasPcreUnicodeSupport =
+                defined('PREG_BAD_UTF8_OFFSET_ERROR') &&
+                @preg_match('/\pL/u', 'a') == 1;
+        }
+        return static::$hasPcreUnicodeSupport;
+    }
+    /**
+     * Converts camel case strings to words separated by provided string
+     *
+     * @param string $text The text to evaluate
+     * @param string $sep  The separator (or glue) for the words
+     *
+     * @return string
+     */
+    public static function camelCaseToSeparator($text, $sep = " ")
+    {
+        if (!is_scalar($text) && !is_array($text)) {
+            return $text;
+        }
+        if (static::hasPcreUnicodeSupport()) {
+            $pattern = array(
+                '#(?<=(?:\p{Lu}))(\p{Lu}\p{Ll})#',
+                '#(?<=(?:\p{Ll}|\p{Nd}))(\p{Lu})#'
+            );
+            $replacement = array($sep . '\1', $sep . '\1');
+        } else {
+            $pattern = array(
+                '#(?<=(?:[A-Z]))([A-Z]+)([A-Z][a-z])#',
+                '#(?<=(?:[a-z0-9]))([A-Z])#');
+            $replacement = array('\1' . $sep . '\2', $sep . '\1');
+        }
+        return preg_replace($pattern, $replacement, $text);
     }
 
     /**
