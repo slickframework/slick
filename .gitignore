@@ -19,3 +19,4 @@
 /src/Slick/*.old
 /composer.phar
 *.DS_Store
+build

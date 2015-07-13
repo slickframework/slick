@@ -198,7 +198,7 @@ class Dispatcher extends Base
     protected function _render()
     {
         $response = $this->_application->response;
-        $body = null;
+        $body = $response->getBody();
         $this->_controller->set(
             'flashMessages', $this->_controller->flashMessages
         );
