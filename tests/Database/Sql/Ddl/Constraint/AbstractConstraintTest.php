@@ -10,7 +10,34 @@
 namespace Slick\Tests\Database\Sql\Ddl\Constraint;
 
 use PHPUnit_Framework_TestCase as TestCase;
+use Slick\Database\Sql\Ddl\Constraint\AbstractConstraint;
 
-class AbstractConstraintTest extends \PHPUnit_Framework_TestCase {
+/**
+ * Abstract constraint test case
+ *
+ * @package Slick\Tests\Database\Sql\Ddl\Constraint
+ */
+class AbstractConstraintTest extends TestCase
+{
+
+    /**
+     * @var AbstractConstraint
+     */
+    protected $constraint;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->constraint = $this->getMockBuilder(
+            'Slick\Database\Sql\Ddl\Constraint\AbstractConstraint'
+        )
+            ->setConstructorArgs(['testConstraint', ['name' => 'bar']])
+            ->getMockForAbstractClass();
+    }
+
+    public function testGetName()
+    {
+        $this->assertEquals('bar', $this->constraint->getName());
+    }
 
 }

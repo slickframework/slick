@@ -15,7 +15,7 @@ namespace Slick\Database\Sql\Ddl\Constraint;
  * @package Slick\Database\Sql\Ddl\Constraint
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class AbstractConstraint implements ConstraintInterface
+abstract class AbstractConstraint implements ConstraintInterface
 {
 
     /**
