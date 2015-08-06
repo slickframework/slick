@@ -2,5 +2,4 @@ composer.phar
 *.DS_Store
 .idea
 build
-composer.lock
 vendor
