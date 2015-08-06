@@ -10,12 +10,12 @@
 namespace Slick\Database\Sql\Ddl\Column;
 
 /**
- * Float type column
+ * Decimal type column
  *
  * @package Slick\Database\Sql\Ddl\Column
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class Float extends AbstractColumn
+class Decimal extends AbstractColumn
 {
 
     /**
@@ -29,7 +29,7 @@ class Float extends AbstractColumn
     protected $decimal;
 
     /**
-     * Creates a float type column
+     * Creates a decimal type column
      *
      * @param string $name
      * @param int $digits

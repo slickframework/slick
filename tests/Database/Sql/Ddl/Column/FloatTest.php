@@ -11,7 +11,7 @@ namespace Slick\Tests\Database\Sql\Ddl\Column;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-use Slick\Database\Sql\Ddl\Column\Float as FloatColumn;
+use Slick\Database\Sql\Ddl\Column\Decimal as FloatColumn;
 
 /**
  * Float column test case
