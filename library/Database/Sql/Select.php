@@ -66,7 +66,7 @@ class Select extends AbstractSql implements
      */
     public function __construct($tableName, $fields = '*')
     {
-        $this->table = $tableName;
+        parent::__construct($tableName);
         $this->fields = $fields;
     }
 
@@ -264,5 +264,4 @@ class Select extends AbstractSql implements
     {
         return $this->table;
     }
-
 }

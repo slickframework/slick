@@ -31,4 +31,16 @@ class ArrayMethodsTest extends TestCase
         $dirty = array('one ', ' two ', ' three');
         $this->assertEquals($expected, ArrayMethods::trim($dirty));
     }
+
+    /**
+     * Try to clean a dirty array
+     *
+     * @test
+     */
+    public function cleanAnArray()
+    {
+        $expected = array('one', 'two', 'three');
+        $dirty = array_merge($expected, array('', ''));
+        $this->assertEquals($expected, ArrayMethods::clean($dirty));
+    }
 }

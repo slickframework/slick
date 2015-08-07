@@ -28,6 +28,24 @@ class ArrayMethods
     }
 
     /**
+     * Returns a copy of the given array without empty items.
+     *
+     * @param array $array The data array with empty items to clean.
+     *
+     * @return array A copy of given array without empty items.
+     */
+    public static function clean($array)
+    {
+        return array_filter(
+            $array,
+            function($item){
+                $item = trim($item);
+                return !empty($item);
+            }
+        );
+    }
+
+    /**
      * Avoid the clonation of an ArrayMethods instance.
      * @codeCoverageIgnore
      */

@@ -42,7 +42,7 @@ class CreateIndex extends AbstractExecutionOnlySql implements SqlInterface
     public function __construct($name, $tableName)
     {
         $this->name = $name;
-        $this->table = $tableName;
+        parent::__construct($tableName);
     }
 
     /**
