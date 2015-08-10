@@ -26,16 +26,16 @@ use Slick\Database\Sql\SqlInterface;
  * @package Slick\Database\Adapter
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property PDO    $handler
- * @property int    $fetchMode
- * @property string $connectionName
- * @property bool   $autoConnect
+ * @property PDO             $handler
+ * @property int             $fetchMode
+ * @property string          $connectionName
+ * @property bool            $autoConnect
+ * @property string          $dialect
+ * @property LoggerInterface $logger PSR-3 Logger
  *
  * @property-read int  $affectedRows
  * @property-read bool $connected
  *
- * @property-write string $dialect
- * @property-write LoggerInterface $logger PSR-3 Logger
  *
  * @method bool isAutoConnect()
  */

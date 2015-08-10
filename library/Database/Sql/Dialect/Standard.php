@@ -26,7 +26,7 @@ class Standard extends AbstractDialect
     /**
      * @var string Template namespace
      */
-    protected $namespace = '\Slick\Database\Sql\Dialect\Standard';
+    protected $namespace = '\Slick\Database\Sql\Dialect';
 
     /**
      * Uses for override
@@ -39,15 +39,20 @@ class Standard extends AbstractDialect
      * @var array A map that ties Sql classes to the correspondent template
      */
     protected $defaultMap = [
-        'InsertSqlTemplate'      => 'Slick\Database\Sql\Insert',
-        'SelectSqlTemplate'      => 'Slick\Database\Sql\Select',
-        'UpdateSqlTemplate'      => 'Slick\Database\Sql\Update',
-        'DeleteSqlTemplate'      => 'Slick\Database\Sql\Delete',
-        'DropTableSqlTemplate'   => 'Slick\Database\Sql\Ddl\DropTable',
-        'AlterTableSqlTemplate'  => 'Slick\Database\Sql\Ddl\AlterTable',
-        'CreateTableSqlTemplate' => 'Slick\Database\Sql\Ddl\CreateTable',
-        'CreateIndexSqlTemplate' => 'Slick\Database\Sql\Ddl\CreateIndex',
-        'DropIndexSqlTemplate'   => 'Slick\Database\Sql\Ddl\DropIndex',
+        'Standard\InsertSqlTemplate'      => 'Slick\Database\Sql\Insert',
+        'Standard\SelectSqlTemplate'      => 'Slick\Database\Sql\Select',
+        'Standard\UpdateSqlTemplate'      => 'Slick\Database\Sql\Update',
+        'Standard\DeleteSqlTemplate'      => 'Slick\Database\Sql\Delete',
+        'Standard\DropTableSqlTemplate'
+            => 'Slick\Database\Sql\Ddl\DropTable',
+        'Standard\AlterTableSqlTemplate'
+            => 'Slick\Database\Sql\Ddl\AlterTable',
+        'Standard\CreateTableSqlTemplate'
+            => 'Slick\Database\Sql\Ddl\CreateTable',
+        'Standard\CreateIndexSqlTemplate'
+            => 'Slick\Database\Sql\Ddl\CreateIndex',
+        'Standard\DropIndexSqlTemplate'
+            => 'Slick\Database\Sql\Ddl\DropIndex',
     ];
 
     /**
@@ -55,7 +60,11 @@ class Standard extends AbstractDialect
      */
     public function __construct()
     {
-        $this->map = array_replace($this->defaultMap, $this->map);
+        $map = array_replace(
+            array_flip($this->defaultMap),
+            array_flip($this->map)
+        );
+        $this->map = array_flip($map);
     }
 
     /**

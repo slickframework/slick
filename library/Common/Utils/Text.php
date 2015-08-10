@@ -28,6 +28,109 @@ class Text
     private static $delimiter = '/';
 
     /**
+     * English singular form rules
+     *
+     * @var array
+     */
+    private static $singular = array(
+        '(matr)ices$' => "\\1ix",
+        '(vert|ind)ices$' => "\\1ex",
+        '^(ox)en' => "\\1",
+        '(alias)es$' => "\\1",
+        '([octop|vir])i$' => "\\us",
+        '(cris|ax|test)es$' => "\\1is",
+        '(shoe)s$' => "\\1",
+        '(o)es$' => "\\1",
+        '(bus|campus)es$' => "\\1",
+        '([m|l])ice$' => "\\1ouse",
+        '(x|ch|ss|sh)es$' => "\\1",
+        '(m)ovies$' => "\\1\\2ovie",
+        '(s)eries$' => "\\1\\2eries",
+        '([^aeiouy]|qu)ies$' => "\\1y",
+        '([lr])ves$' => "\\1f",
+        '(tive)s$'=> "\\1",
+        '(hive)s$'=> "\\1",
+        '([^f])ves$' => "\\1fe",
+        '(^analy)ses$' => "\\sis",
+        '((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$'
+        => "\\1\\2sis",
+        '([ti])a$' => "\\1um",
+        '(p)eople$' => "\\1\\2erson",
+        '(m)en$' => "\\1an" ,
+        '(s)tatuses$' => "\\1\\2tatus",
+        '(c)hildren$' => "\\1\\2hild",
+        '(n)ews$' => "\\1\\2ews",
+        '([^u])s$' => "\\1"
+    );
+
+    /**
+     * English plural form rules
+     *
+     * @var array
+     */
+    private static $plural = array(
+        '^(ox)$' => "\\1\\2en",
+        '([m|l])ouse$' => "\\1ice",
+        '(matr|vert|ind)ix|ex$' => "\\1ices",
+        '(x|ch|ss|sh)$' => "\\1es",
+        '([^aeiouy]|qu)y$' => "\\1ies",
+        '(hive)$' => "\\1s",
+        "(?:([^f])fe|([lr])f)$" => "\\1\\2ves",
+        'sis$' => "ses",
+        '([ti])um$' => "\\1a",
+        '(p)erson$' => "\\1eople",
+        '(m)an$' => "\\1en",
+        '(c)hild$' => "\\1hildren",
+        '(buffal|tomat)o$' => "\\1\\2oes",
+        '(bu|campu)s$' => "\\1\\2ses",
+        '(alias|status|virus)' => "\\1es",
+        '(octop)us$' => "\\1i",
+        '(ax|cris|test)is' => "\\1es",
+        's$' => 's',
+        '$' => 's'
+    );
+
+    /**
+     * Returns the singular version of the given string.
+     *
+     * @param string $string Singular string to evaluate.
+     *
+     * @return string The singular version of the provided string.
+     */
+    public static function singular($string)
+    {
+        $result = $string;
+        foreach (self::$singular as $rule => $replacement) {
+            $rule = self::normalize($rule);
+            if (preg_match($rule, $string)) {
+                $result = preg_replace($rule, $replacement, $string);
+                break;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Returns the plural version of the given string.
+     *
+     * @param string $string Plural string to evaluate.
+     *
+     * @return string The plural version of the provided string.
+     */
+    public static function plural($string)
+    {
+        $result = $string;
+        foreach (self::$plural as $rule => $replacement) {
+            $rule = self::normalize($rule);
+            if (preg_match($rule, $string)) {
+                $result = preg_replace($rule, $replacement, $string);
+                break;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Perform a global regular expression match
      *
      * This method is less formal then preg_match_all() function,

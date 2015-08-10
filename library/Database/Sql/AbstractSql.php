@@ -9,6 +9,7 @@
 
 namespace Slick\Database\Sql;
 
+use Slick\Database\Adapter\AdapterAwareInterface;
 use Slick\Database\Adapter\AdapterInterface;
 use Slick\Database\Adapter\TransactionsAwareInterface;
 
@@ -18,7 +19,7 @@ use Slick\Database\Adapter\TransactionsAwareInterface;
  * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractSql implements SqlInterface
+abstract class AbstractSql implements SqlInterface, AdapterAwareInterface
 {
 
     /**
@@ -52,7 +53,7 @@ abstract class AbstractSql implements SqlInterface
      * Sets the adapter for this statement
      *
      * @param AdapterInterface $adapter
-     * @return self
+     * @return self|$this
      */
     public function setAdapter(AdapterInterface $adapter)
     {

@@ -25,7 +25,7 @@ use Traversable;
  *
  * @property string $iteratorClass Iterator class used by getIterator() method
  *
- * @property-write array $data Record list data
+ * @property array $data Record list data
  *
  * @method string getIteratorClass() Returns the iterator class name used by
  *                                   getIterator() method.
