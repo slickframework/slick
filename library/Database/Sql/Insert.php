@@ -15,7 +15,7 @@ namespace Slick\Database\Sql;
  * @package Slick\Database\Sql
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-class Insert extends AbstractExecutionOnlySql implements DataSetInterface
+class Insert extends AbstractExecutionOnlySql
 {
 
     /**

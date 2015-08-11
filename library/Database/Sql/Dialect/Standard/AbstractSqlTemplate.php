@@ -18,7 +18,7 @@ use Slick\Database\Sql\SqlInterface;
  * @package Slick\Database\Sql\Dialect\Standard
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
-abstract class AbstractSqlTemplate
+abstract class AbstractSqlTemplate implements SqlTemplateInterface
 {
 
     /**

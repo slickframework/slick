@@ -9,10 +9,8 @@
 
 namespace Slick\Database\Sql\Dialect\Standard;
 
-use Slick\Database\Sql\DataSetInterface;
-use Slick\Database\Sql\Dialect\DataAwareSqlTemplateInterface;
-use Slick\Database\Sql\Dialect\FieldListAwareInterface;
 use Slick\Database\Sql\Insert;
+use Slick\Database\Sql\SqlInterface;
 
 /**
  * Standard Insert SQL template
@@ -21,22 +19,21 @@ use Slick\Database\Sql\Insert;
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
 class InsertSqlTemplate extends AbstractSqlTemplate
-    implements DataAwareSqlTemplateInterface
 {
 
     /**
-     * @var DataSetInterface|FieldListAwareInterface|Insert
+     * @var SqlInterface|Insert
      */
     protected $sql;
 
     /**
      * Processes the SQL object and returns the SQL statement
      *
-     * @param DataSetInterface|FieldListAwareInterface|Insert $sql
+     * @param SqlInterface $sql
      *
      * @return string
      */
-    public function processSql(DataSetInterface $sql)
+    public function processSql(SqlInterface $sql)
     {
         $this->sql = $sql;
         $template = "INSERT INTO %s (%s) VALUES (%s)";
