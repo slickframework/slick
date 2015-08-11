@@ -25,7 +25,7 @@ class Token
     private $index;
 
     /**
-     * @var string
+     * @var string[]|string
      */
     private $value;
 

@@ -172,8 +172,8 @@ class Table extends Base implements TableInterface
      */
     public function getCreateStatement()
     {
-        $sql = (new CreateTable($this->getName()))
-            ->setAdapter($this->getAdapter())
+        $sql = new CreateTable($this->getName());
+        $sql->setAdapter($this->getAdapter())
             ->setColumns($this->getColumns())
             ->setConstraints($this->getConstraints());
         return $sql->getQueryString();

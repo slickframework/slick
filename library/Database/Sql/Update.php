@@ -16,6 +16,7 @@ namespace Slick\Database\Sql;
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  */
 class Update extends AbstractExecutionOnlySql implements
+    DataSetInterface,
     ConditionsAwareInterface
 {
 

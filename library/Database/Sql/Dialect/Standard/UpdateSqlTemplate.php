@@ -11,10 +11,12 @@
 namespace Slick\Database\Sql\Dialect\Standard;
 
 
-use Slick\Database\Sql\SqlInterface;
+use Slick\Database\Sql\DataSetInterface;
+use Slick\Database\Sql\Dialect\DataAwareSqlTemplateInterface;
 use Slick\Database\Sql\Update;
 
 class UpdateSqlTemplate extends AbstractSqlTemplate
+    implements DataAwareSqlTemplateInterface
 {
 
     /**
@@ -25,11 +27,11 @@ class UpdateSqlTemplate extends AbstractSqlTemplate
     /**
      * Processes the SQL object and returns the SQL statement
      *
-     * @param SqlInterface $sql
+     * @param DataSetInterface $sql
      *
      * @return string
      */
-    public function processSql(SqlInterface $sql)
+    public function processSql(DataSetInterface $sql)
     {
         $this->sql = $sql;
         $template = "UPDATE %s SET (%s) WHERE %s";
