@@ -318,6 +318,7 @@ EOQ;
                     [$colData['columnName']]
                 );
                 break;
+
             case self::COLUMN_BLOB:
             case self::COLUMN_TEXT:
             case self::COLUMN_INTEGER:
@@ -333,14 +334,16 @@ EOQ;
                     ]
                 );
                 break;
-            default:
+
             case self::COLUMN_VARCHAR:
+            default:
                 $column = $reflection->newInstanceArgs(
                     [
                         $colData['columnName'],
                         $colData['length']
                     ]
                 );
+
         }
         return $column;
     }

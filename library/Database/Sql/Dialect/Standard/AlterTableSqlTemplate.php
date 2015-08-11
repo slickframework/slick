@@ -45,28 +45,28 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
         $this->sql = $sql;
         $tableName = $sql->getTable();
         $droppedConstraints = $this->droppedConstraintsStatement();
-        if ($droppedConstraints) {
+        if ($droppedConstraints !== null) {
             $this->statements[] =
                 "ALTER"." TABLE {$tableName} DROP CONSTRAINT " .
                 "({$droppedConstraints})";
         }
         $addColumns = $this->addColumnsStatement();
-        if ($addColumns) {
+        if ($addColumns !== null) {
             $this->statements[] = "ALTER"." TABLE {$tableName} " .
                 "ADD ({$addColumns})";
         }
         $changedColumns = $this->changedColumnsStatement();
-        if ($changedColumns) {
+        if ($changedColumns !== null) {
             $this->statements[] = "ALTER"." TABLE {$tableName} " .
                 "ALTER COLUMN ({$changedColumns})";
         }
         $droppedColumns = $this->droppedColumnsStatement();
-        if ($droppedColumns) {
+        if ($droppedColumns !== null) {
             $this->statements[] = "ALTER"." TABLE {$tableName} " .
                 "DROP COLUMN ({$droppedColumns})";
         }
         $constraints = $this->constraintsStatement();
-        if ($constraints) {
+        if ($constraints !== null) {
             $this->statements[] = "ALTER"." TABLE {$tableName} " .
                 "ADD ({$constraints})";
         }

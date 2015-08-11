@@ -68,6 +68,7 @@ class SelectSqlTemplate extends AbstractSqlTemplate
      */
     protected function getFieldList()
     {
+        $fields = [];
         $fields[] = $this->getFieldsFor($this->sql);
         foreach ($this->sql->getJoins() as $join) {
             $str = $this->getFieldsFor($join);

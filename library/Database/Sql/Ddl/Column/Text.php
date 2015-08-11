@@ -24,7 +24,7 @@ class Text extends AbstractColumn
     protected $nullable = false;
 
     /**
-     * @var string
+     * @var Size|string
      */
     protected $size = Size::NORMAL;
 

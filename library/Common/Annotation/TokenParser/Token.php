@@ -48,6 +48,7 @@ class Token
             $data = array_replace($data, $tokenData);
         }
 
+        /** @var string[]|string $value */
         list($index, $value, $lineNumber) = $data;
         $this->index = $index;
         $this->value = $value;

@@ -35,7 +35,7 @@ class Join implements FieldListAwareInterface
     private $table;
 
     /**
-     * @var array|string The fields to retrieve
+     * @var string|string[] The fields to retrieve
      */
     private $fields;
 
@@ -94,7 +94,7 @@ class Join implements FieldListAwareInterface
     /**
      * Get join table fields to select
      *
-     * @return array|string
+     * @return string|string[]
      */
     public function getFields()
     {
