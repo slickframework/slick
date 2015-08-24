@@ -1,18 +1,23 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 8/15/15
- * Time: 3:26 PM
+ * This file is part of slick/database package
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Slick\Database\Sql\Dialect\Sqlite;
-
 
 use Slick\Database\Exception\ServiceException;
 use Slick\Database\Sql\Ddl\AlterTable;
 use Slick\Database\Sql\SqlInterface;
 
+/**
+ * Class AlterTableSqlTemplate
+ *
+ * @package Slick\Database\Sql\Dialect\Sqlite
+ */
 class AlterTableSqlTemplate extends CreateTableSqlTemplate
 {
 
@@ -39,12 +44,13 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate
     {
         $this->sql = $sql;
         $tableName = $sql->getTable();
-        $ok = $this->checkUnsupportedFeatures();
-        if (!$ok) {
+
+        if (!$this->checkUnsupportedFeatures()) {
             throw new ServiceException(
                 "SQLite 'ALTER TABLE' only supports the adding new columns."
             );
         }
+
         $addColumns = $this->parseColumns();
         if ($addColumns) {
             $this->statements[] = "ALTER TABLE {$tableName} " .
