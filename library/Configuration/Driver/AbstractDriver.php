@@ -28,7 +28,7 @@ abstract class AbstractDriver extends Base implements ConfigurationInterface
 
     /**
      * @readwrite
-     * @var array Loaded data
+     * @var mixed Loaded data
      */
     protected $data = null;
 
@@ -41,7 +41,7 @@ abstract class AbstractDriver extends Base implements ConfigurationInterface
     /**
      * Gets current configuration data array
      *
-     * @return array
+     * @return mixed
      */
     public function getData()
     {
