@@ -70,4 +70,50 @@ class ArrayMethods
             $array
         );
     }
+
+    /**
+     * Recursive method to parse dot notation keys and retrieve the value
+     *
+     * @param string $key     The key/index to search
+     * @param mixed  $default The value if key doesn't exists
+     * @param array  $data    The data to search
+     *
+     * @return mixed The stored value or the default value if key
+     *               or index was not found.
+     */
+    public static function getValue($key, $default, $data)
+    {
+        $parts = explode('.', $key);
+        $first = array_shift($parts);
+        if (isset($data[$first])) {
+            if (count($parts) > 0) {
+                $newKey = implode('.', $parts);
+                return static::getValue($newKey, $default, $data[$first]);
+            }
+            $default = $data[$first];
+        }
+        return $default;
+    }
+
+    /**
+     * Recursive method to parse dot notation keys and set the value
+     *
+     * @param string $key   The key used to store the value in configuration.
+     * @param mixed  $value The value to store under the provided key.
+     * @param array  $data  The data to search
+     */
+    public static function setValue($key, $value, &$data)
+    {
+        $parts = explode('.', $key);
+        $first = array_shift($parts);
+        if (count($parts) > 0) {
+            $newKey = implode('.', $parts);
+            if (!array_key_exists($first, $data)) {
+                $data[$first] = array();
+            }
+            static::setValue($newKey, $value, $data[$first]);
+            return;
+        }
+        $data[$first] = $value;
+    }
 }

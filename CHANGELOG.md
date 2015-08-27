@@ -18,6 +18,9 @@ All Notable changes to `Slick` will be documented in this file
 ### Deprecated
 - `Slick\Database\RecordList::getArrayCopy()` you should use
   `Slick\Database\RecordList::asArray()`
+- `Slick\Configuration\Driver\DriverInterface` interface use a namespace and
+  path witch is ambiguous when used with other packages. You should use
+  `Slick\Configuration\ConfigurationInterface`
 
 ### Fixed
 - Nothing

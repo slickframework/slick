@@ -43,4 +43,37 @@ class ArrayMethodsTest extends TestCase
         $dirty = array_merge($expected, array('', ''));
         $this->assertEquals($expected, ArrayMethods::clean($dirty));
     }
+
+    public function testDotNotationRetrieve()
+    {
+        $expected = 'hello test';
+        $array['one']['two'] = $expected;
+
+        $this->assertEquals(
+            $expected,
+            ArrayMethods::getValue('one.two', false, $array)
+        );
+    }
+
+    public function testSetDotNotation()
+    {
+        $expected = 'hello test';
+        $array['one']['two'] = 'Other';
+        ArrayMethods::setValue('one.two', $expected, $array);
+        $this->assertEquals(
+            $expected,
+            ArrayMethods::getValue('one.two', false, $array)
+        );
+    }
+
+    public function testCreateDotNotationValue()
+    {
+        $expected = 'hello test';
+        $array = [];
+        ArrayMethods::setValue('one.two', $expected, $array);
+        $this->assertEquals(
+            $expected,
+            ArrayMethods::getValue('one.two', false, $array)
+        );
+    }
 }

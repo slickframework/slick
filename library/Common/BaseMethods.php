@@ -198,6 +198,7 @@ trait BaseMethods
      */
     protected function setter($name, $value)
     {
+        $name = lcfirst($name);
         $property = $this->getProperty($name);
         if (false !== $property) {
             $annotations = $this->getInspector()
@@ -209,7 +210,7 @@ trait BaseMethods
                 $className = get_class($this);
                 throw new Exception\ReadOnlyException(
                     "Trying to assign a value to a read only property."
-                    ." {$className}::\${$property} has annotation @read."
+                    ." {$className}::\${$name} has annotation @read."
                 );
             }
 
@@ -220,7 +221,7 @@ trait BaseMethods
         $className = get_class($this);
         throw new Exception\UndefinedPropertyException(
             "Trying to assign a value to an undefined property."
-            . " {$className}::\${$property} doesn't exists."
+            . " {$className}::\${$name} doesn't exists."
         );
     }
 
