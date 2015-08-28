@@ -13,3 +13,9 @@ default:
         - Database\DatabaseContext
       paths:
         - %paths.base%/features/Database
+    configuration_features:
+      contexts:
+        - FeatureContext
+        - Configuration\ConfigurationContext
+      paths:
+        - %paths.base%/features/Configuration

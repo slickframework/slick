@@ -139,7 +139,7 @@ final class Configuration extends Base
         $reflection = new ReflectionClass($this->type);
         if (!$reflection->implementsInterface(self::$interface)) {
             throw new Exception\InvalidArgumentException(
-                "Class '{$this->type}' does not implement ".
+                "Class '{$this->type}' does not implement " .
                 "Slick\\Configuration\\ConfigurationInterface"
             );
         }
