@@ -19,3 +19,9 @@ default:
         - Configuration\ConfigurationContext
       paths:
         - %paths.base%/features/Configuration
+    di_features:
+      contexts:
+        - FeatureContext
+        - Di\DiContext
+      paths:
+        - %paths.base%/features/Di
