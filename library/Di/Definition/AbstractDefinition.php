@@ -9,6 +9,7 @@
 
 namespace Slick\Di\Definition;
 
+use Interop\Container\ContainerInterface;
 use Slick\Common\Base;
 use Slick\Di\DefinitionInterface;
 
@@ -37,6 +38,12 @@ abstract class AbstractDefinition extends Base implements DefinitionInterface
      * @var Scope
      */
     protected $scope;
+
+    /**
+     * @readwrite
+     * @var ContainerInterface
+     */
+    protected $container;
 
     /**
      * Initializes the
@@ -83,5 +90,28 @@ abstract class AbstractDefinition extends Base implements DefinitionInterface
     {
         $this->scope = $scope;
         return $this;
+    }
+
+    /**
+     * Set container for this definition
+     *
+     * @param ContainerInterface $container
+     *
+     * @return $this|self
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    /**
+     * Gets container
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 }

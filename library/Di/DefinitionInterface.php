@@ -9,6 +9,7 @@
 
 namespace Slick\Di;
 
+use Interop\Container\ContainerInterface;
 use Slick\Di\Definition\Scope;
 
 /**
@@ -47,4 +48,20 @@ interface DefinitionInterface
      * @return $this|self
      */
     public function setScope(Scope $scope);
+
+    /**
+     * Set container for this definition
+     *
+     * @param ContainerInterface $container
+     *
+     * @return $this|self
+     */
+    public function setContainer(ContainerInterface $container);
+
+    /**
+     * Gets container
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer();
 }

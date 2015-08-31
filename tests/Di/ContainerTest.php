@@ -11,6 +11,7 @@ namespace Slick\Tests\Di;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Slick\Di\Container;
+use Slick\Di\Definition\Alias;
 use Slick\Di\Definition\Scope;
 use Slick\Di\Definition\Value;
 
@@ -101,4 +102,92 @@ class ContainerTest extends TestCase
         $this->container->get('_unknown_container_entry');
     }
 
+    /**
+     * Should execute the callback
+     * @test
+     */
+    public function registerACallback()
+    {
+        $this->container->register(
+            'register-callback',
+            $this->getCallback(),
+            ['test']
+        );
+        $this->assertEquals(
+            'test',
+            $this->container->get('register-callback')->value
+        );
+    }
+
+    /**
+     * Runs definition resolve for every get call
+     * @test
+     */
+    public function useCallbackAsPrototype()
+    {
+        $this->container->register(
+            'register-callback-pt',
+            $this->getCallback(),
+            ['test'],
+            Scope::Prototype()
+        );
+        $object = $this->container->get('register-callback-pt');
+        $this->assertNotSame(
+            $object,
+            $this->container->get('register-callback-pt')
+        );
+        $this->assertEquals(
+            $object,
+            $this->container->get('register-callback-pt')
+        );
+    }
+
+    /**
+     * Should create and register a definition and return it
+     * @test
+     */
+    public function makeObject()
+    {
+        $object = $this->container->make('stdClass');
+        $this->assertSame($object, $this->container->get('stdClass'));
+    }
+
+    /**
+     * should throw an invalid argument exception
+     *
+     * @expectedException \Slick\Di\Exception\InvalidArgumentException
+     * @test
+     */
+    public function makeUnknownObject()
+    {
+        $this->container->make('_unknown_class_name');
+    }
+
+    /**
+     * should retrieve the target entry definer in the alias definition object
+     * @test
+     */
+    public function retrieveAnAlias()
+    {
+        $object = $this->container->make('stdClass');
+        $this->container->register(
+            new Alias(
+                [
+                    'name' => 'object',
+                    'target' => 'stdClass'
+                ]
+            )
+        );
+        $this->assertSame($object, $this->container->get('object'));
+    }
+
+    private function getCallback()
+    {
+        $callback = function($value) {
+            $obj = new \stdClass();
+            $obj->value = $value;
+            return $obj;
+        };
+        return $callback;
+    }
 }
