@@ -1,16 +1,22 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: fsilva
- * Date: 31-08-2015
- * Time: 15:56
+ * This file is part of slick/di package
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Slick\Di\Definition;
 
-
 use Slick\Di\DefinitionInterface;
 
+/**
+ * Object Definition Interface
+ *
+ * @package Slick\Di\Definition
+ * @author  Filipe Silva <silvam.filipe@gmail.com>
+ */
 interface ObjectDefinitionInterface extends DefinitionInterface
 {
 
