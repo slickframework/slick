@@ -12,7 +12,6 @@ namespace Di;
 use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Behat\Tester\Exception\PendingException;
 use Slick\Di\Container;
 use Slick\Di\Definition\Alias;
 use Slick\Di\Definition\Object;

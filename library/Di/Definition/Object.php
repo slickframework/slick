@@ -142,7 +142,7 @@ class Object extends AbstractDefinition implements ObjectDefinitionInterface
     {
         if (!$this->getClassMetaData()->hasMethod($name)) {
             throw new InvalidArgumentException(
-                "The method {$name} does not exists in class " .
+                "The method {$name} does not exists in class ".
                 "{$this->getClassName()}"
             );
         }
@@ -163,7 +163,7 @@ class Object extends AbstractDefinition implements ObjectDefinitionInterface
     {
         if (!$this->getClassMetaData()->hasProperty($name)) {
             throw new InvalidArgumentException(
-                "The property {$name} does not exists in class " .
+                "The property {$name} does not exists in class ".
                 "{$this->getClassName()}"
             );
         }
