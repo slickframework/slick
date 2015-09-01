@@ -52,12 +52,21 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
      * @var array
      */
     protected static $textSizeInBytes = [
-        Column\Size::SMALL => 255,
-        Column\Size::TINY => 255,
+        Column\Size::SMALL  => 255,
+        Column\Size::TINY   => 255,
         Column\Size::NORMAL => 65532,
         Column\Size::MEDIUM => 16000,
-        Column\Size::LONG => 4000000,
-        Column\Size::BIG => 4000000,
+        Column\Size::LONG   => 4000000,
+        Column\Size::BIG    => 4000000,
+    ];
+
+    protected static $integerSizes = [
+        Column\Size::SMALL  => 'SMALLINT',
+        Column\Size::TINY   => 'SMALLINT',
+        Column\Size::NORMAL => 'INTEGER',
+        Column\Size::MEDIUM => 'INTEGER',
+        Column\Size::LONG   => 'BIGINT',
+        Column\Size::BIG    => 'BIGINT',
     ];
 
     /**
@@ -306,28 +315,16 @@ class CreateTableSqlTemplate extends AbstractSqlTemplate implements
     protected function getIntegerColumn(Column\Integer $column)
     {
         $size = (string) $column->getSize();
-        switch ($size) {
-            case Column\Size::LONG:
-            case Column\Size::BIG:
-                $type = 'BIGINT';
-                break;
-            case Column\Size::SMALL:
-            case Column\Size::TINY:
-                $type = 'SMALLINT';
-                break;
-            case Column\Size::NORMAL:
-            case Column\Size::MEDIUM:
-            default:
-                $type = 'INTEGER';
-        }
-        $autoIncrement = '';
-        if ($column->getAutoIncrement()) {
-            $autoIncrement = ' AUTO_INCREMENT';
-        }
-        $default = '';
-        if ($column->getDefault()) {
-            $default = ' DEFAULT '.$column->getDefault();
-        }
+        $type = static::$integerSizes[$size];
+
+        $autoIncrement = $column->getAutoIncrement()
+            ? ' AUTO_INCREMENT'
+            : '';
+
+        $default = $column->getDefault()
+            ? ' DEFAULT '.$column->getDefault()
+            : '';
+
         return sprintf(
             '%s %s%s%s%s%s',
             $column->getName(),
