@@ -12,7 +12,6 @@ namespace Configuration;
 use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Behat\Tester\Exception\PendingException;
 use Slick\Configuration\Configuration;
 use Slick\Configuration\ConfigurationInterface;
 

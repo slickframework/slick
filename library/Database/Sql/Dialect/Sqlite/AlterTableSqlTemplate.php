@@ -53,7 +53,7 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate
 
         $addColumns = $this->parseColumns();
         if ($addColumns) {
-            $this->statements[] = "ALTER TABLE {$tableName} " .
+            $this->statements[] = "ALTER TABLE {$tableName} ".
                 "ADD COLUMN {$addColumns}";
         }
         return implode(';', $this->statements);

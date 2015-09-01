@@ -38,7 +38,7 @@ class ArrayMethods
     {
         return array_filter(
             $array,
-            function($item){
+            function($item) {
                 $item = trim($item);
                 return !empty($item);
             }
