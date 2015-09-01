@@ -20,6 +20,17 @@ use Slick\Database\Sql\Dialect\Standard\CreateTableSqlTemplate as StandardTpl;
  */
 class CreateTableSqlTemplate extends StandardTpl
 {
+    /**
+     * @var array column sizes map
+     */
+    private static $textColumnSizes = [
+        Column\Size::SMALL  => 'TINYTEXT',
+        Column\Size::TINY   => 'TINYTEXT',
+        Column\Size::NORMAL => 'TEXT',
+        Column\Size::MEDIUM => 'TEXT',
+        Column\Size::LONG   => 'LONGTEXT',
+        Column\Size::BIG    => 'LONGTEXT',
+    ];
 
     /**
      * Parses a text column to its SQL representation
@@ -30,22 +41,7 @@ class CreateTableSqlTemplate extends StandardTpl
     protected function getTextColumn(Column\Text $column)
     {
         $size = (string) $column->getSize();
-        switch ($size) {
-            case Column\Size::LONG:
-            case Column\Size::BIG:
-                $type = 'LONGTEXT';
-                break;
-
-            case Column\Size::SMALL:
-            case Column\Size::TINY:
-                $type = 'TINYTEXT';
-                break;
-
-            case Column\Size::NORMAL:
-            case Column\Size::MEDIUM:
-            default:
-                $type = 'TEXT';
-        }
+        $type = self::$textColumnSizes[$size];
 
         return sprintf(
             '%s %s%s',
