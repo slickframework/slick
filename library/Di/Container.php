@@ -102,7 +102,7 @@ class Container implements ContainerInterface
     {
         if (is_callable($value)) {
             $definition = $this->createFactoryDefinition(
-                $definition,
+                (string) $definition,
                 $value,
                 $parameters,
                 new Scope((string) $scope)
@@ -110,7 +110,10 @@ class Container implements ContainerInterface
         }
 
         if (!($definition instanceof DefinitionInterface)) {
-            $definition = $this->createValueDefinition($definition, $value);
+            $definition = $this->createValueDefinition(
+                (string) $definition,
+                $value
+            );
         }
 
         $definition->setContainer($this);
@@ -180,7 +183,8 @@ class Container implements ContainerInterface
     private function createFactoryDefinition(
         $name, Callable $callback, array $params, Scope $scope)
     {
-        return (new Factory(['name' => $name]))
+        $definition = new Factory(['name' => $name]);
+        return $definition
             ->setScope($scope)
             ->setCallable($callback, $params);
     }
@@ -231,9 +235,12 @@ class Container implements ContainerInterface
             $classReflection = new ReflectionClass($name);
             return $classReflection->newInstanceArgs($parameters);
         };
-        $definition = (new Factory(['name' => $name]))
-            ->setScope(new Scope((string) $scope))
-            ->setCallable($closure, [$name, $parameters]);
+        $definition = $this->createFactoryDefinition(
+            $name,
+            $closure,
+            [$name, $parameters],
+            new Scope((string) $scope)
+        );
         $this->register($definition);
         return $this;
     }

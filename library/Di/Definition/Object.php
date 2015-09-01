@@ -20,6 +20,7 @@ use Slick\Di\Exception\InvalidArgumentException;
  * @package Slick\Di\Definition
  * @author  Filipe Silva <silvam.filipe@gmail.com>
  *
+ * @property string $name          Definition name or key
  * @property string $className
  * @property object $instance
  * @property array  $constructArgs
@@ -36,7 +37,7 @@ class Object extends AbstractDefinition implements ObjectDefinitionInterface
 
     /**
      * @readwrite
-     * @var mixed
+     * @var object
      */
     protected $instance;
 
