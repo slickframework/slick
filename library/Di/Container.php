@@ -12,12 +12,12 @@ namespace Slick\Di;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use ReflectionClass;
+use Slick\Di\Definition\DefinitionList;
 use Slick\Di\Definition\Factory;
 use Slick\Di\Definition\Scope;
+use Slick\Di\Definition\Value;
 use Slick\Di\Exception\InvalidArgumentException;
 use Slick\Di\Exception\NotFoundException;
-use Slick\Di\Definition\DefinitionList;
-use Slick\Di\Definition\Value;
 
 /**
  * Dependency injection container
@@ -60,7 +60,7 @@ class Container implements ContainerInterface
     {
         if (!$this->has($id)) {
             throw new NotFoundException(
-                "There is no entry with '{$id}' name in the " .
+                "There is no entry with '{$id}' name in the ".
                 "dependency container."
             );
         }
@@ -225,13 +225,13 @@ class Container implements ContainerInterface
      *
      * @param string       $name       FQ class name
      * @param array        $parameters Constructor parameters
-     * @param Scope|string $scope      Definition scope
+     * @param string $scope      Definition scope
      *
      * @return $this|self
      */
     private function registerFactory($name, $parameters, $scope)
     {
-        $closure = function($name, array $parameters=[]) {
+        $closure = function($name, array $parameters = []) {
             $classReflection = new ReflectionClass($name);
             return $classReflection->newInstanceArgs($parameters);
         };
