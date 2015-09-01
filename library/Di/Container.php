@@ -185,8 +185,8 @@ class Container implements ContainerInterface
     {
         $definition = new Factory(['name' => $name]);
         return $definition
-            ->setScope($scope)
-            ->setCallable($callback, $params);
+            ->setCallable($callback, $params)
+            ->setScope($scope);
     }
 
     /**
