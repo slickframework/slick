@@ -312,7 +312,7 @@ EOQ;
     {
         $nameSpace = 'Slick\Database\Sql\Ddl\Column';
         $type = $this->getColumnClass($colData['type']);
-        $reflection = new ReflectionClass($nameSpace . "\\{$type}");
+        $reflection = new ReflectionClass($nameSpace."\\{$type}");
         switch ($type) {
             case self::COLUMN_BOOLEAN:
                 $column = $reflection->newInstanceArgs(

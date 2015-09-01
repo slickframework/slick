@@ -28,7 +28,7 @@ class Sqlite extends Standard implements LoaderInterface
      * @read
      * @var string
      */
-    protected $getTablesSql =<<<EOQ
+    protected $getTablesSql = <<<EOQ
 SELECT * FROM sqlite_master
 WHERE type='table' AND name != 'sqlite_sequence'
 EOQ;
@@ -95,7 +95,7 @@ EOQ;
     {
         $nameSpace = 'Slick\Database\Sql\Ddl\Column';
         $type = $this->getColumnClass($colData['type']);
-        $reflection = new ReflectionClass($nameSpace . "\\{$type}");
+        $reflection = new ReflectionClass($nameSpace."\\{$type}");
         $column = $reflection->newInstanceArgs(
             [
                 $colData['name'],
@@ -174,7 +174,7 @@ EOQ;
      */
     private function createFkData($data, $table)
     {
-        $name = $table . ucfirst(Text::singular($data['table'])) . 'Fk';
+        $name = $table.ucfirst(Text::singular($data['table'])).'Fk';
         $structure = [
             'constraintType' => 'FOREIGN KEY',
             'constraintName' => $name,

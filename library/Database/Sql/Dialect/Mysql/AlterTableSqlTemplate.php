@@ -49,27 +49,27 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
         $droppedConstraints = $this->droppedConstraintsStatement();
         if ($droppedConstraints) {
             $this->statements[] =
-                "ALTER TABLE {$tableName} " .
+                "ALTER TABLE {$tableName} ".
                 "{$droppedConstraints}";
         }
         $addColumns = $this->addColumnsStatement();
         if ($addColumns) {
-            $this->statements[] = "ALTER TABLE {$tableName} " .
+            $this->statements[] = "ALTER TABLE {$tableName} ".
                 "ADD ({$addColumns})";
         }
         $changedColumns = $this->changedColumnsStatement();
         if ($changedColumns) {
-            $this->statements[] = "ALTER TABLE {$tableName} " .
+            $this->statements[] = "ALTER TABLE {$tableName} ".
                 "CHANGE COLUMN {$changedColumns}";
         }
         $droppedColumns = $this->droppedColumnsStatement();
         if ($droppedColumns) {
-            $this->statements[] = "ALTER TABLE {$tableName} " .
+            $this->statements[] = "ALTER TABLE {$tableName} ".
                 "DROP COLUMN {$droppedColumns}";
         }
         $constraints = $this->constraintsStatement();
         if ($constraints) {
-            $this->statements[] = "ALTER TABLE {$tableName} " .
+            $this->statements[] = "ALTER TABLE {$tableName} ".
                 "ADD ({$constraints})";
         }
         return implode(';', $this->statements);
@@ -105,10 +105,10 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
                     $commands[] = 'DROP PRIMARY KEY';
                 }
                 if ($constraint instanceof ForeignKey) {
-                    $commands[] = 'DROP FOREIGN KEY '. $constraint->getName();
+                    $commands[] = 'DROP FOREIGN KEY '.$constraint->getName();
                 }
                 if ($constraint instanceof Unique) {
-                    $commands[] = 'DROP INDEX '. $constraint->getName();
+                    $commands[] = 'DROP INDEX '.$constraint->getName();
                 }
             }
             $droppedConstraints = implode(', ', $commands);
@@ -127,7 +127,7 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
         $columns = $this->sql->getDroppedColumns();
         $droppedColumns = null;
         if (!empty($columns)) {
-            $droppedColumns =  implode(', DROP COLUMN ', array_keys($columns));
+            $droppedColumns = implode(', DROP COLUMN ', array_keys($columns));
         }
         return $droppedColumns;
     }
@@ -172,7 +172,7 @@ class AlterTableSqlTemplate extends CreateTableSqlTemplate implements
         $columns = $this->sql->getChangedColumns();
         $parts = [];
         foreach ($columns as $column) {
-            $parts[] = $column->getName() .' '. $this->parseColumn($column);
+            $parts[] = $column->getName().' '.$this->parseColumn($column);
         }
         return implode(', CHANGE COLUMN ', $parts);
     }

@@ -56,7 +56,7 @@ class Text
         => "\\1\\2sis",
         '([ti])a$' => "\\1um",
         '(p)eople$' => "\\1\\2erson",
-        '(m)en$' => "\\1an" ,
+        '(m)en$' => "\\1an",
         '(s)tatuses$' => "\\1\\2tatus",
         '(c)hildren$' => "\\1\\2hild",
         '(n)ews$' => "\\1\\2ews",
@@ -191,12 +191,12 @@ class Text
                 '#(?<=(?:\p{Lu}))(\p{Lu}\p{Ll})#',
                 '#(?<=(?:\p{Ll}|\p{Nd}))(\p{Lu})#'
             );
-            $replacement = array($sep . '\1', $sep . '\1');
+            $replacement = array($sep.'\1', $sep.'\1');
         } else {
             $pattern = array(
                 '#(?<=(?:[A-Z]))([A-Z]+)([A-Z][a-z])#',
                 '#(?<=(?:[a-z0-9]))([A-Z])#');
-            $replacement = array('\1' . $sep . '\2', $sep . '\1');
+            $replacement = array('\1'.$sep.'\2', $sep.'\1');
         }
         return preg_replace($pattern, $replacement, $text);
     }

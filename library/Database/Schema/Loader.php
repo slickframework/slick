@@ -118,8 +118,9 @@ final class Loader extends Base
     {
         if (!is_null($this->adapter)) {
             $key = $this->adapter->getDialect();
-            if (array_key_exists($key, self::$classMap))
-            $this->className = self::$classMap[$key];
+            if (array_key_exists($key, self::$classMap)) {
+                        $this->className = self::$classMap[$key];
+            }
         }
     }
 }
