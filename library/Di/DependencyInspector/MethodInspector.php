@@ -92,7 +92,7 @@ class MethodInspector extends Base
         if (is_null($this->arguments)) {
             $this->arguments = [];
             $parameters = $this->getMetaData();
-            foreach($parameters as $param) {
+            foreach ($parameters as $param) {
                 $this->arguments[] = $this->getParameter($param);
             }
         }

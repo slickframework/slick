@@ -109,7 +109,7 @@ class PropertiesInspector extends Base
     /**
      * Get inject annotation for provided property
      *
-     * @param $property
+     * @param string $property
      * @return Basic|\Slick\Common\AnnotationInterface
      */
     private function getInjectAnnotation($property)
