@@ -22,7 +22,7 @@ class InjectableClass
      * @inject name
      * @var string
      */
-    private $name = '';
+    public $name = '';
 
     /**
      * @var ContainerInterface

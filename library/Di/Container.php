@@ -13,7 +13,6 @@ use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Slick\Di\Definition\DefinitionList;
 use Slick\Di\Definition\Factory;
-use Slick\Di\Definition\Object as ObjectDefinition;
 use Slick\Di\Definition\Scope;
 use Slick\Di\Definition\Value;
 use Slick\Di\Exception\InvalidArgumentException;
@@ -39,13 +38,31 @@ class Container implements ContainerInterface
     protected static $instances = [];
 
     /**
+     * @readwrite
+     * @var ContainerInterface
+     */
+    protected $parent;
+
+    private static $containerKeys = [
+        'Interop\Container\ContainerInterface',
+        'Slick\Di\Container'
+    ];
+
+    /**
      * Initialise the container with an empty definitions list
      */
     public function __construct()
     {
         $this->definitions = new DefinitionList();
-        $this->register('Interop\Container\ContainerInterface', $this);
-        static::$instances['Interop\Container\ContainerInterface'] = $this;
+        $existingKey = reset(self::$containerKeys);
+        if (array_key_exists($existingKey, static::$instances)) {
+            $this->setParent(static::$instances[$existingKey]);
+        }
+
+        foreach (self::$containerKeys as $key) {
+            $this->register($key, $this);
+            static::$instances[$key] = $this;
+        }
     }
 
     /**
@@ -67,7 +84,9 @@ class Container implements ContainerInterface
             );
         }
 
-        $entry = $this->resolve($this->definitions[$id]);
+        $entry = (!$this->definitions->offsetExists($id))
+            ? $this->parent->get($id)
+            : $this->resolve($this->definitions[$id]);
 
         if (is_object($entry)) {
             $entry = $this->injectOn($entry);
@@ -89,7 +108,11 @@ class Container implements ContainerInterface
         if (!is_string($id)) {
             return false;
         }
-        return $this->definitions->offsetExists($id);
+
+        if (!$this->definitions->offsetExists($id)) {
+            return $this->parentHas($id);
+        }
+        return true;
     }
 
     /**
@@ -182,6 +205,19 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Set parent container for interoperability
+     *
+     * @ignoreInject
+     * @param ContainerInterface $container
+     * @return $this
+     */
+    public function setParent(ContainerInterface $container)
+    {
+        $this->parent = $container;
+        return $this;
+    }
+
+    /**
      * Creates a value definition for register
      *
      * @param string $name  The name for the definition
@@ -268,5 +304,19 @@ class Container implements ContainerInterface
         $definition->setScope(new Scope((string) $scope));
         $this->register($definition);
         return $this;
+    }
+
+    /**
+     * Check if parent has provided key
+     *
+     * @param string $key
+     * @return bool
+     */
+    private function parentHas($key)
+    {
+        if (is_null($this->parent)) {
+            return false;
+        }
+        return $this->parent->has($key);
     }
 }
