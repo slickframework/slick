@@ -83,7 +83,7 @@ class MethodsInspector extends Base
      */
     protected function checkParameters(array $params)
     {
-        $arguments= [];
+        $arguments = [];
         foreach ($params as $param) {
             if ($this->definition->getContainer()->has($param->getId())) {
                 $arguments[$param->name] = $this->definition
@@ -124,7 +124,7 @@ class MethodsInspector extends Base
      *
      * Setters must begin with 'get' and have one parameter only.
      *
-     * @param $method
+     * @param string $method
      */
     protected function checkMethod($method)
     {

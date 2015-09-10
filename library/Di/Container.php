@@ -173,7 +173,7 @@ class Container implements ContainerInterface
     public function injectOn($object)
     {
         $injectedObject = $object;
-        $inspector =  new DependencyInspector($this, $object);
+        $inspector = new DependencyInspector($this, $object);
         $definition = $inspector->getDefinition();
         if ($inspector->isSatisfiable()) {
             $injectedObject = $definition->resolve();
@@ -260,7 +260,7 @@ class Container implements ContainerInterface
      */
     private function registerObject($name, $parameters, $scope)
     {
-        $inspector =  new DependencyInspector($this, $name);
+        $inspector = new DependencyInspector($this, $name);
         $definition = $inspector->getDefinition();
         if (!empty($parameters)) {
             $definition->setConstructArgs($parameters);
