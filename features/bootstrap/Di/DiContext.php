@@ -12,6 +12,7 @@ namespace Di;
 use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Behat\Tester\Exception\PendingException;
 use Slick\Di\Container;
 use Slick\Di\Definition\Alias;
 use Slick\Di\Definition\Object;
@@ -204,6 +205,15 @@ class DiContext extends AbstractContext implements
     public function theValueShouldBeAnObjectOf($className)
     {
         \PHPUnit_Framework_Assert::assertInstanceOf($className, $this->lastEntry);
+    }
+
+    /**
+     * @When /^I use container to make "([^"]*)"$/
+     */
+    public function iUseContainerToMakeClass($className)
+    {
+        $this->previous = $this->lastEntry;
+        $this->lastEntry = $this->container->make($className);
     }
 
 

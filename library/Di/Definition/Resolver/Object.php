@@ -117,8 +117,12 @@ class Object extends Base implements ObjectResolver
     private function checkValue($param)
     {
         $value = $param;
-        if (is_scalar($param) && $this->definition->getContainer()->has($param)) {
-            $value = $this->definition->getContainer()->get($param);
+        if (
+            is_scalar($param) &&
+            preg_match('/^@(?P<key>.*)$/i', $param, $result) &&
+            $this->definition->getContainer()->has($result['key'])
+        ) {
+            $value = $this->definition->getContainer()->get($result['key']);
         }
         return $value;
     }

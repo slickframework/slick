@@ -112,8 +112,9 @@ class Object extends AbstractDefinition implements ObjectDefinitionInterface
     {
         if (is_null($this->instance) && class_exists($this->className)) {
             $reflection = $this->getClassMetaData()->getReflection();
-            $this->instance = $reflection
-                ->newInstanceArgs($this->constructArgs);
+            $this->instance = (!empty($this->constructArgs))
+                ? $reflection->newInstanceArgs($this->constructArgs)
+                : new $this->className();
         }
         return $this->instance;
     }

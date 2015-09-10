@@ -11,9 +11,9 @@ namespace Slick\Di;
 
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
-use ReflectionClass;
 use Slick\Di\Definition\DefinitionList;
 use Slick\Di\Definition\Factory;
+use Slick\Di\Definition\Object as ObjectDefinition;
 use Slick\Di\Definition\Scope;
 use Slick\Di\Definition\Value;
 use Slick\Di\Exception\InvalidArgumentException;
@@ -44,6 +44,8 @@ class Container implements ContainerInterface
     public function __construct()
     {
         $this->definitions = new DefinitionList();
+        $this->register('Interop\Container\ContainerInterface', $this);
+        static::$instances['Interop\Container\ContainerInterface'] = $this;
     }
 
     /**
@@ -65,7 +67,13 @@ class Container implements ContainerInterface
             );
         }
 
-        return $this->resolve($this->definitions[$id]);
+        $entry = $this->resolve($this->definitions[$id]);
+
+        if (is_object($entry)) {
+            $entry = $this->injectOn($entry);
+        }
+
+        return $entry;
     }
 
     /**
@@ -78,6 +86,9 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
+        if (!is_string($id)) {
+            return false;
+        }
         return $this->definitions->offsetExists($id);
     }
 
@@ -146,10 +157,28 @@ class Container implements ContainerInterface
         }
 
         if (!$this->has($className)) {
-            $this->registerFactory($className, $parameters, $scope);
+            $this->registerObject($className, $parameters, $scope);
         }
 
         return $this->get($className);
+    }
+
+    /**
+     * Inject known dependencies on provide object
+     *
+     * @param object $object
+     *
+     * @return mixed
+     */
+    public function injectOn($object)
+    {
+        $injectedObject = $object;
+        $inspector =  new DependencyInspector($this, $object);
+        $definition = $inspector->getDefinition();
+        if ($inspector->isSatisfiable()) {
+            $injectedObject = $definition->resolve();
+        }
+        return $injectedObject;
     }
 
     /**
@@ -221,7 +250,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Creates and registers a factory definition
+     * Creates and registers an object definition
      *
      * @param string       $name       FQ class name
      * @param array        $parameters Constructor parameters
@@ -229,18 +258,14 @@ class Container implements ContainerInterface
      *
      * @return $this|self
      */
-    private function registerFactory($name, $parameters, $scope)
+    private function registerObject($name, $parameters, $scope)
     {
-        $closure = function($name, array $parameters = []) {
-            $classReflection = new ReflectionClass($name);
-            return $classReflection->newInstanceArgs($parameters);
-        };
-        $definition = $this->createFactoryDefinition(
-            $name,
-            $closure,
-            [$name, $parameters],
-            new Scope((string) $scope)
-        );
+        $inspector =  new DependencyInspector($this, $name);
+        $definition = $inspector->getDefinition();
+        if (!empty($parameters)) {
+            $definition->setConstructArgs($parameters);
+        }
+        $definition->setScope(new Scope((string) $scope));
         $this->register($definition);
         return $this;
     }

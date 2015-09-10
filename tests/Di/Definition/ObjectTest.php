@@ -61,7 +61,7 @@ class ObjectTest extends TestCase
     public function testPropertySet()
     {
         $container = $this->getContainerMock(['has']);
-        $container->expects($this->once())
+        $container->expects($this->any())
             ->method('has')
             ->willReturn(false);
         $this->definition->className = 'Slick\Tests\Di\Fixtures\Dummy';
@@ -75,7 +75,7 @@ class ObjectTest extends TestCase
     public function testPrivateProperty()
     {
         $container = $this->getContainerMock(['has']);
-        $container->expects($this->once())
+        $container->expects($this->any())
             ->method('has')
             ->willReturn(false);
         $this->definition->className = 'Slick\Tests\Di\Fixtures\Dummy';
@@ -99,7 +99,7 @@ class ObjectTest extends TestCase
         $container->register('test-param', 'Name from container');
         $this->definition->className = 'Slick\Tests\Di\Fixtures\Dummy';
         $this->definition->setContainer($container);
-        $this->definition->setProperty('name', 'test-param');
+        $this->definition->setProperty('name', '@test-param');
         /** @var Dummy $object */
         $object = $this->definition->resolve();
         $this->assertEquals('Name from container', $object->getName());
@@ -122,8 +122,7 @@ class ObjectTest extends TestCase
     public function testMethod()
     {
         $container = $this->getContainerMock(['has']);
-        $container->expects($this->once())
-            ->method('has')
+        $container->method('has')
             ->willReturn(false);
         $this->definition->className = 'Slick\Tests\Di\Fixtures\Dummy';
         $this->definition->setContainer($container);

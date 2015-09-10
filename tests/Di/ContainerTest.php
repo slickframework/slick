@@ -29,6 +29,9 @@ class ContainerTest extends TestCase
      */
     protected $container;
 
+    protected $className =
+        'Slick\Tests\Di\DependencyInspector\Fixtures\InjectableClass';
+
     /**
      * Create the SUT object
      */
@@ -150,6 +153,22 @@ class ContainerTest extends TestCase
     {
         $object = $this->container->make('stdClass');
         $this->assertSame($object, $this->container->get('stdClass'));
+    }
+
+    public function testMakeComplexObjectWithParams()
+    {
+        $object = $this->container->make(
+            $this->className,
+            [$this->container],
+            Scope::Prototype()
+        );
+        $this->assertInstanceOf($this->className, $object);
+    }
+
+    public function testMakeComplexObject()
+    {
+        $object = $this->container->make($this->className);
+        $this->assertInstanceOf($this->className, $object);
     }
 
     /**

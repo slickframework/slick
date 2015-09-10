@@ -33,15 +33,6 @@ trait BaseMethods
 {
 
     /**
-     * @var array List of method names anf their regexp
-     */
-    private static $patterns = [
-        'getter' => '^get([a-zA-Z0-9\_]+)$',
-        'setter' => '^set([a-zA-Z0-9\_]+)$',
-        'is' => '^is([a-zA-Z0-9\_]+)$'
-    ];
-
-    /**
      * Sets current object with data from provided array or object
      *
      * @param array|object $data An associative array or object where to
@@ -269,7 +260,7 @@ trait BaseMethods
     {
         $method = null;
         $matches = null;
-        foreach (self::$patterns as $methodName => $regexp)
+        foreach (BasePatterns::$patterns as $methodName => $regexp)
         {
             $matches = Text::match($name, $regexp);
             if (sizeof($matches) > 0) {
