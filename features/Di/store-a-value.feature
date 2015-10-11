@@ -12,5 +12,5 @@
 
   Scenario: Read an undefined value throws exception
     Given I create a container
-    When I get "key" from container
+    When I get "unknown.key" from container
     Then I should get an exception
