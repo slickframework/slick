@@ -66,7 +66,7 @@ class PhpParser
     private function getFileContent($filename, $lineNumber)
     {
         $content = null;
-        if (false !== $filename) {
+        if (false !== $filename && is_file($filename)) {
             $content = '';
             $lineCnt = 0;
             $file = new SplFileObject($filename);
