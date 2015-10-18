@@ -9,6 +9,7 @@
 
 namespace Slick\Common\Utils\Collection;
 
+use Slick\Common\Exception\InvalidArgumentException;
 use Slick\Common\Utils\CollectionInterface;
 use Traversable;
 
@@ -27,6 +28,26 @@ abstract class AbstractCollection implements CollectionInterface
     protected $data = [];
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $iteratorCLass = self::ITERATOR_CLASS;
+
+    /**
+     * Creates the collection with provided data
+     *
+     * @param array|\Traversable $data
+     */
+    public function __construct($data = [])
+    {
+        if ($data instanceof \Traversable || is_array($data)) {
+            foreach ($data as $key => $value) {
+                $this->data[$key] = $value;
+            }
+        }
+    }
+
+    /**
      * Retrieve an external iterator
      *
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
@@ -36,7 +57,7 @@ abstract class AbstractCollection implements CollectionInterface
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->data);
+        return new $this->iteratorCLass($this->asArray());
     }
 
     /**
@@ -157,5 +178,58 @@ abstract class AbstractCollection implements CollectionInterface
     public function isEmpty()
     {
         return empty($this->data);
+    }
+
+    /**
+     * Iterates over the items in the collection and passes each item to
+     * the provided callback function.
+     *
+     * Return false from your callback to break out of the loop
+     *
+     * @param callable $callable
+     *
+     * @return self|$this|CollectionInterface
+     */
+    public function each(callable $callable)
+    {
+        foreach ($this->data as $key => &$value) {
+            if ($callable($value, $key) === false) {
+                break;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Sets the iterator class to instantiate when calling the
+     * AbstractCollection::getIterator() method.
+     *
+     * @param string $className
+     *
+     * @return $this|self|AbstractCollection
+     *
+     * @throws InvalidArgumentException If the class does not exists or it does
+     *     not implements the Iterator interface.
+     *
+     * @see AbstractCollection::getIterator()
+     */
+    public function setIteratorClass($className)
+    {
+        if (!class_exists($className)) {
+            throw new InvalidArgumentException(
+                "Iterator class '{$className}' does not exists."
+            );
+        }
+
+        $classReflection = new \ReflectionClass($className);
+        if (!$classReflection->implementsInterface('Iterator')) {
+            throw new InvalidArgumentException(
+                "Iterator class '{$className}' does not implements " .
+                "'Iterator' interface."
+            );
+        }
+
+        $this->iteratorCLass = $className;
+        return $this;
     }
 }

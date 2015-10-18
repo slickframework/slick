@@ -59,6 +59,12 @@ abstract class AbstractList extends AbstractCollection implements ListInterface
     {
         $element = $this->get($index);
         $this->offsetUnset($index);
+        $copy = [];
+        foreach ($this as $elm) {
+            $copy[] = $elm;
+        }
+        $this->data = $copy;
+        $this->size = null;
         return $element;
     }
 

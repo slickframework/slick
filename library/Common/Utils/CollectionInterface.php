@@ -21,6 +21,11 @@ interface CollectionInterface extends
 {
 
     /**
+     * The default iterator class name
+     */
+    const ITERATOR_CLASS = 'ArrayIterator';
+
+    /**
      * Returns current collection as an array
      *
      * @return array
@@ -40,4 +45,17 @@ interface CollectionInterface extends
      * @return boolean
      */
     public function isEmpty();
+
+    /**
+     * Iterates over the items in the collection and passes each item to
+     * the provided callback function.
+     *
+     * Return false from your callback to break out of the loop
+     *
+     * @param callable $callable
+     *
+     * @return self|$this|CollectionInterface
+     */
+    public function each(callable $callable);
+
 }

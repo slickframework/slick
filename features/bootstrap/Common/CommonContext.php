@@ -13,7 +13,9 @@ use AbstractContext;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Behat\Tester\Exception\PendingException;
+use Behat\Gherkin\Node\TableNode;
 use Common\Fixtures\BaseTest;
+use Common\Fixtures\Collection;
 use PHPUnit_Framework_Assert as PhpUnit;
 use Slick\Common\Annotation\AnnotationList;
 use Slick\Common\Inspector;
@@ -65,6 +67,16 @@ class CommonContext extends AbstractContext implements
      * @var mixed
      */
     protected $selectedValue;
+
+    /**
+     * @var Collection
+     */
+    protected $collection;
+
+    /**
+     * @var int
+     */
+    protected $collectionCount;
 
     /**
      * @Given a class with comment blocks
@@ -324,5 +336,52 @@ EOC;
         } else {
             \PHPUnit_Framework_Assert::assertFalse($this->selectedValue);
         }
+    }
+
+    /**
+     * @Given /^I create a collection with elements:$/
+     */
+    public function iCreateACollectionWithElements(TableNode $table)
+    {
+        $data = array();
+        foreach ($table->getHash() as $hash) {
+            $data[] = $hash['value'];
+        }
+        $this->collection = new Collection($data);
+    }
+
+    /**
+     * @When /^I use count on the collection$/
+     */
+    public function iUseCountOnTheCollection()
+    {
+        $this->collectionCount = count($this->collection);
+    }
+
+    /**
+     * @Then /^I should have (\d+) elements$/
+     */
+    public function iShouldHaveElements($elements)
+    {
+        \PHPUnit_Framework_Assert::assertEquals(
+            $elements,
+            $this->collection->count()
+        );
+    }
+
+    /**
+     * @When /^I clear the collection$/
+     */
+    public function iClearTheCollection()
+    {
+        $this->collection->clear();
+    }
+
+    /**
+     * @Given /^collection isClear is true$/
+     */
+    public function collectionIsClearIsTrue()
+    {
+        \PHPUnit_Framework_Assert::assertTrue($this->collection->isEmpty());
     }
 }
