@@ -77,13 +77,13 @@ class SelectSqlTemplate extends AbstractSqlTemplate
             }
             $fields[] = $str;
         }
-        return implode(', ', $fields);
+        return ltrim(implode(', ', $fields), ', ');
     }
     /**
      * Retrieve a field list from a FieldListAwareInterface object
      *
      * @param FieldListAwareInterface $object
-     * @return bool|string
+     * @return null|string
      */
     protected function getFieldsFor(FieldListAwareInterface $object)
     {
@@ -96,7 +96,7 @@ class SelectSqlTemplate extends AbstractSqlTemplate
                 $object->getAlias()
             );
         }
-        return (is_null($fields)) ? false : $fieldsStr;
+        return (is_null($fields)) ? null : $fieldsStr;
     }
 
     /**
