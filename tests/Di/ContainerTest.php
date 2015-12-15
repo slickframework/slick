@@ -12,6 +12,7 @@ namespace Slick\Tests\Di;
 use PHPUnit_Framework_TestCase as TestCase;
 use Slick\Di\Container;
 use Slick\Di\Definition\Alias;
+use Slick\Di\Definition\Object;
 use Slick\Di\Definition\Scope;
 use Slick\Di\Definition\Value;
 
@@ -200,6 +201,20 @@ class ContainerTest extends TestCase
         $this->assertSame($object, $this->container->get('object'));
     }
 
+    /**
+     * Should register the object definition with provided name
+     * @test
+     */
+    public function registerAnNamedObject()
+    {
+        $definition = new Object(['className' => 'Slick\Tests\Di\TestObjectClass']);
+        $this->container->register('testNamedObject', $definition);
+        $this->assertInstanceOf(
+            'Slick\Tests\Di\TestObjectClass',
+            $this->container->get('testNamedObject')
+        );
+    }
+
     private function getCallback()
     {
         $callback = function($value) {
@@ -209,4 +224,9 @@ class ContainerTest extends TestCase
         };
         return $callback;
     }
+}
+
+class TestObjectClass
+{
+    public $name = 'test';
 }

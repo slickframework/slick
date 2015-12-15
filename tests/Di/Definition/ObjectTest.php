@@ -119,6 +119,24 @@ class ObjectTest extends TestCase
         );
     }
 
+    public function testConstructWithAliasArgs()
+    {
+        $container = $this->getContainerMock(['get', 'has']);
+        $container->method('get')
+            ->willReturn(new \stdClass());
+        $container->method('has')
+            ->willReturn(true);
+        $this->definition
+            ->className ='Slick\Tests\Di\Definition\CreatableObject';
+        $this->definition->setContainer($container)
+            ->setConstructArgs(['@test']);
+        $object = $this->definition->resolve();
+        $this->assertInstanceOf(
+            'Slick\Tests\Di\Definition\CreatableObject',
+            $object
+        );
+    }
+
     public function testMethod()
     {
         $container = $this->getContainerMock(['has']);
@@ -167,5 +185,15 @@ class ObjectTest extends TestCase
             ->setMethods($methods)
             ->getMock();
         return $container;
+    }
+}
+
+class CreatableObject
+{
+    protected $object;
+
+    public function __construct(\stdClass $object)
+    {
+        $this->object = $object;
     }
 }

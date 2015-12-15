@@ -98,7 +98,14 @@ class Object extends Base implements ObjectResolver
         $property->setValue($this->definition->getInstance(), $value);
     }
 
-    private function checkValues(array $params)
+    /**
+     * Check values to resolve dependencies
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function checkValues(array $params)
     {
         $values = [];
         foreach ($params as $value) {

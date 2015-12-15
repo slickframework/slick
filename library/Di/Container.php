@@ -134,20 +134,22 @@ class Container implements ContainerInterface
         $definition, $value = null, array $parameters = [],
         $scope = Scope::SINGLETON)
     {
-        if (is_callable($value)) {
-            $definition = $this->createFactoryDefinition(
-                (string) $definition,
-                $value,
-                $parameters,
-                new Scope((string) $scope)
-            );
-        }
+        if (! $definition instanceof DefinitionInterface) {
+            if (is_callable($value)) {
+                $value = $this->createFactoryDefinition(
+                    (string) $definition,
+                    $value,
+                    $parameters,
+                    new Scope((string) $scope)
+                );
+            }
 
-        if (!($definition instanceof DefinitionInterface)) {
-            $definition = $this->createValueDefinition(
-                (string) $definition,
-                $value
-            );
+            $definition = ($value instanceof DefinitionInterface)
+                ? $value->setName($definition)
+                : $definition = $this->createValueDefinition(
+                    (string) $definition,
+                    $value
+                );
         }
 
         $definition->setContainer($this);
