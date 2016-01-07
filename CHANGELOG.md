@@ -14,6 +14,10 @@ All Notable changes to `Slick` will be documented in this file
   as an array
 - Support for transaction in database adapters. Adapter API exposes
   `beginTransaction()`, `commit()` and `rollback()` methods directly.
+- Multiple domain on translation (I18n)
+- Multiple locales on translation (I18n)
+- Set the translator types as Translator class constants:
+  TYPE_PHP_ARRAY and TYPE_GETTEXT  
 
 ### Deprecated
 - `Slick\Database\RecordList::getArrayCopy()` you should use
