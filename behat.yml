@@ -25,3 +25,9 @@ default:
         - Di\DiContext
       paths:
         - %paths.base%/features/Di
+    i18n_features:
+          contexts:
+            - FeatureContext
+            - I18n\I18nContext
+          paths:
+            - %paths.base%/features/I18n
