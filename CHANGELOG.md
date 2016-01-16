@@ -35,6 +35,7 @@ All Notable changes to `Slick` will be documented in this file
 - `Slick\Utility` module was removed and its now on `Slick\Common\Utils` namespace
 - `Slick\Common\SingletonInterface` and `Slick\Common\BaseSingleton`. You can use the
   `Slick\Common\BaseMethods` trait in any class you want.
+- Filesystem package
 
 ### Security
 - Nothing
