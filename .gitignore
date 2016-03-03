@@ -1,15 +1,5 @@
-/nbproject/private/
 /vendor/
-/nbproject/
-/docs/api
-/docs/manual/_build
-/tests/_log/coverage
-/tests/_log/coverage.serialized
-/tests/_log/*.html
 /tests/_log/unit-*
-/tests/_log/functional-*
-/composer.lock
-/.settings/
-/.buildpath
-/.project
 /.idea
+*.DS_Store
+composer.phar
