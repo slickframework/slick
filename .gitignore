@@ -10,7 +10,6 @@
 /tests/_log/poor*
 /tests/_log/unit-*
 /tests/_log/functional-*
-/composer.lock
 /.settings/
 /.buildpath
 /.project
