@@ -8,23 +8,18 @@
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
- *
- *
  */
 
 namespace Slick\Mvc\Command;
 
-// @codeCoverageIgnoreStart
-
-use Slick\FileSystem\Folder;
+use Slick\Mvc\Command\Task\GenerateIndexView;
 use Slick\Mvc\Command\Utils\ControllerData;
-use Slick\Mvc\Command\Utils\ViewBuilder;
-use Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Helper\DialogHelper,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Generate views command
@@ -34,11 +29,6 @@ use Symfony\Component\Console\Command\Command,
  */
 class GenerateViews extends Command
 {
-
-    /**
-     * @var string controller file path
-     */
-    protected $_path;
 
     /**
      * Configures the current command.
@@ -94,14 +84,16 @@ class GenerateViews extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln($this->getApplication()->getLongVersion());
+        /** @var Application $application */
+        $application = $this->getApplication();
+        $output->writeln($application->getLongVersion());
         $output->writeln(
             "Generate views for model ".
             $input->getArgument('modelName')
         );
         $output->writeln("");
 
-        $ctrlData = new ControllerData(
+        $controllerData = new ControllerData(
             [
                 'controllerName' => $input->getArgument('modelName'),
                 'namespace' => $input->getOption('out'),
@@ -109,56 +101,14 @@ class GenerateViews extends Command
             ]
         );
 
-        $this->_path = $input->getOption('path');
-        $this->_path .= '/'. $input->getOption('out');
-        $this->_path .= '/'. strtolower($ctrlData->getControllerSimpleName());
+        $path = $input->getOption('path');
+        $path .= '/'. $input->getOption('out');
 
-        $viewBuilder = new ViewBuilder($ctrlData);
-
-        foreach (array_keys($viewBuilder->templates) as $name) {
-            if (in_array($name, $input->getOption('view'))) {
-                $this->saveFile($name, $viewBuilder->getCode($name), $output);
-            }
-        }
+        $task = new \Slick\Mvc\Command\Task\GenerateViews([
+            'command' => $this,
+            'controllerData' => $controllerData,
+            'path' => $path
+        ]);
+        $task->run($input, $output);
     }
-
-    /**
-     * Saves current data into a template file
-     *
-     * @param string $name
-     * @param string $data
-     * @param OutputInterface $output
-     */
-    protected function saveFile($name, $data, OutputInterface $output)
-    {
-        $folder = new Folder(['name' => $this->_path]);
-        $fileName = "{$name}.html.twig";
-
-        /** @var DialogHelper $dialog */
-        $dialog = $this->getHelperSet()->get('dialog');
-        $name = $folder->details->getRealPath() . '/'. $fileName;
-
-        $save = true;
-        if ($folder->hasFile($fileName)) {
-            $output->writeln("<comment>File '{$name}' already exists.</comment>");
-            if (!$dialog->askConfirmation(
-                $output,
-                '<question>Do you want to override existing file?</question>',
-                false
-            )) {
-                $save = false;
-            }
-        }
-
-        if ($save) {
-            $folder->addFile($fileName)
-                ->write($data);
-            $output->writeln("<info>'{$name}' template file generated successfully!</info>");
-
-        } else {
-            $output->writeln("<comment>'{$fileName}' template file was not created.</comment>");
-        }
-    }
-}
-
-// @codeCoverageIgnoreEnd
+} 

@@ -1,0 +1,25 @@
+<div class="panel-heading table-records-header">
+    <div class="row">
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <form class="form-inline" role="form" method="get">
+                <div class="form-group has-feedback">
+                    <label class="sr-only" for="search-pattern">
+                        Search {{ modelPlural }}
+                    </label>
+                    <input type="text" class="form-control " id="search-pattern"
+                           placeholder="Search {{ modelPlural }}"
+                           name="pattern" value="{{ pattern }}" >
+                    <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-search col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <a href="{{ url( basePath~'/'~modelPlural ~"/add") }}" class="btn btn-primary pull-right">
+                <span class="glyphicon glyphicon-plus"></span>
+                Add {{ modelSingular }}
+            </a>
+        </div>
+        <span class="clearfix"></span>
+    </div>
+</div>

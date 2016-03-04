@@ -12,9 +12,11 @@
 
 namespace Slick\Template\Engine\Twig;
 
-use Slick\I18n\TranslateMethods;
-use Slick\I18n\Translator;
+use Twig_Extension;
+use Twig_Environment;
+use Twig_SimpleFilter;
 use Slick\Version\Version;
+use Slick\I18n\TranslateMethods;
 use Zend\Http\PhpEnvironment\Request;
 
 /**
@@ -23,7 +25,7 @@ use Zend\Http\PhpEnvironment\Request;
  * @package   Slick\Template\Engine
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class SlickTwigExtension extends \Twig_Extension
+class SlickTwigExtension extends Twig_Extension
 {
 
     /**
@@ -108,6 +110,27 @@ class SlickTwigExtension extends \Twig_Extension
     }
 
     /**
+     * Returns a list of filters.
+     *
+     * @return array
+     */
+    public function getFilters()
+    {
+        return [
+            new Twig_SimpleFilter(
+                'truncate',
+                '\Slick\Template\Engine\Twig\truncateFilter',
+                ['needs_environment' => true]
+            ),
+            new Twig_SimpleFilter(
+                'wordwrap',
+                '\Slick\Template\Engine\Twig\wordwrapFilter',
+                ['needs_environment' => true]
+            ),
+        ];
+    }
+
+    /**
      * Lazy load of the HTTP response object
      *
      * @return Request
@@ -127,6 +150,84 @@ class SlickTwigExtension extends \Twig_Extension
         $path = "{$base}/{$folder}{$name}";
         return $path;
     }
-
-
 }
+
+function wordwrapFilter(
+    Twig_Environment $env, $value, $length = 80, $separator = "\n",
+    $preserve = false)
+{
+    return wordwrap($value, $length, $separator, !$preserve);
+}
+
+function truncateFilter(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (function_exists('mb_get_info')) {
+        return truncateFilterMbInfo(
+            $env,
+            $value,
+            $length,
+            $preserve,
+            $separator
+        );
+    }
+
+    return truncateFilterNoMbInfo(
+        $env,
+        $value,
+        $length,
+        $preserve,
+        $separator
+    );
+}
+
+function truncateFilterMbInfo(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (mb_strlen($value, $env->getCharset()) > $length) {
+        if ($preserve) {
+            // If breakpoint is on the last word, return the
+            // value without separator.
+            if (
+                false === (
+                $breakpoint = mb_strpos(
+                    $value,
+                    ' ',
+                    $length,
+                    $env->getCharset()
+                )
+                )
+            ) {
+                return $value;
+            }
+
+            $length = $breakpoint;
+        }
+
+        return rtrim(
+            mb_substr($value, 0, $length, $env->getCharset())
+        ) . $separator;
+    }
+
+    return $value;
+}
+
+function truncateFilterNoMbInfo(
+    Twig_Environment $env, $value, $length = 30, $preserve = false,
+    $separator = '...')
+{
+    if (strlen($value) > $length) {
+        if ($preserve) {
+            if (false !== ($breakpoint = strpos($value, ' ', $length))) {
+                $length = $breakpoint;
+            }
+        }
+
+        return rtrim(substr($value, 0, $length)) . $separator;
+    }
+
+    return $value;
+}
+

@@ -1,0 +1,26 @@
+language: php
+
+php:
+  - 5.4
+  - 5.5
+
+# optionally specify a list of environments, for example to test different RDBMS
+env:
+  - DB=mysql
+
+services:
+  - memcached
+
+before_script:
+  - sudo apt-get update > /dev/null
+  - sudo apt-get install -y --force-yes apache2 libapache2-mod-php5
+  - phpenv config-add custom.ini
+  - composer self-update
+  - composer install --prefer-source --no-interaction --dev
+  - mysql -e 'create database slick_tests;'
+
+script:
+  - vendor/bin/codecept run --coverage --xml
+
+after_script:
+  - php vendor/bin/coveralls -v

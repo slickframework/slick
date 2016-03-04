@@ -12,19 +12,15 @@
 
 namespace Slick\Mvc\Command;
 
-// @codeCoverageIgnoreStart
-
-use Slick\FileSystem\File;
-use Slick\FileSystem\Folder;
-use Slick\Mvc\Command\Utils\ControllerData,
-    Slick\Mvc\Command\Utils\ControllerBuilder;
-use Slick\Mvc\Command\Utils\FormBuilder;
-use Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\DialogHelper;
+use Slick\Mvc\Command\Task\GenerateScaffoldController;
+use Slick\Mvc\Command\Task\GenerateController as GenerateControllerTask;
+use Slick\Mvc\Command\Utils\ControllerData;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Generate controller command
@@ -34,22 +30,6 @@ use Symfony\Component\Console\Helper\DialogHelper;
  */
 class GenerateController extends Command
 {
-
-    /**
-     * @var string controller file path
-     */
-    protected $_path;
-
-    /**
-     * @var string controller file nam  e
-     */
-    protected $_controllerFile;
-
-    /**
-     * Meta data for controller creation
-     * @var ControllerData
-     */
-    protected $_controllerData;
 
     /**
      * Configures the current command.
@@ -104,11 +84,16 @@ class GenerateController extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln($this->getApplication()->getLongVersion());
-        $output->writeln("Generate controller for model ". $input->getArgument('modelName'));
+
+        /** @var Application $application */
+        $application = $this->getApplication();
+        $output->writeln($application->getLongVersion());
+        $output->writeln(
+            "Generate controller for model ". $input->getArgument('modelName')
+        );
         $output->writeln("");
 
-        $this->_controllerData = new ControllerData(
+        $controllerData = new ControllerData(
             [
                 'controllerName' => $input->getArgument('modelName'),
                 'namespace' => $input->getOption('out'),
@@ -116,95 +101,27 @@ class GenerateController extends Command
             ]
         );
 
-        $this->_path = $input->getOption('path');
-        $this->_path .= '/'. $input->getOption('out');
-
-        $controllerBuilder = new ControllerBuilder(
-            ['controllerData' => $this->_controllerData]
-        );
+        $path = $input->getOption('path');
+        $path .= '/'. $input->getOption('out');
 
         if ($input->getOption('scaffold')) {
-            $controllerBuilder->scaffold = true;
-            $this->saveControllerFile($controllerBuilder, $output);
-            $output->writeln("");
+            $task = new GenerateScaffoldController(
+                [
+                    'command' => $this,
+                    'controllerData' => $controllerData,
+                    'path' => $path
+                ]
+            );
+            $task->run($input, $output);
         } else {
-            $this->saveControllerFile($controllerBuilder, $output);
-            $formBuilder = new FormBuilder($this->_controllerData);
-            $this->saveFormFile($formBuilder, $output);
-            $output->writeln("");
-        }
-
-        return null;
-    }
-
-    public function getControllerFile()
-    {
-        $name = $this->_controllerData->getControllerSimpleName();
-        $name .= ".php";
-        return $name;
-    }
-
-    public function saveControllerFile(ControllerBuilder $data, OutputInterface $output)
-    {
-        $folder = new Folder(['name' => $this->_path]);
-        /** @var DialogHelper $dialog */
-        $dialog = $this->getHelperSet()->get('dialog');
-        $name = $folder->details->getRealPath() . '/'. $this->getControllerFile();
-        $save = true;
-        if ($folder->hasFile($this->getControllerFile())) {
-            $output->writeln("<comment>File '{$name}' already exists.</comment>");
-            if (!$dialog->askConfirmation(
-                $output,
-                '<question>Do you want to override existing file?</question>',
-                false
-            )) {
-                $save = false;
-            }
-        }
-
-        if ($save) {
-            $folder->addFile($this->getControllerFile())
-                ->write($data->getCode());
-            $output->writeln("<info>Controller file generated successfully!</info>");
-
-        } else {
-            $output->writeln("<comment>Controller file was not created.</comment>");
-        }
-
-    }
-
-    public function saveFormFile(FormBuilder $formBuilder, OutputInterface $output)
-    {
-        $folder = new Folder(['name' => $this->_path .'/Forms']);
-
-        /** @var DialogHelper $dialog */
-        $dialog = $this->getHelperSet()->get('dialog');
-        $formFile = $formBuilder->getClassName().'.php';
-        $name = $folder->details->getRealPath() . '/'. $formFile;
-
-
-        $save = true;
-        if ($folder->hasFile($formFile)) {
-            $output->writeln("<comment>File '{$name}' already exists.</comment>");
-            if (!$dialog->askConfirmation(
-                $output,
-                '<question>Do you want to override existing file?</question>',
-                false
-            )) {
-                $save = false;
-            }
-        }
-
-        if ($save) {
-            $folder->addFile($formFile)
-                ->write($formBuilder->getCode());
-            $output->writeln("<info>Form file generated successfully!</info>");
-
-        } else {
-            $output->writeln("<comment>Form file was not created.</comment>");
+            $task = new GenerateControllerTask(
+                [
+                    'command' => $this,
+                    'controllerData' => $controllerData,
+                    'path' => $path
+                ]
+            );
+            $task->run($input, $output);
         }
     }
-
 }
-
-// @codeCoverageIgnoreEnd

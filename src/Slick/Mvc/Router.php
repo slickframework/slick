@@ -7,358 +7,148 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base,
-    Slick\Common\Inspector,
-    Slick\Mvc\Router\Exception,
-    Slick\Mvc\Router\RouteInterface,
-    Slick\Mvc\Router\AbstractRoute,
-    Slick\Common\EventManagerMethods,
-    Slick\Configuration\Configuration,
-    Slick\Configuration\Driver\DriverInterface;
-use Zend\EventManager\EventManagerAwareInterface,
-    Zend\Http\PhpEnvironment\Response,
-    Zend\Http\PhpEnvironment\Request;
+use AltoRouter;
+use Slick\Common\Base;
+use Slick\Mvc\Events\Route;
+use Slick\Mvc\Router\RouteInfo;
+use Slick\Mvc\Exception\RouterException;
+use Slick\Mvc\Exception\InvalidArgumentException;
 
 /**
  * Router
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property-read AltoRouter $service
+ * @property-read Application $application
  */
-class Router extends Base implements EventManagerAwareInterface
+class Router extends Base
 {
-
-    /**
-     * @readwrite
-     * @var Request
-     */
-    protected $_request;
-
-    /**
-     * @readwrite
+    /**#@+
+     * Request methods
      * @var string
      */
-    protected $_extension;
+    const METHOD_ALL    = 'GET|POST|PUT|DELETE';
+    const METHOD_GET    = 'GET';
+    const METHOD_POST   = 'POST';
+    const METHOD_PUT    = 'PUT';
+    const METHOD_DELETE = 'DELETE';
+    /**#@-*/
 
     /**
      * @readwrite
-     * @var string
+     * @var Application
      */
-    protected $_controller;
+    protected $_application;
 
     /**
-     * @readwrite
-     * @var string
-     */
-    protected $_namespace;
-
-    /**
-     * @readwrite
-     * @var string
-     */
-    protected $_action;
-
-    /**
-     * @readwrite
-     * @var array
-     */
-    protected $_params = array();
-
-    /**
-     * @readwrite
-     * @var RouteInterface[]
-     */
-    protected $_routes = array();
-
-    /**
-     * The configuration drive
+     * Force application dependency
      *
-     * @var DriverInterface
+     * @param Application $app
+     * @param array $options
      */
-    protected $_configuration;
-
-    /**
-     * Implementation of EventManagerAwareInterface interface
-     */
-    use EventManagerMethods;
-
-    /**
-     * Adds a route to the list of defined routes.
-     *
-     * @param RouteInterface $route The route to add.
-     *
-     * @return Router The self instance for method chain calls.
-     */
-    public function addRoute(RouteInterface $route)
+    public function __construct(Application $app, array $options = [])
     {
-        $this->_routes[] = $route;
-        return $this;
+        $options = array_merge(['application' => $app], $options);
+        parent::__construct($options);
     }
 
     /**
-     * Removes a route from the list of defined routes.
-     *
-     * @param RouteInterface $route The route to remove.
-     * @return Router The self instance for method chain calls.
+     * @read
+     * @var AltoRouter
      */
-    public function removeRoute(RouteInterface $route)
+    protected $_service;
+
+    /**
+     * Returns the routing service
+     *
+     * @return AltoRouter
+     */
+    public function getService()
     {
-        foreach ($this->_routes as $i => $stored) {
-            if ($stored->getPattern() == $route->getPattern()) {
-                unset($this->_routes[$i]);
-            }
+        if (is_null($this->_service)) {
+            $this->_service = new AltoRouter();
         }
-        return $this;
+        return $this->_service;
     }
 
     /**
-     * Returns the list of available route patterns.
+     * Map a route to a target
      *
-     * @return array A key/value pairs of patterns and route class names.
+     * @param string $route The route regex, custom regex must start with an @.
+     * You can use multiple pre-set regex filters, like [i:id]
+     * @param mixed $defaults Static values to set as default
+     * @param null|string $name Optional name of this route. Supply if you
+     * want to reverse route this url in your application.
+     * @param string $method One of 4 HTTP Methods, or a pipe-separated list
+     * of multiple HTTP Methods (GET|POST|PUT|DELETE)
+     *
+     * @throws Exception\InvalidArgumentException If a named route already
+     * exists in the router
      */
-    public function getRoutes()
+    public function map(
+        $route, $defaults = [], $name = null, $method = self::METHOD_ALL)
     {
-        $list = array();
-        foreach ($this->_routes as $route) {
-            $list[$route->getPattern()] = get_class($route);
+        try {
+            $this->getService()->map($method, $route, $defaults, $name);
+        } catch (\Exception $exp) {
+            throw new InvalidArgumentException(
+                "Fail to map a route: {$exp->getMessage()}",
+                0,
+                $exp
+            );
         }
-        return $list;
     }
 
     /**
-     * Loops thru all routes to find a match for the request string.
+     * Filter out route information
      *
-     * If there are no routes it will assume the controller/action/param/param
-     * format to inferred the controller, action and parameter to run.
+     * @throws Exception\RouterException If no match was found in the router
      *
-     * @return Router
+     * @return RouteInfo
      */
     public function filter()
     {
-        $url = $this->_request->getQuery('url');
-        $parameters = array();
-        $controller = $this->getConfiguration()
-            ->get('router.controller', "pages");
-        $action = $this->getConfiguration()
-            ->get('router.action', "index");
-        $namespace = $this->getConfiguration()
-            ->get('router.namespace', 'Controllers');
-
-        $matched = false;
-
-        /** @var AbstractRoute $route */
-        foreach ($this->_routes as $route) {
-            $matches = $route->matches($url);
-            if ($matches) {
-                $controller = $route->getController();
-                $action = ($route->getAction()) ?
-                    $route->getAction() : $action;
-                $parameters = $route->getParameters();
-                $namespace = ($route->getNamespace()) ?
-                    $route->getNamespace() : $namespace;
-                $matched = true;
-                break;
-            }
-        }
-
-
-        if (!$matched && !is_null($url)) {
-            $parts = explode("/", trim($url, "/"));
-            if (sizeof($parts) > 0 ) {
-                $controller = $parts[0];
-
-                if (sizeof($parts) >= 2) {
-                    $action = $parts[1];
-                    $parameters = array_slice($parts, 2);
-                }
-            }
-        }
-
-        $this->_action = $action;
-        $this->_controller = $controller;
-        $this->_params = $parameters;
-        $this->_namespace = $namespace;
-
-        return $this;
-    }
-
-    /**
-     * Dispatches the request
-     *
-     * @param Application $app The context application
-     *
-     * @throws Router\Exception\ControllerNotFoundException
-     * @throws Router\Exception\ActionNotFoundException
-     *
-     * @returns Response The response object for this request
-     */
-    public function dispatch(Application $app)
-    {
-        $name = $this->_namespace .'\\'. ucfirst($this->_controller);
-        $instance = $this->_getController($name, $app);
-
-
-
-        $inspector = new Inspector($instance);
-        $methodMeta = $inspector->getMethodMeta($this->_action);
-
-        if (
-            !empty($methodMeta['@protected']) ||
-            !empty($methodMeta['@private'])
-        ) {
-            throw new Exception\ActionNotFoundException(
-                "Action {$this->_action} not found"
+        $requestUrl = $this->application->request->getQuery('url', '/');
+        $requestMethod = $this->application->request->getMethod();
+        $event = new Route([
+            'router' => $this,
+            'application' => $this->application,
+            'request' => $this->application->request
+        ]);
+        $this->_application->getEventManager()
+            ->trigger(Route::BEFORE_ROUTE, $this, $event);
+        $options = $this->getService()->match($requestUrl, $requestMethod);
+        if ($options == false) {
+            throw new RouterException(
+                "No route was found for the given request URL."
             );
         }
+        // Route match, add the extension
+        $cfg = $this->application->getContainer()->get('configuration');
 
-        /**
-         * @param Inspector\TagList $meta
-         * @param string $type
-         */
-        $hooks = function ($meta, $type) use ($inspector, $instance) {
-            static $run;
-            if (is_null($run)) {
-                $run = array();
-            }
 
-            if ($meta->hasTag($type)) {
-                $methods = $meta->getTag($type)->value;
-                if (is_string($methods)) {
-                    $methods = array($meta->getTag($type)->value);
-                }
-                foreach ($methods as $method) {
-                    $hookMeta = $inspector->getMethodMeta($method);
-                    if (
-                        in_array($method, $run) &&
-                        $hookMeta->hasTag('@once')
-                    ) {
-                        continue;
-                    }
-                    $run[] = $method;
-                    $instance->$method();
-                }
+        $routerInfo = new RouteInfo($options);
+        $routerInfo->setConfiguration($cfg)
+            ->setTarget($options['target']);
 
-            }
-        };
+        $extension = $this->application->getRequest()
+            ->getQuery('extension');
 
-        $this->getEventManager()->trigger('controllerBeforeFilter', $instance);
-
-        $hooks($methodMeta, "@before");
-
-        call_user_func_array(
-            array(
-                $instance,
-                $this->_action
-            ),
-            is_array($this->_params) ? $this->_params : array()
-        );
-
-        $hooks($methodMeta, "@after");
-        $this->getEventManager()->trigger('controllerAfterFilter', $instance);
-
-        $response = $app->getResponse();
-        $this->getEventManager()->trigger('controllerBeforeRender', $instance);
-        $output = $instance->render();
-        $this->getEventManager()->trigger(
-            'controllerAfterRender',
-            $instance,
-            [
-                'output' => &$output
-            ]
-        );
-        $response->setContent($output);
-        return $response;
-    }
-
-    /**
-     * Sets the configuration driver
-     *
-     * @param DriverInterface $configuration
-     *
-     * @return Router
-     */
-    public function setConfiguration($configuration)
-    {
-        $this->_configuration = $configuration;
-        return $this;
-    }
-
-    /**
-     * Lazy loading of configuration driver
-     *
-     * @return DriverInterface
-     */
-    public function getConfiguration()
-    {
-        if (is_null($this->_configuration)) {
-            $this->_configuration = Configuration::get('config');
+        if (strlen($extension) < 1) {
+            $extension = $cfg->get('router.extension', 'html');
         }
-        return $this->_configuration;
+        $routerInfo->extension = $extension;
+
+        $event->routeInfo = $routerInfo;
+        $this->_application->getEventManager()
+            ->trigger(Route::AFTER_ROUTE, $this, $event);
+        return $event->routeInfo;
     }
-
-    /**
-     * Returns current extension
-     * @return string
-     */
-    public function getExtension()
-    {
-        if (is_null($this->_extension)) {
-            $this->_extension = $this->getConfiguration()->get('router.extension', 'html');
-            $query = $this->_request->getQuery('extension', $this->_extension);
-            if (strlen($query) > 1) {
-                $this->_extension = $query;
-            }
-        }
-        return $this->_extension;
-    }
-
-    /**
-     * Creates controller instance
-     *
-     * @param $className
-     * @param Application $app
-     *
-     * @return Controller
-     *
-     * @throws Router\Exception\ControllerNotFoundException
-     * @throws Router\Exception\ActionNotFoundException
-     */
-    protected function _getController($className, Application $app)
-    {
-        if (!class_exists($className)) {
-            throw new Exception\ControllerNotFoundException(
-                "Controller {$className} not found"
-            );
-        }
-
-        $options = array(
-            'parameters' => $this->_params,
-            'extension' => $this->getExtension(),
-            'request' => $app->getRequest(),
-            'response' => $app->getResponse(),
-            'actionName' => $this->_action,
-            'controllerName' => $this->_controller
-        );
-
-        /** @var Controller $instance */
-        $instance = new $className($options);
-
-        if (!method_exists($instance, $this->_action)) {
-            if (!$instance->scaffold) {
-                throw new Exception\ActionNotFoundException(
-                    "Action {$this->_action} not found"
-                );
-            }
-            $instance = Scaffold::getController($instance, $options);
-        }
-
-        return $instance;
-    }
-
-
-} 
+}

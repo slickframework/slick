@@ -1,0 +1,69 @@
+{{ ('{% import "elements/table-record.actions.html.twig" as tableRecord %}')|raw }}
+<div class="entity-index">
+    <h2 class="section-header">
+        <i class="fa fa-list-alt"></i>
+        {{ ('{{ translate("'~command.getModelHumanNamePlural~'") }}')|raw }}
+    </h2>
+
+    {{ ('{% include \''~command.modelPlural~'/quick-links.twig\' with {"page": "index"} %}')|raw }}
+
+    <div class="panel panel-default">
+        {{ ('{% include \''~command.modelPlural~'/panel-heading.twig\' %}')|raw }}
+        <div class="panel-body">
+            {{ ('{% if '~command.modelPlural~'|length > 0 %}')|raw }}
+            <table class="table table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        {% for column in command.descriptor.getColumns if not column.getParameter('primaryKey') -%}
+                        {%- if loop.first -%}
+                        <th>{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}</th>
+                        {% else -%}
+                        <th class="hidden-xs">{{ ('{{ translate("'~column.field|capitalize~'") }}')|raw }}</th>
+                        {% endif -%}
+                        {%- endfor -%}
+                        {%- for relation in command.descriptor.getRelations if relation.isSingleResult -%}
+                        <th class="hidden-xs">{{ ('{{ translate("'~relation.getPropertyName|capitalize~'") }}')|raw }}</th>
+                        {%- endfor -%}
+                        <th class="table-actions-column">{{ ('{{ translate("Actions") }}')|raw }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{ ('{% for '~command.modelSingular~' in '~command.modelPlural~' %}')|raw }}
+                    <tr>
+                        {% for column in command.descriptor.getColumns if not column.getParameter('primaryKey') -%}
+                        {%- if loop.first -%}
+                        <td>
+                            <a href="{{ ('{{ url(basePath~"'~command.modelPlural~'/show/"~'~command.modelSingular~'.'~command.descriptor.getPrimaryKey~') }}')|raw }}">
+                                {{ ('{{ '~command.modelSingular~'.'~column.field~'|truncate(150, true)|wordwrap(80, "<br>")|raw }}')|raw }}
+                            </a>
+                        </td>
+                        {% else -%}
+                        <td class="hidden-xs">
+                            {{ ('{{ '~command.modelSingular~'.'~column.field~'|truncate(150, true)|wordwrap(80, "<br>")|raw }}')|raw }}
+                        </td>
+                        {% endif -%}
+                        {%- endfor -%}
+                        {%- for relation in command.descriptor.getRelations if relation.isSingleResult %}
+                        <td class="hidden-xs">
+                            {{ ('{{ '~command.modelSingular~'.'~relation.getPropertyName~' }}')|raw }}
+                        </td>
+                        {%- endfor -%}
+                        <td class="table-actions-column">
+                            {{ ('{{ tableRecord.getActions('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.getModelHumanNamePlural|lower~'") }}')|raw }}
+                        </td>
+                    </tr>
+                {{ ('{% endfor %}')|raw }}
+                </tbody>
+            </table>
+            {{ ('{% else %}')|raw }}
+                {{ ('{{ translate(\'There are no '~command.getModelHumanNamePlural|lower~' to show up here. Click the <a href="%link">Add '~command.getModelHumanName|lower~'</a> button to add a new '~command.getModelHumanName|lower~'.\')|replace({"%link": url(basePath~"'~command.modelPlural~'/add")})|raw }}')|raw }}
+            {{ ('{% endif %}')|raw }}
+        </div>
+        <div class="panel-footer">
+            {{ ('{% include "elements/pagination.html.twig" %}')|raw }}
+        </div>
+    </div>
+</div>
+{{ ('{% for '~command.modelSingular~' in '~command.modelPlural~' %}')|raw }}
+    {{ ('{{ tableRecord.createDialog('~command.modelSingular~', basePath~"'~command.modelPlural~'", "'~command.getModelHumanName|lower~'") }}')|raw }}
+{{ ('{% endfor %}')|raw }}

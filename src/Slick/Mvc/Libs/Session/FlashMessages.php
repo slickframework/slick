@@ -12,16 +12,21 @@
 
 namespace Slick\Mvc\Libs\Session;
 
-use Slick\Common\Base,
-    Slick\Session\Session,
-    Slick\Session\Driver\Driver;
+use Slick\Common\Base;
+use Slick\Di\Container;
+use Slick\Di\Definition;
 use Slick\Filter\StaticFilter;
+use Slick\Di\ContainerBuilder;
+use Slick\Session\Driver\Driver;
 
 /**
  * Application flash messages
  *
  * @package   Slick\Mvc\Libs\Session
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @method FlashMessages setContainer(Container $container) Sets the
+ * dependency container
  */
 class FlashMessages extends Base
 {
@@ -29,9 +34,9 @@ class FlashMessages extends Base
     /**#@+
      * @const string TYPE for message type constants
      */
-    const TYPE_ERROR = 0;
+    const TYPE_ERROR   = 0;
     const TYPE_WARNING = 1;
-    const TYPE_INFO = 2;
+    const TYPE_INFO    = 2;
     const TYPE_SUCCESS = 3;
     /**#@-*/
 
@@ -53,14 +58,20 @@ class FlashMessages extends Base
     public $classes = [
         self::TYPE_SUCCESS => 'success',
         self::TYPE_WARNING => 'warning',
-        self::TYPE_INFO => 'info',
-        self::TYPE_ERROR => 'danger'
+        self::TYPE_INFO    => 'info',
+        self::TYPE_ERROR   => 'danger'
     ];
 
     /**
      * @var FlashMessages Self instance to use with static methods
      */
     protected static $_instance;
+
+    /**
+     * @readwrite
+     * @var Container
+     */
+    protected $_container;
 
     /**
      * Lazy loads session component
@@ -70,7 +81,7 @@ class FlashMessages extends Base
     public function getSession()
     {
         if (is_null($this->_session)) {
-            $this->_session = Session::get();
+            $this->_session = $this->getContainer()->get('session');
         }
         return $this->_session;
     }
@@ -81,7 +92,7 @@ class FlashMessages extends Base
      * @param int $type
      * @param string $message
      *
-     * @return FlashMessages
+     * @return self
      */
     public function set($type, $message)
     {
@@ -126,7 +137,7 @@ class FlashMessages extends Base
      */
     public static function getMessages()
     {
-        return static::_getInstance()->get();
+        return static::getInstance()->get();
     }
 
     /**
@@ -139,17 +150,35 @@ class FlashMessages extends Base
      */
     public static function setMessage($type, $message)
     {
-        return static::_getInstance()->set($type, $message);
+        return static::getInstance()->set($type, $message);
+    }
+
+    /**
+     * Returns the internal dependency injector container
+     *
+     * @return Container The dependency injector
+     */
+    public function getContainer()
+    {
+        if (is_null($this->_container)) {
+            $def = [
+                'session' => Definition::factory(
+                    ['Slick\Session\Session', 'get']
+                )
+            ];
+            $this->setContainer(ContainerBuilder::buildContainer($def));
+        }
+        return $this->_container;
     }
 
     /**
      * @return FlashMessages
      */
-    protected static function _getInstance()
+    public static function getInstance()
     {
         if (is_null(static::$_instance)) {
             static::$_instance = new static();
         }
         return static::$_instance;
     }
-} 
+}

@@ -1,51 +1,77 @@
 <?php
 
 /**
- * FlashMessages test case
+ * Controller test case
  *
  * @package   Test\Mvc\Libs\Session
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Mvc\Libs\Session;
+
+use Codeception\Util\Stub;
 use Slick\Configuration\Configuration;
 use Slick\Mvc\Libs\Session\FlashMessages;
 
 /**
- * FlashMessages test case
+ * Controller test case
  *
  * @package   Test\Mvc\Libs\Session
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class FlashMessagesTest extends \Codeception\TestCase\Test
 {
+   /**
+    * @var \CodeGuy
+    */
+    protected $codeGuy;
+
+    protected function _before()
+    {
+        parent::_before();
+        $path = getcwd() . '/tests/app/Configuration';
+        Configuration::addPath($path);
+    }
+
+    protected function _after()
+    {
+        FlashMessages::getMessages();
+        parent::_after();
+    }
+
     /**
-     * Simple use of flash messages
+     * Create Flash messages object
      * @test
      */
-    public function setAndGetMessages()
+    public function createFlashMessagesObject()
     {
-        Configuration::addPath(
-            dirname(dirname(dirname(dirname(__DIR__)))) .
-            '/app/Configuration'
-        );
+        $fm = new FlashMessages();
+        $fmStatic = FlashMessages::getInstance();
+        //$this->assertEquals($fm, $fmStatic);
+        $this->assertNotSame($fm, $fmStatic);
 
-        $flm = new FlashMessages();
-        $this->assertInstanceOf(
-            'Slick\Mvc\Libs\Session\FlashMessages',
-            $flm->set(5, 'Test')
-        );
-        $messages = $flm->get();
-        $this->assertTrue(isset($messages[FlashMessages::TYPE_INFO]));
-        $this->assertEmpty($flm->get());
-
-        FlashMessages::setMessage(FlashMessages::TYPE_WARNING, "test");
-        $expected = [FlashMessages::TYPE_WARNING => ['test']];
-        $this->assertEquals($expected, FlashMessages::getMessages());
-        FlashMessages::setMessage(FlashMessages::TYPE_WARNING, "test");
-        $this->assertEquals($expected, $flm->get());
+        $this->assertSame($fm->getSession(), $fmStatic->getSession());
     }
+
+    /**
+     * Setting messages
+     * @test
+     */
+    public function settingFlashMessages()
+    {
+        $fm = FlashMessages::setMessage(FlashMessages::TYPE_INFO, 'test');
+        $this->assertInstanceOf('Slick\Mvc\Libs\Session\FlashMessages', $fm);
+        $fm->set(5, 'other');
+        $expected = [
+            FlashMessages::TYPE_INFO => [
+                'test', 'other'
+            ]
+        ];
+        $this->assertEquals($expected, $fm->get());
+        $this->assertEquals([], $fm->get());
+    }
+
 }

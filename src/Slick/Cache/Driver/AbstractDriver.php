@@ -5,15 +5,14 @@
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  * @since     Version 1.0.0
  */
 
 namespace Slick\Cache\Driver;
 
-use Slick\Common\Base,
-    Slick\Cache\DriverInterface;
+use Slick\Common\Base;
+use Slick\Cache\DriverInterface;
 
 /**
  * Wrapper for common properties and methods among cache drivers
@@ -93,7 +92,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
         if (!in_array($key, $keys)) {
             array_push($keys, $key);
         }
-        $this->set('__stored_keys__', $keys);
+        $this->set('__stored_keys__', $keys, 24*60*60);
         return $this;
     }
 

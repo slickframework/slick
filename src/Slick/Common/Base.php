@@ -5,7 +5,6 @@
  * 
  * @package    Slick\Common
  * @author     Filipe Silva <silvam.filipe@gmail.com>
- * @copyright  2014 Filipe Silva
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @since      Version 1.0.0
  */
@@ -15,7 +14,8 @@ namespace Slick\Common;
 use Serializable;
 
 /**
- * Base
+ * Base class that implements getters and setters using PHP magic methods
+ * __get() __set() __is() and __call().
  * 
  * Base class uses the PHP magic methods to handle class properties in a
  * way that is a lot easier to work with. It defines an annotation for property
@@ -35,19 +35,6 @@ use Serializable;
  */
 abstract class Base implements Serializable
 {
-    
-    /**
-     * @var \Slick\common\Inspector The self inspector object.
-     */
-    private $_inspector = null;
-
-    /**
-     * @readwrite
-     * @var mixed Used by codeception in test mockups.
-     */
-    // @codingStandardsIgnoreStart
-    public $___mocked;
-    // @codingStandardsIgnoreEnd
 
     /**
      * Trait with method for base class
@@ -62,20 +49,13 @@ abstract class Base implements Serializable
      * It will set a class inspector used for annotation read on properties.
      *
      * @param array|object $options The properties for the object
-     *  being constructed.
+     * being constructed.
      * 
      * @see \Slick\Common\Inspector
      */
     public function __construct($options = array())
     {
-        $this->_inspector = new Inspector($this);
-        if (is_array($options) || is_object($options)) {
-            foreach ($options as $key => $value) {
-                $key = ucfirst($key);
-                $method = "set{$key}";
-                $this->$method($value);
-            }
-        }
+        $this->_createObject($options);
     }
 
     /**
@@ -96,17 +76,17 @@ abstract class Base implements Serializable
         }
 
         $props = array_keys(get_object_vars($this));
-        $skip = array('_inspector', '___mocked');
+        $skip = array('_inspector', '___mocked', 'inspector');
 
         $equals = true;
         foreach ($props as $property) {
             if (in_array($property, $skip)) {
                 continue;
             }
-            $tags = $this->_inspector->getPropertyMeta($property);
+            $annotations = $this->inspector->getPropertyAnnotations($property);
             $property = str_replace('_', '', $property);
             
-            if (!$tags->hasTag('@write')
+            if (!$annotations->hasAnnotation('@write')
                 && $this->$property != $object->$property
             ) {
                 return false;
@@ -118,21 +98,23 @@ abstract class Base implements Serializable
 
     /**
      * Sets necessary properties when object is unserialized.
-     * Needed when using mock objects in tests.
+     *
+     * @internal Needed when using mock objects in tests.
      */
     public function __wakeup()
     {
-        $this->_inspector = new Inspector($this);
+        $this->inspector = new Inspector($this);
     }
 
     /**
      * Removes unnecessary data for serializing.
+     *
      * @return string
      */
     public function serialize()
     {
         // @codingStandardsIgnoreStart
-        unset($this->_inspector, $this->___mocked);
+        unset($this->inspector, $this->___mocked);
         // @codingStandardsIgnoreEnd
         $keys = array_keys(get_object_vars($this));
         $data = [];
@@ -147,15 +129,15 @@ abstract class Base implements Serializable
      *
      * @param string $serialized
      *
-     * @return Base
+     * @return self
      */
     public function unserialize($serialized)
     {
         $data = unserialize($serialized);
-        $this->_inspector = new Inspector($this);
+        $this->inspector = new Inspector($this);
         foreach ($data as $key => $value) {
             $this->$key = $value;
         }
+        return $this;
     }
-    
 }

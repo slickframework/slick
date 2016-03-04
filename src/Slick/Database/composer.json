@@ -10,7 +10,8 @@
     },
     "target-dir": "Slick/Database",
     "require": {
-        "slick/Common": "self.version",
-        "slick/utility": "self.version"
+        "slick/common": "self.version",
+        "slick/utility": "self.version",
+        "myclabs/php-enum": "1.*"
     }
 }

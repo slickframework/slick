@@ -1,186 +1,131 @@
 <?php
 
 /**
- * BelongsTo
+ * Belongs to relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Inspector\Tag;
-use Slick\Database\RecordList;
 use Slick\Orm\Entity;
-use Slick\Orm\EntityInterface;
-use Zend\EventManager\Event;
+use Slick\Database\RecordList;
+use Slick\Common\Inspector\Annotation;
+use Slick\Orm\Events\Save;
+use Slick\Orm\RelationInterface;
+use Slick\Orm\Sql\Select;
+use Zend\EventManager\SharedEventManager;
 
 /**
- * BelongsTo
+ * Belongs to relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class BelongsTo extends AbstractSingleEntityRelation
-    implements SingleEntityRelationInterface
+class BelongsTo extends AbstractSingleRelation implements RelationInterface
 {
 
     /**
-     * @readwrite
-     * @var bool BelongsTo defines related as dependent
-     */
-    protected $_dependent = true;
-
-    /**
-     * Creates a relation from notation tag
-     *
-     * @param Tag $tag
-     * @param Entity $entity
-     * @param string $property Property name
-     *
-     * @throws \Slick\Orm\Exception\UndefinedClassException if the class does
-     *  not exists
-     * @throws \Slick\Orm\Exception\InvalidArgumentException if the class
-     *  does not implement Slick\Orm\EntityInterface interface
-     *
-     * @return BelongsTo
-     */
-    public static function create(Tag $tag, Entity &$entity, $property)
-    {
-        /** @var BelongsTo $relation */
-        $relation = parent::create($tag, $entity, $property);
-        $entity->getEventManager()->attach(
-            'prepareForInsert',
-            function ($event) use ($relation) {
-                $relation->prepareInsertUpdate($event);
-            }
-        );
-
-        $entity->getEventManager()->attach(
-            'prepareForUpdate',
-            function ($event) use ($relation){
-                $relation->prepareInsertUpdate($event);
-            }
-        );
-        return $relation;
-    }
-
-    /**
-     * Returns foreign key name
+     * Tries to guess the foreign key for this relation
      *
      * @return string
      */
-    public function getForeignKey()
+    protected function _guessForeignKey()
     {
-        if (is_null($this->_foreignKey)) {
-            $this->_foreignKey = strtolower($this->getRelated()->getAlias()) .
-                "_id";
-        }
-        return $this->_foreignKey;
+        $descriptor = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $name = explode('\\', $descriptor->getEntity()->getClassName());
+        $name = end($name);
+        return strtolower($name) . '_id';
     }
 
-    /**
-     * Updated provided query with relation joins
-     *
-     * @param Event $event
-     */
-    public function updateQuery(Event $event)
-    {
-        $parentTbl = $this->getEntity()->getTable();
-        $relatedTbl = $this->getRelated()->getTable();
-        $relPrimary = $this->getRelated()->primaryKey;
-        $frKey = $this->getForeignKey();
 
-        $event->getParam('query')->join(
-            $relatedTbl,
-            "{$parentTbl}.{$frKey} = {$relatedTbl}.{$relPrimary}",
-            [],
-            $this->getType()
-        );
-
-    }
 
     /**
      * Lazy loading of relations callback method
      *
-     * @param EntityInterface $entity
-     *
+     * @param \Slick\Orm\Entity $entity
      * @return Entity|RecordList
      */
-    public function load(EntityInterface $entity)
+    public function load(Entity $entity)
     {
-        /** @var Entity $entity */
-        $this->setEntity($entity);
-        $related = get_class($this->getRelated());
-        $frKey = $this->getForeignKey();
-        $data = null;
-
-        if (
-            isset($entity->raw[$frKey]) &&
-            is_callable(array($related, 'get'))
-        ) {
-            $data = call_user_func_array(
-                array($related, 'get'),
-                array(
-                    $entity->raw[$frKey]
-                )
-            );
+        $data = $entity->getRawData();
+        if (!is_array($data) || !isset($data[$this->getForeignKey()])) {
+            return null;
         }
-
-        return $data;
+        /** @var Select $sql */
+        $sql = call_user_func_array(
+            [$this->getRelatedEntity(), 'find'],
+            []
+        );
+        $pmk = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getPrimaryKey();
+        $table = Entity\Manager::getInstance()->get($this->getRelatedEntity())
+            ->getEntity()->getTableName();
+        $sql-> where(
+            [
+                "{$table}.{$pmk} = :id" => [
+                    ':id' => $data[$this->getForeignKey()]
+                ]
+            ]
+        );
+        return $sql->first();
     }
 
-    public function prepareInsertUpdate(Event $event)
+    /**
+     * Runs before save to set the relation data to be saved
+     *
+     * @param Save $event
+     */
+    public function beforeSave(Save $event)
     {
-        $data = $event->getParam('data');
-        $raw = $event->getParam('raw');
-        $value = $this->_needPrepare($data, $raw);
-        if ($value) {
-            $data[$this->getForeignKey()] = $value;
-        }
-        $event->setParam('data', $data);
-    }
-
-    protected function _needPrepare($data, $raw)
-    {
-        $search = [$this->getPropertyName(), $this->getForeignKey()];
-
-        foreach ($search as $value) {
-            if (in_array($value, array_keys($data))) {
-                return $this->_verifyValue($data[$value]);
+        $entity = $event->getTarget();
+        $property = $this->getPropertyName();
+        $field = $this->getForeignKey();
+        $data = $event->data;
+        if (isset($entity->$property) && !is_null($entity->$property)) {
+            /** @var Entity $object */
+            $object = $entity->$property;
+            $data[$field] = $object;
+            $class = $this->getRelatedEntity();
+            if ($object instanceof $class) {
+                $pmk = $object->getPrimaryKey();
+                $data[$field] = $object->$pmk;
             }
-
-            if (in_array($value, array_keys($raw))) {
-                return $this->_verifyValue($raw[$value]);
-            }
+            $event->data = $data;
         }
-        return false;
     }
 
-    protected function _verifyValue($object)
+    /**
+     * Sets the join information on the select query when lazy load is false
+     *
+     * @param \Slick\Orm\Events\Select $event
+     */
+    public function beforeSelect(\Slick\Orm\Events\Select $event)
     {
-        $prk = $this->getRelated()->primaryKey;
-        $value = false;
-
-        if (is_a($object, 'Slick\Orm\EntityInterface')) {
-            $value = intval($object->$prk);
+        if ($this->lazyLoad) {
+            return;
         }
-
-        if (is_array($object)) {
-            $object = (object) $object;
+        $related = Entity\Manager::getInstance()
+            ->get($this->getRelatedEntity());
+        $relatedTable = $related->getEntity()->getTableName();
+        $sql = $event->sqlQuery;
+        $columns = $related->getColumns();
+        $fields = [];
+        foreach (array_keys($columns) as $column) {
+            $name = trim($column, '_');
+            $fields[] = "{$name} AS {$relatedTable}_{$name}";
         }
-
-        if (is_object($object)) {
-            $value = intval($object->$prk);
-        }
-
-        if (is_string($object) || is_integer($object)) {
-            $value = intval($object);
-        }
-
-        return $value;
+        $pmk = $related->getEntity()->getPrimaryKey();
+        $ent = $this->getEntity()->getTableName();
+        $clause  = "{$relatedTable}.{$pmk} = {$ent}.{$this->getForeignKey()}";
+        $sql->join($relatedTable, $clause, $fields);
+        $event->sqlQuery = $sql;
     }
+
+
 }

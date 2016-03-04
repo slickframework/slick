@@ -132,6 +132,20 @@ class Container implements ContainerInterface, FactoryInterface
     }
 
     /**
+     * Sets the value for the provided key
+     *
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return self
+     */
+    public function set($name, $value)
+    {
+        static::$_singletonEntries[$name] = $value;
+        return $this;
+    }
+
+    /**
      * Test if the container can provide something for the given name.
      *
      * @param string $name Entry name or a class name.

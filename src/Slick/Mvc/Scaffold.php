@@ -7,26 +7,37 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
+use Slick\Database;
+use Slick\Mvc\Scaffold\Form;
+use Slick\Utility\Text;
+use Slick\Orm\Sql\Select;
+use Slick\Template\Template;
+use Slick\Orm\Entity\Manager;
 use Slick\Filter\StaticFilter;
-use Slick\Mvc\Libs\Session\FlashMessages;
+use Slick\Mvc\Model\Descriptor;
 use Slick\Mvc\Libs\Utils\Pagination;
-use Slick\Mvc\Scaffold\Form,
-    Slick\Template\Template,
-    Slick\Utility\Text;
 
 /**
  * Scaffold controller
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property Controller $controller
+ * @property string $scaffoldControllerName
+ * @property string $modelName
+ * @property Descriptor $descriptor
+ *
+ * @method Controller getController() Returns the controller being scaffold
  */
 class Scaffold extends Controller
 {
+
     /**
      * @readwrite
      * @var Controller
@@ -34,33 +45,56 @@ class Scaffold extends Controller
     protected $_controller;
 
     /**
-     * @read
-     * @var array supported scaffold actions
-     */
-    protected $_scaffoldActions = [
-        'index', 'show', 'add', 'update', 'delete'
-    ];
-
-    /**
      * @readwrite
-     * @var string The model name for this controller
+     * @var string
      */
     protected $_modelName;
 
     /**
-     * Overrides default constructor to set the controller and view names
+     * @readwrite
+     * @var string
+     */
+    protected $_scaffoldControllerName;
+
+    /**
+     * @readwrite
+     * @var Descriptor
+     */
+    protected $_descriptor;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_basePath;
+
+    /**
+     * Set common variables for views
      *
      * @param array $options
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         parent::__construct($options);
         $nameParts = explode("\\", get_class($this->_controller));
-        $this->_modelName = 'Models\\' . Text::singular(end($nameParts));
-        $this->set('modelPlural', strtolower(end($nameParts)));
-        $this->set('modelSingular', strtolower(Text::singular(end($nameParts))));
-        $this->_controllerName = 'scaffold';
-        Template::appendPath(__DIR__ . '/Scaffold/Views');
+        $this->_scaffoldControllerName = end($nameParts);
+        $this->_viewVars = array_merge(
+            $this->viewVars,
+            $this->_controller->viewVars
+        );
+
+        $name = Text::camelCaseToSeparator(end($nameParts));
+        $name = explode(' ', $name);
+
+        $singular = ucfirst(Text::singular(strtolower(end($name))));
+        array_pop($name);
+        $name[] = $singular;
+        $name = implode('', $name);
+
+        $this->set('modelPlural', end($nameParts));
+        $this->set('modelSingular', lcfirst($name));
+        $this->set('basePath', $this->_basePath);
+        Template::appendPath(__DIR__ . '/Views');
     }
 
     /**
@@ -69,125 +103,251 @@ class Scaffold extends Controller
      * @param Controller $instance
      * @param array $options
      *
-     * @return Scaffold
+     * @return self
      */
-    public static function getController(
-        Controller $instance, array $options = [])
+    public static function getScaffoldController(
+        Controller $instance, $options = [])
     {
-        $options = array_merge(['controller' => $instance], $options);
+
+        $options = array_merge(
+            [
+                'controller' => $instance,
+                'request' => $instance->request,
+                'response' => $instance->response,
+                'view' => $instance->view,
+                'layout' => $instance->layout,
+                'basePath' => $instance->basePath
+            ],
+            $options
+        );
         return new static($options);
     }
 
     /**
-     * Handles the call to index page
+     * Returns the model class name
+     *
+     * @return string
+     */
+    public function getModelName()
+    {
+        if (is_null($this->_modelName)) {
+            $this->setModelName('Models\\' .
+                ucfirst($this->get('modelSingular'))
+            );
+        }
+        return $this->_modelName;
+    }
+
+    /**
+     * Sets model name
+     *
+     * @param string $name
+     *
+     * @return self
+     */
+    public function setModelName($name)
+    {
+        $this->_modelName = $name;
+        $nameParts = explode("\\", $name);
+        $controllerName = end($nameParts);
+        $nameParts = Text::camelCaseToSeparator($controllerName, '#');
+        $nameParts = explode('#', $nameParts);
+
+        $final = Text::plural(strtolower(array_pop($nameParts)));
+        $nameParts[] = ucfirst($final);
+        $this->set('modelPlural', lcfirst(implode('', $nameParts)));
+        $this->set('modelSingular', lcfirst($controllerName));
+        return $this;
+    }
+
+    /**
+     * Returns model descriptor
+     *
+     * @return Descriptor
+     */
+    public function getDescriptor()
+    {
+        if (is_null($this->_descriptor)) {
+            $this->_descriptor = new Descriptor(
+                [
+                    'descriptor' => Manager::getInstance()
+                        ->get($this->getModelName())
+                ]
+            );
+        }
+        return $this->_descriptor;
+    }
+
+    /**
+     * Handles the request to display index page
      */
     public function index()
     {
         $pagination = new Pagination();
-        $options = array();
-        $pagination->setTotal(call_user_func_array([$this->_modelName, 'count'], array($options)));
-        $options['limit'] = $pagination->rowsPerPage;
-        $options['page'] = $pagination->offset;
-        $records = call_user_func_array([$this->_modelName, 'all'], array($options));
-        $this->set(compact('records', 'pagination'));
+        $pattern = StaticFilter::filter(
+            'text',
+            $this->getController()->request->getQuery('pattern', null)
+        );
+        $this->view = 'scaffold/index';
+        $descriptor =  $this->getDescriptor();
+
+        /** @var Select $query */
+        $query = call_user_func_array([$this->getModelName(), 'find'], []);
+        $field = $descriptor->getDisplayField();
+        $tableName = $descriptor->getDescriptor()->getEntity()->getTableName();
+        $query->where(
+            [
+                "{$tableName}.{$field} LIKE :pattern" => [
+                    ':pattern' => "%{$pattern}%"
+                ]
+            ]
+        );
+        $pagination->setTotal($query->count());
+        $query->limit(
+            $pagination->rowsPerPage,
+            $pagination->offset
+        );
+        $records = $query->all();
+        $this->set(compact('pagination', 'records', 'pattern', 'descriptor'));
     }
 
     /**
-     * Handles the request to show a record
+     * Handles the request to display show page
      *
-     * @param int $id
+     * @param int $recordId
      */
-    public function show($id=0)
+    public function show($recordId = 0)
     {
-        $record = call_user_func_array([$this->_modelName, 'get'], array($id));
-        if (!$record) {
-            $this->setMessage(
-                FlashMessages::TYPE_WARNING,
-                "The specified ".
-                $this->get('modelSingular') ." does not exists."
+        $this->view = 'scaffold/show';
+        $recordId = StaticFilter::filter('number', $recordId);
+
+        $record = call_user_func_array(
+            [$this->getModelName(), 'get'],
+            [$recordId]
+        );
+
+        if (is_null($record)) {
+            $this->addWarningMessage(
+                "The {$this->get('modelSingular')} with the provided key ".
+                "does not exists."
             );
-            $this->redirect($this->get('modelPlural') .'/index');
+
+            $this->redirect($this->get('modelPlural'));
+            return;
         }
-        $this->set(compact('record'));
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('record', 'descriptor'));
     }
 
     /**
-     * Handles the request to add a new record
+     * Handles the request to add page
      */
     public function add()
     {
-        $name = "add-". $this->get('modelSingular');
-        $form = new Form($name, ['model' => $this->_modelName]);
-
+        $this->view = 'scaffold/add';
+        $form = new Form(
+            "add-{$this->get('modelSingular')}", $this->getDescriptor()
+        );
         if ($this->request->isPost()) {
             $form->setData($this->request->getPost());
-
             if ($form->isValid()) {
-                $class = $this->_modelName;
-                /** @var Model $object */
-                $values = $form->getValues();
-                $object = new $class($values);
-                if ($object->save()) {
-                    $this->setMessage(
-                        FlashMessages::TYPE_SUCCESS,
-                        ucfirst($this->get('modelSingular')) .
-                        " successfully created."
+                try {
+                    $modelClass = $this->getModelName();
+                    /** @var Model $model */
+                    $model = new $modelClass($form->getValues());
+                    $model->save();
+                    $name = ucfirst($this->get('modelSingular'));
+                    $this->addSuccessMessage(
+                        "{$name} successfully created."
                     );
+                    $pmk = $model->getPrimaryKey();
                     $this->redirect(
-                        $this->get('modelPlural') .'/show/'.
-                        $object->getConnector()->getLastInsertId()
+                        $this->_basePath .'/'.
+                        $this->get('modelPlural').'/show/'.$model->$pmk
+                    );
+                    return;
+                } catch (Database\Exception $exp) {
+                    $this->addErrorMessage(
+                        "Error while saving {$this->get('modelSingular')}} " .
+                        "data: {$exp->getMessage()}"
                     );
                 }
             } else {
-                $this->setMessage(
-                    FlashMessages::TYPE_ERROR,
-                    ucfirst($this->get('modelSingular')) .
-                    " cannot be created. Please check the errors below."
+                $this->addErrorMessage(
+                    "Cannot save {$this->get('modelSingular')}. " .
+                    "Please correct the errors bellow."
                 );
             }
         }
-        $this->set(compact('form'));
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('form', 'descriptor'));
     }
 
     /**
-     * Handles the request to edit a record
+     * Handles the request to edit page
      *
-     * @param int $id
+     * @param int $recordId
      */
-    public function edit($id=0)
+    public function edit($recordId = 0)
     {
-        $name = "edit-". $this->get('modelSingular');
-        $form = new Form($name, ['model' => $this->_modelName]);
+        $this->view = 'scaffold/edit';
+        $recordId = StaticFilter::filter('number', $recordId);
+
+        /** @var Model $record */
+        $record = call_user_func_array(
+            [$this->getModelName(), 'get'],
+            [$recordId]
+        );
+
+        if (is_null($record)) {
+            $this->addWarningMessage(
+                "The {$this->get('modelSingular')} with the provided key ".
+                "does not exists."
+            );
+
+            $this->redirect($this->_basePath .'/'.$this->get('modelPlural'));
+            return;
+        }
+
+        $form = new Form(
+            "edit-{$this->get('modelSingular')}", $this->getDescriptor()
+        );
 
         if ($this->request->isPost()) {
             $form->setData($this->request->getPost());
-
             if ($form->isValid()) {
-                $class = $this->_modelName;
-                /** @var Model $object */
-                $object = new $class($form->getValues());
-                if ($object->save()) {
-                    $this->setMessage(
-                        FlashMessages::TYPE_SUCCESS,
-                        ucfirst($this->get('modelSingular')) .
-                        " successfully updated."
+                try {
+                    $modelClass = $this->getModelName();
+                    /** @var Model $model */
+                    $model = new $modelClass($form->getValues());
+                    $model->save();
+                    $name = ucfirst($this->get('modelSingular'));
+                    $this->addSuccessMessage(
+                        "{$name} successfully updated."
                     );
-                    $this->redirect($this->get('modelPlural') .'/index');
+                    $pmk = $model->getPrimaryKey();
+                    $this->redirect(
+                        $this->_basePath .'/'.
+                        $this->get('modelPlural').'/show/'.$model->$pmk
+                    );
+                    return;
+                } catch (Database\Exception $exp) {
+                    $this->addErrorMessage(
+                        "Error while saving {$this->get('modelSingular')}} " .
+                        "data: {$exp->getMessage()}"
+                    );
                 }
             } else {
-                $this->setMessage(
-                    FlashMessages::TYPE_ERROR,
-                    ucfirst($this->get('modelSingular')) .
-                    " cannot be updated. Please check the errors below."
+                $this->addErrorMessage(
+                    "Cannot save {$this->get('modelSingular')}. " .
+                    "Please correct the errors bellow."
                 );
             }
         } else {
-            /** @var Model $record */
-            $record = call_user_func_array([$this->_modelName, 'get'], array($id));
-            $form->setData($record->getData());
+            $form->setData($record->asArray());
         }
-
-        $this->set(compact('record', 'form'));
+        $descriptor =  $this->getDescriptor();
+        $this->set(compact('form', 'record', 'descriptor'));
     }
 
     /**
@@ -196,26 +356,30 @@ class Scaffold extends Controller
     public function delete()
     {
         if ($this->request->isPost()) {
-            $id = StaticFilter::filter('text', $this->request->getPost('id'));
-            $record = call_user_func_array([$this->_modelName, 'get'], array($id));
-            if (!$record) {
-                $this->setMessage(
-                    FlashMessages::TYPE_WARNING,
-                    "The specified ".
-                    $this->get('modelSingular') ." does not exists."
+            $recordId = StaticFilter::filter(
+                'text',
+                $this->request->getPost('id')
+            );
+
+            $record = call_user_func_array(
+                [$this->getModelName(), 'get'],
+                [$recordId]
+            );
+
+            if (is_null($record)) {
+                $this->addWarningMessage(
+                    "The {$this->get('modelSingular')} with the provided key ".
+                    "does not exists."
                 );
             } else {
                 if ($record->delete()) {
-                    $this->setMessage(
-                        FlashMessages::TYPE_SUCCESS,
-                        ucfirst($this->get('modelSingular')) .
-                        " successfully deleted."
+                    $this->addSuccessMessage(
+                        "The {$this->get('modelSingular')} was successfully " .
+                        "deleted."
                     );
                 }
             }
-
         }
-        $this->redirect($this->get('modelPlural') .'/index');
+        return $this->redirect($this->_basePath .'/'.$this->get('modelPlural'));
     }
-
-} 
+}

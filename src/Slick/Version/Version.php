@@ -21,26 +21,24 @@ namespace Slick\Version;
 final class Version
 {
     /**
-     * Slick Framework version identification
-     * @see Version::compare
+     * @var string Slick Framework version identification
+     * @see \Slick\Version::compare()
      */
-    const VERSION = '1.0.4';
+    const VERSION = '1.1.0-dev';
 
     /**
-     * The latest stable version available
-     *
-     * @var string
+     * @var string The latest stable version available
      */
     protected static $_latestVersion;
 
     /**
      * Compare the provided version with current Slick version
      *
-     * @param $version
+     * @param string $version
      *
      * @return int -1 if the $version is older,
-     *      0 if they are the same,
-     *      and +1 if $version is newer.
+     * 0 if they are the same,
+     * and +1 if $version is newer.
      */
     public static function compare($version)
     {

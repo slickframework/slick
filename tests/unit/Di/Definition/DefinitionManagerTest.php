@@ -40,7 +40,7 @@ class DefinitionManagerTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('\Slick\Di\Definition\DefinitionManager', $manager->add($definition));
         $this->assertTrue($manager->has('test'));
         $this->assertSame($definition, $manager->get('test'));
-
+        $this->assertEquals('test', $manager->key());
     }
 }
 

@@ -7,22 +7,17 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base,
-    Slick\I18n\TranslateMethods,
-    Slick\Mvc\Libs\Session\FlashMessages;
-use Slick\Di\ContainerBuilder;
-use Slick\Di\Definition;
-use Zend\EventManager\EventManager,
-    Zend\EventManager\EventManagerAwareInterface,
-    Zend\EventManager\EventManagerInterface,
-    Zend\Http\Header\GenericHeader,
-    Zend\Http\PhpEnvironment\Request,
-    Zend\Http\PhpEnvironment\Response;
+use Slick\Common\Base;
+use Slick\I18n\TranslateMethods;
+use Zend\Http\Header\GenericHeader;
+use Zend\Http\PhpEnvironment\Request;
+use Zend\Http\PhpEnvironment\Response;
+use Slick\Mvc\Libs\Session\FlashMessageMethods;
 
 /**
  * MVC Controller
@@ -30,23 +25,32 @@ use Zend\EventManager\EventManager,
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property bool $renderLayout
- * @property bool $renderView
- * @property Response $response
- * @property Request $request
- * @property string $extension
- * @property EventManager $events
- * @property string $controllerName
- * @property string $actionName
- * @property FlashMessages $flashMessages
+ * @property Request $request HTTP request object
+ * @property Response $response HTTP response object
+ * @property bool $renderLayout Flag for layout rendering
+ * @property bool $renderView Flag for view rendering
+ * @property string $layout Layout file name
+ * @property string $view View file name
+ * @property bool $scaffold
+ * @property string $basePath
+ *
+ * @property-read array $viewVars A key/value pair of data for view rendering
+ *
+ * @method array getViewVars() Returns the data array for view rendering
+ * @method Request getRequest() Returns the HTTP request object
+ * @method Controller setRequest(Request $request) Sets the HTTP request object
+ * @method Response getResponse() Returns the HTTP response object
+ * @method Controller setResponse(Response $response) Sets HTTP response object
+ * @method bool isScaffold() Returns true if controller is scaffolding
  */
-abstract class Controller extends Base implements EventManagerAwareInterface
+class Controller extends Base
 {
+
     /**
-     * @readwrite
+     * @read
      * @var array
      */
-    protected $_viewVars = array();
+    protected $_viewVars = [];
 
     /**
      * @readwrite
@@ -73,22 +77,10 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     protected $_renderView = true;
 
     /**
-     * @readwrite
-     * @var array Request parameters
+     * @read
+     * @var bool
      */
-    protected $_parameters = array();
-
-    /**
-     * @readwrite
-     * @var string Request extension
-     */
-    protected $_extension = 'html';
-
-    /**
-     * @readwrite
-     * @var EventManager
-     */
-    protected $_events;
+    protected $_scaffold = false;
 
     /**
      * @readwrite
@@ -104,27 +96,15 @@ abstract class Controller extends Base implements EventManagerAwareInterface
 
     /**
      * @readwrite
-     * @var string The controller name from the router
+     * @var string
      */
-    protected $_controllerName;
+    protected $_basePath;
 
     /**
      * @readwrite
-     * @var string The action name from the router
+     * @var array
      */
-    protected $_actionName;
-
-    /**
-     * @read
-     * @var bool
-     */
-    protected $_scaffold = false;
-
-    /**
-     * @readwrite
-     * @var FlashMessages
-     */
-    protected $_flashMessages;
+    protected $_arguments = [];
 
     /**
      * Adds translate methods to this class
@@ -132,15 +112,66 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     use TranslateMethods;
 
     /**
-     * Sets the values to be used in the views.
-     *
-     * @param string $key The variable name for the view.
-     * @param mixed $value The value that will be available in the views
-     *  by the key name.
-     *
-     * @return Controller
+     * Methods to set flash messages
      */
-    public function set($key, $value = "")
+    use FlashMessageMethods;
+
+    /**
+     * Sends a redirection header and exits execution.
+     *
+     * @param array|string $url The url to redirect to.
+     *
+     * @return self
+     */
+    public function redirect($url)
+    {
+        $location = $this->_request->getBasePath();
+        $location = str_replace('//', '/', "{$location}/{$url}");
+        $this->_response->setStatusCode(302);
+        $header = new GenericHeader('Location', $location);
+        $this->_response->getHeaders()->addHeader($header);
+        return $this->disableRendering();
+    }
+
+    /**
+     * Disables the view rendering
+     *
+     * @return self
+     */
+    public function disableRendering()
+    {
+        $this->_renderLayout = false;
+        $this->_renderView = false;
+        return $this;
+    }
+
+    /**
+     * Returns a previous assigned data value for provided key.
+     *
+     * @param string $key     The key used to store the data value.
+     * @param string $default The default value returned for not found key.
+     *
+     * @return mixed The previously assigned value for the given key.
+     */
+    public function get($key, $default = "")
+    {
+        if (isset($this->_viewVars[$key])) {
+            return $this->_viewVars[$key];
+        }
+        return $default;
+    }
+
+    /**
+     * Sets a value or an array of values to the data that will be rendered.
+     *
+     * @param string|array $key   The key used to set the data value. If an
+     *  array is given it will iterate through all the elements and set the
+     *  values of the array.
+     * @param mixed        $value The value to add to set.
+     *
+     * @return self A self instance for chain method calls.
+     */
+    public function set($key, $value = null)
     {
         if (is_array($key)) {
             foreach ($key as $_key => $value) {
@@ -153,223 +184,33 @@ abstract class Controller extends Base implements EventManagerAwareInterface
     }
 
     /**
-     * Sends a redirection header and exits execution.
+     * Removes the value assigned with provided key.
      *
-     * @param array|string $url The url to redirect to.
+     * @param string $key $key The key used to set the data value.
+     *
+     * @return self A self instance for chain method calls.
      */
-    public function redirect($url)
+    public function erase($key)
     {
-        $location = $this->_request->getBasePath();
-        $location = str_replace('//', '/', "{$location}/{$url}");
-        $this->_response->setStatusCode(302);
-        $header = new GenericHeader('Location', $location);
-        $this->_response->getHeaders()->addHeader($header);
-        $this->disableRendering();
+        unset($this->_viewVars[$key]);
+        return $this;
     }
 
     /**
-     * Disables the view rendering
-     */
-    public function disableRendering()
-    {
-        $this->_renderLayout = false;
-        $this->_renderView = false;
-    }
-
-    /**
-     * Sets the values to be used in the views.
+     * Sets a value to a single key.
      *
-     * @param string $key The variable name for the view.
-     * @param mixed $value The value that will be available in the views
-     *  by the key name.
+     * @param string $key The key used to set the data value.
+     * @param mixed $value The value to set.
      *
-     * @throws View\Exception\InvalidDataKeyException
+     * @throws Exception\InvalidArgumentException
      */
-    private function _set($key, $value)
+    protected function _set($key, $value)
     {
         if (!is_string($key)) {
-            throw new View\Exception\InvalidDataKeyException(
+            throw new Exception\InvalidArgumentException(
                 "Key must be a string or a number"
             );
         }
         $this->_viewVars[$key] = $value;
-    }
-
-    /**
-     * Inject an EventManager instance
-     *
-     * @param  EventManagerInterface $eventManager
-     *
-     * @return Application
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $eventManager->setIdentifiers(
-            array(
-                __CLASS__,
-                get_class($this),
-            )
-        );
-        $this->_events = $eventManager;
-        return $this;
-    }
-
-    /**
-     * Retrieve the event manager
-     *
-     * Lazy-loads an EventManager instance if none registered.
-     *
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        if (is_null($this->_events)) {
-            $container = ContainerBuilder::buildContainer(
-                [
-                    'DefaultEventManager' => Definition::object(
-                            'Zend\EventManager\SharedEventManager'
-                        )
-                ]
-            );
-            $sharedEvents = $container->get('DefaultEventManager');
-            $events = new EventManager();
-            $events->setSharedManager($sharedEvents);
-            $this->setEventManager($events);
-        }
-        return $this->_events;
-    }
-
-    /**
-     * Renders the action and/or template view(s).
-     *
-     * @throws View\Exception\RenderingErrorException
-     * @return null|string
-     */
-    public function render()
-    {
-        $results = null;
-
-        // set flash messages
-        $this->set('flashMessages', $this->flashMessages);
-
-        $doLayout = $this->renderLayout && $this->getLayout();
-        $doView = $this->renderView && $this->getView();
-
-        try {
-            if ($doView) {
-                $results = $this->getView()
-                    ->set($this->_viewVars)
-                    ->render();
-
-            }
-
-            if ($doLayout) {
-                $results = $this->getLayout()
-                    ->set('layoutData', $results)
-                    ->set($this->_viewVars)
-                    ->render();
-            }
-
-            $this->disableRendering();
-        } catch (\Exception $exp) {
-
-            throw new View\Exception\RenderingErrorException(
-                "Error while rendering view: " . $exp->getMessage()
-            );
-        }
-        return $results;
-    }
-
-    /**
-     * Set specific view for this request
-     *
-     * @param string $view
-     *
-     * @return Controller
-     */
-    public function setView($view)
-    {
-        $name = "{$view}.{$this->extension}.twig";
-        $this->_view = new View();
-        $this->_view->file = $name;
-        return $this;
-    }
-
-    /**
-     * @return \Slick\Mvc\View
-     */
-    public function getView()
-    {
-        if (is_null($this->_view)) {
-            $name = "{$this->controllerName}/{$this->actionName}";
-            $this->setView($name);
-        }
-        return $this->_view;
-    }
-
-    /**
-     * Sets the response layout to use
-     *
-     * @param string $layout
-     * @return Controller
-     */
-    public function setLayout($layout)
-    {
-        $name = "{$layout}.{$this->extension}.twig";
-        $this->_layout = new View();
-        $this->_layout->file = $name;
-        return $this;
-    }
-
-    /**
-     * @return \Slick\Mvc\View
-     */
-    public function getLayout()
-    {
-        if (is_null($this->_layout)) {
-            $this->setLayout('layouts/default');
-        }
-        return $this->_layout;
-    }
-
-    /**
-     * Returns a value previously assigned with set() method
-     *
-     * @see Controller::set()
-     * @param string $varName
-     *
-     * @return null|mixed
-     */
-    public function get($varName)
-    {
-        $value = null;
-        if ($this->_viewVars[$varName]) {
-            $value = $this->_viewVars[$varName];
-        }
-        return $value;
-    }
-
-    /**
-     * Lazy load of flash messages
-     *
-     * @return FlashMessages
-     */
-    public function getFlashMessages()
-    {
-        if (is_null($this->_flashMessages)) {
-            $this->_flashMessages = new FlashMessages();
-        }
-        return $this->_flashMessages;
-    }
-
-    /**
-     * Sets a flash message to be displayed
-     *
-     * @param int $type
-     * @param string $message
-     */
-    public function setMessage($type, $message)
-    {
-        $this->flashMessages->set($type, $message);
     }
 }

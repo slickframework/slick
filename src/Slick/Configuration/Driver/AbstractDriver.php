@@ -36,7 +36,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
     protected $_file = null;
     
     /**
-     * Overrides base contructor to call load method
+     * Overrides base constructor to call load method
      * 
      * @param array $options
      */
@@ -66,7 +66,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
     }
 
     /**
-     * Recursive method to parse dot notation keys and retrive the value
+     * Recursive method to parse dot notation keys and retrieve the value
      * 
      * @param string $key     The key to search
      * @param mixed  $default The value if key doesn't exists
@@ -98,8 +98,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
      * @param string $key   The key used to store the value in configuration.
      * @param mixed  $value The value to store under the provided key.
      * 
-     * @return \Slick\Configuration\AbstractDriver Self instance for
-     *   method call chains.
+     * @return self instance for method call chains.
      */
     public function set($key, $value)
     {
@@ -113,8 +112,7 @@ abstract class AbstractDriver extends Base implements DriverInterface
      * @param mixed  $value The value to store under the provided key.
      * @param array  $data  The data to search
      *
-     * @return \Slick\Configuration\AbstractDriver Self instance for
-     *   method call chains.
+     * @return self instance for method call chains.
      */
     protected function _set($key, $value, &$data)
     {

@@ -12,17 +12,22 @@
 
 namespace Slick\Log;
 
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Slick\Common\Base;
-use Monolog\Logger,
-    Monolog\Handler\SyslogHandler;
+use Slick\Configuration\Configuration;
+use Slick\Log\Handler\NullHandler;
+use Slick\Configuration\Exception\FileNotFoundException;
 
 /**
  * Factory for a Monolog logger.
  *
- * The default handler is Syslog
+ * The default handler is SysLog
  *
  * @package   Slick\Log
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string $defaultLogger The default logger name
  */
 class Log extends Base
 {
@@ -31,7 +36,7 @@ class Log extends Base
      * @read
      * @var array A list of available loggers.
      */
-    protected $_loggers = array();
+    protected static $_loggers = array();
 
     /**
      * @read
@@ -46,49 +51,76 @@ class Log extends Base
     protected $_defaultLogger = 'general';
 
     /**
+     * @readwrite
+     * @var string
+     */
+    protected $_prefix;
+
+    /**
      * Gets the logger for the channel with the provided name.
-     * 
-     * @param string $name The loggers's channel name to retreive.
-     * 
-     * @return \Monolog\Logger The logger object for the given channel name.
+     *
+     * @param string $name The loggers channel name to retrieve.
+     *
+     * @return \Monolog\Logger|LoggerInterface The logger object for the given channel name.
      */
     public static function logger($name = null)
     {
-        $log = new Static();
+        $log = new static();
         return $log->getLogger($name);
     }
 
     /**
      * Gets the logger for the channel with the provided name.
-     * 
-     * @param string $name The loggers's channel name to retreive.
-     * 
+     *
+     * @param string $name The loggers channel name to retrieve.
+     *
      * @return \Monolog\Logger The logger object for the given channel name.
      */
     public function getLogger($name = null)
     {
         $name = is_null($name) ? $this->defaultLogger : $name;
-        if (!isset($this->_loggers[$name])) {
-            $this->_loggers[$name] = new Logger($name);
-            $this->_setDefaultHandlers($this->_loggers[$name]);
+        $name = "{$this->getPrefix()}$name";
+        if (!isset(static::$_loggers[$name])) {
+            static::$_loggers[$name] = new Logger($name);
+            $this->_setDefaultHandlers(static::$_loggers[$name]);
         }
-        return $this->_loggers[$name];
+        return static::$_loggers[$name];
     }
 
     /**
      * Adds the default log handlers to the provided logger.
-     * 
-     * @param MonologLogger $logger The logger object to add the handlers.
+     *
+     * @param Logger $logger The logger object to add the handlers.
      */
-    protected function _setDefaultHandlers(\Monolog\Logger $logger)
+    protected function _setDefaultHandlers(Logger &$logger)
     {
         if (empty($this->_handlers)) {
-            $socketHandler = new SyslogHandler('myfacility', 'local6');
+            $socketHandler = new NullHandler();
             array_push($this->_handlers, $socketHandler);
         }
 
         foreach ($this->_handlers as $handler) {
             $logger->pushHandler($handler);
         }
+    }
+
+    /**
+     * Returns the logger prefix to use
+     *
+     * @return mixed|string
+     */
+    public function getPrefix()
+    {
+        if (is_null($this->_prefix)) {
+            $hostName = gethostname();
+            try {
+                $this->_prefix = Configuration::get('config')
+                    ->get('logger.prefix', $hostName);
+            } catch(FileNotFoundException $exp) {
+                $this->_prefix = $hostName;
+            }
+
+        }
+        return $this->_prefix;
     }
 }

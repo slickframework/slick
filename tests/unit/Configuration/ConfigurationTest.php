@@ -15,6 +15,7 @@ namespace Configuration;
 use Codeception\Util\Stub;
 use Slick\Configuration\Configuration,
     Slick\Configuration\Driver\AbstractDriver;
+use Slick\Configuration\Driver\Php;
 
 /**
  * Configuration test case
@@ -112,6 +113,28 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     }
 
     /**
+     * Set get and set methods
+     * @test
+     */
+    public function gettingAndSettingValuesForPhp()
+    {
+        $config = new Configuration(
+            array(
+                'class' => 'php',
+                'options' => array(
+                    'file' => __DIR__ . "/test.php"
+                )
+            )
+        );
+
+        $driver = $config->initialize();
+        $this->assertEquals(5, $driver->get('first_section.five'));
+        $this->assertFalse($driver->get('first_section.other', false));
+        $this->assertInstanceOf('Slick\Configuration\Driver\Php', $driver->set('first_section.other', true));
+        $this->assertTrue($driver->get('first_section.other', false));
+    }
+
+    /**
      * Create a custom driver
      * @test
      * @expectedException \Slick\Configuration\Exception\InvalidArgumentException
@@ -135,8 +158,32 @@ class ConfigurationTest extends \Codeception\TestCase\Test
     public function getFromFactory()
     {
         Configuration::addPath(__DIR__);
-        $cfg = Configuration::get('test');
+        $cfg = Configuration::get('test', 'ini');
         $this->assertInstanceOf('Slick\Configuration\Driver\Ini', $cfg);
+        $cfg = Configuration::get('unknown');
+    }
+
+    /**
+     * Parse error on php array configuration
+     * @test
+     * @expectedException \Slick\Configuration\Exception\ParserErrorException
+     */
+    public function phpParseError()
+    {
+        $cfg = new Php();
+
+    }
+
+    /**
+     * Test factory static method
+     * @test
+     * @expectedException \Slick\Configuration\Exception\FileNotFoundException
+     */
+    public function getPhpFromFactory()
+    {
+        Configuration::addPath(__DIR__);
+        $cfg = Configuration::get('test');
+        $this->assertInstanceOf('Slick\Configuration\Driver\Php', $cfg);
         $cfg = Configuration::get('unknown');
     }
 

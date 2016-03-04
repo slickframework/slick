@@ -6,6 +6,14 @@ robust and cool to work with. The goal was to create a PHP framework
 that could be used to develop web applications with agile methodologies
 like SCRUM or KANBAN in mind.
 
+**Current build status**
+
+[![Build Status](https://travis-ci.org/slickframework/slick.svg?branch=feature/dba)](https://travis-ci.org/slickframework/slick)
+[![Coverage Status](https://coveralls.io/repos/slickframework/slick/badge.png?branch=feature%2Fdba)](https://coveralls.io/r/slickframework/slick?branch=feature%2Fdba)[![Latest Stable Version](https://poser.pugx.org/slick/slick/v/stable.svg)](https://packagist.org/packages/slick/slick)
+[![Total Downloads](https://poser.pugx.org/slick/slick/downloads.svg)](https://packagist.org/packages/slick/slick)
+[![Latest Unstable Version](https://poser.pugx.org/slick/slick/v/unstable.svg)](https://packagist.org/packages/slick/slick)
+[![License](https://poser.pugx.org/slick/slick/license.svg)](https://packagist.org/packages/slick/slick)
+
 **Features**
 
 > -   Cache management

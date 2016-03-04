@@ -5,14 +5,13 @@
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
- * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Cache\Driver;
 
-use Memcache;
+use Memcached as SplMemcached;
 use Slick\Cache\DriverInterface;
 use Slick\Cache\Exception\ServiceException;
 
@@ -21,12 +20,19 @@ use Slick\Cache\Exception\ServiceException;
  *
  * @package   Slick\Cache\Driver
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property-read SplMemcached $service A Memcache instance
+ * @property string $host Memcached host
+ * @property string $port Memcached port
+ * @property boolean $connected Service connection state
+ *
+ * @method boolean isConnected() Returns service connection state
  */
 class Memcached extends AbstractDriver
 {
     /**
      * @read
-     * @var Memcache A Memcache instance.
+     * @var SplMemcached A Memcache instance.
      */
     protected $_service;
 
@@ -76,11 +82,12 @@ class Memcached extends AbstractDriver
      */
     public function connect()
     {
-        try {
-            $this->_service = new Memcache();
-            $this->_service->connect($this->_host, $this->_port);
+        $this->_service = new SplMemcached();
+        $this->_service->addServer($this->_host, $this->_port);
+        $stats = $this->_service->getStats();
+        if (isset($stats[$this->_host.":".$this->_port])) {
             $this->_connected = true;
-        } catch (\Exception $e) {
+        } else {
             throw new ServiceException(
                 "Unable to connect to Memcached service"
             );
@@ -92,7 +99,7 @@ class Memcached extends AbstractDriver
     /**
      * Lazy loading of Memcached service.
      *
-     * @return Memcache
+     * @return SplMemcached
      */
     public function getService()
     {
@@ -102,13 +109,14 @@ class Memcached extends AbstractDriver
     /**
      * Disconnects the Memcached service.
      *
-     * @return Memcache A self instance for chaining
+     * @return SplMemcached A self instance for chaining
      *   method calls.
      */
     public function disconnect()
     {
         if ($this->_isValidService()) {
-            $this->getService()->close();
+            $this->getService()->quit();
+            $this->_service = null;
             $this->_connected = false;
         }
 
@@ -170,7 +178,6 @@ class Memcached extends AbstractDriver
         $this->getService()->set(
             $this->_prefix.$key,
             $value,
-            MEMCACHE_COMPRESSED, 
             $duration
         );
 
@@ -203,7 +210,7 @@ class Memcached extends AbstractDriver
         }
 
         $keys = $this->getKeys($pattern);
-
+        $this->getService()->delete($this->_prefix.$pattern);
         foreach ($keys as $key) {
             $this->getService()->delete($this->_prefix.$key);
             $this->_removeKey($key);
@@ -216,7 +223,7 @@ class Memcached extends AbstractDriver
     /**
      * Flushes all values controlled by this cache driver
      *
-     * @return DriverInterface A self instance for chaining method calls.
+     * @return Memcached A self instance for chaining method calls.
      *
      * @throws ServiceException If you are trying to set a cache
      *   value without connecting to memcached service first.
@@ -241,7 +248,7 @@ class Memcached extends AbstractDriver
     protected function _isValidService()
     {
         $isEmpty = empty($this->_service);
-        $isInstance = $this->_service instanceof Memcache;
+        $isInstance = $this->_service instanceof SplMemcached;
 
         if ($this->_connected && $isInstance && !$isEmpty) {
             return true;
@@ -257,10 +264,6 @@ class Memcached extends AbstractDriver
      */
     public function __destruct()
     {
-        try {
-            $this->disconnect();
-        } catch (\ErrorException $exp) {
-            // TODO: Do a better exist
-        }
+        $this->disconnect();
     }
 }

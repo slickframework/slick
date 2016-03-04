@@ -7,299 +7,121 @@
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Orm;
 
-use Codeception\TestCase\Test;
-use Codeception\Util\Stub;
-use Database\MyOwnConnector;
 use Slick\Configuration\Configuration;
-use Slick\Database\Connector\SQLite;
-use Slick\Database\Query\Query;
+use Slick\Database\Adapter\SqliteAdapter;
+use Slick\Database\Sql\Ddl\Column\Integer;
+use Slick\Database\Sql\Ddl\Column\Text;
+use Slick\Database\Sql\Ddl\CreateTable;
+use Slick\Database\Sql\Dialect\Sqlite;
+use Slick\Database\Sql;
 use Slick\Di\ContainerBuilder;
 use Slick\Di\Definition;
 use Slick\Orm\Entity;
+use Slick\Orm\Events\Select;
+use Zend\EventManager\SharedEventManager;
 
 /**
- * Entity test case
+ *  Entity test case
  *
- * @package   Test\Session
+ * @package   Test\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
-class EntityTest extends Test
+class EntityTest extends \Codeception\TestCase\Test
 {
 
-    /**
-     * @var User
-     */
-    protected $_user;
-
-    /**
-     * Prepare entity
-     */
     protected function _before()
     {
         parent::_before();
         Configuration::addPath(__DIR__);
-        $connector = MyTestConnector::getInstance();
 
-        $container = ContainerBuilder::buildContainer([
-            'db_default' => $connector
-        ]);
+        $adapter = new SqliteAdapter(['file' => 'tmp.db']);
+        $createTable = new CreateTable('models');
+        $createTable->setAdapter($adapter);
+        $createTable->addColumn(new Integer('id', ['autoIncrement' => true]))
+            ->addColumn(new Text('name'));
+        $createTable->execute();
 
-        $this->_user = new User();
-        $this->_user->setContainer($container);
-
+        Sql::createSql($adapter)->insert('models')->set(['name' => 'PHP'])->execute();
+        //$adapter->execute("PRAGMA integrity_check");
     }
 
-    /**
-     * clean up after each test
-     */
     protected function _after()
     {
-        unset($this->_user);
-        parent::_after();
+        $adapter = new SqliteAdapter(['file' => 'tmp.db']);
+        $drop = new Sql\Ddl\DropTable('models');
+        $drop->setAdapter($adapter)->execute();
+        if (file_exists('tmp.db')) {
+            unlink('tmp.db');
+        }
     }
 
-    /**
-     * Crate an entity and check default values
-     * @test
-     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
-     */
-    public function crateEntity()
-    {
-        $this->assertEquals('User', $this->_user->getAlias());
-        $this->assertEquals('users', $this->_user->getTable());
-        $this->assertEquals('id', $this->_user->primaryKey);
-        $this->assertInstanceOf('Slick\Database\Connector\SQLite', $this->_user->connector);
-        $this->assertInstanceOf('Slick\Database\Query\QueryInterface', $this->_user->query());
-        $this->assertInstanceOf('Slick\Di\Container', $this->_user->getContainer());
-        new Post();
-    }
 
     /**
-     * Gets the column definition for this entity
+     * Create an entity
      * @test
      */
-    public function getColumnDefinition()
+    public function createEntity()
     {
-        $columns = $this->_user->getColumns();
-        $this->assertTrue($columns->hasColumn('id'));
-        $this->assertTrue($columns->hasColumn('name'));
-        $this->assertTrue($columns['id']->primaryKey);
-        $this->assertEquals('int', $columns['id']->type);
-        $this->assertEquals('big', $columns['id']->size);
-        $this->assertTrue($columns['id']->unsigned);
-        $this->assertEquals('_id', $columns['id']->raw);
-        $this->assertFalse($columns['id']->index);
+        $model = new Model();
+        $this->assertEquals('models', $model->getTableName());
 
-        $this->assertEquals('required' ,$columns['name']->validate->value);
-        $this->assertEquals('text' ,$columns['name']->type);
+        $adapter = $model->getAdapter();
+        $this->assertInstanceOf('Slick\Database\Adapter\AdapterInterface', $adapter);
 
+        $this->assertSame($adapter, $model->getAdapter());
 
-    }
+        $container = ContainerBuilder::buildContainer([
+            'sharedEventManager' => Definition::object(
+                    'Zend\EventManager\SharedEventManager'
+                )
+        ]);
 
-    /**
-     * Retrieves the entity by providing the primary key id
-     * @test
-     */
-    public function getEntityById()
-    {
-        MyStatement::$isEmpty = false;
-        $user = User::get(1);
-        $this->assertInstanceOf('\Orm\User', $user);
-        $this->assertEquals('Jon Doe', $user->name);
-        MyStatement::$isEmpty = true;
-        $nullUser = User::get(9);
-        $this->assertNull($nullUser);
-    }
+        /** @var SharedEventManager $eventManager */
+        $eventManager = $container->get('sharedEventManager');
 
-    /**
-     * Run count on table
-     * @test
-     */
-    public function getEntityCount()
-    {
-        MyStatement::$isEmpty = false;
-        MyTestConnector::$isCount = true;
-        $rows = User::count();
-        MyTestConnector::$isCount = false;
-        $this->assertEquals(
-            'SELECT COUNT(*) AS totalRows FROM users',
-            MyTestConnector::$lastSql
-        );
-        $this->assertEquals(5, $rows);
-    }
+        $eventManager->attach('Orm\Model', Select::BEFORE_SELECT, function(Select $event) {
+            $this->assertInstanceOf('Slick\Database\Sql\Select', $event->sqlQuery);
+            $this->assertEquals(Select::GET, $event->action);
+        });
 
-    /**
-     * Retrieve the first element of a query
-     * @test
-     */
-    public function getFirstEntity()
-    {
-        $sqlGetFirst = <<<sql
-SELECT name, ver FROM users
-WHERE name LIKE ?
-ORDER BY name DESC
-LIMIT 1
-sql;
-        MyStatement::$isEmpty = false;
-        $user = User::first(
-            [
-                'conditions' => ['name LIKE ?' => '%on%'],
-                'fields' => ['name', 'ver'],
-                'order' => 'name DESC'
-            ]
-        );
-        $this->assertInstanceOf('\Orm\User', $user);
-        $this->assertEquals('Jon Doe', $user->name);
-        $this->assertEquals($sqlGetFirst, MyTestConnector::$lastSql);
+        $eventManager->attach('Orm\Model', Select::AFTER_SELECT, function(select $event) {
+            $this->assertInstanceOf('Slick\Database\Sql\Select', $event->sqlQuery);
+            $this->assertEquals(
+                [
+                    'id' => 1,
+                    'name' => 'PHP'
+                ],
+                $event->data
+            );
+        });
 
-        MyStatement::$isEmpty = true;
-        $nullUser = User::first();
-        $this->assertNull($nullUser);
+        $container->set('sharedEventManager', $eventManager);
 
-    }
-
-    /**
-     * Retrieves all data from an entity
-     * @test
-     */
-    public function retrieveAllRows()
-    {
-        MyStatement::$isEmpty = false;
-        /** @var User[] $users */
-       $users = User::all(
-            [
-                'conditions' => ['name LIKE ?' => '%on%'],
-                'fields' => ['name', 'ver'],
-                'order' => 'name DESC',
-                'limit' => 10
-            ]
-        );
-
-        $this->assertInstanceOf('Slick\Database\RecordList', $users);
-        $this->assertTrue(count($users) > 0);
-        $this->assertInstanceOf('Orm\User', $users[0]);
-        $this->assertEquals('Ane Doe', $users[1]->name);
-    }
-
-    /**
-     * Retrieve an empty record list
-     * @test
-     */
-    public function getEmptyRecordList()
-    {
-        MyStatement::$isEmpty = true;
-        $emptyList = User::all();
-        $this->assertInstanceOf('Slick\Database\RecordList', $emptyList);
-        $this->assertFalse(count($emptyList) > 0);
-    }
-
-    /**
-     * Use load method of entity
-     * @test
-     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
-     */
-    public function loadRow()
-    {
-        MyStatement::$isEmpty = false;
-        $user = new User();
-        $user->setId(1)->load();
-        $this->assertInstanceOf('\Orm\User', $user);
-        $this->assertEquals('Jon Doe', $user->name);
-
-        $invalid = new User();
-        $invalid->load();
-
-    }
-
-    /**
-     * Delete a single row
-     * @test
-     * @expectedException \Slick\Orm\Exception\PrimaryKeyException
-     */
-    public function deleteRow()
-    {
-        MyStatement::$isEmpty = false;
-        $user = User::get(1);
-        MyStatement::$isEmpty = true;
-        $this->assertTrue($user->delete());
-        $sql = <<<SQL
-DELETE FROM users
-WHERE id = ?
-SQL;
-        $this->assertEquals($sql, MyTestConnector::$lastSql);
-        $emptyUser = new User();
-        $emptyUser->delete();
-    }
-
-    /**
-     * Save data (insert)
-     * @test
-     */
-    public function saveDataInsert()
-    {
-        $data = ['name' => 'test user'];
-        $user = new User();
-        $user->save();
-        $insertUser = <<<SQL
-INSERT INTO users (`name`)
-VALUES (:name)
-SQL;
-        $this->assertEquals($insertUser, MyTestConnector::$lastSql);
-
-        $this->assertTrue($user->save(['name' => 'other user', 'ver' => 1]));
-
-        $insertUser = <<<SQL
-INSERT INTO users (`name`, `ver`)
-VALUES (:name, :ver)
-SQL;
-        $this->assertEquals($insertUser, MyTestConnector::$lastSql);
-    }
-
-    /**
-     * Save data (update)
-     * @test
-     */
-    public function saveDataUpdate()
-    {
-        MyStatement::$isEmpty = false;
-        $user = User::get(1);
-        MyStatement::$isEmpty = true;
-        $user->name = 'other';
-        $this->assertTrue($user->save());
-        $updated = <<<SQL
-UPDATE users SET `name`=:name
-WHERE id = :id
-SQL;
-        $this->assertEquals($updated, MyTestConnector::$lastSql);
-
-        $this->assertTrue($user->save(['id' => 1, 'var' => 'Updated name']));
-
-        $updated = <<<SQL
-UPDATE users SET `var`=:var
-WHERE id = :id
-SQL;
-        $this->assertEquals($updated, MyTestConnector::$lastSql);
+        /** @var Model $model */
+        $model = Model::get(1);
+        $this->assertInstanceOf('Orm\Model', $model);
+        $this->assertNull(Model::get(100));
+        $this->assertEquals('PHP', $model->name);
     }
 
 }
 
-
-
-
 /**
- * Class User
+ * Class Model
  * @package Orm
+ *
+ * @property integer $id
+ * @property string $name
  */
-class User extends Entity
+class Model extends Entity
 {
 
     /**
-     * @column type=int, size=big, unsigned, primary
      * @readwrite
      * @var integer
      */
@@ -307,146 +129,19 @@ class User extends Entity
 
     /**
      * @readwrite
-     * @column type=text, length=255
-     * @validate required
      * @var string
      */
     protected $_name;
 
-
-}
-
-class Post extends Entity
-{
     /**
      * @readwrite
-     * @column type=text, length=255
-     * @validate required
      * @var string
      */
-    protected $_name;
-}
-
-/**
- * Mock connector for entity test
- */
-class MyTestConnector extends SQLite
-{
-
-    public static $lastSql = null;
-
-    public static $isCount = false;
+    protected $_configFile = 'orm-database';
 
     /**
-     * Returns the *Singleton* instance of this class.
-     *
-     * @staticvar SingletonInterface $instance The *Singleton* instances
-     *  of this class.
-     *
-     * @param array $options The list of property values of this instance.
-     *
-     * @return \Slick\Database\Connector\SQLite The *Singleton* instance.
+     * @readwrite
+     * @var string
      */
-    public static function getInstance($options = array())
-    {
-        static $instance;
-
-        if (is_null($instance)) {
-            $instance = array();
-        }
-
-        $key = md5(serialize($options));
-
-        if (
-            !isset($instance[$key]) ||
-            !is_a(
-                $instance[$key],
-                'Slick\Database\Connector\ConnectorInterface'
-            )
-        ) {
-            $instance[$key] = new MyTestConnector($options);
-        }
-        return $instance[$key];
-    }
-
-    public function query($sql = null)
-    {
-        return new MyTestQuery(
-            array(
-                'dialect' => 'SQLite',
-                'connector' => $this,
-                'sql' => $sql
-            )
-        );
-    }
-
-    public static $result = 'all';
-
-    public static $resultSet = [
-        [
-            'id' => '1',
-            'name' => 'Jon Doe',
-            'ver' => '2'
-        ],
-        [
-            'id' => '2',
-            'name' => 'Ane Doe',
-            'ver' => '2'
-        ]
-    ];
-
-    public function execute($sql)
-    {
-
-        return self::$result;
-    }
-
-    public function prepare($sql)
-    {
-        self::$lastSql = $sql;
-        return new MyStatement();
-    }
-
-}
-
-/**
- * Mock query for entity test
- */
-class MyTestQuery extends Query
-{
-
-}
-
-class MyStatement
-{
-    public static $isEmpty = false;
-
-    public function execute($param = [])
-    {
-        return true;
-    }
-
-    public function count()
-    {
-        if (self::$isEmpty)
-            return 0;
-        return 2;
-    }
-
-    public function columnCount()
-    {
-        if (self::$isEmpty)
-            return 0;
-        return 2;
-    }
-
-    public function fetchAll($mode = 0)
-    {
-        if (self::$isEmpty)
-            return [];
-        if (MyTestConnector::$isCount) {
-            return [['totalRows' => 5]];
-        }
-        return MyTestConnector::$resultSet;
-    }
+    protected $_configName = 'unit-test';
 }

@@ -13,6 +13,7 @@
 namespace Template\Engine;
 
 use Codeception\Util\Stub;
+use Slick\Configuration\Configuration;
 use Slick\Template\Engine\Twig;
 
 /**
@@ -26,13 +27,14 @@ class TwigTest extends \Codeception\TestCase\Test
     /**
      * Setting and getting template output
      * @test
-     * @expectedException Slick\Template\Exception\ParserException
+     * @expectedException \Slick\Template\Exception\ParserException
      */
     public function setGetTemplateOutput()
     {
         $paths = array(
             dirname(dirname(dirname(__DIR__))) . '/app/View'
         );
+        Configuration::addPath(dirname(dirname(dirname(__DIR__))) . '/app/Configuration');
         $engine = new Twig(
             array(
                 'paths' => $paths
@@ -44,6 +46,16 @@ class TwigTest extends \Codeception\TestCase\Test
         $this->assertEquals($template, $engine->getSource());
         $expected = '<p>test</p>';
         $this->assertEquals($expected, $engine->process(array('var' => 'test')));
+
+
+        $expected = <<<EOT
+test
+/css/test.css
+/js/test.js
+/test.js
+EOT;
+
+        $this->assertEquals($expected, $engine->parse('another-template.twig')->process());
 
         $engine->parse('bas.html.twig');
         $engine->process();

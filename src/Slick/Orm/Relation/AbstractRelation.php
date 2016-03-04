@@ -1,34 +1,56 @@
 <?php
+
 /**
- * AbstractRelation
+ * Abstract relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm\Relation;
 
-use Slick\Common\Base;
 use Slick\Orm\Entity;
-use Slick\Orm\Exception;
+use Slick\Common\Base;
+use Slick\Di\Container;
+use Slick\Di\Definition;
+use Slick\Di\ContainerBuilder;
+use Slick\Orm\Exception\InvalidArgumentException;
+use Slick\Orm\RelationInterface;
+use Slick\Common\Inspector\Annotation;
 
 /**
- * AbstractRelation
+ * Abstract relation
  *
- * @package   Slick\Orm\Entity
+ * @package   Slick\Orm\Relation
  * @author    Filipe Silva <silvam.filipe@gmail.com>
+ *
+ * @property string|array $conditions Extra load conditions.
+ * @property bool $singleResult
+ *
+ * @method bool isSingleResult() Returns true if this relation returns
+ * a single result
+ * @method AbstractRelation setContainer(Container $container)
+ * Sets dependency container
+ * @method AbstractRelation setConditions($conditions) Sets an extra
+ * conditions when retrieving the related records.
+ * @method string|array getConditions() Return current load conditions
  */
 abstract class AbstractRelation extends Base implements RelationInterface
 {
-
     /**
      * @readwrite
      * @var Entity
      */
     protected $_entity;
+
+    /**
+     * @readwrite
+     * @var Entity
+     */
+    protected $_relatedEntity;
 
     /**
      * @readwrite
@@ -38,30 +60,36 @@ abstract class AbstractRelation extends Base implements RelationInterface
 
     /**
      * @readwrite
-     * @var boolean
-     */
-    protected $_dependent;
-
-    /**
-     * @readwrite
-     * @var Entity
-     */
-    protected $_related;
-
-    /**
-     * @readwrite
      * @var string
      */
     protected $_propertyName;
 
     /**
      * @readwrite
-     * @var int The result index
+     * @var bool
      */
-    protected $_index = -1;
+    protected $_dependent = true;
 
     /**
-     * Returns parent entity for this relation
+     * @readwrite
+     * @var Container
+     */
+    protected $_container;
+
+    /**
+     * @readwrite
+     * @var string|array
+     */
+    protected $_conditions;
+
+    /**
+     * @readwrite
+     * @var bool
+     */
+    protected $_singleResult = true;
+
+    /**
+     * Returns the entity that defines the relation
      *
      * @return Entity
      */
@@ -71,11 +99,11 @@ abstract class AbstractRelation extends Base implements RelationInterface
     }
 
     /**
-     * Sets parent entity
+     * Sets the entity that defines the relation
      *
      * @param Entity $entity
      *
-     * @return AbstractRelation
+     * @return self
      */
     public function setEntity(Entity $entity)
     {
@@ -84,11 +112,37 @@ abstract class AbstractRelation extends Base implements RelationInterface
     }
 
     /**
-     * Sets relation foreign key name
+     * Returns the entity that is related with the one defining the relation
      *
-     * @param string $foreignKey Foreign key name
+     * @return string
+     */
+    public function getRelatedEntity()
+    {
+        return $this->_relatedEntity;
+    }
+
+    /**
+     * Sets the entity that is related with the one defining the relation
      *
-     * @return AbstractRelation
+     * @param string $entity
+     * @return self
+     */
+    public function setRelatedEntity($entity)
+    {
+        if (!class_exists($entity)) {
+            throw new InvalidArgumentException(
+                "The entity class '{$entity}' does not exists."
+            );
+        }
+        $this->_relatedEntity = $entity;
+        return $this;
+    }
+
+    /**
+     * Sets the foreign key for this relation
+     *
+     * @param string $foreignKey
+     * @return self
      */
     public function setForeignKey($foreignKey)
     {
@@ -97,11 +151,24 @@ abstract class AbstractRelation extends Base implements RelationInterface
     }
 
     /**
-     * Set relation entity dependency
+     * Returns the foreign key field name for this relation
      *
-     * @param boolean $dependent
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        if (is_null($this->_foreignKey)) {
+            $this->setForeignKey($this->_guessForeignKey());
+        }
+        return $this->_foreignKey;
+    }
+
+    /**
+     * Sets dependency on delete operations
      *
-     * @return AbstractRelation
+     * @param bool $dependent
+     *
+     * @return self
      */
     public function setDependent($dependent = true)
     {
@@ -110,52 +177,13 @@ abstract class AbstractRelation extends Base implements RelationInterface
     }
 
     /**
-     * Return relation dependency state
+     * Returns the dependency flag for this relation
      *
-     * @return boolean
+     * @return bool
      */
     public function isDependent()
     {
         return $this->_dependent;
-    }
-
-    /**
-     * Sets the related entity
-     *
-     * @param string|Entity $related
-     *
-     * @return AbstractRelation
-     */
-    public function setRelated($related)
-    {
-        $this->_related = $related;
-        return $this;
-    }
-
-    /**
-     * Returns related entity
-     *
-     * @return Entity
-     */
-    public function getRelated()
-    {
-        if (!is_a($this->_related, 'Slick\Orm\Entity')) {
-            $this->_related = self::_createEntity($this->_related);
-        }
-        return $this->_related;
-    }
-
-    /**
-     * Creates an entity object from the provided class name
-     *
-     * @param string $className Entity class name
-     *
-     * @return Entity
-     */
-    protected static function _createEntity($className)
-    {
-        $related = new $className();
-        return $related;
     }
 
     /**
@@ -172,11 +200,70 @@ abstract class AbstractRelation extends Base implements RelationInterface
      * Sets the property name that holds this relation
      *
      * @param string $name Property name to set
-     * @return AbstractRelation
+     *
+     * @return self
      */
     public function setPropertyName($name)
     {
         $this->_propertyName = $name;
         return $this;
+    }
+
+    /**
+     * Tries to guess the foreign key for this relation
+     *
+     * @return string
+     */
+    abstract protected function _guessForeignKey();
+
+    /**
+     * Returns the dependency container
+     *
+     * @return Container
+     */
+    public function getContainer()
+    {
+        if (is_null($this->_container)) {
+            $container = ContainerBuilder::buildContainer([
+                'sharedEventManager' => Definition::object(
+                        'Zend\EventManager\SharedEventManager'
+                    )
+            ]);
+            $this->setContainer($container);
+        }
+        return $this->_container;
+    }
+
+    /**
+     * Factory method to create a relation based on a column
+     * (annotation) object
+     *
+     * @param Annotation $annotation
+     * @param Entity $entity
+     * @param string $property
+     *
+     * @return self
+     */
+    public static function create(
+        Annotation $annotation, Entity $entity, $property)
+    {
+        $parameters = $annotation->getParameters();
+        unset ($parameters['_raw']);
+
+        $related = $annotation->getValue();
+        if (!class_exists($related)) {
+            $parentClass = $entity->getClassName();
+            throw new InvalidArgumentException(
+                "Unknown class defined in {$parentClass}::_{$property}. ".
+                "Class {$related} does not exists."
+            );
+        }
+
+        /** @var BelongsTo $relation */
+        $relation = new static($parameters);
+        $relation->setEntity($entity)->setPropertyName($property);
+
+        $relation->setRelatedEntity($related);
+        return $relation;
     }
 }

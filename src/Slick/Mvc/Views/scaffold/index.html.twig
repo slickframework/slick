@@ -1,0 +1,75 @@
+{% import "elements/table-record.actions.html.twig" as tableRecord %}
+<div class="entity-index">
+    <h2 class="section-header">
+        <i class="icon-list-alt"></i>
+        {{ modelPlural|capitalize }}
+    </h2>
+
+    {% include 'scaffold/quick-links.twig' with {"page": "index"} %}
+
+    <div class="panel panel-default">
+        {% include 'elements/panel-heading.twig' %}
+        <div class="panel-body">
+            {% if records|length > 0 %}
+            <table class="table table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                            {% if loop.first %}
+                            <th>
+                                {{ column.field|capitalize }}
+                            </th>
+                            {% else %}
+                            <th class="hidden-xs">
+                                {{ column.field|capitalize }}
+                            </th>
+                            {% endif %}
+                        {% endfor %}
+                        {% for relation in descriptor.getRelations if relation.isSingleResult %}
+                            <th class="hidden-xs">
+                                {{ relation.getPropertyName|capitalize }}
+                            </th>
+                        {% endfor %}
+                        <th class="table-actions-column">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        {% for column in descriptor.getColumns if not column.getParameter('primaryKey')%}
+                        {% if loop.first %}
+                        <td>
+                            <a href="{{ url(basePath~'/'~modelPlural~'/show/'~attribute(record, descriptor.getPrimaryKey)) }}">
+                            {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw}}
+                            </a>
+                        </td>
+                        {% else %}
+                        <td class="hidden-xs">
+                            {{ attribute(record, column.field)|truncate(150, true)|wordwrap(80, '<br>')|raw }}
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                        {% for relation in descriptor.getRelations if relation.isSingleResult %}
+                        <td class="hidden-xs">
+                            {{ attribute(record, relation.getPropertyName) }}
+                        </td>
+                        {% endfor %}
+                        <td class="table-actions-column">{{ tableRecord.getActions(record, basePath~'/'~modelPlural, modelSingular) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                There are no {{ modelPlural }} to show up here. Click the <a href="{{ url(basePath~'/'~modelPlural~"/add")}}">Add {{ modelSingular }}</a> button to add a new {{ modelSingular }}.
+            {% endif %}
+        </div>
+        <div class="panel-footer">
+            {% include "elements/pagination.html.twig" %}
+        </div>
+    </div>
+</div>
+{% for record in records %}
+    {{ tableRecord.createDialog(record, basePath~'/'~modelPlural, modelSingular) }}
+{% endfor %}

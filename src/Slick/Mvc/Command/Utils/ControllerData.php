@@ -12,8 +12,11 @@
 
 namespace Slick\Mvc\Command\Utils;
 
-use Slick\Common\Base,
-    Slick\Utility\Text;
+use Slick\Common\Base;
+use Slick\Mvc\Model\Descriptor;
+use Slick\Mvc\Scaffold\Form;
+use Slick\Orm\Entity\Manager;
+use Slick\Utility\Text;
 
 /**
  * Controller meta data
@@ -22,6 +25,10 @@ use Slick\Common\Base,
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
  * @property string $modelName
+ * @property string $nameSpace
+ * @property string $controllerName
+ *
+ * @method string getModelName()
  */
 class ControllerData extends Base
 {
@@ -42,6 +49,24 @@ class ControllerData extends Base
      * @var string
      */
     protected $_modelName;
+
+    /**
+     * @readwrite
+     * @var Descriptor
+     */
+    protected $_descriptor;
+
+    /**
+     * @readwrite
+     * @var Form
+     */
+    protected $_form;
+
+    /**
+     * @readwrite
+     * @var string
+     */
+    protected $_modelPlural;
 
     /**
      * Sets controller namespace
@@ -66,7 +91,7 @@ class ControllerData extends Base
     public function setControllerName($modelName)
     {
         $name = end(explode('/', $modelName));
-        $this->_controllerName = ucfirst(Text::plural($name));
+        $this->_controllerName = ucfirst(Text::plural(lcfirst($name)));
         return $this;
     }
 
@@ -90,6 +115,7 @@ class ControllerData extends Base
      */
     public function getControllerSimpleName()
     {
+
         return end(explode('\\', $this->controllerName));
     }
 
@@ -110,7 +136,15 @@ class ControllerData extends Base
      */
     public function getModelPlural()
     {
-        return strtolower(Text::plural($this->getModelSimpleName()));
+        if (is_null($this->_modelPlural)) {
+            $name = $this->getModelSimpleName();
+            $names = Text::camelCaseToSeparator($name, '#');
+            $names = explode('#', $names);
+            $last = ucfirst(Text::plural(strtolower(array_pop($names))));
+            $names[] = $last;
+            $this->_modelPlural = lcfirst(implode('', $names));
+        }
+        return $this->_modelPlural;
     }
 
     /**
@@ -120,7 +154,7 @@ class ControllerData extends Base
      */
     public function getModelSingular()
     {
-        return strtolower($this->getModelSimpleName());
+        return lcfirst($this->getModelSimpleName());
     }
 
     /**
@@ -132,4 +166,52 @@ class ControllerData extends Base
     {
         return $this->getModelSimpleName() .'Form';
     }
-} 
+
+    /**
+     * Returns the model descriptor object
+     *
+     * @return Descriptor
+     */
+    public function getDescriptor()
+    {
+        if (is_null($this->_descriptor)) {
+            $this->_descriptor = new Descriptor(
+                [
+                    'descriptor' => Manager::getInstance()
+                        ->get($this->getModelName())
+                ]
+            );
+        }
+        return $this->_descriptor;
+    }
+
+    /**
+     * Returns the default form for current controller
+     *
+     * @return int|Form|string
+     */
+    public function getForm()
+    {
+        if (is_null($this->_form)) {
+            $this->_form = new Form("scaffold", $this->getDescriptor());
+        }
+        return $this->_form;
+    }
+
+    /**
+     * Returns the model human name
+     *
+     * @return string
+     */
+    public function getModelHumanName()
+    {
+        $name = $this->getModelSimpleName();
+        return ucfirst(strtolower(Text::camelCaseToSeparator($name, ' ')));
+    }
+
+    public function getModelHumanNamePlural()
+    {
+        $name = $this->getModelPlural();
+        return ucfirst(strtolower(Text::camelCaseToSeparator($name, ' ')));
+    }
+}

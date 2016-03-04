@@ -1,117 +1,120 @@
 <?php
+
 /**
- * Entity
+ * ORM Entity
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Orm;
 
-use Slick\Common\EventManagerMethods;
 use Slick\Database\RecordList;
-use Slick\Orm\Entity\Column;
-use Slick\Orm\Exception;
-use Zend\EventManager\EventManagerAwareInterface;
-use Serializable;
+use Slick\Database\Sql;
+use Slick\Orm\Events\Delete;
+use Slick\Orm\Events\Save;
+use Slick\Utility\Text;
+use Slick\Di\Definition;
+use Slick\Database\Adapter;
+use Slick\Orm\Events\Select;
+use Slick\Orm\Entity\Manager;
+use Slick\Di\ContainerInterface;
+use Slick\Orm\Entity\AbstractEntity;
+use Slick\Database\Adapter\AdapterInterface;
 
 /**
- * Entity
+ * ORM Entity
  *
  * @package   Slick\Orm
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property string primaryKey
+ * @property string $tableName Database table name
+ *
+ * @method Entity setTableName(string $name) Sets database table name
+ *
  */
 class Entity extends AbstractEntity
-    implements EntityInterface, EventManagerAwareInterface, Serializable
 {
 
     /**
-     * Methods for entity serialization and unserialization
-     */
-    use EntitySerialization;
-
-    /**
      * @readwrite
-     * @var array Default query options
+     * @var string
      */
-    protected $_options = [
-        'conditions' => [],
-        'fields' => ['*'],
-        'order' => null,
-        'limit' => null,
-        'page' => 0
-    ];
+    protected $_tableName;
 
     /**
-     * Default implementation for EventManagerAwareInterface interface
+     * Returns entity table name. If no name was give it returns the plural
+     * of the entity class name
+     *
+     * @return string
      */
-    use EventManagerMethods;
+    public function getTableName()
+    {
+        if (is_null($this->_tableName)) {
+            $parts = explode('\\', $this->getClassName());
+            $name = end($parts);
+            $this->_tableName = Text::plural(strtolower($name));
+        }
+        return $this->_tableName;
+    }
 
     /**
-     * Retrieves the record with the provided primary key
+     * Gets the record with the provided primary key
      *
-     * @param int $key The primary key id
+     * @param string|integer $id The primary key value
      *
-     * @return Entity An entity object
+     * @return null|self
      */
-    public static function get($key)
+    public static function get($id)
     {
         /** @var Entity $entity */
         $entity = new static();
-        $className = get_called_class();
-        $query = $entity->query()
-            ->select($entity->table)
-            ->where(["{$entity->table}.{$entity->primaryKey} = ?" => $key]);
-
-        $entity->getEventManager()->trigger(
-            'beforeSelect',
-            $entity,
-            [
-                'query' => &$query,
-                'id' => $key,
-                'action' => 'get'
-            ]
-        );
-
-        $row = $query->first();
-
-        if ($row) {
-            $object = new $className($row);
-            $row = $object->remainingData;
-            $entity->getEventManager()->trigger(
-                'afterSelect',
-                $object,
+        Manager::getInstance()->get($entity)->refreshRelations();
+        $className = $entity->getClassName();
+        $sql = Sql::createSql($entity->getAdapter())
+            ->select($entity->getTableName())
+            ->where(
                 [
-                    'data' => &$row,
-                    'entity' => &$object,
-                    'action' => 'get'
+                    "{$entity->getTableName()}.{$entity->_primaryKey} = :id" =>
+                        [
+                            ':id' => $id
+                        ]
                 ]
             );
+        $events = $entity->getEventManager();
+        $event = new Select([
+            'sqlQuery' => $sql,
+            'params' => compact('id'),
+            'action' => Select::GET,
+            'singleItem' => true
+        ]);
+        $events->trigger(Select::BEFORE_SELECT, $entity, $event);
+        $row = $event->sqlQuery->first();
+
+        if ($row) {
+            $event->data = $row;
+            $events->trigger(Select::AFTER_SELECT, $entity, $event);
+            $object = new $className($event->data);
             return $object;
         }
         return null;
     }
 
     /**
-     * Queries the database to retrieve the total rows for provided conditions
+     * Starts a select query on this model. Fields can be specified otherwise
+     * all fields are selected
      *
-     * The options are:
+     * @param string|array $fields The list of fields to be selected.
      *
-     *  - conditions: an array of conditions to filter out records;
-     *
-     * @param array $options Options to filter out the records
-     *
-     * @return integer The total rows for current conditions
+     * @return \Slick\Orm\Sql\Select
      */
-    public static function count(array $options = array())
+    public static function find($fields = '*')
     {
-        /** @var Entity $entity */
         $entity = new static();
+<<<<<<< HEAD
         $options = array_merge($entity->_options, $options);
 
         $rows = $entity->query()
@@ -129,400 +132,221 @@ class Entity extends AbstractEntity
         );
 
         return $rows->count();
+=======
+        if ($fields == '*') {
+            $fields = $entity->getTableName() .'.*';
+        }
+        Entity\Manager::getInstance()->get($entity)->refreshRelations();
+        $select = new \Slick\Orm\Sql\Select($entity, $fields);
+        return $select;
+>>>>>>> release/v1.1.0
     }
 
     /**
-     * Queries the database to retrieves all records that satisfies the
-     * conditions and limitations provided by $options.
+     * Saves the entity data or the provided data
      *
-     * The options are:
+     * If no data is provided the save action will check all properties
+     * marked with @column annotation and crates a key/value pair array
+     * with those properties and its values. If the data is provided only
+     * the values in that associative array will be used except that if
+     * you don't set the primary key value and the entity has this property
+     * set it will be added to the data being saved.
+     * If data being saved has the primary key with value (by setting this
+     * property or entering the key/value in data) an update will be performed
+     * on database. In the opposite an insert will be done.
      *
-     *  - conditions: an array of conditions to filter out records;
-     *  - fields: an array with field names to retrieve;
-     *  - order: an array or string with order clauses;
-     *  - limit: the number of records to select;
-     *  - page: the starting page for selected records;
+     * @param array $data
      *
-     * @param array $options Options to filter out the records
-     *
-     * @return RecordList A record list
+     * @return bool True if data was saved, false otherwise
      */
-    public static function all(array $options = array())
+    public function save(array $data = [])
     {
-        /** @var Entity $entity */
-        $entity = new static();
-        $className = get_called_class();
-        $options = array_merge($entity->_options, $options);
-
-        $rows = $entity->query()
-            ->select($entity->table, $options['fields'])
-            ->where($options['conditions']);
-
-        if (!is_null($options['order'])) {
-            $rows->orderBy($options['order']);
+        Manager::getInstance()->get($this)->refreshRelations();
+        $action = Save::INSERT;
+        $pmk = $this->primaryKey;
+        if ($this->$pmk || isset($data[$pmk])) {
+            $action = Save::UPDATE;
         }
 
-        if (!is_null($options['limit'])) {
-            $rows->limit($options['limit'], $options['page']);
+        if ($action == Save::UPDATE) {
+            return $this->_update($data);
         }
 
-
-        $entity->getEventManager()->trigger(
-            'beforeSelect',
-            $entity,
-            [
-                'query' => &$rows,
-                'action' => 'all'
-            ]
-        );
-
-        $rows = $rows->all();
-        $result = new RecordList();
-
-        if ($rows && is_a($rows, '\ArrayObject')) {
-            foreach ($rows as &$row) {
-                $object = new $className($row);
-                $row = $object->remainingData;
-                $result->append($object);
-            }
-        }
-
-        $entity->getEventManager()->trigger(
-            'afterSelect',
-            $entity,
-            [
-                'data' => &$rows,
-                'entity' => &$result,
-                'action' => 'all'
-            ]
-        );
-
-        return $result;
+        return $this->_insert($data);
     }
 
     /**
-     * Queries the database to retrieve the first record that satisfies the
-     * conditions and limitations provided by $options.
+     * Deletes current record from
      *
-     * The options are:
-     *
-     *  - conditions: an array of conditions to filter out records;
-     *  - files: an array with field names to retrieve;
-     *  - order: an array or string with order clauses;
-     *
-     * @param array $options Options to filter out the records
-     *
-     * @return Entity An entity object
-     */
-    public static function first(array $options = array())
-    {
-        /** @var Entity $entity */
-        $entity = new static();
-        $className = get_called_class();
-        $options = array_merge($entity->_options, $options);
-
-        $row = $entity->query()
-            ->select($entity->table, $options['fields'])
-            ->where($options['conditions']);
-
-        if (!is_null($options['order'])) {
-            $row->orderBy($options['order']);
-        }
-
-        $entity->getEventManager()->trigger(
-            'beforeSelect',
-            $entity,
-            [
-                'query' => &$row,
-                'action' => 'first'
-            ]
-        );
-
-        $row = $row->first();
-
-        if ($row) {
-            $object = new $className($row);
-            $row = $object->remainingData;
-            $entity->getEventManager()->trigger(
-                'afterSelect',
-                $object,
-                [
-                    'data' => &$row,
-                    'entity' => &$object,
-                    'action' => 'first'
-                ]
-            );
-            return $object;
-        }
-        return null;
-    }
-
-    /**
-     * Saves current record data
-     *
-     * This method will figure out if the save operation is an insert
-     * or an update based on the value of the primary key field. If
-     * the primary key field is null it will insert and create a new
-     * record, if the field isn't null an update will be performed
-     * in the record that have that primary key value.
-     * If $data param is provided only the keys in that array that
-     * match the fields of this table will be updated. If no primary
-     * key is used it will figure out from object primary key value
-     * if the save operations is an insert or an update.
-     *
-     * @param array $data A key/value pair of values to be save.
-     *
-     * @return boolean True if record was successfully saved, false otherwise
-     */
-    public function save(array $data = array())
-    {
-        $pmKey = $this->primaryKey;
-        $abort = false;
-        $result = false;
-        $action = 'insert';
-        if ($this->$pmKey || isset($data[$pmKey])) {
-            $action = 'update';
-        }
-        $this->getEventManager()->trigger(
-            'beforeSave',
-            $this,
-            array(
-                'data' => &$data,
-                'abort' => &$abort,
-                'action' => $action
-            )
-        );
-
-        if (!$abort) {
-            if ($action == 'update') {
-                $result = $this->_update($data);
-                $this->getEventManager()->trigger(
-                    'afterSave',
-                    $this,
-                    array(
-                        'data' => &$data,
-                        'action' => $action
-                    )
-                );
-            } else {
-                $result = $this->_insert($data);
-                $this->getEventManager()->trigger(
-                    'afterSave',
-                    $this,
-                    array(
-                        'data' => &$data,
-                        'action' => $action
-                    )
-                );
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Deletes current record from database
-     *
-     * @throws Exception\PrimaryKeyException if primary key is unset or invalid
-     *
-     * @return boolean True if record was successfully deleted, false otherwise
+     * @return bool
      */
     public function delete()
     {
-        $pmKey = $this->primaryKey;
-        $hasPk = $this->getColumns()->hasPrimaryKey();
+        Manager::getInstance()->get($this)->refreshRelations();
+        $pmk = $this->getPrimaryKey();
+        $sql = Sql::createSql($this->getAdapter())
+            ->delete($this->getTableName())
+            ->where(["{$pmk} = :id" => [':id' => $this->$pmk]]);
+        $event = new Delete([
+            'primaryKey' => $this->$pmk,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Delete::BEFORE_DELETE, $this, $event);
 
-        if (!($hasPk && $this->$pmKey)) {
-            throw new Exception\PrimaryKeyException(
-                "{$this->alias} entity does not have a primary key defined. " .
-                "Primary key is null or unset."
-            );
+        if ($event->abort) {
+            return false;
         }
-
-        $abort = false;
-        $result = false;
-        $this->getEventManager()->trigger(
-            'beforeDelete',
-            $this,
-            array(
-                'abort' => &$abort
-            )
-        );
-
-        if (!$abort) {
-            $result =  $this->query()
-                ->delete($this->table)
-                ->where(["{$pmKey} = ?" => $this->$pmKey])
-                ->execute();
-
-            $this->getEventManager()->trigger(
-                'afterDelete',
-                $this,
-                array()
-            );
-        }
-        return $result;
+        $result = $sql->execute();
+        $this->getEventManager()->trigger(Delete::AFTER_DELETE, $event);
+        return $result > 0;
     }
 
     /**
-     * Loads the data from database for current object pk value
+     * Inserts a new record in the database
      *
-     * @throws Exception\PrimaryKeyException if primary key is unset or invalid
-     *
-     * @return Entity A self instance for method chain calls
+     * @param array $data
+     * @return bool
      */
-    public function load()
+    protected function _insert(array $data)
     {
-        $pmKey = $this->primaryKey;
-        $hasPk = $this->getColumns()->hasPrimaryKey();
+        $data = $this->_setData($data);
+        $sql = Sql::createSql($this->getAdapter())->insert($this->getTableName());
+        $event = new Save([
+            'action' => Save::INSERT,
+            'data' => $data,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Save::BEFORE_SAVE, $this, $event);
+        if ($event->abort) {
+            return false;
+        }
+        $result = $sql->set($event->data)->execute();
 
-        if (!($hasPk && $this->$pmKey)) {
-            throw new Exception\PrimaryKeyException(
-                "{$this->alias} entity does not have a primary key defined. " .
-                "Primary key is null or unset."
-            );
+        if ($result > 0) {
+            $pmk = $this->getPrimaryKey();
+            $this->$pmk = $this->getAdapter()->getLastInsertId();
+            $this->getEventManager()->trigger(Save::AFTER_SAVE, $this, $event);
+        }
+        return $result > 0;
+    }
+
+    /**
+     * Updated current entity or data
+     *
+     * @param array $data
+     * @return bool
+     */
+    protected function _update(array $data)
+    {
+        $data = $this->_setData($data);
+        $pmk = $this->getPrimaryKey();
+        unset($data[$pmk]);
+        $sql = Sql::createSql($this->getAdapter())->update($this->getTableName());
+        $event = new Save([
+            'action' => Save::UPDATE,
+            'data' => $data,
+            'abort' => false
+        ]);
+        $this->getEventManager()->trigger(Save::BEFORE_SAVE, $this, $event);
+        if ($event->abort) {
+            return false;
+        }
+        $sql->set($event->data)
+            ->where(["{$pmk} = :id" => [':id' => $this->$pmk]])
+            ->execute();
+        $this->getEventManager()->trigger(Save::AFTER_SAVE, $this, $event);
+        return true;
+    }
+
+    /**
+     * Sets the data to be saved
+     *
+     * @param array $data
+     * @return array
+     */
+    protected function _setData(array $data)
+    {
+        $pmk = $this->getPrimaryKey();
+        if (!empty($data)) {
+            if (!isset($data[$pmk]) && !is_null($this->$pmk)) {
+                $data[$pmk] = $this->$pmk;
+            }
+            return $data;
+        }
+        $columns = Manager::getInstance()->get($this)->getColumns();
+        foreach (array_keys($columns) as $property) {
+            $key = trim($property, '_');
+            if ($key == $pmk && !$this->$pmk) {
+                continue;
+            }
+            $data[$key] = $this->$property;
         }
 
-        $query = $this->query()
-            ->select($this->table)
-            ->where(["{$this->table}.{$this->primaryKey} = ?" => $this->$pmKey]);
+        return $data;
+    }
 
-
-        $this->getEventManager()->trigger(
-            'beforeSelect',
-            $this,
-            [
-                'query' => &$query,
-                'action' => 'load'
-            ]
-        );
-
-        $row = $query->first();
-
-        if ($row) {
-            $this->_hydrate($row);
-            $row = $this->remainingData;
-            $this->getEventManager()->trigger(
-                'afterSelect',
-                $this,
-                [
-                    'data' => &$row,
-                    'entity' => &$this,
-                    'action' => 'load'
-                ]
-            );
+    /**
+     * Recursively returns this entity as an array. Used in json and
+     * serialization processes.
+     *
+     * @return array
+     */
+    public function asArray()
+    {
+        $data = [];
+        $columns = Manager::getInstance()->get($this)->getColumns();
+        foreach(array_keys($columns) as $field) {
+            $data[trim($field, '_')] = $this->$field;
         }
+        $relations = Manager::getInstance()->get($this)->getRelations();
+        foreach(array_keys($relations) as $field) {
+            if ($this->$field instanceof Entity) {
+                $data[trim($field, '_')] = $this->$field->asArray();
+            } elseif ($this->$field instanceof RecordList) {
+                $values = [];
+                foreach ($this->$field as $entity) {
+                    $values[] = $entity->asArray();
+                }
+                $data[trim($field, '_')] = $values;
+            } else {
+                $data[trim($field, '_')] = $this->$field;
+            }
+        }
+        return $data;
 
+    }
+
+    /**
+     * Serializes this entity
+     *
+     * @return string
+     */
+    public function serialize()
+    {
+        $data = $this->asArray();
+        $serialize = serialize($data);
+        return $serialize;
+    }
+
+    /**
+     * Unserialize callback handle
+     *
+     * @param string $data
+     * @return self
+     */
+    public function unserialize($data)
+    {
+        $this->_createObject(unserialize($data));
         return $this;
     }
 
     /**
-     * Insert current or provided data to this entity
-     * @param array $data
-     * @return bool
+     * Returns this entity in JSON format
+     *
+     * @return string
      */
-    protected function _insert(array $data = [])
+    public function asJason()
     {
-        $query = $this->query()
-            ->insert($this->getTable());
-
-        if (empty($data)) {
-            $columns = $this->getColumns();
-            $data = [];
-            /** @var Column $col */
-            foreach ($columns as $col) {
-                $prop = $col->raw;
-                if ($col->primaryKey && empty($this->$prop)) {
-                    continue;
-                }
-                $data[$col->name] = $this->$prop;
-            }
-
-            //$this->_saveRelations($data);
-        }
-
-        $this->getEventManager()->trigger(
-            'prepareForInsert',
-            $this,
-            [
-                'query' => &$query,
-                'data' => &$data,
-                'raw' => $this->_raw
-            ]
-        );
-
-        $query->set($data);
-        $result =  $query->save();
-
-        $this->getEventManager()->trigger(
-            'afterInsert',
-            $this,
-            [
-                'result' => $result,
-                'data' => &$data,
-                'raw' => $this->_raw
-            ]
-        );
-
-        return $result;
+        return json_encode($this->asArray());
     }
-
-    /**
-     * Updated current or provided data on this entity
-     * @param array $data
-     * @return bool
-     */
-    protected function _update(array $data = [])
-    {
-        $pmKey = $this->primaryKey;
-        $pmkValue = $this->$pmKey;
-
-        if (isset($data[$pmKey])) {
-            $pmkValue = $data[$pmKey];
-            unset($data[$pmKey]);
-        }
-
-        $query = $this->query()
-            ->update($this->getTable())
-            ->where(["{$pmKey} = :id" => [':id' => $pmkValue]]);
-
-        if (empty($data)) {
-            $columns = $this->getColumns();
-            $data = [];
-            /** @var Column $col */
-            foreach ($columns as $col) {
-                if ($col->name == $pmKey) {
-                    continue;
-                }
-                $prop = $col->raw;
-                $data[$col->name] = $this->$prop;
-            }
-        }
-
-        $this->getEventManager()->trigger(
-            'prepareForUpdate',
-            $this,
-            [
-                'query' => &$query,
-                'data' => &$data,
-                'raw' => $this->_raw
-            ]
-        );
-        $query->set($data);
-        $result =  $query->save();
-
-        $this->getEventManager()->trigger(
-            'afterUpdate',
-            $this,
-            [
-                'result' => $result,
-                'data' => &$data,
-                'raw' => $this->_raw
-            ]
-        );
-
-        return $result;
-    }
-
-
 }

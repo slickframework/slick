@@ -3,215 +3,204 @@
 /**
  * Form
  *
- * @package   Slick\Mvc\Scaffold
+ * @package   Slick\Mvc\Router
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc\Scaffold;
 
-use Slick\Common\Inspector\TagList,
-    Slick\Form\Form as SlickFrom,
-    Slick\Form\Element,
-    Slick\Orm\Entity\Column,
-    Slick\Mvc\Model,
-    Slick\Validator\StaticValidator,
-    Slick\Filter\StaticFilter;
+use Slick\Common\Inspector;
+use Slick\Form\Element;
+use Slick\Form\Element\Submit;
+use Slick\Form\Factory;
+use Slick\Orm\Relation\HasMany;
+use Slick\Orm\Relation\HasOne;
+use Slick\Mvc\Model\Descriptor;
+use Slick\Orm\Annotation\Column;
+use Slick\Orm\RelationInterface;
+use Slick\Form\Form as SlickFrom;
+use Slick\Orm\Relation\HasAndBelongsToMany;
 
 /**
  * Form
  *
- * @package   Slick\Mvc\Scaffold
+ * @package   Slick\Mvc\Router
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  */
 class Form extends SlickFrom
 {
 
     /**
-     * @readwrite
-     * @var Model
+     * @read
+     * @var Descriptor
      */
-    protected $_model;
+    protected $_descriptor;
 
-    protected $_validations = [
+    /**
+     * @var Column[]
+     */
+    private $_columns = [];
+
+    /**
+     * @var RelationInterface[]
+     */
+    private $_relations = [];
+
+    /**
+     * @var array
+     */
+    private $_properties = [];
+
+    /**
+     * @var Inspector
+     */
+    private $_inspector;
+
+    /**
+     * @var array
+     */
+    private $_validations = [
         'notEmpty', 'email', 'url', 'number', 'alphaNumeric'
+    ];
+
+    /**
+     * @var array
+     */
+    private $_filters = [
+        'text', 'htmlEntities', 'number', 'url'
     ];
 
     /**
      * Add elements to the form based on the model notations
      *
      * @param string $name
-     * @param array $options
+     * @param Descriptor $descriptor
      */
-    public function __construct($name, $options = array())
+    public function __construct($name, Descriptor $descriptor)
     {
-        parent::__construct($name, $options);
-        $propertyList = $this->getModel()->modelData->getPropertyList();
-        foreach($propertyList as $propertyName => $property) {
-            $element = $this->_createElement($propertyName, $property);
+        $this->_descriptor = $descriptor;
+        $this->_columns = $this->_descriptor->getColumns();
+        $this->_relations = $this->_descriptor->getRelations();
+        $this->_inspector = new Inspector(
+            $this->_descriptor->getDescriptor()->getEntity()
+        );
+        $this->_properties = $this->_inspector->getClassProperties();
+        parent::__construct($name);
+    }
+
+    /**
+     * Callback for form setup
+     */
+    protected function _setup()
+    {
+        foreach ($this->_properties as $property) {
+            $element = $this->_createElement($property);
             if ($element) {
-                $this->add($element);
+                $this->addElement($element['name'], $element);
             }
         }
         $this->add(
-            new Element\Submit(
+            new Submit(
                 ['value' => 'Save']
             )
         );
     }
 
     /**
-     * Lazy loads the model object
-     *
-     * @return Model
+     * Returns
+     * @param Element $element
+     * @return int|string
      */
-    public function getModel()
+    public function getType(Element $element)
     {
-        if (is_string($this->_model)) {
-            $class = $this->_model;
-            $this->_model = new $class;
+        foreach (Factory::getElementAlias() as $type => $name) {
+            if ($name == get_class($element)) {
+                return $type;
+            }
         }
-        return $this->_model;
+        return 'hidden';
     }
 
-    /**
-     * Creates an element based on the notations of a property
-     *
-     * @param string $name
-     * @param TagList $property
-     *
-     * @return false|Element
-     */
-    protected function _createElement($name, TagList $property)
+    protected function _createElement($property)
     {
-        if ($property->hasTag('@belongsto')) {
-            $element = $this->_createFromRelation($name);
-        } else {
-            $element = $this->_createFromColumn($name, $property);
+        if (isset($this->_columns[$property])) {
+            return $this->_createFromColumn(
+                $property,
+                $this->_columns[$property]
+            );
         }
-
-        if ($property->hasTag('@validate')) {
-            $validations = [];
-            $tag = $property->getTag('@validate');
-            $validations[] = $tag->value;
-
-            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-                $validations = $tag->value->getArrayCopy();
-            }
-
-            foreach ($validations as $validation)
-            {
-                if (in_array($validation, $this->_validations)) {
-                    $element->getInput()->getValidatorChain()
-                        ->add(StaticValidator::create($validation));
-                }
-
-                if ($validation == 'notEmpty') {
-                    $element->getInput()->required = true;
-                    $element->getInput()->allowEmpty = false;
-                }
-            }
+        if (isset($this->_relations[$property])) {
+            return $this->_createFromRelation(
+                $property,
+                $this->_relations[$property]
+            );
         }
-
-        if ($property->hasTag('@filter')) {
-            $filters = [];
-            $tag = $property->getTag('@filter');
-            $filters[] = $tag->value;
-
-            if (is_a($tag->value, 'Slick\Common\Inspector\TagValues')) {
-                $filters = $tag->value->getArrayCopy();
-            }
-
-            foreach ($filters as $filter){
-                $element->getInput()->getFilterChain()
-                    ->add(StaticFilter::create($filter));
-            }
-        }
-
-
-        return $element;
+        return false;
     }
 
-    /**
-     * Creates a form element from column object
-     * @param string  $name
-     * @param TagList $property
-     *
-     * @return Element
-     */
-    protected function _createFromColumn($name, TagList $property)
+    protected function _createFromColumn($property, Column $column)
     {
-        $column = Column::parse($property, $name);
-
-        // Define types
-        $type = 'text';
-        if ($column->primaryKey) {
-            $type = 'hidden';
+        $name = trim($property, '_');
+        $options = [
+            'name' => $name,
+            'label' => ucfirst($name),
+            'type' => 'text'
+        ];
+        $this->_addValidateOptions($property, $options);
+        if ($column->getParameter('primaryKey')) {
+            $options['type'] = 'hidden';
         }
-
-        if ($column->type == "datetime") {
-            $type = 'datetime';
+        if ($column->getParameter('size') == 'big') {
+            $options['type'] = 'area';
         }
-
-        return $this->_element($type, $column->name);
+        if ($column->getParameter('type') == 'boolean') {
+            $options['type'] = 'checkbox';
+        }
+        if ($column->getParameter('type') == 'datetime') {
+            $options['type'] = 'dateTime';
+        }
+        return $options;
     }
 
-    /**
-     * Factory method for elements
-     *
-     * @param string $type
-     * @param string $name
-     *
-     * @return Element
-     */
-    protected function _element($type, $name)
+    protected function _createFromRelation(
+        $property, RelationInterface $relation)
     {
-        switch ($type) {
-            case 'hidden':
-                $class = 'Slick\Form\Element\Hidden';
-                break;
-
-            case 'datetime':
-                $class = 'Slick\Form\Element\DateTime';
-                break;
-
-            case 'select':
-                $class = 'Slick\Form\Element\Select';
-                break;
-
-            case 'text':
-            default:
-                $class = 'Slick\Form\Element\Text';
+        if (($relation instanceof HasOne) || ($relation instanceof HasMany)) {
+            return false;
         }
-
-        return new $class(
-            [
-                'name' => $name,
-                'label' => ucfirst($name)
-            ]
+        $name = trim($property, '_');
+        $options = [
+            'name' => $name,
+            'label' => ucfirst($name),
+            'type' => 'select'
+        ];
+        if ($relation instanceof HasAndBelongsToMany) {
+            $options['type'] = 'selectMultiple';
+        }
+        $this->_addValidateOptions($property, $options);
+        $optionsList = call_user_func(
+            [$relation->getRelatedEntity(), 'getList']
         );
+        $options['options'] = $optionsList;
+
+        return $options;
     }
 
-    /**
-     * Create form element from relation
-     *
-     * @param string $name
-     *
-     * @return Element
-     */
-    protected function _createFromRelation($name)
+    protected function _addValidateOptions($property, array &$options)
     {
-        $relation = $this->getModel()->getRelationsManager()
-            ->getRelation($name);
-
-        /** @var Element\Select $element */
-        $element = $this->_element('select', trim($name, '_'));
-        $modelClass = get_class($relation->getRelated());
-        $element->options = call_user_func([$modelClass, 'getList']);
-        return $element;
-
+        $metaData = $this->_inspector->getPropertyAnnotations($property);
+        if ($metaData->hasAnnotation('@validate')) {
+            /** @var Inspector\Annotation $annotation */
+            $annotation = $metaData->getAnnotation('@validate');
+            $validators = $annotation->allValues();
+            foreach ($validators as $validator) {
+                if (in_array($validator, $this->_validations)) {
+                    $options['validate'][] = $validator;
+                }
+            }
+        }
     }
-
-} 
+}

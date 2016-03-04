@@ -1,73 +1,67 @@
 <?php
 
 /**
- * View
+ * MVC View
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  * @copyright 2014 Filipe Silva
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @since     Version 1.0.0
+ * @since     Version 1.1.0
  */
 
 namespace Slick\Mvc;
 
-use Slick\Common\Base,
-    Slick\Template\Template,
-    Slick\Mvc\View\Exception,
-    Slick\Common\EventManagerMethods;
-use Zend\EventManager\EventManagerAwareInterface;
-
+use Slick\Common\Base;
+use Slick\Template\Template;
+use Slick\Template\EngineInterface;
 
 /**
- * View
+ * MVC View
  *
  * @package   Slick\Mvc
  * @author    Filipe Silva <silvam.filipe@gmail.com>
  *
- * @property string $file
- * @property \Slick\Template\Engine\Twig template
+ * @property string $file Template file to use
+ * @property array $engineOptions Template engine construct options
+ *
+ * @property-read EngineInterface $engine  The template engine that
+ * will render the view
+ * @property-read array $data The data that will populate the template
+ *
+ * @method array getEngineOptions() Returns current engine construct options
+ * @method string getFile() Returns current template file
+ * @method array getData() Returns key/value pair array with template data
+ * @method string setFile(string $file) Sets template file
  */
-class View extends Base implements EventManagerAwareInterface
+class View extends Base
 {
+
     /**
-     * Template file to use
      * @readwrite
      * @var string
      */
     protected $_file;
 
     /**
-     * The template engine that will render the view.
      * @read
-     * @var \Slick\Template\EngineInterface
+     * @var EngineInterface
      */
-    protected $_template;
+    protected $_engine;
 
     /**
-     * The data that will populate the template.
      * @read
      * @var array
      */
-    protected $_data = array();
+    protected $_data = [];
 
     /**
-     * Implementation of EventManagerAwareInterface interface
+     * @readwrite
+     * @var array
      */
-    use EventManagerMethods;
-
-    /**
-     * Overrides the constructor to set the template engine.
-     *
-     * @param array|Object $options The properties for the object
-     *  being constructed.
-     */
-    public function __construct($options = array())
-    {
-        parent::__construct($options);
-        $template = new Template(['engine' => 'twig']);
-        $this->_template = $template->initialize();
-    }
+    protected $_engineOptions = [
+        'engine' => 'twig'
+    ];
 
     /**
      * Renders this view.
@@ -76,17 +70,36 @@ class View extends Base implements EventManagerAwareInterface
      */
     public function render()
     {
-        $this->getEventManager()->trigger('viewBeforeRender', $this);
-        $this->_template->parse($this->file);
-        $output = $this->_template->process($this->_data);
-        $this->getEventManager()->trigger(
-            'viewAfterRender',
-            $this,
-            [
-                'output' => &$output
-            ]
-        );
+        $this->engine->parse($this->file);
+        $output = $this->engine->process($this->data);
         return $output;
+    }
+
+    /**
+     * Set engine construct options. The engine is reset.
+     *
+     * @param array $options
+     * @return self
+     */
+    public function setEngineOptions(array $options)
+    {
+        $this->_engine = null;
+        $this->_engineOptions = $options;
+        return $this;
+    }
+
+    /**
+     * Returns the template engine for this view
+     *
+     * @return EngineInterface
+     */
+    public function getEngine()
+    {
+        if (is_null($this->_engine)) {
+            $template = new Template($this->engineOptions);
+            $this->_engine = $template->initialize();
+        }
+        return $this->_engine;
     }
 
     /**
@@ -109,7 +122,7 @@ class View extends Base implements EventManagerAwareInterface
      * Sets a value or an array of values to the data that will be rendered.
      *
      * @param string|array $key   The key used to set the data value. If an
-     *  array is given it will iterate thru all the elements and set the
+     *  array is given it will iterate through all the elements and set the
      *  values of the array.
      * @param mixed        $value The value to add to set.
      *
@@ -145,15 +158,15 @@ class View extends Base implements EventManagerAwareInterface
      *
      * @param string $key The key used to set the data value.
      * @param mixed $value The value to set.
-     * @throws View\Exception\InvalidDataKeyException
+     * @throws Exception\InvalidArgumentException
      */
     protected function _set($key, $value)
     {
         if (!is_string($key)) {
-            throw new Exception\InvalidDataKeyException(
-                "Key must be a string or a number"
+            throw new Exception\InvalidArgumentException(
+                "Key must be a string or a number: '$key' given"
             );
         }
         $this->_data[$key] = $value;
     }
-} 
+}

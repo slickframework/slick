@@ -1,0 +1,105 @@
+<div class="hidden-xs hidden-sm">
+    {% if pagination %}
+        {% if (pagination.getPages <= 10) %}
+            <ul class="pagination">
+                {% if pagination.getPages > 1 %}
+                    {% if pagination.getCurrent == 1 %}
+                        <li class="disabled"><a href="#">&laquo;</a></li>
+                    {% else %}
+                        <li><a href="{{ pagination.pageUrl('1') }}">&laquo;</a></li>
+                    {% endif %}
+                    {% for page in range(1, pagination.getPages) %}
+                        {% if page == pagination.getCurrent %}
+                            <li class="active "><span>{{ page }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li class=""><a href="{{ pagination.pageUrl(page) }}">{{ page }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if pagination.getCurrent == pagination.getPages %}
+                        <li class="disabled"><a href="#">&raquo;</a></li>
+                    {% else %}
+                        <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% else %}
+            <ul class="pagination">
+                {% if (pagination.current < 6) %}
+                    {% if pagination.getCurrent == 1 %}
+                        <li class="disabled"><a href="#">&laquo;</a></li>
+                    {% else %}
+                        <li><a href="{{ pagination.pageUrl('1') }}">&laquo;</a></li>
+                    {% endif %}
+                    {% for i in range(1, 7) %}
+                        {% if i == pagination.getCurrent %}
+                            <li class="active "><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="disabled "><a href="#">...</a></li>
+                    {% for i in range((pagination.pages - 2), pagination.pages) %}
+                        <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
+                {% elseif (pagination.current > (pagination.pages - 6)) %}
+                    <li><a href="{{ pagination.pageUrl('1') }}">&laquo;</a></li>
+                    {% for i in range(1, 3) %}
+                        <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                    {% endfor %}
+                    <li class="disabled "><a href="#">...</a></li>
+                    {% for i in range(pagination.pages - 6, pagination.pages) %}
+                        {% if i == pagination.getCurrent %}
+                            <li class="active "><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if pagination.getCurrent == pagination.getPages %}
+                        <li class="disabled"><a href="#">&raquo;</a></li>
+                    {% else %}
+                        <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="{{ pagination.pageUrl('1') }}">&laquo;</a></li>
+                    {% for i in range(1, 3) %}
+                        <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                    {% endfor %}
+                    <li class="disabled "><a href="#">...</a></li>
+                    {% for i in range(pagination.current - 1, pagination.current + 2) %}
+                        {% if i == pagination.getCurrent %}
+                            <li class="active "><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="disabled "><a href="#">...</a></li>
+                    {% for i in range(pagination.pages - 2, pagination.pages) %}
+                        <li class=""><a href="{{ pagination.pageUrl(i) }}">{{ i }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ pagination.pageUrl(pagination.getPages) }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% else %}
+        &nbsp;
+    {% endif %}
+</div>
+<div class="hidden-lg hidden-md">
+    {% if pagination and pagination.getPages > 1 %}
+        <ul class="pager">
+            {% if pagination.current > 1 %}
+            <li class="previous"><a href="{{ pagination.pageUrl(pagination.current - 1) }}">{{ translate('Previous') }}</a></li>
+            {% else %}
+            <li class="previous disabled"><a href="#">{{ translate('Previous') }}</a></li>
+            {% endif %}
+            {% if pagination.getCurrent >= pagination.getPages %}
+                <li class="next disabled"><a href="#">{{ translate('Next') }}</a></li>
+            {% else %}
+                <li class="next"><a href="{{ pagination.pageUrl(pagination.current + 1) }}">{{ translate('Next') }}</a></li>
+            {% endif %}
+        </ul>
+    {% else %}
+        &nbsp;
+    {% endif %}
+</div>
