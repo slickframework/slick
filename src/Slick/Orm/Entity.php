@@ -21,9 +21,7 @@ use Slick\Di\Definition;
 use Slick\Database\Adapter;
 use Slick\Orm\Events\Select;
 use Slick\Orm\Entity\Manager;
-use Slick\Di\ContainerInterface;
 use Slick\Orm\Entity\AbstractEntity;
-use Slick\Database\Adapter\AdapterInterface;
 
 /**
  * ORM Entity
@@ -114,32 +112,12 @@ class Entity extends AbstractEntity
     public static function find($fields = '*')
     {
         $entity = new static();
-<<<<<<< HEAD
-        $options = array_merge($entity->_options, $options);
-
-        $rows = $entity->query()
-            ->select($entity->table)
-            ->where($options['conditions']);
-
-
-        $entity->getEventManager()->trigger(
-            'beforeSelect',
-            $entity,
-            [
-                'query' => &$rows,
-                'action' => 'count'
-            ]
-        );
-
-        return $rows->count();
-=======
         if ($fields == '*') {
             $fields = $entity->getTableName() .'.*';
         }
         Entity\Manager::getInstance()->get($entity)->refreshRelations();
         $select = new \Slick\Orm\Sql\Select($entity, $fields);
         return $select;
->>>>>>> release/v1.1.0
     }
 
     /**
@@ -304,6 +282,7 @@ class Entity extends AbstractEntity
                 $data[trim($field, '_')] = $this->$field->asArray();
             } elseif ($this->$field instanceof RecordList) {
                 $values = [];
+                /** @var Entity $entity */
                 foreach ($this->$field as $entity) {
                     $values[] = $entity->asArray();
                 }
