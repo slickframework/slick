@@ -11,7 +11,7 @@
 			"email" : "silvam.filipe@gmail.com"
 		}
 	],
-	"version": "v1.1.0",
+	"version": "v1.1.1",
 	"require" : {
 		"monolog/monolog" : "~1.4",
         "twig/twig": "*",

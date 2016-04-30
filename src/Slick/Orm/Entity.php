@@ -21,9 +21,7 @@ use Slick\Di\Definition;
 use Slick\Database\Adapter;
 use Slick\Orm\Events\Select;
 use Slick\Orm\Entity\Manager;
-use Slick\Di\ContainerInterface;
 use Slick\Orm\Entity\AbstractEntity;
-use Slick\Database\Adapter\AdapterInterface;
 
 /**
  * ORM Entity
@@ -284,6 +282,7 @@ class Entity extends AbstractEntity
                 $data[trim($field, '_')] = $this->$field->asArray();
             } elseif ($this->$field instanceof RecordList) {
                 $values = [];
+                /** @var Entity $entity */
                 foreach ($this->$field as $entity) {
                     $values[] = $entity->asArray();
                 }
