@@ -32,7 +32,7 @@ class VersionTest extends \Codeception\TestCase\Test
     {
         $this->assertTrue(Version::isLatest());
         $this->assertEquals('-1', Version::compare("0.2.2"));
-        $this->assertEquals('0', Version::compare("1.1.0-DEV"));
+        $this->assertEquals('0', Version::compare("1.1.1"));
         $this->assertEquals('1', Version::compare("100.2.2"));
     }
 }
