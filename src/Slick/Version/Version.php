@@ -24,7 +24,7 @@ final class Version
      * @var string Slick Framework version identification
      * @see \Slick\Version::compare()
      */
-    const VERSION = '1.1.1';
+    const VERSION = '1.1.2';
 
     /**
      * @var string The latest stable version available

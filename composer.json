@@ -11,15 +11,15 @@
 			"email" : "silvam.filipe@gmail.com"
 		}
 	],
-	"version": "v1.1.1",
+	"version": "v1.1.2",
 	"require" : {
 		"monolog/monolog" : "~1.4",
         "twig/twig": "*",
-        "zendframework/zend-eventmanager": "2.2.5",
-        "zendframework/zend-uri" : "2.2.5",
-        "zendframework/zend-http": "2.2.5",
-        "zendframework/zend-i18n": "2.2.5",
-        "zendframework/zend-servicemanager": "2.2.5",
+        "zendframework/zend-eventmanager": "^2.5",
+        "zendframework/zend-uri" : "^2.5",
+        "zendframework/zend-http": "^2.5",
+        "zendframework/zend-i18n": "^2.5",
+        "zendframework/zend-servicemanager": "^2.5",
         "symfony/console": "^2.3",
         "myclabs/php-enum": "1.*",
         "altorouter/altorouter": "1.0",
