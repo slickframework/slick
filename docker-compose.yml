@@ -1,0 +1,7 @@
+version: "2"
+
+services:
+  php:
+    image: slickframework/php:5.5
+    volumes:
+      - ./:/var/www/html
