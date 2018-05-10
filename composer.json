@@ -24,7 +24,7 @@
         "myclabs/php-enum": "1.*",
         "altorouter/altorouter": "1.0",
         "psr/log": "*",
-        "filp/whoops": "~1.0"
+        "filp/whoops": "^1.1"
 	},
     "require-dev": {
         "codeception/codeception": "^1.8",
